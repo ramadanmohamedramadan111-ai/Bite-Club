@@ -1,0 +1,70 @@
+services:
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      - api
+      - dashboard
+      - web
+      - ai
+    networks:
+      - app_net
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    volumes:
+      - ./apps/backend/api:/var/www/api
+    networks:
+      - app_net
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: secret
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - app_net
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dashboard
+    volumes:
+      - ./apps/frontend/dashboard:/app
+    networks:
+      - app_net
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.web
+    volumes:
+      - ./apps/frontend/web:/app
+    networks:
+      - app_net
+
+  ai:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.ai
+    volumes:
+      - ./apps/ai:/app
+    networks:
+      - app_net
+
+volumes:
+  db_data:
+
+networks:
+  app_net:
+    driver: bridge
