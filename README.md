@@ -52,12 +52,35 @@ Add this to `/etc/hosts`:
 
 ## First Time Setup
 
+If you are starting from scratch:
+
+```bash
+git clone <repo-url>
+cd Graduation-Project-ITI
+```
+
+If the repository is already cloned:
+
+```bash
+cd Graduation-Project-ITI
+```
+
+Install project dependencies:
+
+```bash
+docker compose run --rm api composer install
+docker compose run --rm dashboard npm install
+docker compose run --rm web npm install
+```
+
+Start the stack:
+
 ```bash
 docker compose build
-chmod +x scripts/init.sh
-./scripts/init.sh
 docker compose up -d
 ```
+
+`scripts/init.sh` is only for bootstrapping a brand-new empty scaffold.
 
 ## Daily Commands
 
