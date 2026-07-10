@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\Auth\AdminStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 
-class Admin extends Model
+class Admin extends Authenticatable implements JWTSubject
 {
     use HasFactory;
 
@@ -26,7 +28,28 @@ class Admin extends Model
     {
         return [
             'last_login_at' => 'datetime',
+            'status'        => AdminStatusEnum::class,
         ];
+    }
+
+    public function getJWTIdentifier(): mixed
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims(): array
+    {
+        return [];
+    }
+
+    public function getAuthPassword(): string
+    {
+        return $this->password_hash;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->status->isActive();
     }
 
     public function approvedRestaurants(): HasMany
