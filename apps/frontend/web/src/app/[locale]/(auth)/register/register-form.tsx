@@ -35,6 +35,7 @@ import { clientFetch } from '@/utils/client-fetch';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import VerifyForm from '@/components/auth/verify-form';
+import useNavigation from '@/hooks/useNavigation';
 
 export function RegisterForm({
   className,
@@ -79,6 +80,8 @@ export function RegisterForm({
       toast.success(t('success'));
     },
   });
+
+  const { navigate } = useNavigation();
 
   if (step === 2) {
     return <VerifyForm email={email} purpose="login" />;
@@ -282,6 +285,14 @@ export function RegisterForm({
                   {t('loginLink.text')}{' '}
                   <Link href="/login">{t('loginLink.linkText')}</Link>
                 </FieldDescription>
+
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="mt-2 w-full"
+                  onClick={() => navigate('/')}>
+                  Continue as guest
+                </Button>
               </Field>
             </FieldGroup>
           </form>

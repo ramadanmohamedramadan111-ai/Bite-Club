@@ -55,6 +55,19 @@ export function NavUser() {
     router.replace('/login');
   }
 
+  if (!isPending && (!data?.data?.user || error)) {
+    return (
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton size="lg" onClick={() => router.push('/login')}>
+            <User className="size-5" />
+            <span className="text-sm font-medium">Login</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    );
+  }
+
   return (
     <QueryBoundary isPending={isPending} error={error} refetch={refetch}>
       <SidebarMenu>

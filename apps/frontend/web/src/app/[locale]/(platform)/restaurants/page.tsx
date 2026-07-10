@@ -260,8 +260,7 @@ export default async function Page({ searchParams }: PageProps) {
       const pickupMatch = pickup !== 'true' || restaurant.pickup;
       const creditCardMatch = creditCard !== 'true' || restaurant.creditCard;
       const favoriteMatch = favorite !== 'true' || restaurant.isFavorite;
-      const availableMatch =
-        availableOnly !== 'true' || restaurant.isAvailable;
+      const availableMatch = availableOnly !== 'true' || restaurant.isAvailable;
 
       const searchMatch =
         !normalizedSearch ||
@@ -303,38 +302,51 @@ export default async function Page({ searchParams }: PageProps) {
 
       <div className="flex flex-col gap-8 lg:flex-row">
         <aside className="w-full shrink-0 lg:w-72">
-          <Suspense fallback={<div className="h-96 animate-pulse rounded-xl bg-muted" />}>
-            <RestaurantFiltersPanel
-              categories={categories}
-              values={{
-                selectedCategories,
-                minRating: minimumRating,
-                delivery: delivery === 'true',
-                pickup: pickup === 'true',
-                creditCard: creditCard === 'true',
-                favorite: favorite === 'true',
-                availableOnly: availableOnly === 'true',
-              }}
-            />
+          <Suspense
+            fallback={
+              <div className="h-96 animate-pulse rounded-xl bg-muted" />
+            }>
+            <div className="sticky top-20 flex flex-col gap-4">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-3">
+                  <Suspense
+                    fallback={
+                      <div className="h-8 w-48 animate-pulse rounded-lg bg-muted" />
+                    }>
+                    <div>Sort: </div>
+                    <SortSelect value={sortOption} />
+                  </Suspense>
+                </div>
+              </div>
+
+              <Suspense
+                fallback={
+                  <div className="h-9 max-w-md animate-pulse rounded-lg bg-muted" />
+                }>
+                <RestaurantSearch value={search} />
+              </Suspense>
+
+              <RestaurantFiltersPanel
+                categories={categories}
+                values={{
+                  selectedCategories,
+                  minRating: minimumRating,
+                  delivery: delivery === 'true',
+                  pickup: pickup === 'true',
+                  creditCard: creditCard === 'true',
+                  favorite: favorite === 'true',
+                  availableOnly: availableOnly === 'true',
+                }}
+              />
+            </div>
           </Suspense>
         </aside>
 
         <div className="min-w-0 flex-1">
-          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <Suspense fallback={<div className="h-9 max-w-md animate-pulse rounded-lg bg-muted" />}>
-              <RestaurantSearch value={search} />
-            </Suspense>
-
-            <div className="flex items-center gap-3">
-              <p className="text-sm text-muted-foreground">
-                {filteredRestaurants.length} restaurant
-                {filteredRestaurants.length === 1 ? '' : 's'}
-              </p>
-              <Suspense fallback={<div className="h-8 w-48 animate-pulse rounded-lg bg-muted" />}>
-                <SortSelect value={sortOption} />
-              </Suspense>
-            </div>
-          </div>
+          <p className="text-sm text-muted-foreground mb-4">
+            {filteredRestaurants.length} restaurant
+            {filteredRestaurants.length === 1 ? '' : 's'}
+          </p>
 
           {paginatedRestaurants.length > 0 ? (
             <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
@@ -366,3 +378,4 @@ export default async function Page({ searchParams }: PageProps) {
     </div>
   );
 }
+

@@ -35,7 +35,7 @@ export default function RestaurantFiltersPanel({ categories, values }: Props) {
     values.availableOnly;
 
   return (
-    <Card className="sticky top-20">
+    <Card className="">
       <CardHeader className="flex flex-row items-center justify-between gap-2">
         <CardTitle className="text-base">Filters</CardTitle>
         {hasActiveFilters && (
@@ -72,3 +72,4 @@ export default function RestaurantFiltersPanel({ categories, values }: Props) {
     </Card>
   );
 }
+

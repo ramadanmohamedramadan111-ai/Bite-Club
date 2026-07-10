@@ -145,6 +145,14 @@ export function LoginForm({
                   {t('registerLink.text')}{' '}
                   <Link href="/register">{t('registerLink.linkText')}</Link>
                 </FieldDescription>
+
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="mt-2 w-full"
+                  onClick={() => navigate('/')}>
+                  Continue as guest
+                </Button>
               </Field>
             </FieldGroup>
           </form>
