@@ -50,10 +50,6 @@ services:
     volumes:
       - ./apps/frontend/web:/app
       - /app/node_modules
-    environment:
-      WATCHPACK_POLLING: 'true'
-      CHOKIDAR_USEPOLLING: 'true'
-      NEXT_WEBPACK_USEPOLLING: 'true'
     networks:
       - app_net
 
