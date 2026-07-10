@@ -1,9 +1,8 @@
 services:
-
   nginx:
     image: nginx:alpine
     ports:
-      - "8080:80"
+      - '8080:80'
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
     depends_on:
@@ -50,6 +49,11 @@ services:
       dockerfile: docker/Dockerfile.web
     volumes:
       - ./apps/frontend/web:/app
+      - /app/node_modules
+    environment:
+      WATCHPACK_POLLING: 'true'
+      CHOKIDAR_USEPOLLING: 'true'
+      NEXT_WEBPACK_USEPOLLING: 'true'
     networks:
       - app_net
 
@@ -68,3 +72,4 @@ volumes:
 networks:
   app_net:
     driver: bridge
+

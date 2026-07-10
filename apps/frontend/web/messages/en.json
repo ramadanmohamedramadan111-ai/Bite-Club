@@ -1,0 +1,249 @@
+{
+  "greeting": "Hello",
+  "notFound": {
+    "title": "Sorry, we couldn't find the page you're looking for.",
+    "description": "The page may have been moved, deleted, or the URL might be incorrect.",
+    "backToHome": "Go Home",
+    "goBack": "Go Back"
+  },
+  "forms": {
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to your account",
+      "forgotPasswordLink": {
+        "text": "Forgot your password?",
+        "href": "/forget-password"
+      },
+      "fields": {
+        "email": {
+          "label": "Email",
+          "placeholder": "Enter your email",
+          "errors": {
+            "required": "Email is required",
+            "invalid": "Please enter a valid email address"
+          }
+        },
+        "password": {
+          "label": "Password",
+          "placeholder": "Enter your password",
+          "errors": {
+            "required": "Password is required",
+            "minLength": "Password must be at least 8 characters"
+          }
+        }
+      },
+      "submitButton": {
+        "text": "Login",
+        "loadingText": "Logging in..."
+      },
+      "registerLink": {
+        "text": "Don't have an account?",
+        "linkText": "Register",
+        "href": "/register"
+      },
+      "success": "Login successful! Redirecting...",
+      "verification": "Your account is not verified. Please check your email for the verification code.",
+      "error": "Invalid credentials, please try again."
+    },
+    "register": {
+      "title": "Create an account",
+      "subtitle": "Sign up to get started",
+      "fields": {
+        "firstName": {
+          "label": "First Name",
+          "placeholder": "Enter your first name",
+          "errors": {
+            "required": "First name is required",
+            "minLength": "First name must be at least 2 characters",
+            "maxLength": "First name must be at most 30 characters"
+          }
+        },
+        "lastName": {
+          "label": "Last Name",
+          "placeholder": "Enter your last name",
+          "errors": {
+            "required": "Last name is required",
+            "minLength": "Last name must be at least 2 characters",
+            "maxLength": "Last name must be at most 30 characters"
+          }
+        },
+        "username": {
+          "label": "Username",
+          "placeholder": "Enter a username",
+          "errors": {
+            "required": "Username is required",
+            "minLength": "Username must be at least 3 characters",
+            "maxLength": "Username must be at most 20 characters",
+            "invalid": "Username can only contain letters, numbers, and underscores"
+          }
+        },
+        "email": {
+          "label": "Email",
+          "placeholder": "Enter your email",
+          "errors": {
+            "required": "Email is required",
+            "invalid": "Please enter a valid email address"
+          }
+        },
+        "phoneNumber": {
+          "label": "Phone Number",
+          "placeholder": "Enter your phone number",
+          "errors": {
+            "required": "Phone number is required",
+            "invalid": "Please enter a valid phone number"
+          }
+        },
+        "password": {
+          "label": "Password",
+          "placeholder": "Enter your password",
+          "errors": {
+            "required": "Password is required",
+            "minLength": "Password must be at least 8 characters"
+          }
+        },
+        "confirmPassword": {
+          "label": "Confirm Password",
+          "placeholder": "Confirm your password",
+          "errors": {
+            "required": "Please confirm your password",
+            "mismatch": "Passwords do not match"
+          }
+        },
+        "gender": {
+          "label": "Choose your gender",
+          "placeholder": "Select your gender",
+          "options": {
+            "male": "Male",
+            "female": "Female"
+          },
+          "errors": {
+            "required": "Please select your gender"
+          }
+        },
+        "dateOfBirth": {
+          "label": "Date of Birth",
+          "placeholder": "Select your date of birth",
+          "errors": {
+            "required": "Date of birth is required"
+          }
+        }
+      },
+      "submitButton": {
+        "text": "Create Account",
+        "loadingText": "Creating Account..."
+      },
+      "loginLink": {
+        "text": "Already have an account?",
+        "linkText": "Login",
+        "href": "/login"
+      },
+      "success": "Registration successful! Please check your email to verify your account.",
+      "error": "Registration failed. Please try again."
+    },
+    "verify": {
+      "title": "Verify your account",
+      "title2": "Reset your password",
+      "subtitle": "Enter the verification code sent to your email",
+      "fields": {
+        "verificationCode": {
+          "label": "Verification Code",
+          "placeholder": "Enter the code",
+          "errors": {
+            "required": "Verification code is required",
+            "invalid": "Please enter a valid verification code"
+          }
+        }
+      },
+      "submitButton": {
+        "text": "Verify",
+        "loadingText": "Verifying..."
+      },
+      "resendLink": {
+        "text": "Didn't receive the code?",
+        "loadingText": "Resending...",
+        "linkText": "Resend Code",
+        "href": "/resend-verification"
+      },
+      "success": "Verification successful! Redirecting...",
+      "reset": "Verification successful, you can now reset your password.",
+      "error": "Invalid verification code, please try again.",
+      "resendSuccess": "Verification code resent! Please check your email.",
+      "resendError": "Failed to resend verification code. Please try again."
+    },
+    "forgetPassword": {
+      "title": "Forgot your password?",
+      "subtitle": "Enter your email to reset your password",
+      "fields": {
+        "email": {
+          "label": "Email",
+          "placeholder": "Enter your email",
+          "errors": {
+            "required": "Email is required",
+            "invalid": "Please enter a valid email address"
+          }
+        }
+      },
+      "submitButton": {
+        "text": "Send Reset Link",
+        "loadingText": "Sending..."
+      },
+      "loginLink": {
+        "text": "Remembered your password?",
+        "linkText": "Login",
+        "href": "/login"
+      },
+      "success": "Password reset otp sent! Please check your email.",
+      "error": "Failed to send reset otp. Please try again."
+    },
+    "newPassword": {
+      "title": "Set a new password",
+      "subtitle": "Enter your new password below",
+      "fields": {
+        "password": {
+          "label": "New Password",
+          "placeholder": "Enter your new password",
+          "errors": {
+            "required": "New password is required",
+            "minLength": "Password must be at least 8 characters"
+          }
+        },
+        "confirmPassword": {
+          "label": "Confirm New Password",
+          "placeholder": "Confirm your new password",
+          "errors": {
+            "required": "Please confirm your new password",
+            "mismatch": "Passwords do not match"
+          }
+        }
+      },
+      "submitButton": {
+        "text": "Reset Password",
+        "loadingText": "Resetting..."
+      },
+      "loginLink": {
+        "text": "Remembered your password?",
+        "linkText": "Login",
+        "href": "/login"
+      },
+      "success": "Password reset successful! You can now log in with your new password.",
+      "error": "Failed to reset password. Please try again."
+    }
+  },
+  "sidebar": {
+    "home": "Home",
+    "restaurants": "Restaurants",
+    "orders": "Orders",
+    "points": "Points",
+    "gifts": "Gifts",
+    "groups": "Groups",
+    "profile": "Profile",
+    "friends": "Friends",
+    "feed": "Feed",
+    "favorites": "Favorites",
+    "settings": "Settings",
+    "notifications": "Notifications",
+    "cart": "Cart",
+    "logout": "Logout"
+  }
+}
+
