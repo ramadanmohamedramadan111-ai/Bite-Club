@@ -23,6 +23,7 @@ export const publicRoutes = [
   '/gifts',
   '/dashboard',
   '/settings',
+  '/favorites',
 ];
 
 export const protectedRoutes = [];

@@ -4,6 +4,7 @@ import { Bike, Clock, CreditCard, Heart, ShoppingBag, Star } from 'lucide-react'
 import { Link } from '@/i18n/navigation';
 
 type Restaurant = {
+  id: number;
   logo: string;
   name: string;
   rating: number;

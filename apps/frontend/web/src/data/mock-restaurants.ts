@@ -1,0 +1,198 @@
+export type RestaurantListItem = {
+  id: number;
+  logo: string;
+  isFavorite: boolean;
+  rating: number;
+  reviewsCount: number;
+  name: string;
+  categories: string[];
+  delivery: boolean;
+  pickup: boolean;
+  creditCard: boolean;
+  isAvailable: boolean;
+  minDeliveryTime: number;
+  maxDeliveryTime: number;
+  minDeliveryPrice: number;
+  maxDeliveryPrice: number;
+};
+
+export const mockRestaurants: RestaurantListItem[] = [
+  {
+    id: 1,
+    logo: 'https://picsum.photos/200/200?1',
+    isFavorite: false,
+    rating: 4.5,
+    reviewsCount: 120,
+    name: 'Italian House',
+    categories: ['Italian', 'Pizza'],
+    delivery: true,
+    pickup: true,
+    creditCard: true,
+    isAvailable: true,
+    minDeliveryTime: 20,
+    maxDeliveryTime: 30,
+    minDeliveryPrice: 19,
+    maxDeliveryPrice: 29,
+  },
+  {
+    id: 2,
+    logo: 'https://picsum.photos/200/200?2',
+    isFavorite: true,
+    rating: 4,
+    reviewsCount: 85,
+    name: 'Burger Town',
+    categories: ['Burgers', 'Fast Food'],
+    delivery: true,
+    pickup: false,
+    creditCard: true,
+    isAvailable: false,
+    minDeliveryTime: 30,
+    maxDeliveryTime: 40,
+    minDeliveryPrice: 29,
+    maxDeliveryPrice: 39,
+  },
+  {
+    id: 3,
+    logo: 'https://picsum.photos/200/200?3',
+    isFavorite: false,
+    rating: 3.5,
+    reviewsCount: 45,
+    name: 'Pizza Corner',
+    categories: ['Pizza', 'Italian'],
+    delivery: false,
+    pickup: true,
+    creditCard: true,
+    isAvailable: true,
+    minDeliveryTime: 0,
+    maxDeliveryTime: 0,
+    minDeliveryPrice: 0,
+    maxDeliveryPrice: 0,
+  },
+  {
+    id: 4,
+    logo: 'https://picsum.photos/200/200?4',
+    isFavorite: true,
+    rating: 5,
+    reviewsCount: 200,
+    name: 'Tokyo Kitchen',
+    categories: ['Asian', 'Seafood'],
+    delivery: true,
+    pickup: false,
+    creditCard: false,
+    isAvailable: true,
+    minDeliveryTime: 35,
+    maxDeliveryTime: 45,
+    minDeliveryPrice: 39,
+    maxDeliveryPrice: 49,
+  },
+  {
+    id: 5,
+    logo: 'https://picsum.photos/200/200?5',
+    isFavorite: false,
+    rating: 4.2,
+    reviewsCount: 60,
+    name: 'Sweet Spot',
+    categories: ['Desserts'],
+    delivery: false,
+    pickup: true,
+    creditCard: false,
+    isAvailable: false,
+    minDeliveryTime: 0,
+    maxDeliveryTime: 0,
+    minDeliveryPrice: 0,
+    maxDeliveryPrice: 0,
+  },
+  {
+    id: 6,
+    logo: 'https://picsum.photos/200/200?6',
+    isFavorite: true,
+    rating: 4.8,
+    reviewsCount: 150,
+    name: 'Ocean Catch',
+    categories: ['Seafood', 'Asian'],
+    delivery: true,
+    pickup: true,
+    creditCard: true,
+    isAvailable: false,
+    minDeliveryTime: 25,
+    maxDeliveryTime: 35,
+    minDeliveryPrice: 39,
+    maxDeliveryPrice: 59,
+  },
+  {
+    id: 7,
+    logo: 'https://picsum.photos/200/200?7',
+    isFavorite: false,
+    rating: 3.9,
+    reviewsCount: 30,
+    name: 'Pasta Palace',
+    categories: ['Italian'],
+    delivery: true,
+    pickup: true,
+    creditCard: true,
+    isAvailable: false,
+    minDeliveryTime: 18,
+    maxDeliveryTime: 25,
+    minDeliveryPrice: 19,
+    maxDeliveryPrice: 39,
+  },
+  {
+    id: 8,
+    logo: 'https://picsum.photos/200/200?8',
+    isFavorite: true,
+    rating: 4.6,
+    reviewsCount: 90,
+    name: 'Big Burger',
+    categories: ['Burgers', 'Fast Food'],
+    delivery: true,
+    pickup: true,
+    creditCard: true,
+    isAvailable: true,
+    minDeliveryTime: 12,
+    maxDeliveryTime: 18,
+    minDeliveryPrice: 19,
+    maxDeliveryPrice: 29,
+  },
+  {
+    id: 9,
+    logo: 'https://picsum.photos/200/200?9',
+    isFavorite: false,
+    rating: 4.1,
+    reviewsCount: 70,
+    name: 'Dragon Food',
+    categories: ['Asian'],
+    delivery: true,
+    pickup: true,
+    creditCard: true,
+    isAvailable: true,
+    minDeliveryTime: 24,
+    maxDeliveryTime: 32,
+    minDeliveryPrice: 29,
+    maxDeliveryPrice: 29,
+  },
+  {
+    id: 10,
+    logo: 'https://picsum.photos/200/200?10',
+    isFavorite: true,
+    rating: 4.9,
+    reviewsCount: 180,
+    name: 'Cheesy Pizza',
+    categories: ['Pizza', 'Italian'],
+    delivery: true,
+    pickup: true,
+    creditCard: true,
+    isAvailable: false,
+    minDeliveryTime: 18,
+    maxDeliveryTime: 25,
+    minDeliveryPrice: 9,
+    maxDeliveryPrice: 19,
+  },
+];
+
+export function getFavoriteRestaurants() {
+  return mockRestaurants.filter((restaurant) => restaurant.isFavorite);
+}
+
+export function getRestaurantListItemById(id: number) {
+  return mockRestaurants.find((restaurant) => restaurant.id === id);
+}

@@ -69,11 +69,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         icon: Coins,
       },
       {
-        name: t('gifts'),
-        url: '/gifts',
-        icon: Gift,
-      },
-      {
         name: t('groups'),
         url: '/groups',
         icon: Users,
@@ -132,3 +127,4 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     </Sidebar>
   );
 }
+
