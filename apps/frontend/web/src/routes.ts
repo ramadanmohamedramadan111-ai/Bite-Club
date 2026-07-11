@@ -13,7 +13,13 @@ export const publicRoutes = [
   '/friends',
   '/groups',
   '/group-order',
+  '/profile',
+  '/dashboard',
+  '/settings',
+  '/social/profile',
+  '/social/profile/edit',
+  '/social/feed',
 ];
 
-export const protectedRoutes = ['/dashboard', '/profile', '/settings'];
+export const protectedRoutes = [];
 

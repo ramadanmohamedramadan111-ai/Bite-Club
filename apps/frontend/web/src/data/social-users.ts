@@ -4,11 +4,12 @@ export const socialUsers: SocialUser[] = [
   {
     id: '1',
 
-    username: 'johnsmith',
+    username: 'alex_rivera',
 
-    name: 'John Smith',
+    name: 'Alex Rivera',
 
-    avatar: null,
+    avatar:
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
 
     relationships: {
       isFriend: true,
@@ -26,11 +27,12 @@ export const socialUsers: SocialUser[] = [
   {
     id: '2',
 
-    username: 'sarahahmed',
+    username: 'sarah_eats_of',
 
-    name: 'Sarah Ahmed',
+    name: 'Sarah Jenkins',
 
-    avatar: null,
+    avatar:
+      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop',
 
     relationships: {
       isFriend: false,
@@ -48,11 +50,12 @@ export const socialUsers: SocialUser[] = [
   {
     id: '3',
 
-    username: 'mikebrown',
+    username: 'mikechen_eats',
 
-    name: 'Mike Brown',
+    name: 'Mike Chen',
 
-    avatar: null,
+    avatar:
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
 
     relationships: {
       isFriend: false,
@@ -70,11 +73,12 @@ export const socialUsers: SocialUser[] = [
   {
     id: '4',
 
-    username: 'alex',
+    username: 'emma_eats',
 
-    name: 'Alex Johnson',
+    name: 'Emma Rodriguez',
 
-    avatar: null,
+    avatar:
+      'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop',
 
     relationships: {
       isFriend: false,
@@ -92,7 +96,30 @@ export const socialUsers: SocialUser[] = [
   {
     id: '5',
 
-    username: 'blockeduser',
+    username: 'james_foodie',
+
+    name: 'James Wilson',
+
+    avatar:
+      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop',
+
+    relationships: {
+      isFriend: true,
+
+      hasSentRequest: false,
+
+      hasReceivedRequest: false,
+
+      isFollowing: true,
+
+      isBlocked: false,
+    },
+  },
+
+  {
+    id: '6',
+
+    username: 'blocked_user',
 
     name: 'Blocked User',
 
