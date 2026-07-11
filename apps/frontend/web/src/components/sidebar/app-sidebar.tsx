@@ -30,6 +30,7 @@ import {
 import { useLocale, useTranslations } from 'next-intl';
 import { getLangDir } from 'rtl-detect';
 import { useCartStore } from '@/stores/cart';
+import { useUnreadNotificationCount } from '@/stores/notifications';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const locale = useLocale();
@@ -40,6 +41,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     (state) =>
       state.cart?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0,
   );
+  const unreadNotifications = useUnreadNotificationCount();
 
   const data = {
     user: {
@@ -102,6 +104,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         name: t('notifications'),
         url: '/notifications',
         icon: BellIcon,
+        badge: unreadNotifications,
       },
       {
         name: t('cart'),

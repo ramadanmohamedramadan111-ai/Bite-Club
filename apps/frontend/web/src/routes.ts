@@ -24,6 +24,7 @@ export const publicRoutes = [
   '/dashboard',
   '/settings',
   '/favorites',
+  '/notifications',
 ];
 
 export const protectedRoutes = [];
