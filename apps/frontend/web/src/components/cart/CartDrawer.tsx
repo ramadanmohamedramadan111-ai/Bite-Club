@@ -38,7 +38,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
     <aside
       className={`
         fixed top-[64px] right-0 z-50
-        flex h-[calc(100vh-64px)] w-[400px] flex-col
+        flex h-[calc(100vh-64px)] w-[320px] sm:w-[400px] flex-col
         border-l border-border
         bg-background text-foreground
         shadow-xl
@@ -289,3 +289,4 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
     </aside>
   );
 }
+

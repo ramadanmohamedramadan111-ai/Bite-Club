@@ -5,6 +5,7 @@ import RestaurantsPagination from '@/components/restaurants/RestaurantPagination
 import RestaurantSearch from '@/components/restaurants/RestaurantSearch';
 import SortSelect from '@/components/restaurants/SortSelect';
 import { mockRestaurants } from '@/data/mock-restaurants';
+import { restaurantCategories } from '@/data/restaurant-categories';
 
 type PageProps = {
   searchParams: Promise<{
@@ -21,15 +22,7 @@ type PageProps = {
   }>;
 };
 
-const categories = [
-  'Italian',
-  'Pizza',
-  'Burgers',
-  'Fast Food',
-  'Asian',
-  'Seafood',
-  'Desserts',
-];
+const categories = [...restaurantCategories];
 
 const restaurants = mockRestaurants;
 

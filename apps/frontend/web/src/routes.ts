@@ -1,8 +1,8 @@
 export const anonymousRoutes = [
-  '/login',
-  '/register',
-  '/forgot-password',
-  '/reset-password',
+  // '/login',
+  // '/register',
+  // '/forgot-password',
+  // '/reset-password',
 ];
 
 export const publicRoutes = [
@@ -25,6 +25,10 @@ export const publicRoutes = [
   '/settings',
   '/favorites',
   '/notifications',
+  '/login',
+  '/register',
+  '/forgot-password',
+  '/reset-password',
 ];
 
 export const protectedRoutes = [];
