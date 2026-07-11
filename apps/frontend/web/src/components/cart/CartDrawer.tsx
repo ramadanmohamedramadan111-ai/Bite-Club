@@ -5,6 +5,7 @@ import { useCartStore } from '../../stores/cart';
 import { groupCartItemsByUser } from '@/utils/cart-grouping';
 import GroupCartActionButton from './GroupCartActionButton';
 import GroupCartItemsList from './GroupCartItemsList';
+import CartRedemptionSelector from './CartRedemptionSelector';
 
 import {
   AlertDialog,
@@ -233,6 +234,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
       {/* Footer */}
       {cartItems.length > 0 && (
         <div className="shrink-0 space-y-2 border-t border-border p-4">
+          {cart?.type === 'individual' && <CartRedemptionSelector />}
           {cart?.type === 'group' && (
             <div className="space-y-1 pb-2 text-sm">
               {groupCartItemsByUser(cartItems).map((group) => (
@@ -264,7 +266,12 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
 
           {summary.discount > 0 && (
             <div className="flex justify-between text-sm">
-              <span>Discount</span>
+              <span>
+                Discount
+                {summary.appliedRedemptionTitle
+                  ? ` (${summary.appliedRedemptionTitle})`
+                  : ''}
+              </span>
 
               <span>EGP-{summary.discount.toFixed(2)}</span>
             </div>

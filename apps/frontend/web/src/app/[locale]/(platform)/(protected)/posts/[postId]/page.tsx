@@ -1,11 +1,9 @@
 'use client';
 
 import { PostDetailPage } from '@/components/social/posts/PostDetailPage';
-import { Post, PostItem } from '@/types/social/posts';
-import { CartItem } from '@/types/cart/cart';
+import { useAddToIndividualCart } from '@/hooks/use-add-to-individual-cart';
 import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
-import { useRouter } from '@/i18n/navigation';
 import { useSocialStore } from '@/stores/social';
 
 interface PostPageProps {
@@ -14,23 +12,11 @@ interface PostPageProps {
   }>;
 }
 
-const convertPostItemToCartItem = (postItem: PostItem): CartItem => ({
-  cartItemId: `cart-${postItem.id}-${Date.now()}`,
-  itemId: postItem.id,
-  name: postItem.name,
-  quantity: postItem.quantity,
-  basePrice: postItem.price,
-  unitPrice: postItem.price,
-  totalPrice: postItem.price * postItem.quantity,
-  configurationKey: postItem.id,
-  selectedOptions: [],
-});
-
 export default function PostPage({ params }: PostPageProps) {
   const getPostById = useSocialStore((state) => state.getPostById);
+  const { addFromPost, dialog } = useAddToIndividualCart();
   const [postId, setPostId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
 
   useEffect(() => {
     params.then((p) => setPostId(p.postId));
@@ -43,29 +29,6 @@ export default function PostPage({ params }: PostPageProps) {
   }, [postId]);
 
   const post = postId ? getPostById(postId) : undefined;
-
-  const handleAddToCart = async (post: Post) => {
-    try {
-      const { useCartStore } = await import('@/stores/cart');
-      const cartStore = useCartStore.getState();
-
-      if (!cartStore.cart) {
-        cartStore.createIndividualCart({
-          restaurantId: post.restaurantId,
-          restaurantName: post.restaurant.name,
-          restaurantImage: post.restaurant.image,
-        });
-      }
-
-      for (const item of post.items) {
-        cartStore.addItem(convertPostItemToCartItem(item));
-      }
-
-      router.push('/cart');
-    } catch (err) {
-      console.error('Failed to add to cart:', err);
-    }
-  };
 
   if (loading) {
     return (
@@ -83,5 +46,13 @@ export default function PostPage({ params }: PostPageProps) {
     );
   }
 
-  return <PostDetailPage post={post} onAddToCart={handleAddToCart} />;
+  return (
+    <>
+      <PostDetailPage
+        post={post}
+        onAddToCart={(value) => addFromPost(value, { redirect: true })}
+      />
+      {dialog}
+    </>
+  );
 }

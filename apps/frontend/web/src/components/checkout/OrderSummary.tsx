@@ -10,6 +10,7 @@ type Summary = {
   tax: number;
   discount: number;
   total: number;
+  appliedRedemptionTitle?: string;
 };
 
 type Props = {
@@ -146,7 +147,12 @@ export default function OrderSummary({
           </div>
           {summary.discount > 0 && (
             <div className="flex justify-between">
-              <dt className="text-muted-foreground">Discount</dt>
+              <dt className="text-muted-foreground">
+                Discount
+                {summary.appliedRedemptionTitle
+                  ? ` (${summary.appliedRedemptionTitle})`
+                  : ''}
+              </dt>
               <dd>-{summary.discount.toFixed(2)} EGP</dd>
             </div>
           )}

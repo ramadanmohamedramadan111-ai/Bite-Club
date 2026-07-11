@@ -2,10 +2,10 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { PostCard } from './PostCard';
-import { Post, PostItem } from '@/types/social/posts';
-import { CartItem } from '@/types/cart/cart';
+import type { Post } from '@/types/social/posts';
 import { Loader2 } from 'lucide-react';
 import { useSocialStore } from '@/stores/social';
+import { useAddToIndividualCart } from '@/hooks/use-add-to-individual-cart';
 
 interface UserProfilePostsProps {
   userId: string;
@@ -14,23 +14,12 @@ interface UserProfilePostsProps {
 
 const POSTS_PER_PAGE = 3;
 
-const convertPostItemToCartItem = (postItem: PostItem): CartItem => ({
-  cartItemId: `cart-${postItem.id}-${Date.now()}`,
-  itemId: postItem.id,
-  name: postItem.name,
-  quantity: postItem.quantity,
-  basePrice: postItem.price,
-  unitPrice: postItem.price,
-  totalPrice: postItem.price * postItem.quantity,
-  configurationKey: postItem.id,
-  selectedOptions: [],
-});
-
 export function UserProfilePosts({
   userId,
   onAddToCart,
 }: UserProfilePostsProps) {
   const allPosts = useSocialStore((state) => state.posts);
+  const { addFromPost, dialog } = useAddToIndividualCart();
 
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -118,50 +107,41 @@ export function UserProfilePosts({
     );
   }
 
-  const handleAddToCartLocal = async (post: Post) => {
-    try {
-      const { useCartStore } = await import('@/stores/cart');
-      const cartStore = useCartStore.getState();
-
-      if (!cartStore.cart) {
-        cartStore.createIndividualCart({
-          restaurantId: post.restaurantId,
-          restaurantName: post.restaurant.name,
-          restaurantImage: post.restaurant.image,
-        });
-      }
-
-      for (const item of post.items) {
-        cartStore.addItem(convertPostItemToCartItem(item));
-      }
-    } catch (err) {
-      console.error('Failed to add to cart:', err);
+  const handleAddToCart = (post: Post) => {
+    if (onAddToCart) {
+      onAddToCart(post);
+      return;
     }
+
+    addFromPost(post, { redirect: true });
   };
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {posts.map((post) => (
-          <PostCard
-            key={post.id}
-            post={post}
-            onAddToCart={onAddToCart || handleAddToCartLocal}
-          />
-        ))}
-      </div>
-
-      {hasNextPage && (
-        <div ref={setObservedElement} className="flex justify-center py-8">
-          {isFetchingNextPage && <Loader2 className="animate-spin" />}
+    <>
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {posts.map((post) => (
+            <PostCard
+              key={post.id}
+              post={post}
+              onAddToCart={handleAddToCart}
+            />
+          ))}
         </div>
-      )}
 
-      {!hasNextPage && (
-        <p className="py-4 text-center text-sm text-muted-foreground">
-          No more posts to load
-        </p>
-      )}
-    </div>
+        {hasNextPage && (
+          <div ref={setObservedElement} className="flex justify-center py-8">
+            {isFetchingNextPage && <Loader2 className="animate-spin" />}
+          </div>
+        )}
+
+        {!hasNextPage && (
+          <p className="py-4 text-center text-sm text-muted-foreground">
+            No more posts to load
+          </p>
+        )}
+      </div>
+      {!onAddToCart && dialog}
+    </>
   );
 }

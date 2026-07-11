@@ -18,6 +18,9 @@ export const publicRoutes = [
   '/feed',
   '/feed/create',
   '/posts',
+  '/orders',
+  '/points',
+  '/gifts',
   '/dashboard',
   '/settings',
 ];

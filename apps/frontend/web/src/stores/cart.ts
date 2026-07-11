@@ -6,17 +6,16 @@ import type {
   CartItem,
   CartMember,
   CartMemberReference,
+  CartSummary,
   GroupCart,
   IndividualCart,
 } from '@/types/cart/cart';
 import { getItemOwnerKey, isSameItemOwner } from '@/utils/cart-grouping';
+import { buildCartSummary } from '@/utils/cart-summary';
+import { usePointsStore } from '@/stores/points';
 
-type CartSummary = {
-  subtotal: number;
-  deliveryFee: number;
-  tax: number;
-  discount: number;
-  total: number;
+type GetSummaryOptions = {
+  fulfillmentType?: 'delivery' | 'pickup';
 };
 
 type CartStore = {
@@ -53,6 +52,9 @@ type CartStore = {
 
   updateQuantity: (cartItemId: string, quantity: number) => void;
 
+  // Redemptions (individual carts only)
+  applyRedemption: (redemptionId: string | null) => void;
+
   // Group
   addMember: (member: CartMember) => void;
 
@@ -68,7 +70,7 @@ type CartStore = {
   // Replace cart (your policy)
   replaceCart: (cart: Cart) => void;
 
-  getSummary: () => CartSummary;
+  getSummary: (options?: GetSummaryOptions) => CartSummary;
 };
 
 export const useCartStore = create<CartStore>()(
@@ -113,6 +115,8 @@ export const useCartStore = create<CartStore>()(
             items: [],
 
             members: [],
+
+            appliedRedemptionId: null,
           },
         }),
 
@@ -148,7 +152,7 @@ export const useCartStore = create<CartStore>()(
           },
         }),
 
-      getSummary: () => {
+      getSummary: (options) => {
         const cart = get().cart;
 
         if (!cart) {
@@ -161,29 +165,26 @@ export const useCartStore = create<CartStore>()(
           };
         }
 
-        const subtotal = cart.items.reduce(
-          (sum, item) => sum + item.totalPrice,
-          0,
+        return buildCartSummary(
+          cart,
+          usePointsStore.getState().redemptions,
+          options,
         );
-
-        const deliveryFee = cart.restaurantDeliveryFee || 0;
-
-        const tax = 3;
-
-        const discount = 0;
-
-        return {
-          subtotal,
-
-          deliveryFee,
-
-          tax,
-
-          discount,
-
-          total: subtotal + deliveryFee + tax - discount,
-        };
       },
+
+      applyRedemption: (redemptionId) =>
+        set((state) => {
+          if (!state.cart || state.cart.type !== 'individual') {
+            return state;
+          }
+
+          return {
+            cart: {
+              ...state.cart,
+              appliedRedemptionId: redemptionId,
+            },
+          };
+        }),
 
       addItem: (item) =>
         set((state) => {
