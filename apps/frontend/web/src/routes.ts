@@ -11,6 +11,8 @@ export const publicRoutes = [
   '/restaurants',
   '/',
   '/friends',
+  '/groups',
+  '/group-order',
 ];
 
 export const protectedRoutes = ['/dashboard', '/profile', '/settings'];

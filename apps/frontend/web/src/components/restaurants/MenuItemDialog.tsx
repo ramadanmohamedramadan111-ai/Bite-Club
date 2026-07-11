@@ -7,7 +7,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import MenuItemCustomizer from './MenuItemCustomizer';
+import { useCartStore } from '@/stores/cart';
+import MenuItemCustomizer, {
+  type OrderingContext,
+} from './MenuItemCustomizer';
 import type { RestaurantDetail } from '@/types/restaurant/restaurant';
 
 type Props = {
@@ -15,6 +18,7 @@ type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   restaurant: RestaurantDetail;
+  orderingContext?: OrderingContext;
 };
 
 export default function MenuItemDialog({
@@ -22,7 +26,16 @@ export default function MenuItemDialog({
   item,
   open,
   onOpenChange,
+  orderingContext = 'restaurant',
 }: Props) {
+  const cart = useCartStore((state) => state.cart);
+  const cartType =
+    orderingContext === 'group-order' &&
+    cart?.type === 'group' &&
+    cart.restaurantId === String(restaurant.id)
+      ? 'group'
+      : 'individual';
+
   if (!item) {
     return null;
   }
@@ -38,6 +51,8 @@ export default function MenuItemDialog({
           item={item}
           variant="dialog"
           restaurant={restaurant}
+          cartType={cartType}
+          orderingContext={orderingContext}
           onAddToCart={() => onOpenChange(false)}
         />
       </DialogContent>

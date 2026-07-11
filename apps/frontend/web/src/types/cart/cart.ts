@@ -88,6 +88,8 @@ export type CartMember = {
   name?: string;
 
   isOwner: boolean;
+
+  isReady?: boolean;
 };
 
 // ======================

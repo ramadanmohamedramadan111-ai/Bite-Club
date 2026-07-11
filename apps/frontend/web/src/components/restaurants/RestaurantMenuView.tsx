@@ -10,10 +10,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import MenuItemDialog from './MenuItemDialog';
+import type { OrderingContext } from './MenuItemCustomizer';
 
 type Props = {
   restaurant: RestaurantDetail;
   items: MenuItem[];
+  showScannedMenu?: boolean;
+  orderingContext?: OrderingContext;
 };
 
 function itemMatchesSearch(item: MenuItem, query: string) {
@@ -32,7 +35,12 @@ function itemMatchesSearch(item: MenuItem, query: string) {
   );
 }
 
-export default function RestaurantMenuView({ restaurant, items }: Props) {
+export default function RestaurantMenuView({
+  restaurant,
+  items,
+  showScannedMenu = true,
+  orderingContext = 'restaurant',
+}: Props) {
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -88,38 +96,40 @@ export default function RestaurantMenuView({ restaurant, items }: Props) {
 
   return (
     <div className="space-y-6">
-      <div className="overflow-hidden rounded-xl border">
-        <div className="flex items-center justify-between gap-3 border-b px-4 py-3">
-          <div>
-            <p className="font-medium">Scanned Menu</p>
-            <p className="text-sm text-muted-foreground">
-              Tap to view the full menu image
-            </p>
+      {showScannedMenu && (
+        <div className="overflow-hidden rounded-xl border">
+          <div className="flex items-center justify-between gap-3 border-b px-4 py-3">
+            <div>
+              <p className="font-medium">Scanned Menu</p>
+              <p className="text-sm text-muted-foreground">
+                Tap to view the full menu image
+              </p>
+            </div>
+            <a
+              href={restaurant.scannedMenu}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
+              Open
+              <ExternalLink className="size-4" />
+            </a>
           </div>
           <a
             href={restaurant.scannedMenu}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
-            Open
-            <ExternalLink className="size-4" />
+            className="block">
+            <div className="relative h-40 w-full sm:h-48">
+              <Image
+                src={restaurant.scannedMenu}
+                alt="Scanned menu"
+                fill
+                className="object-cover transition hover:opacity-90"
+              />
+            </div>
           </a>
         </div>
-        <a
-          href={restaurant.scannedMenu}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block">
-          <div className="relative h-40 w-full sm:h-48">
-            <Image
-              src={restaurant.scannedMenu}
-              alt="Scanned menu"
-              fill
-              className="object-cover transition hover:opacity-90"
-            />
-          </div>
-        </a>
-      </div>
+      )}
 
       <div className="flex flex-col gap-6 lg:flex-row">
         <aside className="lg:w-56 lg:shrink-0">
@@ -234,6 +244,7 @@ export default function RestaurantMenuView({ restaurant, items }: Props) {
         item={selectedItem}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
+        orderingContext={orderingContext}
       />
     </div>
   );

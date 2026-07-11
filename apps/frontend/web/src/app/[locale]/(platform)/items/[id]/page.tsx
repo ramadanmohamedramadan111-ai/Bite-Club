@@ -50,6 +50,8 @@ export default async function MenuItemPage({ params }: PageProps) {
             item={item}
             variant="page"
             restaurant={restaurant}
+            cartType="individual"
+            orderingContext="restaurant"
           />
         </CardContent>
       </Card>

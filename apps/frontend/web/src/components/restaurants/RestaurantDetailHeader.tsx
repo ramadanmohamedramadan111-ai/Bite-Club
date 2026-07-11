@@ -7,10 +7,9 @@ import {
   MapPin,
   ShoppingBag,
   Star,
-  Users,
 } from 'lucide-react';
 import type { RestaurantDetail } from '@/types/restaurant/restaurant';
-import { Button } from '../ui/button';
+import RestaurantGroupOrderActions from './RestaurantGroupOrderActions';
 
 type Props = {
   restaurant: RestaurantDetail;
@@ -96,10 +95,7 @@ export default function RestaurantDetailHeader({ restaurant }: Props) {
           </div>
 
           <div className="flex gap-2 items-center">
-            <Button type="button" className="gap-2">
-              <Users className="size-4" />
-              Create group order
-            </Button>
+            <RestaurantGroupOrderActions restaurant={restaurant} />
           </div>
         </div>
 
