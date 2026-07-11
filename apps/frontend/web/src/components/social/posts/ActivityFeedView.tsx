@@ -8,7 +8,7 @@ import { Loader2 } from 'lucide-react';
 
 interface PostsResponse {
   posts: Post[];
-  nextCursor: string;
+  nextCursor?: string;
 }
 
 interface ActivityFeedViewProps {
@@ -24,7 +24,7 @@ export function ActivityFeedView({ onAddToCart }: ActivityFeedViewProps) {
   );
 
   useEffect(() => {
-    if (!observedElement) return;
+    if (!observedElement || !hasNextPage) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -43,30 +43,29 @@ export function ActivityFeedView({ onAddToCart }: ActivityFeedViewProps) {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-12">
+      <div className="flex items-center justify-center py-12">
         <Loader2 className="animate-spin" />
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {posts.map((post) => (
-          <PostCard
-            key={post.id}
-            post={post}
-            onAddToCart={onAddToCart}
-          />
-        ))}
-      </div>
+    <div className="space-y-4">
+      {posts.map((post) => (
+        <PostCard key={post.id} post={post} onAddToCart={onAddToCart} />
+      ))}
 
-      {/* Infinite scroll trigger */}
-      <div ref={setObservedElement} className="py-8 flex justify-center">
-        {isFetchingNextPage && (
-          <Loader2 className="animate-spin" />
-        )}
-      </div>
+      {hasNextPage && (
+        <div ref={setObservedElement} className="flex justify-center py-8">
+          {isFetchingNextPage && <Loader2 className="animate-spin" />}
+        </div>
+      )}
+
+      {!hasNextPage && posts.length > 0 && (
+        <p className="py-8 text-center text-muted-foreground">
+          No more posts to load
+        </p>
+      )}
     </div>
   );
 }

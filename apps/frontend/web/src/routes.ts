@@ -14,11 +14,12 @@ export const publicRoutes = [
   '/groups',
   '/group-order',
   '/profile',
+  '/profile/edit',
+  '/feed',
+  '/feed/create',
+  '/posts',
   '/dashboard',
   '/settings',
-  '/social/profile',
-  '/social/profile/edit',
-  '/social/feed',
 ];
 
 export const protectedRoutes = [];

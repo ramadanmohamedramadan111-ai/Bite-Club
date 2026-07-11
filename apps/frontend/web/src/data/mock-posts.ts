@@ -35,8 +35,10 @@ export const mockPosts: Post[] = [
     ],
     caption:
       'Best burger in town! The smash burger is absolutely incredible, melts in your mouth with perfectly crispy edges. Highly recommend! 🍔✨',
-    image:
+    images: [
       'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1550547660-d9450f859349?w=800&h=800&fit=crop',
+    ],
     likeCount: 324,
     commentCount: 45,
     createdAt: '2026-07-11T10:30:00Z',
@@ -82,8 +84,11 @@ export const mockPosts: Post[] = [
     ],
     caption:
       'Fresh fish, incredible presentation, and an unforgettable experience. The chef really knows their craft! 🍣🎎',
-    image:
-        'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=800&h=800&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=800&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1611145437459-46f9c4cae0d9?w=800&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1553621042-f6e147245754?w=800&h=800&fit=crop',
+    ],
     likeCount: 521,
     commentCount: 87,
     createdAt: '2026-07-10T18:45:00Z',
@@ -123,8 +128,9 @@ export const mockPosts: Post[] = [
     ],
     caption:
       'Authentic Italian pizza with wood-fired crust. This place is a hidden gem! The mozzarella is fresh and the sauce is perfection. 🍕🇮🇹',
-    image:
-        'https://images.unsplash.com/photo-1595521624481-10ee8944813d?w=800&h=800&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1595521624481-10ee8944813d?w=800&h=800&fit=crop',
+    ],
     likeCount: 289,
     commentCount: 52,
     createdAt: '2026-07-09T19:20:00Z',
@@ -164,8 +170,9 @@ export const mockPosts: Post[] = [
     ],
     caption:
       'Perfect morning ritual ☕ The cortado is smooth and creamy, paired with a buttery golden croissant. This is how mornings should feel!',
-    image:
-        'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800&h=800&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800&h=800&fit=crop',
+    ],
     likeCount: 458,
     commentCount: 76,
     createdAt: '2026-07-08T09:15:00Z',
@@ -211,8 +218,9 @@ export const mockPosts: Post[] = [
     ],
     caption:
       'Once in a lifetime dining experience! The A5 Wagyu melts like butter, the lobster is succulent, and the sake pairs perfectly. Worth every penny! 🥩✨',
-    image:
-        'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&h=800&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&h=800&fit=crop',
+    ],
     likeCount: 612,
     commentCount: 98,
     createdAt: '2026-07-07T20:00:00Z',
@@ -258,8 +266,9 @@ export const mockPosts: Post[] = [
     ],
     caption:
       'Authentic Mexican street food vibes! The tacos are loaded with perfectly seasoned meat and fresh toppings. My new favorite spot! 🌮🔥',
-    image:
-        'https://images.unsplash.com/photo-1565722051839-1c72aaaea872?w=800&h=800&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1565722051839-1c72aaaea872?w=800&h=800&fit=crop',
+    ],
     likeCount: 356,
     commentCount: 63,
     createdAt: '2026-07-06T17:30:00Z',
@@ -305,8 +314,9 @@ export const mockPosts: Post[] = [
     ],
     caption:
       'Homemade goodness in every bite! The banana bread is moist and flavorful, and the brownies are fudgy perfection. 🍰😋',
-    image:
-        'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&h=800&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&h=800&fit=crop',
+    ],
     likeCount: 478,
     commentCount: 71,
     createdAt: '2026-07-05T15:45:00Z',
@@ -352,8 +362,11 @@ export const mockPosts: Post[] = [
     ],
     caption:
       'Soul-warming ramen perfection! The broth is rich, the noodles are chewy, and the gyoza are crispy on the outside, tender on the inside. 🍜❤️',
-    image:
-        'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=800&h=800&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=800&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1611145437459-46f9c4cae0d9?w=800&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1553621042-f6e147245754?w=800&h=800&fit=crop',
+    ],
     likeCount: 534,
     commentCount: 82,
     createdAt: '2026-07-04T12:00:00Z',

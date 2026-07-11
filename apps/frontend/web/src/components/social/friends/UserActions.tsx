@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { FriendsTab, SocialUser } from '@/types/social/friends';
 
 import ConfirmDialog from '@/components/shared/ConfirmationDialog';
+import { useSocialStore } from '@/stores/social';
 
 interface Props {
   user: SocialUser;
@@ -24,16 +25,42 @@ type Action =
 
 export default function UserActions({ user, tab }: Props) {
   const [action, setAction] = useState<Action>(null);
+  const {
+    removeFriend,
+    cancelFriendRequest,
+    unfollowUser,
+    unblockUser,
+    blockUser,
+    sendFriendRequest,
+    acceptFriendRequest,
+    rejectFriendRequest,
+    followUser,
+  } = useSocialStore();
 
   const relationships = user.relationships;
 
   function executeAction() {
-    console.log('Executing:', action, 'for user:', user.id);
+    if (!action) return;
 
-    // Later:
-    // mutation.mutate({
-    //    userId:user.id
-    // })
+    switch (action) {
+      case 'removeFriend':
+        removeFriend(user.id);
+        break;
+      case 'cancelRequest':
+        cancelFriendRequest(user.id);
+        break;
+      case 'unfollow':
+        unfollowUser(user.id);
+        break;
+      case 'unblock':
+        unblockUser(user.id);
+        break;
+      case 'block':
+        blockUser(user.id);
+        break;
+    }
+
+    setAction(null);
   }
 
   const dialogConfig = {
@@ -78,9 +105,14 @@ export default function UserActions({ user, tab }: Props) {
 
       {tab === 'received' && (
         <div className="flex gap-2">
-          <Button>Accept</Button>
+          <Button onClick={() => acceptFriendRequest(user.id)}>Accept</Button>
 
-          <Button variant="destructive">Reject</Button>
+          <Button
+            variant="destructive"
+            onClick={() => rejectFriendRequest(user.id)}
+          >
+            Reject
+          </Button>
         </div>
       )}
 
@@ -103,11 +135,21 @@ export default function UserActions({ user, tab }: Props) {
       {tab === 'discover' && (
         <div className="flex gap-2">
           {!relationships.isFriend && !relationships.hasSentRequest && (
-            <Button>Add Friend</Button>
+            <Button onClick={() => sendFriendRequest(user.id)}>
+              Add Friend
+            </Button>
+          )}
+
+          {relationships.hasSentRequest && (
+            <Button variant="outline" onClick={() => setAction('cancelRequest')}>
+              Cancel Request
+            </Button>
           )}
 
           {!relationships.isFollowing && (
-            <Button variant="outline">Follow</Button>
+            <Button variant="outline" onClick={() => followUser(user.id)}>
+              Follow
+            </Button>
           )}
 
           {relationships.isFollowing && (
@@ -139,4 +181,3 @@ export default function UserActions({ user, tab }: Props) {
     </>
   );
 }
-

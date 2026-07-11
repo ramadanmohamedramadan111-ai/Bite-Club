@@ -16,7 +16,7 @@ export interface Post {
   };
   items: PostItem[];
   caption: string;
-  image: string;
+  images: string[];
   likeCount: number;
   commentCount: number;
   createdAt: string;
@@ -32,4 +32,27 @@ export interface PostItem {
 
 export interface ActivityFeedPost extends Post {
   timestamp: string;
+}
+
+type LegacyPost = Post & { image?: string };
+
+export function getPostImages(post: LegacyPost): string[] {
+  if (post.images?.length) {
+    return post.images;
+  }
+
+  if (post.image) {
+    return [post.image];
+  }
+
+  return [];
+}
+
+export function normalizePost(post: LegacyPost): Post {
+  const { image: _image, ...rest } = post;
+
+  return {
+    ...rest,
+    images: getPostImages(post),
+  };
 }

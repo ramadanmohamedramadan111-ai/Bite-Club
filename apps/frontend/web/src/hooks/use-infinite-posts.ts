@@ -4,6 +4,8 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { clientFetch } from '@/utils/client-fetch';
 import { Post } from '@/types/social/posts';
 
+const PAGE_SIZE = 10;
+
 interface PostsResponse {
   posts: Post[];
   nextCursor?: string;
@@ -17,21 +19,22 @@ export function useInfinitePosts(
     queryKey: [endpoint],
     queryFn: async ({ pageParam }: { pageParam: string }) => {
       const offset = parseInt(pageParam) || 0;
-      const limit = 10;
 
       const response = await clientFetch<PostsResponse>(
-        `${endpoint}?offset=${offset}&limit=${limit}`,
+        `${endpoint}?offset=${offset}&limit=${PAGE_SIZE}`,
         'GET',
       );
 
+      const hasMore = response.posts.length >= PAGE_SIZE;
+
       return {
         posts: response.posts,
-        nextCursor: response.nextCursor || (offset + limit).toString(),
+        nextCursor: hasMore
+          ? response.nextCursor || (offset + PAGE_SIZE).toString()
+          : undefined,
       };
     },
-    getNextPageParam: (lastPage) => {
-      return lastPage.nextCursor;
-    },
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
     initialPageParam: '0',
     enabled,
   });
