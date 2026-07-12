@@ -14,12 +14,14 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('phone_number')->unique();
-            $table->string('username')->unique()->nullable();
+            $table->string('username')->unique();
             $table->string('full_name');
-            $table->string('email')->unique()->nullable();
+            $table->string('password_hash');
+            $table->string('email')->unique();
+            $table->string('firebase_uid')->nullable()->unique();
             $table->string('profile_image_url')->nullable();
-            $table->string('gender')->nullable();
-            $table->string('referral_code')->unique()->nullable();
+            $table->enum('gender', ['male', 'female']);
+            $table->string('referral_code')->unique();
             $table->foreignId('referred_by')->nullable()->constrained('users')->nullOnDelete();
             $table->unsignedInteger('failed_pickup_count')->default(0);
             $table->string('status')->default('active');
