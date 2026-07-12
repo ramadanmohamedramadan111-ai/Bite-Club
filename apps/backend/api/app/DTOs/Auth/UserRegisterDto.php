@@ -6,7 +6,9 @@ use App\Http\Requests\Auth\UserRegisterRequest;
 
 class UserRegisterDto
 {
-    private string $fullName;
+    private string $firstName;
+    private string $lastName;
+    private string $dateOfBirth;
     private string $username;
     private string $email;
     private string $phoneNumber;
@@ -15,7 +17,9 @@ class UserRegisterDto
     private ?string $referrerCode;
 
     public function __construct(
-        string $fullName,
+        string $firstName,
+        string $lastName,
+        string $dateOfBirth,
         string $username,
         string $email,
         string $phoneNumber,
@@ -23,7 +27,9 @@ class UserRegisterDto
         string $gender,
         ?string $referrerCode = null
     ) {
-        $this->fullName = $fullName;
+        $this->firstName = $firstName;
+        $this->lastName = $lastName;
+        $this->dateOfBirth = $dateOfBirth;
         $this->username = $username;
         $this->email = $email;
         $this->phoneNumber = $phoneNumber;
@@ -37,7 +43,9 @@ class UserRegisterDto
         $data = $request->validated();
 
         return new self(
-            $data['full_name'],
+            $data['first_name'],
+            $data['last_name'],
+            $data['date_of_birth'],
             $data['username'],
             $data['email'],
             $data['phone_number'],
@@ -47,9 +55,19 @@ class UserRegisterDto
         );
     }
 
-    public function getFullName(): string
+    public function getFirstName(): string
     {
-        return $this->fullName;
+        return $this->firstName;
+    }
+
+    public function getLastName(): string
+    {
+        return $this->lastName;
+    }
+
+    public function getDateOfBirth(): string
+    {
+        return $this->dateOfBirth;
     }
 
     public function getUsername(): string

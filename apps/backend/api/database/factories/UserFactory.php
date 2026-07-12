@@ -16,7 +16,11 @@ class UserFactory extends Factory
         return [
             'phone_number' => fake()->unique()->numerify('01#########'),
             'username' => fake()->unique()->userName(),
-            'full_name' => fake()->name(),
+
+            'first_name' => fake()->firstName(),
+            'last_name' => fake()->lastName(),
+
+            'date_of_birth' => fake()->date(),
             'email' => fake()->unique()->safeEmail(),
 
             'password_hash' => Hash::make('password123'),
