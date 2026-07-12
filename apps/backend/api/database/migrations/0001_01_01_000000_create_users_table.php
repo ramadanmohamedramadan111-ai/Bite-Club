@@ -15,7 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('phone_number')->unique();
             $table->string('username')->unique();
-            $table->string('full_name');
+            $table->string('first_name');
+            $table->string('last_name');
+            $table->date('date_of_birth');
             $table->string('password_hash');
             $table->string('email')->unique();
             $table->string('firebase_uid')->nullable()->unique();

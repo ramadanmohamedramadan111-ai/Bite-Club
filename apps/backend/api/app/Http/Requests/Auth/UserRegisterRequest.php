@@ -23,7 +23,23 @@ class UserRegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'full_name' => ['required', 'string', 'max:255'],
+            'first_name' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+
+            'last_name' => [
+                'required',
+                'string',
+                'max:255'
+            ],
+
+            'date_of_birth' => [
+                'required',
+                'date',
+                'before:today',
+            ],
 
             'username' => [
                 'required',
@@ -65,31 +81,32 @@ class UserRegisterRequest extends FormRequest
     }
 
     public function messages(): array
-{
-    return [
-        'full_name.required' => trans('validation.required', ['attribute' => 'full name']),
+    {
+        return [
+            'first_name.required' => trans('validation.required', ['attribute' => 'first name']),
+            'last_name.required'  => trans('validation.required', ['attribute' => 'last name']),
 
-        'username.required' => trans('validation.required', ['attribute' => 'username']),
-        'username.unique'   => trans('validation.unique', ['attribute' => 'username']),
+            'username.required' => trans('validation.required', ['attribute' => 'username']),
+            'username.unique'   => trans('validation.unique', ['attribute' => 'username']),
 
-        'email.required' => trans('validation.required', ['attribute' => 'email']),
-        'email.email'    => trans('validation.email', ['attribute' => 'email']),
-        'email.unique'   => trans('validation.unique', ['attribute' => 'email']),
+            'email.required' => trans('validation.required', ['attribute' => 'email']),
+            'email.email'    => trans('validation.email', ['attribute' => 'email']),
+            'email.unique'   => trans('validation.unique', ['attribute' => 'email']),
 
-        'phone_number.required' => trans('validation.required', ['attribute' => 'phone number']),
-        'phone_number.unique'   => trans('validation.unique', ['attribute' => 'phone number']),
+            'phone_number.required' => trans('validation.required', ['attribute' => 'phone number']),
+            'phone_number.unique'   => trans('validation.unique', ['attribute' => 'phone number']),
 
-        'password.required'  => trans('validation.required', ['attribute' => 'password']),
-        'password.min'       => trans('validation.min.string', [
-            'attribute' => 'password',
-            'min'       => 8,
-        ]),
-        'password.confirmed' => trans('validation.confirmed', ['attribute' => 'password']),
+            'password.required'  => trans('validation.required', ['attribute' => 'password']),
+            'password.min'       => trans('validation.min.string', [
+                'attribute' => 'password',
+                'min'       => 8,
+            ]),
+            'password.confirmed' => trans('validation.confirmed', ['attribute' => 'password']),
 
-        'gender.required' => trans('validation.required', ['attribute' => 'gender']),
-        'gender.in'       => trans('validation.in', ['attribute' => 'gender']),
+            'gender.required' => trans('validation.required', ['attribute' => 'gender']),
+            'gender.in'       => trans('validation.in', ['attribute' => 'gender']),
 
-        'referrer_code.string' => trans('validation.string', ['attribute' => 'referrer code']),
-    ];
-}
+            'referrer_code.string' => trans('validation.string', ['attribute' => 'referrer code']),
+        ];
+    }
 }

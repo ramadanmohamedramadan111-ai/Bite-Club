@@ -18,12 +18,12 @@ class UserAuthDomainService
         private UserRepositoryInterface $userRepository
     ) {}
 
-      private function guard(): JWTGuard
+    private function guard(): JWTGuard
     {
         return Auth::guard('user');
     }
 
-        public function register(UserRegisterDto $dto): User
+    public function register(UserRegisterDto $dto): User
     {
         $referredBy = null;
 
@@ -40,7 +40,9 @@ class UserAuthDomainService
         }
 
         return $this->userRepository->create([
-            'full_name'            => $dto->getFullName(),
+            'first_name' => $dto->getFirstName(),
+            'last_name' => $dto->getLastName(),
+            'date_of_birth' => $dto->getDateOfBirth(),
             'username'             => $dto->getUsername(),
             'email'                => $dto->getEmail(),
             'phone_number'         => $dto->getPhoneNumber(),

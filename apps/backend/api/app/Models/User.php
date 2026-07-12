@@ -20,7 +20,9 @@ class User extends Authenticatable implements JWTSubject
         'phone_number',
         'firebase_uid',
         'username',
-        'full_name',
+        'first_name',
+        'last_name',
+        'date_of_birth',
         'email',
         'password_hash',
         'profile_image_url',
@@ -39,13 +41,16 @@ class User extends Authenticatable implements JWTSubject
 
     protected function casts(): array
     {
-            return [
-                'referred_by'         => 'integer',
-                'failed_pickup_count' => 'integer',
-                'last_login_at'       => 'datetime',
-                'deleted_at'          => 'datetime',
-                'status'              => UserStatusEnum::class,
-            ];
+        return [
+            'referred_by'         => 'integer',
+            'failed_pickup_count' => 'integer',
+            'last_login_at'       => 'datetime',
+            'deleted_at'          => 'datetime',
+            'status'              => UserStatusEnum::class,
+            'date_of_birth'       => 'date',
+
+
+        ];
     }
 
     /**
@@ -70,7 +75,7 @@ class User extends Authenticatable implements JWTSubject
     }
 
     public function isActive(): bool
-    { 
+    {
         return $this->status->isActive();
     }
 
@@ -85,5 +90,9 @@ class User extends Authenticatable implements JWTSubject
     public function referrals(): HasMany
     {
         return $this->hasMany(self::class, 'referred_by');
+    }
+    public function getFullNameAttribute(): string
+    {
+        return "{$this->first_name} {$this->last_name}";
     }
 }

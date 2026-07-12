@@ -20,7 +20,8 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'phone_number' => '01000000000',
             'username' => 'testuser',
-            'full_name' => 'Test User',
+            'first_name' => 'Test',
+            'last_name' => 'User',
             'email' => 'test@example.com',
             'referral_code' => 'REF-00001',
         ]);
