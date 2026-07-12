@@ -22,8 +22,5 @@ class RestaurantRepository extends BaseRepository implements RestaurantRepositor
         return $this->findBy('phone_number', $phone);
     }
 
-    public function updateLastLogin(int $id): void
-    {
-        $this->update($id, ['last_login_at' => now()]);
-    }
+  
 }

@@ -38,7 +38,6 @@ class RestaurantAuthApplicationService
 
         $restaurant = $this->restaurantAuthDomainService->getAuthenticatedRestaurant();
 
-        $this->restaurantRepository->updateLastLogin($restaurant->id);
 
         return array_merge(
             $this->buildTokenResponse($token),
