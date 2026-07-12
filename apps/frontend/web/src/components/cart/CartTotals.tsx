@@ -22,7 +22,12 @@ export default function CartTotals({ summary }: Props) {
       </div>
       {summary.discount > 0 && (
         <div className="flex justify-between">
-          <span className="text-muted-foreground">Discount</span>
+          <span className="text-muted-foreground">
+            Discount
+            {summary.appliedRedemptionTitle
+              ? ` (${summary.appliedRedemptionTitle})`
+              : ''}
+          </span>
           <span>-{summary.discount.toFixed(2)} EGP</span>
         </div>
       )}

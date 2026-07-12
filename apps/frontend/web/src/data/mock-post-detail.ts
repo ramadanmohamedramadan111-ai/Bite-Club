@@ -40,8 +40,9 @@ export const mockPostDetail: Post = {
   ],
   caption:
     'Best burger in town! The smash burger is absolutely incredible, melts in your mouth with perfectly crispy edges. The truffle fries are gold and crispy on the outside, fluffy on the inside. The grilled chicken sandwich is juicy and perfectly seasoned. Highly recommend! 🍔✨',
-  image:
+  images: [
     'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&h=800&fit=crop',
+  ],
   likeCount: 324,
   commentCount: 45,
   createdAt: '2026-07-11T10:30:00Z',

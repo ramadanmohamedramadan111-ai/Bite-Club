@@ -7,6 +7,8 @@ use App\Repositories\Interfaces\AdminRepositoryInterface;
 use App\Repositories\Eloquent\AdminRepository;
 use App\Repositories\Eloquent\UserRepository;
 use App\Repositories\Interfaces\UserRepositoryInterface;
+use App\Repositories\Interfaces\RestaurantCategoryRepositoryInterface;
+use App\Repositories\Eloquent\RestaurantCategoryRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,6 +22,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             UserRepositoryInterface::class,
             UserRepository::class
+        );
+
+        $this->app->bind(
+            RestaurantCategoryRepositoryInterface::class,
+            RestaurantCategoryRepository::class
         );
     }
 

@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Link } from '@/i18n/navigation';
 
 import { FriendsTab, SocialUser } from '@/types/social/friends';
 
@@ -12,37 +13,20 @@ interface Props {
 
 export default function UserCard({ user, tab }: Props) {
   return (
-    <div
-      className="
-        flex
-        items-center
-        justify-between
-        rounded-lg
-        border
-        p-4
-      ">
-      <div className="flex items-center gap-4">
+    <div className="flex items-center justify-between rounded-lg border p-4">
+      <Link href={`/users/${user.username}`} className="flex items-center gap-4">
         <Avatar>
           <AvatarImage src={user.avatar ?? undefined} />
-
           <AvatarFallback>{user.name[0]}</AvatarFallback>
         </Avatar>
 
         <div>
-          <p className="font-medium">{user.name}</p>
-
-          <p
-            className="
-              text-sm
-              text-muted-foreground
-            ">
-            @{user.username}
-          </p>
+          <p className="font-medium hover:underline">{user.name}</p>
+          <p className="text-sm text-muted-foreground">@{user.username}</p>
         </div>
-      </div>
+      </Link>
 
       <UserActions user={user} tab={tab} />
     </div>
   );
 }
-

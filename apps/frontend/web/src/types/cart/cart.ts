@@ -27,6 +27,8 @@ export type IndividualCart = {
   items: CartItem[];
 
   members: [];
+
+  appliedRedemptionId?: string | null;
 };
 
 // ======================
@@ -164,5 +166,7 @@ export type CartSummary = {
   discount: number;
 
   total: number;
+
+  appliedRedemptionTitle?: string;
 };
 

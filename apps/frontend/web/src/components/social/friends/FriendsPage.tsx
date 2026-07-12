@@ -2,8 +2,6 @@
 
 import { useSearchParams } from 'next/navigation';
 
-import { socialUsers } from '@/data/social-users';
-
 import { FriendsTab } from '@/types/social/friends';
 
 import FriendsTabs from './FriendsTabs';
@@ -11,15 +9,17 @@ import FriendsTabs from './FriendsTabs';
 import SearchUsers from './SearchUsers';
 
 import UserList from './UserList';
+import { useSocialStore } from '@/stores/social';
 
 export default function FriendsPage() {
   const searchParams = useSearchParams();
+  const users = useSocialStore((state) => state.users);
 
   const tab = (searchParams.get('tab') ?? 'friends') as FriendsTab;
 
   const search = searchParams.get('search') ?? '';
 
-  const users = socialUsers.filter((user) => {
+  const filteredUsers = users.filter((user) => {
     const matchesSearch =
       user.name.toLowerCase().includes(search.toLowerCase()) ||
       user.username.toLowerCase().includes(search.toLowerCase());
@@ -45,7 +45,7 @@ export default function FriendsPage() {
         return user.relationships.isBlocked;
 
       case 'discover':
-        return true;
+        return !user.relationships.isBlocked;
 
       default:
         return false;
@@ -53,7 +53,7 @@ export default function FriendsPage() {
   });
 
   return (
-    <div className="space-y-6 container mx-auto">
+    <div className="container mx-auto space-y-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Friends</h1>
         <p className="mt-2 text-muted-foreground">
@@ -65,8 +65,7 @@ export default function FriendsPage() {
 
       <SearchUsers />
 
-      <UserList users={users} tab={tab} />
+      <UserList users={filteredUsers} tab={tab} />
     </div>
   );
 }
-

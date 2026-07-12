@@ -59,9 +59,13 @@ export function NavUser() {
     return (
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton size="lg" onClick={() => router.push('/login')}>
-            <User className="size-5" />
-            <span className="text-sm font-medium">Login</span>
+          <SidebarMenuButton asChild tooltip="Login">
+            <Link href="/login">
+              <User className="size-5 shrink-0" />
+              <span className="text-sm font-medium group-data-[collapsible=icon]:hidden">
+                Login
+              </span>
+            </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>

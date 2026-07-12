@@ -11,12 +11,14 @@ project/
 │   ├── Dockerfile.api
 │   ├── Dockerfile.dashboard
 │   ├── Dockerfile.web
+│   ├── Dockerfile.admin
 │   └── Dockerfile.ai
 ├── apps/
 │   ├── backend/
 │   │   └── api/          Laravel
 │   ├── frontend/
 │   │   ├── dashboard/    React + Vite
+│   │   ├── admin/    React + Vite
 │   │   └── web/          Next.js
 │   └── ai/               Django
 ├── nginx/
@@ -33,6 +35,7 @@ project/
 - `api`: Laravel backend
 - `dashboard`: React admin dashboard
 - `web`: Next.js frontend
+- `admin`: React admin dashboard
 - `ai`: Django AI service
 - `db`: MySQL database
 - `nginx`: reverse proxy and domain router
@@ -42,7 +45,8 @@ project/
 - `api.localhost:8080` routes to the Laravel backend
 - `dashboard.localhost:8080` routes to the React dashboard
 - `web.localhost:8080` routes to the Next.js app
-- `ai.localhost:8080` routes to the Django service
+- `admin.localhost:8080` routes to the React admin dashboard
+- `ai.localhost:8080` routes to the Django AI service
 
 Add this to `/etc/hosts`:
 

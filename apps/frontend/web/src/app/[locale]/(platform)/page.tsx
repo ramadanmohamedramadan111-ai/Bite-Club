@@ -1,13 +1,5 @@
-'use client';
-import { useTranslations } from 'next-intl';
-import { notFound } from 'next/navigation';
-import { use } from 'react';
+import HomePageView from '@/components/home/HomePageView';
 
-export default function Home({ params }) {
-  const { locale } = use(params);
-
-  const t = useTranslations();
-
-  return <div>{t('greeting')}</div>;
+export default function HomePage() {
+  return <HomePageView />;
 }
-

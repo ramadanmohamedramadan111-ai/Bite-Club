@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import CartItemRow from './CartItemRow';
 import CartTotals from './CartTotals';
+import CartRedemptionSelector from './CartRedemptionSelector';
 import GroupCartActionButton from './GroupCartActionButton';
 import GroupCartItemsList from './GroupCartItemsList';
 import GroupCartTotals from './GroupCartTotals';
@@ -132,6 +133,7 @@ export default function CartPageView() {
             <CardTitle className="text-base">Order Summary</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
+            {cart.type === 'individual' && <CartRedemptionSelector />}
             {cart.type === 'group' ? (
               <GroupCartTotals items={cartItems} summary={summary} />
             ) : (

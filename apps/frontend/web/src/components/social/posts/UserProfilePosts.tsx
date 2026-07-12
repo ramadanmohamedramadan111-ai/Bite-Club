@@ -1,70 +1,71 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { PostCard } from './PostCard';
-import { Post, PostItem } from '@/types/social/posts';
-import { CartItem } from '@/types/cart/cart';
+import type { Post } from '@/types/social/posts';
 import { Loader2 } from 'lucide-react';
-import { mockPosts } from '@/data/mock-posts';
+import { useSocialStore } from '@/stores/social';
+import { useAddToIndividualCart } from '@/hooks/use-add-to-individual-cart';
 
 interface UserProfilePostsProps {
   userId: string;
   onAddToCart?: (post: Post) => void;
 }
 
-// Helper function to convert PostItem to CartItem
-const convertPostItemToCartItem = (postItem: PostItem): CartItem => ({
-  cartItemId: `cart-${postItem.id}-${Date.now()}`,
-  itemId: postItem.id,
-  name: postItem.name,
-  quantity: postItem.quantity,
-  basePrice: postItem.price,
-  unitPrice: postItem.price,
-  totalPrice: postItem.price * postItem.quantity,
-  configurationKey: postItem.id,
-  selectedOptions: [],
-});
+const POSTS_PER_PAGE = 3;
 
 export function UserProfilePosts({
   userId,
   onAddToCart,
 }: UserProfilePostsProps) {
+  const allPosts = useSocialStore((state) => state.posts);
+  const { addFromPost, dialog } = useAddToIndividualCart();
+
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
-  const postsPerPage = 3;
 
   const [observedElement, setObservedElement] = useState<HTMLDivElement | null>(
     null,
   );
 
-  // Simulate initial load
-  useEffect(() => {
-    setTimeout(() => {
-      // Filter posts by userId
-      const userPosts = mockPosts.filter((p) => p.authorId === userId);
-      setPosts(userPosts.slice(0, postsPerPage));
-      setIsLoading(false);
-    }, 400);
-  }, [userId]);
+  const userPosts = useMemo(
+    () => allPosts.filter((post) => post.authorId === userId),
+    [allPosts, userId],
+  );
+  const hasNextPage = posts.length < userPosts.length;
 
-  // Simulate infinite scroll
   useEffect(() => {
-    if (!observedElement) return;
+    setIsLoading(true);
+    setCurrentPage(0);
+
+    const timer = setTimeout(() => {
+      setPosts(userPosts.slice(0, POSTS_PER_PAGE));
+      setIsLoading(false);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [userId, userPosts]);
+
+  useEffect(() => {
+    if (!observedElement || !hasNextPage) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !isFetchingNextPage && !isLoading) {
+        if (
+          entry.isIntersecting &&
+          !isFetchingNextPage &&
+          !isLoading &&
+          hasNextPage
+        ) {
           setIsFetchingNextPage(true);
-          // Simulate API delay
           setTimeout(() => {
-            const userPosts = mockPosts.filter((p) => p.authorId === userId);
             const nextPage = currentPage + 1;
-            const startIdx = nextPage * postsPerPage;
+            const startIdx = nextPage * POSTS_PER_PAGE;
             const newPosts = userPosts.slice(
               startIdx,
-              startIdx + postsPerPage,
+              startIdx + POSTS_PER_PAGE,
             );
 
             if (newPosts.length > 0) {
@@ -72,7 +73,7 @@ export function UserProfilePosts({
               setCurrentPage(nextPage);
             }
             setIsFetchingNextPage(false);
-          }, 500);
+          }, 400);
         }
       },
       { threshold: 0.1 },
@@ -80,14 +81,19 @@ export function UserProfilePosts({
 
     observer.observe(observedElement);
     return () => observer.disconnect();
-  }, [observedElement, isFetchingNextPage, isLoading, currentPage, userId]);
-
-  const userPosts = mockPosts.filter((p) => p.authorId === userId);
-  const hasNextPage = posts.length < userPosts.length;
+  }, [
+    observedElement,
+    isFetchingNextPage,
+    isLoading,
+    currentPage,
+    userId,
+    userPosts,
+    hasNextPage,
+  ]);
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-12">
+      <div className="flex items-center justify-center py-12">
         <Loader2 className="animate-spin" />
       </div>
     );
@@ -95,58 +101,47 @@ export function UserProfilePosts({
 
   if (posts.length === 0) {
     return (
-      <div className="flex flex-col justify-center items-center py-12 gap-4">
+      <div className="flex flex-col items-center justify-center gap-4 py-12">
         <p className="text-muted-foreground">No posts yet</p>
       </div>
     );
   }
 
-  const handleAddToCartLocal = async (post: Post) => {
-    try {
-      // Add items from post to cart using cart store
-      const { useCartStore } = await import('@/stores/cart');
-      const cartStore = useCartStore.getState();
-
-      // Create individual cart if needed
-      if (!cartStore.cart) {
-        cartStore.createIndividualCart({
-          restaurantId: post.restaurantId,
-          restaurantName: post.restaurant.name,
-          restaurantImage: post.restaurant.image,
-        });
-      }
-
-      // Add each item from post
-      for (const item of post.items) {
-        cartStore.addItem(convertPostItemToCartItem(item));
-      }
-    } catch (err) {
-      console.error('Failed to add to cart:', err);
+  const handleAddToCart = (post: Post) => {
+    if (onAddToCart) {
+      onAddToCart(post);
+      return;
     }
+
+    addFromPost(post, { redirect: true });
   };
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {posts.map((post) => (
-          <PostCard
-            key={post.id}
-            post={post}
-            onAddToCart={onAddToCart || handleAddToCartLocal}
-          />
-        ))}
-      </div>
-
-      {/* Infinite scroll trigger */}
-      <div ref={setObservedElement} className="py-8 flex justify-center">
-        {isFetchingNextPage && <Loader2 className="animate-spin" />}
-      </div>
-
-      {!hasNextPage && posts.length > 0 && (
-        <div className="py-8 text-center text-muted-foreground">
-          No more posts to load
+    <>
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {posts.map((post) => (
+            <PostCard
+              key={post.id}
+              post={post}
+              onAddToCart={handleAddToCart}
+            />
+          ))}
         </div>
-      )}
-    </div>
+
+        {hasNextPage && (
+          <div ref={setObservedElement} className="flex justify-center py-8">
+            {isFetchingNextPage && <Loader2 className="animate-spin" />}
+          </div>
+        )}
+
+        {!hasNextPage && (
+          <p className="py-4 text-center text-sm text-muted-foreground">
+            No more posts to load
+          </p>
+        )}
+      </div>
+      {!onAddToCart && dialog}
+    </>
   );
 }
