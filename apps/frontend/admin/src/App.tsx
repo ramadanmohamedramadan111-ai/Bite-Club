@@ -1,346 +1,217 @@
 import { useState } from 'react'
+import { useTheme } from './contexts/ThemeContext'
+import { useLocale } from './contexts/LocaleContext'
+import { DashboardPage } from './pages/Dashboard'
+import { UsersPage } from './pages/Users'
+import { BlockedUsersPage } from './pages/BlockedUsers'
+import { RestaurantsPage } from './pages/Restaurants'
+import { CategoriesPage } from './pages/Categories'
+import { OrdersPage } from './pages/Orders'
+import { PaymentsPage } from './pages/Payments'
+import { CommissionsPage } from './pages/Commissions'
+import { LoyaltyPointsPage } from './pages/LoyaltyPoints'
+import { ReferralSystemPage } from './pages/ReferralSystem'
+import { BadgesPage } from './pages/Badges'
+import { LeaderboardPage } from './pages/Leaderboard'
+import { FeedModerationPage } from './pages/FeedModeration'
+import { AIMonitoringPage } from './pages/AIMonitoring'
+import { ActivityLogsPage } from './pages/ActivityLogs'
+import { SystemSettingsPage } from './pages/SystemSettings'
+import { AdminProfilePage } from './pages/AdminProfile'
+import { ChangePasswordPage } from './pages/ChangePassword'
 import './App.css'
 
-/* ─────────────────────────────────────────────
-   Types
-───────────────────────────────────────────── */
 type NavItemId =
-  | 'dashboard'
-  | 'users'
-  | 'orders'
-  | 'menu'
-  | 'analytics'
-  | 'settings'
+  | 'dashboard' | 'users' | 'blockedUsers' | 'restaurants' | 'categories'
+  | 'orders' | 'payments' | 'commissions' | 'loyalty' | 'referrals'
+  | 'badges' | 'leaderboard' | 'feed' | 'aiMonitoring' | 'activityLogs'
+  | 'settings' | 'profile' | 'changePassword'
 
 interface NavItem {
   id: NavItemId
-  label: string
-  icon: string
+  labelKey: string
+  icon: React.ReactNode
   badge?: number
+  section: string
 }
 
-interface Order {
-  id: string
-  customer: string
-  items: string
-  total: string
-  status: 'Delivered' | 'Pending' | 'Cancelled' | 'Processing'
-  time: string
+function Svg({ d, stroke = 1.8 }: { d: string; stroke?: number }) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">
+      {d.split('|').map((p, i) => <path key={i} d={p.trim()} />)}
+    </svg>
+  )
 }
 
-interface StatCard {
-  label: string
-  value: string
-  change: string
-  direction: 'up' | 'down'
-  icon: string
-  iconBg: string
+const I = {
+  bold: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" /><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" /><line x1="6" y1="4" x2="6" y2="20" /></svg>,
+  dashboard: <Svg d="M3 3h7v7H3z|M14 3h7v7h-7z|M3 14h7v7H3z|M14 14h7v7h-7z" />,
+  orders: <Svg d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2|M15 2v4H9V2z|M9 13h6|M9 17h6" />,
+  users: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><circle cx="17" cy="8" r="3.5"/><path d="M21 19v-1.5a3.5 3.5 0 0 0-3.5-3.5H17"/></svg>,
+  ban: <Svg d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z|M4.93 4.93l14.14 14.14" />,
+  restaurants: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>,
+  categories: <Svg d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z|M2 10h20" />,
+  payments: <Svg d="M3 10h18M7 15h1m4 0h1M3 6h18a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" />,
+  commissions: <Svg d="M12 20l9-16H3z|M6 9l6 6 6-6" />,
+  loyalty: <Svg d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />,
+  referrals: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>,
+  badges: <Svg d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke={1.6} />,
+  leaderboard: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 6 9 6 9z"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 18 9 18 9z"/><path d="M4 22h16"/><path d="M10 22V2h4v20"/><circle cx="12" cy="15" r="2" fill="currentColor" opacity="0.3"/></svg>,
+  feed: <Svg d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z|M9 10h6|M9 14h6" />,
+  aiMonitoring: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M8 4v4M16 4v4"/><circle cx="9" cy="13" r="1" fill="currentColor"/><circle cx="15" cy="13" r="1" fill="currentColor"/><path d="M9 17a3 3 0 0 0 6 0"/></svg>,
+  activityLogs: <Svg d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z|M14 2v6h6|M16 13H8|M16 17H8|M10 9H8" />,
+  settings: <Svg d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z|M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" stroke={1.6} />,
+  profile: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/></svg>,
+  password: <Svg d="M12 2a7 7 0 0 0-7 7v3H3v9h18v-9h-2V9a7 7 0 0 0-7-7z|M9 11V9a3 3 0 0 1 6 0v2" />,
+  sun: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M6.34 17.66l-1.41 1.41"/><path d="M19.07 4.93l-1.41 1.41"/></svg>,
+  moon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
 }
 
-interface ActivityItem {
-  id: number
-  text: string
-  user: string
-  time: string
-  dotColor: string
-}
-
-/* ─────────────────────────────────────────────
-   Static Data
-───────────────────────────────────────────── */
-const NAV_MAIN: NavItem[] = [
-  { id: 'dashboard', label: 'Dashboard',  icon: '⊞'  },
-  { id: 'orders',    label: 'Orders',     icon: '🧾', badge: 12 },
-  { id: 'menu',      label: 'Menu',       icon: '🍽️' },
-  { id: 'users',     label: 'Users',      icon: '👥' },
-  { id: 'analytics', label: 'Analytics',  icon: '📊' },
+const NAV_ITEMS: NavItem[] = [
+  { id: 'dashboard',     labelKey: 'dashboard',     icon: I.dashboard,   section: 'main' },
+  { id: 'orders',        labelKey: 'orders',        icon: I.orders,      badge: 12, section: 'main' },
+  { id: 'users',         labelKey: 'users',         icon: I.users,       section: 'management' },
+  { id: 'blockedUsers',  labelKey: 'blockedUsers',  icon: I.ban,         section: 'management' },
+  { id: 'restaurants',   labelKey: 'restaurants',   icon: I.restaurants, section: 'management' },
+  { id: 'categories',    labelKey: 'categories',    icon: I.categories,  section: 'management' },
+  { id: 'payments',      labelKey: 'payments',      icon: I.payments,    section: 'finance' },
+  { id: 'commissions',   labelKey: 'commissions',   icon: I.commissions, section: 'finance' },
+  { id: 'loyalty',       labelKey: 'loyalty',       icon: I.loyalty,     section: 'engagement' },
+  { id: 'referrals',     labelKey: 'referrals',     icon: I.referrals,   section: 'engagement' },
+  { id: 'badges',        labelKey: 'badges',        icon: I.badges,      section: 'engagement' },
+  { id: 'leaderboard',   labelKey: 'leaderboard',   icon: I.leaderboard, section: 'engagement' },
+  { id: 'feed',          labelKey: 'feed',          icon: I.feed,        section: 'moderation' },
+  { id: 'aiMonitoring',  labelKey: 'aiMonitoring',  icon: I.aiMonitoring, section: 'moderation' },
+  { id: 'activityLogs',  labelKey: 'activityLogs',  icon: I.activityLogs, section: 'moderation' },
+  { id: 'settings',      labelKey: 'settings',      icon: I.settings,    section: 'system' },
+  { id: 'profile',       labelKey: 'profile',       icon: I.profile,     section: 'system' },
+  { id: 'changePassword',labelKey: 'changePassword',icon: I.password,    section: 'system' },
 ]
 
-const NAV_SYSTEM: NavItem[] = [
-  { id: 'settings', label: 'Settings', icon: '⚙️' },
-]
-
-const STATS: StatCard[] = [
-  {
-    label: 'Total Revenue',
-    value: '$48,295',
-    change: '+12.5%',
-    direction: 'up',
-    icon: '💰',
-    iconBg: 'var(--success-bg)',
-  },
-  {
-    label: 'Total Orders',
-    value: '3,842',
-    change: '+8.3%',
-    direction: 'up',
-    icon: '🧾',
-    iconBg: 'var(--info-bg)',
-  },
-  {
-    label: 'Active Users',
-    value: '1,204',
-    change: '+5.1%',
-    direction: 'up',
-    icon: '👥',
-    iconBg: 'rgba(139,91,246,0.15)',
-  },
-  {
-    label: 'Cancelled',
-    value: '47',
-    change: '-2.4%',
-    direction: 'down',
-    icon: '❌',
-    iconBg: 'var(--danger-bg)',
-  },
-]
-
-const ORDERS: Order[] = [
-  { id: '#BC-9841', customer: 'Ahmed Ramadan',    items: 'Burger + Fries',        total: '$24.50', status: 'Delivered',  time: '2 min ago'  },
-  { id: '#BC-9840', customer: 'Sara El-Sayed',    items: 'Grilled Chicken Wrap',  total: '$18.00', status: 'Processing', time: '8 min ago'  },
-  { id: '#BC-9839', customer: 'Omar Farouk',      items: 'Pizza Margherita x2',   total: '$32.00', status: 'Pending',    time: '15 min ago' },
-  { id: '#BC-9838', customer: 'Nada Hassan',      items: 'Caesar Salad + Juice',  total: '$14.75', status: 'Delivered',  time: '22 min ago' },
-  { id: '#BC-9837', customer: 'Khaled Ibrahim',   items: 'Steak Plate',           total: '$45.00', status: 'Cancelled',  time: '35 min ago' },
-  { id: '#BC-9836', customer: 'Mona Sherif',      items: 'Sushi Platter',         total: '$52.00', status: 'Delivered',  time: '1 hr ago'   },
-  { id: '#BC-9835', customer: 'Yousef Mahmoud',   items: 'Vegan Bowl + Smoothie', total: '$20.00', status: 'Processing', time: '1 hr ago'   },
-]
-
-const ACTIVITY: ActivityItem[] = [
-  { id: 1, text: 'New order placed by',     user: 'Ahmed Ramadan',   time: '2 min ago',  dotColor: 'var(--success)' },
-  { id: 2, text: 'Order cancelled by',      user: 'Khaled Ibrahim',  time: '35 min ago', dotColor: 'var(--danger)'  },
-  { id: 3, text: 'New user registered:',    user: 'Sara El-Sayed',   time: '1 hr ago',   dotColor: 'var(--info)'    },
-  { id: 4, text: 'Menu item updated by',    user: 'Admin',           time: '2 hr ago',   dotColor: 'var(--warning)' },
-  { id: 5, text: 'Payment confirmed for',   user: 'Mona Sherif',     time: '2 hr ago',   dotColor: 'var(--success)' },
-  { id: 6, text: 'Support ticket from',     user: 'Omar Farouk',     time: '3 hr ago',   dotColor: 'var(--warning)' },
-]
-
-const QUICK_ACTIONS = [
-  { icon: '➕', label: 'Add Menu Item' },
-  { icon: '👤', label: 'New User'      },
-  { icon: '📦', label: 'New Order'     },
-  { icon: '📢', label: 'Send Promo'    },
-]
-
-const PAGE_TITLES: Record<NavItemId, { title: string; subtitle: string }> = {
-  dashboard: { title: 'Dashboard',   subtitle: 'Welcome back, Admin 👋' },
-  orders:    { title: 'Orders',      subtitle: 'Manage and track all orders' },
-  menu:      { title: 'Menu',        subtitle: 'Manage your restaurant menu' },
-  users:     { title: 'Users',       subtitle: 'View and manage user accounts' },
-  analytics: { title: 'Analytics',   subtitle: 'Performance insights & reports' },
-  settings:  { title: 'Settings',    subtitle: 'Configure your admin preferences' },
-}
-
-/* ─────────────────────────────────────────────
-   Sub-components
-───────────────────────────────────────────── */
-function StatusBadge({ status }: { status: Order['status'] }) {
-  const map: Record<Order['status'], string> = {
-    Delivered:  'badge badge-success',
-    Processing: 'badge badge-info',
-    Pending:    'badge badge-warning',
-    Cancelled:  'badge badge-danger',
-  }
-  return <span className={map[status]}>{status}</span>
-}
-
-/* ─────────────────────────────────────────────
-   Main Component
-───────────────────────────────────────────── */
 function App() {
   const [activeNav, setActiveNav] = useState<NavItemId>('dashboard')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const { theme, toggleTheme } = useTheme()
+  const { t, locale, setLocale, dir } = useLocale()
 
-  const { title, subtitle } = PAGE_TITLES[activeNav]
+  const groups: Record<string, NavItem[]> = {}
+  const sectionOrder = ['main', 'management', 'finance', 'engagement', 'moderation', 'system']
+  for (const item of NAV_ITEMS) {
+    if (!groups[item.section]) groups[item.section] = []
+    groups[item.section].push(item)
+  }
+
+  const renderPage = () => {
+    switch (activeNav) {
+      case 'dashboard': return <DashboardPage />
+      case 'users': return <UsersPage />
+      case 'blockedUsers': return <BlockedUsersPage />
+      case 'restaurants': return <RestaurantsPage />
+      case 'categories': return <CategoriesPage />
+      case 'orders': return <OrdersPage />
+      case 'payments': return <PaymentsPage />
+      case 'commissions': return <CommissionsPage />
+      case 'loyalty': return <LoyaltyPointsPage />
+      case 'referrals': return <ReferralSystemPage />
+      case 'badges': return <BadgesPage />
+      case 'leaderboard': return <LeaderboardPage />
+      case 'feed': return <FeedModerationPage />
+      case 'aiMonitoring': return <AIMonitoringPage />
+      case 'activityLogs': return <ActivityLogsPage />
+      case 'settings': return <SystemSettingsPage />
+      case 'profile': return <AdminProfilePage />
+      case 'changePassword': return <ChangePasswordPage />
+    }
+  }
 
   return (
-    <div className="admin-shell">
-      {/* ─── Sidebar ─── */}
+    <div className={`admin-shell ${dir === 'rtl' ? 'rtl' : ''}`}>
       <aside className={`sidebar${sidebarCollapsed ? ' collapsed' : ''}`}>
-        {/* Brand */}
         <div className="sidebar-brand">
-          <div className="sidebar-brand-icon">🍔</div>
+          <div className="sidebar-brand-icon">{I.bold}</div>
           {!sidebarCollapsed && (
             <div className="sidebar-brand-text">
-              <span className="name">Bite-Club</span>
-              <span className="label">Admin Panel</span>
+              <span className="name">BiteClub</span>
             </div>
           )}
         </div>
 
-        {/* Navigation */}
         <nav className="sidebar-nav" aria-label="Admin navigation">
-          {!sidebarCollapsed && (
-            <span className="nav-section-label">Main</span>
-          )}
-          {NAV_MAIN.map((item) => (
-            <button
-              key={item.id}
-              id={`nav-${item.id}`}
-              className={`nav-item${activeNav === item.id ? ' active' : ''}`}
-              onClick={() => setActiveNav(item.id)}
-              aria-current={activeNav === item.id ? 'page' : undefined}
-              title={sidebarCollapsed ? item.label : undefined}
-            >
-              <span className="nav-icon" aria-hidden="true">{item.icon}</span>
-              {!sidebarCollapsed && (
-                <>
-                  <span className="nav-label">{item.label}</span>
-                  {item.badge !== undefined && (
-                    <span className="nav-badge">{item.badge}</span>
-                  )}
-                </>
-              )}
-            </button>
-          ))}
-
-          {!sidebarCollapsed && (
-            <span className="nav-section-label" style={{ marginTop: '8px' }}>
-              System
-            </span>
-          )}
-          {NAV_SYSTEM.map((item) => (
-            <button
-              key={item.id}
-              id={`nav-${item.id}`}
-              className={`nav-item${activeNav === item.id ? ' active' : ''}`}
-              onClick={() => setActiveNav(item.id)}
-              aria-current={activeNav === item.id ? 'page' : undefined}
-              title={sidebarCollapsed ? item.label : undefined}
-            >
-              <span className="nav-icon" aria-hidden="true">{item.icon}</span>
-              {!sidebarCollapsed && (
-                <span className="nav-label">{item.label}</span>
-              )}
-            </button>
-          ))}
+          {sectionOrder.map((section) => {
+            const items = groups[section]
+            if (!items) return null
+            return (
+              <div key={section}>
+                {!sidebarCollapsed && (
+                  <span className="nav-section-label">{t(`sections.${section}`)}</span>
+                )}
+                {items.map((item) => (
+                  <button
+                    key={item.id}
+                    className={`nav-item${activeNav === item.id ? ' active' : ''}`}
+                    onClick={() => setActiveNav(item.id)}
+                    aria-current={activeNav === item.id ? 'page' : undefined}
+                    title={sidebarCollapsed ? (t as any)(`nav.${item.labelKey}`) : undefined}
+                  >
+                    <span className="nav-icon" aria-hidden="true">{item.icon}</span>
+                    {!sidebarCollapsed && (
+                      <>
+                        <span className="nav-label">{(t as any)(`nav.${item.labelKey}`)}</span>
+                        {item.badge !== undefined && <span className="nav-badge">{item.badge}</span>}
+                      </>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )
+          })}
         </nav>
 
-        {/* Collapse Toggle */}
         <div className="sidebar-footer">
           <button
-            id="sidebar-toggle-btn"
             className="sidebar-toggle"
             onClick={() => setSidebarCollapsed((c) => !c)}
             aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            title={sidebarCollapsed ? 'Expand' : 'Collapse'}
           >
             <span className="nav-icon" aria-hidden="true">
-              {sidebarCollapsed ? '→' : '←'}
+              {sidebarCollapsed ? I.dashboard : (dir === 'rtl' ? '→' : '←')}
             </span>
-            {!sidebarCollapsed && <span>Collapse</span>}
+            {!sidebarCollapsed && <span>{t('common.close')}</span>}
           </button>
         </div>
       </aside>
 
-      {/* ─── Main ─── */}
       <div className={`admin-main${sidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
-        {/* Topbar */}
         <header className="topbar">
           <div className="topbar-left">
-            <span className="topbar-title">{title}</span>
-            <span className="topbar-subtitle">{subtitle}</span>
+            <span className="topbar-title">
+              {(t as any)(`nav.${NAV_ITEMS.find(i => i.id === activeNav)?.labelKey || 'dashboard'}`)}
+            </span>
           </div>
           <div className="topbar-right">
-            <button id="topbar-search-btn" className="topbar-btn" aria-label="Search" title="Search">
-              🔍
+            <button className="topbar-btn locale-btn" onClick={() => setLocale(locale === 'en' ? 'ar' : 'en')} title="Toggle language">
+              {locale === 'en' ? 'AR' : 'EN'}
             </button>
-            <button id="topbar-notifications-btn" className="topbar-btn" aria-label="Notifications" title="Notifications">
-              🔔
-              <span className="dot" aria-hidden="true" />
+            <button className="topbar-btn theme-btn" onClick={toggleTheme} title={theme === 'dark' ? 'Light mode' : 'Dark mode'}>
+              {theme === 'dark' ? I.sun : I.moon}
             </button>
             <div
-              id="admin-avatar"
               className="admin-avatar"
               role="button"
               tabIndex={0}
               aria-label="Admin profile"
-              title="Admin profile"
+              title={t('nav.profile')}
+              onClick={() => setActiveNav('profile')}
             >
-              A
+              {I.profile}
             </div>
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="page-content">
-          {/* ─── Placeholder Pages ─── */}
-          <PlaceholderPage nav={activeNav} onBack={() => setActiveNav('dashboard')} />
+        <main className="page-content-area">
+          {renderPage()}
         </main>
       </div>
-    </div>
-  )
-}
-
-/* ─────────────────────────────────────────────
-   Placeholder Pages
-───────────────────────────────────────────── */
-function PlaceholderPage({
-  nav,
-  onBack,
-}: {
-  nav: NavItemId
-  onBack: () => void
-}) {
-  const { title, subtitle } = PAGE_TITLES[nav]
-  const iconMap: Record<NavItemId, string> = {
-    dashboard: '⊞',
-    orders:    '🧾',
-    menu:      '🍽️',
-    users:     '👥',
-    analytics: '📊',
-    settings:  '⚙️',
-  }
-  return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '20px',
-        flex: 1,
-        padding: '60px 24px',
-        textAlign: 'center',
-      }}
-    >
-      <div
-        style={{
-          width: '72px',
-          height: '72px',
-          borderRadius: 'var(--radius)',
-          background: 'var(--bg-elevated)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '32px',
-          border: '1px solid var(--border-subtle)',
-        }}
-        aria-hidden="true"
-      >
-        {iconMap[nav]}
-      </div>
-      <div>
-        <h1 style={{ fontSize: '20px', marginBottom: '8px' }}>{title}</h1>
-        <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{subtitle}</p>
-        <p
-          style={{
-            fontSize: '13px',
-            color: 'var(--text-muted)',
-            marginTop: '8px',
-          }}
-        >
-          This section is under construction. Full implementation coming soon.
-        </p>
-      </div>
-      {nav !== 'dashboard' && (
-        <button
-          id={`back-to-dashboard-from-${nav}`}
-          className="btn btn-outline"
-          onClick={onBack}
-        >
-          ← Back to Dashboard
-        </button>
-      )}
     </div>
   )
 }
