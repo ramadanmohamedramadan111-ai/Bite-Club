@@ -2,13 +2,15 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use App\Repositories\Interfaces\AdminRepositoryInterface;
 use App\Repositories\Eloquent\AdminRepository;
 use App\Repositories\Eloquent\UserRepository;
 use App\Repositories\Interfaces\UserRepositoryInterface;
-use App\Repositories\Interfaces\RestaurantCategoryRepositoryInterface;
 use App\Repositories\Eloquent\RestaurantCategoryRepository;
+use App\Repositories\Eloquent\RestaurantRepository;
+use App\Repositories\Interfaces\AdminRepositoryInterface;
+use App\Repositories\Interfaces\RestaurantCategoryRepositoryInterface;
+use App\Repositories\Interfaces\RestaurantRepositoryInterface;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,9 +30,12 @@ class AppServiceProvider extends ServiceProvider
             RestaurantCategoryRepositoryInterface::class,
             RestaurantCategoryRepository::class
         );
+
+        $this->app->bind(
+            RestaurantRepositoryInterface::class,
+            RestaurantRepository::class
+        );
     }
 
-    public function boot(): void
-    {
-    }
+    public function boot(): void {}
 }
