@@ -3,12 +3,26 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --brand-orange: #ff6f20;
+    --brand-orange-soft: #fff0e8;
+    --brand-navy: #07121f;
+    --brand-slate: #64748b;
+    --brand-surface: #f8fafc;
+    --brand-muted: #e2e8f0;
+    --brand-card: #ffffff;
+    --brand-accent: #3b82f6;
+    --brand-success: #16a34a;
+    --brand-warning: #f59e0b;
+    --brand-danger: #ef4444;
+  }
+
   html {
     scroll-behavior: smooth;
   }
 
   body {
-    @apply min-h-screen bg-slate-50 text-slate-900 antialiased;
+    @apply min-h-screen bg-brand-surface text-brand-navy antialiased;
     font-family: Inter, ui-sans-serif, system-ui, sans-serif;
   }
 
@@ -26,108 +40,4 @@ body,
 button,
 input {
   font: inherit;
-}
-
-.dashboard-welcome {
-  display: grid;
-  gap: 1rem;
-  grid-column: span 4;
-}
-
-.dashboard-panel {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 1.25rem;
-  grid-column: span 4;
-}
-
-.panel-summary,
-.panel-feed {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 24px;
-  padding: 1.5rem;
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.05);
-}
-
-.panel-summary h3,
-.panel-feed h3 {
-  margin: 0 0 1rem;
-  font-size: 1rem;
-  color: #334155;
-}
-
-.summary-list {
-  display: grid;
-  gap: 0.9rem;
-}
-
-.summary-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-}
-
-.summary-item strong {
-  color: #0f172a;
-}
-
-.summary-item span {
-  color: #64748b;
-}
-
-.dashboard-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.3rem 1.5rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 20px;
-  grid-column: span 4;
-}
-
-.dashboard-footer p {
-  margin: 0;
-  color: #334155;
-}
-
-@media (max-width: 1040px) {
-  .dashboard-grid,
-  .dashboard-panel {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media (max-width: 780px) {
-  .dashboard-panel {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 640px) {
-  .dashboard-shell {
-    padding: 1rem;
-  }
-
-  .dashboard-title h2 {
-    font-size: 1.6rem;
-  }
-
-  .dashboard-grid,
-  .dashboard-panel {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 540px) {
-  .login-card {
-    padding: 1.75rem;
-    border-radius: 22px;
-  }
-
-  .login-brand h1 {
-    font-size: 1.75rem;
-  }
 }

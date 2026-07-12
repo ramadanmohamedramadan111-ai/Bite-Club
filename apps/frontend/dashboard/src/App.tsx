@@ -1,6 +1,6 @@
 import { useAuthStore } from './store/authStore'
-import { LoginPage } from './components/auth/LoginPage'
-import { DashboardPage } from './components/dashboard/DashboardPage'
+import { LoginPage } from './pages/LoginPage'
+import { DashboardPage } from './pages/DashboardPage'
 import { Toaster } from 'react-hot-toast'
 
 function App() {

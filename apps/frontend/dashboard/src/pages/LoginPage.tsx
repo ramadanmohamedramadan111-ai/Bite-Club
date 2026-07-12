@@ -3,8 +3,8 @@ import { ArrowRight, Eye, EyeOff, Lock, Mail, Sparkles } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { SignJWT } from 'jose'
 import toast from 'react-hot-toast'
-import { loginSchema, type LoginFormValues } from '../../lib/validation'
-import { useAuthStore } from '../../store/authStore'
+import { loginSchema, type LoginFormValues } from '../lib/validation'
+import { useAuthStore } from '../store/authStore'
 
 export function LoginPage() {
   const { t, i18n } = useTranslation()
@@ -47,7 +47,7 @@ export function LoginPage() {
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100 px-4 py-10 ${i18n.language === 'ar' ? 'rtl' : 'ltr'}`}>
-      <div className="mx-auto w-full max-w-md rounded-[32px] border border-slate-200 bg-white px-8 py-10 shadow-glow">
+      <div className="mx-auto w-full max-w-md rounded-[32px] border border-slate-200 bg-white px-8 py-10 shadow-panel">
         <div className="grid gap-5 text-center">
           <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-orange-500 text-white shadow-lg shadow-orange-200/40">
             <Sparkles size={24} />
