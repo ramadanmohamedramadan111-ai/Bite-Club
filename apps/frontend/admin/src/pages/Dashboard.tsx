@@ -39,13 +39,6 @@ const ACTIVITY: ActivityItem[] = [
   { id: 6, text: 'Support ticket from',     user: 'Omar Farouk',     time: '3 hr ago',   dotColor: 'var(--warning)' },
 ]
 
-const QUICK_ACTIONS = [
-  { icon: '➕', labelKey: 'addMenuItem' },
-  { icon: '👤', labelKey: 'newUser' },
-  { icon: '📦', labelKey: 'newOrder' },
-  { icon: '📢', labelKey: 'sendPromo' },
-]
-
 export function DashboardPage() {
   const { t } = useLocale()
 
@@ -111,20 +104,6 @@ export function DashboardPage() {
               </div>
             ))}
           </div>
-        </div>
-      </div>
-
-      <div className="card">
-        <div className="card-header">
-          <span className="card-title">{t('dashboard.quickActions')}</span>
-        </div>
-        <div className="quick-actions">
-          {QUICK_ACTIONS.map((a) => (
-            <button key={a.labelKey} className="quick-action-btn">
-              <span className="quick-action-icon">{a.icon}</span>
-              {(t as any)(`dashboard.${a.labelKey}`)}
-            </button>
-          ))}
         </div>
       </div>
     </div>

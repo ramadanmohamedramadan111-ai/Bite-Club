@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTheme } from './contexts/ThemeContext'
 import { useLocale } from './contexts/LocaleContext'
 import { DashboardPage } from './pages/Dashboard'
@@ -69,7 +69,7 @@ const I = {
 
 const NAV_ITEMS: NavItem[] = [
   { id: 'dashboard',     labelKey: 'dashboard',     icon: I.dashboard,   section: 'main' },
-  { id: 'orders',        labelKey: 'orders',        icon: I.orders,      badge: 12, section: 'main' },
+  { id: 'orders',        labelKey: 'orders',        icon: I.orders,      section: 'main' },
   { id: 'users',         labelKey: 'users',         icon: I.users,       section: 'management' },
   { id: 'blockedUsers',  labelKey: 'blockedUsers',  icon: I.ban,         section: 'management' },
   { id: 'restaurants',   labelKey: 'restaurants',   icon: I.restaurants, section: 'management' },
@@ -93,6 +93,32 @@ function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const { theme, toggleTheme } = useTheme()
   const { t, locale, setLocale, dir } = useLocale()
+
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    main: true,
+    management: false,
+    finance: false,
+    engagement: false,
+    moderation: false,
+    system: false,
+  })
+
+  useEffect(() => {
+    const activeItem = NAV_ITEMS.find(item => item.id === activeNav)
+    if (activeItem) {
+      setExpandedSections(prev => ({
+        ...prev,
+        [activeItem.section]: true
+      }))
+    }
+  }, [activeNav])
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }))
+  }
 
   const groups: Record<string, NavItem[]> = {}
   const sectionOrder = ['main', 'management', 'finance', 'engagement', 'moderation', 'system']
@@ -140,28 +166,38 @@ function App() {
           {sectionOrder.map((section) => {
             const items = groups[section]
             if (!items) return null
+            const isExpanded = expandedSections[section] || sidebarCollapsed
             return (
-              <div key={section}>
+              <div key={section} className={`nav-section ${isExpanded ? 'expanded' : 'collapsed'}`}>
                 {!sidebarCollapsed && (
-                  <span className="nav-section-label">{t(`sections.${section}`)}</span>
-                )}
-                {items.map((item) => (
                   <button
-                    key={item.id}
-                    className={`nav-item${activeNav === item.id ? ' active' : ''}`}
-                    onClick={() => setActiveNav(item.id)}
-                    aria-current={activeNav === item.id ? 'page' : undefined}
-                    title={sidebarCollapsed ? (t as any)(`nav.${item.labelKey}`) : undefined}
+                    className="nav-section-header"
+                    onClick={() => toggleSection(section)}
+                    aria-expanded={isExpanded}
                   >
-                    <span className="nav-icon" aria-hidden="true">{item.icon}</span>
-                    {!sidebarCollapsed && (
-                      <>
-                        <span className="nav-label">{(t as any)(`nav.${item.labelKey}`)}</span>
-                        {item.badge !== undefined && <span className="nav-badge">{item.badge}</span>}
-                      </>
-                    )}
+                    <span className="nav-section-label">{t(`sections.${section}`)}</span>
+                    <span className="nav-section-chevron">{isExpanded ? '▼' : (dir === 'rtl' ? '◄' : '►')}</span>
                   </button>
-                ))}
+                )}
+                <div className="nav-section-items">
+                  {items.map((item) => (
+                    <button
+                      key={item.id}
+                      className={`nav-item${activeNav === item.id ? ' active' : ''}`}
+                      onClick={() => setActiveNav(item.id)}
+                      aria-current={activeNav === item.id ? 'page' : undefined}
+                      title={sidebarCollapsed ? (t as any)(`nav.${item.labelKey}`) : undefined}
+                    >
+                      <span className="nav-icon" aria-hidden="true">{item.icon}</span>
+                      {!sidebarCollapsed && (
+                        <>
+                          <span className="nav-label">{(t as any)(`nav.${item.labelKey}`)}</span>
+                          {item.badge !== undefined && <span className="nav-badge">{item.badge}</span>}
+                        </>
+                      )}
+                    </button>
+                  ))}
+                </div>
               </div>
             )
           })}
