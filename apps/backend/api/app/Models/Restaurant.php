@@ -1,0 +1,79 @@
+<?php
+
+namespace App\Models;
+
+use App\Enums\Restaurant\RestaurantStatusEnum;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
+
+class Restaurant extends Authenticatable implements JWTSubject
+{
+    use HasFactory, SoftDeletes;
+
+    protected $fillable = [
+        'name',
+        'email',
+        'password_hash',
+        'phone_number',
+        'category_id',
+        'description',
+        'logo_url',
+        'cover_image_url',
+        'address',
+        'status',
+        'approved_at',
+        'approved_by',
+        'average_rating',
+        'total_orders_count',
+    ];
+
+    protected $hidden = [
+        'password_hash',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'status'      => RestaurantStatusEnum::class,
+            'approved_at' => 'datetime',
+        ];
+    }
+
+    public function getJWTIdentifier(): mixed
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims(): array
+    {
+        return [];
+    }
+
+    public function getAuthPassword(): string
+    {
+        return $this->password_hash;
+    }
+
+    public function canLogin(): bool
+    {
+        return $this->status->canLogin();
+    }
+
+    public function isPendingApproval(): bool
+    {
+        return $this->status->isPendingApproval();
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(RestaurantCategory::class, 'category_id');
+    }
+
+    public function approvedBy(): BelongsTo
+    {
+        return $this->belongsTo(Admin::class, 'approved_by');
+    }
+}

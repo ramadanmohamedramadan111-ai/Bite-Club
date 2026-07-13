@@ -3,43 +3,39 @@
 namespace Database\Factories;
 
 use App\Models\User;
-use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends Factory<User>
  */
 class UserFactory extends Factory
 {
-    /**
-     * The current password being used by the factory.
-     */
-    protected static ?string $password;
-
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
-        ];
-    }
+            'phone_number' => fake()->unique()->numerify('01#########'),
+            'username' => fake()->unique()->userName(),
 
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
-    public function unverified(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
+            'first_name' => fake()->firstName(),
+            'last_name' => fake()->lastName(),
+
+            'date_of_birth' => fake()->date(),
+            'email' => fake()->unique()->safeEmail(),
+
+            'password_hash' => Hash::make('password123'),
+
+            'firebase_uid' => null,
+
+            'profile_image_url' => fake()->imageUrl(),
+            'gender' => fake()->randomElement(['male', 'female']),
+
+            'referral_code' => fake()->unique()->bothify('REF-#####'),
+            'referred_by' => null,
+
+            'failed_pickup_count' => 0,
+            'status' => 'active',
+            'last_login_at' => now(),
+        ];
     }
 }

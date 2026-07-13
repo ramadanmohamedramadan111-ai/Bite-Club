@@ -13,12 +13,23 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('phone_number')->unique();
+            $table->string('username')->unique();
+            $table->string('first_name');
+            $table->string('last_name');
+            $table->date('date_of_birth');
+            $table->string('password_hash');
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
+            $table->string('firebase_uid')->nullable()->unique();
+            $table->string('profile_image_url')->nullable();
+            $table->enum('gender', ['male', 'female']);
+            $table->string('referral_code')->unique();
+            $table->foreignId('referred_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->unsignedInteger('failed_pickup_count')->default(0);
+            $table->string('status')->default('active');
+            $table->timestamp('last_login_at')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -42,8 +53,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('users');
     }
 };

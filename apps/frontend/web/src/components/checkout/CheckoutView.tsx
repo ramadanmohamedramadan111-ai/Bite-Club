@@ -14,6 +14,8 @@ import { cn } from '@/lib/utils';
 import { Link } from '@/i18n/navigation';
 import CheckoutDeliveryAddress from './CheckoutDeliveryAddress';
 import OrderSummary from './OrderSummary';
+import CartRedemptionSelector from '@/components/cart/CartRedemptionSelector';
+import { usePointsStore } from '@/stores/points';
 
 type FulfillmentType = 'delivery' | 'pickup';
 type PaymentMethod = 'cod' | 'visa';
@@ -34,6 +36,9 @@ function getDefaultFulfillment(
 export default function CheckoutView({ initialLocation }: Props) {
   const router = useRouter();
   const cart = useCartStore((state) => state.cart);
+  const getSummary = useCartStore((state) => state.getSummary);
+  const clearCart = useCartStore((state) => state.clearCart);
+  const useRedemption = usePointsStore((state) => state.useRedemption);
   const [location, setLocation] = useState<SavedLocation | null>(
     initialLocation,
   );
@@ -54,38 +59,10 @@ export default function CheckoutView({ initialLocation }: Props) {
     );
   }, [restaurant]);
 
-  const summary = useMemo(() => {
-    if (!cart) {
-      return {
-        subtotal: 0,
-        deliveryFee: 0,
-        tax: 0,
-        discount: 0,
-        total: 0,
-      };
-    }
-
-    const subtotal = cart.items.reduce(
-      (sum, item) => sum + item.totalPrice,
-      0,
-    );
-
-    const deliveryFee =
-      fulfillmentType === 'delivery'
-        ? cart.restaurantDeliveryFee ?? restaurant?.minDeliveryPrice ?? 0
-        : 0;
-
-    const tax = 3;
-    const discount = 0;
-
-    return {
-      subtotal,
-      deliveryFee,
-      tax,
-      discount,
-      total: subtotal + deliveryFee + tax - discount,
-    };
-  }, [cart, fulfillmentType, restaurant]);
+  const summary = useMemo(
+    () => getSummary({ fulfillmentType }),
+    [cart, fulfillmentType, getSummary],
+  );
 
   if (!cart || cart.items.length === 0) {
     return (
@@ -147,12 +124,21 @@ export default function CheckoutView({ initialLocation }: Props) {
       return;
     }
 
+    if (
+      cart.type === 'individual' &&
+      cart.appliedRedemptionId &&
+      summary.discount > 0
+    ) {
+      useRedemption(cart.appliedRedemptionId);
+    }
+
+    clearCart();
+
     if (paymentMethod === 'visa') {
       router.push('/visa');
       return;
     }
 
-    // Cash on delivery/pickup — placeholder for future order submission
     router.push('/restaurants');
   };
 
@@ -217,6 +203,17 @@ export default function CheckoutView({ initialLocation }: Props) {
                 <p className="mt-1 font-medium">
                   {restaurant.location.address}
                 </p>
+              </CardContent>
+            </Card>
+          )}
+
+          {cart.type === 'individual' && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Redeem offer</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CartRedemptionSelector />
               </CardContent>
             </Card>
           )}

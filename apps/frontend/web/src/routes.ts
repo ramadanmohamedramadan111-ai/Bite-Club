@@ -1,11 +1,35 @@
 export const anonymousRoutes = [
+  // '/login',
+  // '/register',
+  // '/forgot-password',
+  // '/reset-password',
+];
+
+export const publicRoutes = [
+  '/public',
+  '/users',
+  '/restaurants',
+  '/',
+  '/friends',
+  '/groups',
+  '/group-order',
+  '/profile',
+  '/profile/edit',
+  '/feed',
+  '/feed/create',
+  '/posts',
+  '/orders',
+  '/points',
+  '/gifts',
+  '/dashboard',
+  '/settings',
+  '/favorites',
+  '/notifications',
   '/login',
   '/register',
   '/forgot-password',
   '/reset-password',
 ];
 
-export const publicRoutes = ['/public', '/users', '/restaurants', '/'];
-
-export const protectedRoutes = ['/dashboard', '/profile', '/settings'];
+export const protectedRoutes = [];
 

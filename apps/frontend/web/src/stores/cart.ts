@@ -5,16 +5,17 @@ import type {
   Cart,
   CartItem,
   CartMember,
+  CartMemberReference,
+  CartSummary,
   GroupCart,
   IndividualCart,
 } from '@/types/cart/cart';
+import { getItemOwnerKey, isSameItemOwner } from '@/utils/cart-grouping';
+import { buildCartSummary } from '@/utils/cart-summary';
+import { usePointsStore } from '@/stores/points';
 
-type CartSummary = {
-  subtotal: number;
-  deliveryFee: number;
-  tax: number;
-  discount: number;
-  total: number;
+type GetSummaryOptions = {
+  fulfillmentType?: 'delivery' | 'pickup';
 };
 
 type CartStore = {
@@ -29,6 +30,7 @@ type CartStore = {
     restaurantId: string;
     restaurantName: string;
     restaurantImage?: string;
+    restaurantDeliveryFee?: number;
     userId?: string;
     sessionId?: string;
   }) => void;
@@ -50,15 +52,25 @@ type CartStore = {
 
   updateQuantity: (cartItemId: string, quantity: number) => void;
 
+  // Redemptions (individual carts only)
+  applyRedemption: (redemptionId: string | null) => void;
+
   // Group
   addMember: (member: CartMember) => void;
 
   updateMemberIdentity: (sessionId: string, userId: string) => void;
 
+  setMemberReady: (memberId: string, isReady: boolean) => void;
+
+  cloneUserOrder: (
+    sourceOwnerKey: string,
+    currentUser: CartMemberReference,
+  ) => void;
+
   // Replace cart (your policy)
   replaceCart: (cart: Cart) => void;
 
-  getSummary: () => CartSummary;
+  getSummary: (options?: GetSummaryOptions) => CartSummary;
 };
 
 export const useCartStore = create<CartStore>()(
@@ -80,6 +92,7 @@ export const useCartStore = create<CartStore>()(
         restaurantId,
         restaurantName,
         restaurantImage,
+        restaurantDeliveryFee,
         userId,
         sessionId,
       }) =>
@@ -94,6 +107,7 @@ export const useCartStore = create<CartStore>()(
             restaurantId,
             restaurantName,
             restaurantImage,
+            restaurantDeliveryFee,
 
             userId,
             sessionId,
@@ -101,6 +115,8 @@ export const useCartStore = create<CartStore>()(
             items: [],
 
             members: [],
+
+            appliedRedemptionId: null,
           },
         }),
 
@@ -136,7 +152,7 @@ export const useCartStore = create<CartStore>()(
           },
         }),
 
-      getSummary: () => {
+      getSummary: (options) => {
         const cart = get().cart;
 
         if (!cart) {
@@ -149,29 +165,26 @@ export const useCartStore = create<CartStore>()(
           };
         }
 
-        const subtotal = cart.items.reduce(
-          (sum, item) => sum + item.totalPrice,
-          0,
+        return buildCartSummary(
+          cart,
+          usePointsStore.getState().redemptions,
+          options,
         );
-
-        const deliveryFee = cart.restaurantDeliveryFee || 0;
-
-        const tax = 3;
-
-        const discount = 0;
-
-        return {
-          subtotal,
-
-          deliveryFee,
-
-          tax,
-
-          discount,
-
-          total: subtotal + deliveryFee + tax - discount,
-        };
       },
+
+      applyRedemption: (redemptionId) =>
+        set((state) => {
+          if (!state.cart || state.cart.type !== 'individual') {
+            return state;
+          }
+
+          return {
+            cart: {
+              ...state.cart,
+              appliedRedemptionId: redemptionId,
+            },
+          };
+        }),
 
       addItem: (item) =>
         set((state) => {
@@ -179,9 +192,17 @@ export const useCartStore = create<CartStore>()(
             return state;
           }
 
-          const existingItem = state.cart.items.find(
-            (cartItem) => cartItem.configurationKey === item.configurationKey,
-          );
+          const existingItem =
+            state.cart.type === 'group'
+              ? state.cart.items.find(
+                  (cartItem) =>
+                    cartItem.configurationKey === item.configurationKey &&
+                    isSameItemOwner(cartItem.addedBy, item.addedBy),
+                )
+              : state.cart.items.find(
+                  (cartItem) =>
+                    cartItem.configurationKey === item.configurationKey,
+                );
 
           let items: CartItem[];
 
@@ -305,6 +326,64 @@ export const useCartStore = create<CartStore>()(
                     }
                   : item,
               ),
+            },
+          };
+        }),
+
+      setMemberReady: (memberId, isReady) =>
+        set((state) => {
+          if (!state.cart || state.cart.type !== 'group') {
+            return state;
+          }
+
+          return {
+            cart: {
+              ...state.cart,
+              members: state.cart.members.map((member) =>
+                member.id === memberId ? { ...member, isReady } : member,
+              ),
+            },
+          };
+        }),
+
+      cloneUserOrder: (sourceOwnerKey, currentUser) =>
+        set((state) => {
+          if (!state.cart || state.cart.type !== 'group') {
+            return state;
+          }
+
+          const currentUserKey = getItemOwnerKey(currentUser);
+
+          if (sourceOwnerKey === currentUserKey) {
+            return state;
+          }
+
+          const sourceItems = state.cart.items.filter(
+            (item) => getItemOwnerKey(item.addedBy) === sourceOwnerKey,
+          );
+
+          if (sourceItems.length === 0) {
+            return state;
+          }
+
+          const remainingItems = state.cart.items.filter(
+            (item) => getItemOwnerKey(item.addedBy) !== currentUserKey,
+          );
+
+          const clonedItems = sourceItems.map((item) => ({
+            ...item,
+            cartItemId: crypto.randomUUID(),
+            addedBy: {
+              sessionId: currentUser.sessionId,
+              userId: currentUser.userId,
+              name: currentUser.name,
+            },
+          }));
+
+          return {
+            cart: {
+              ...state.cart,
+              items: [...remainingItems, ...clonedItems],
             },
           };
         }),

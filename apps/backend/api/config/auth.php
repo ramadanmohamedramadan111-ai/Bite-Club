@@ -42,6 +42,18 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'admin' => [
+            'driver'   => 'jwt',
+            'provider' => 'admins',
+        ],
+        'user' => [
+            'driver'   => 'jwt',
+            'provider' => 'users',
+        ],
+        'restaurant' => [
+            'driver'   => 'jwt',
+            'provider' => 'restaurants',
+        ],
     ],
 
     /*
@@ -65,6 +77,14 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', User::class),
+        ],
+        'admins' => [
+            'driver' => 'eloquent',
+            'model'  => App\Models\Admin::class,
+        ],
+        'restaurants' => [
+            'driver' => 'eloquent',
+            'model'  => App\Models\Restaurant::class,
         ],
 
         // 'users' => [

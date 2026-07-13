@@ -1,8 +1,11 @@
 'use client';
 
 import { X, Trash2 } from 'lucide-react';
-import { Link } from '@/i18n/navigation';
 import { useCartStore } from '../../stores/cart';
+import { groupCartItemsByUser } from '@/utils/cart-grouping';
+import GroupCartActionButton from './GroupCartActionButton';
+import GroupCartItemsList from './GroupCartItemsList';
+import CartRedemptionSelector from './CartRedemptionSelector';
 
 import {
   AlertDialog,
@@ -23,24 +26,19 @@ type CartDrawerProps = {
 
 export default function CartDrawer({ open, onClose }: CartDrawerProps) {
   const cart = useCartStore((state) => state.cart);
-
   const clearCart = useCartStore((state) => state.clearCart);
-
   const removeItem = useCartStore((state) => state.removeItem);
-
   const updateQuantity = useCartStore((state) => state.updateQuantity);
-
   const getSummary = useCartStore((state) => state.getSummary);
 
   const summary = getSummary();
-
   const cartItems = cart?.items ?? [];
 
   return (
     <aside
       className={`
         fixed top-[64px] right-0 z-50
-        flex h-[calc(100vh-64px)] w-[400px] flex-col
+        flex h-[calc(100vh-64px)] w-[320px] sm:w-[400px] flex-col
         border-l border-border
         bg-background text-foreground
         shadow-xl
@@ -124,6 +122,13 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
       <div className="flex-1 overflow-y-auto p-4">
         {cartItems.length === 0 ? (
           <p className="text-muted-foreground">Your cart is empty</p>
+        ) : cart?.type === 'group' ? (
+          <GroupCartItemsList
+            items={cartItems}
+            onUpdateQuantity={updateQuantity}
+            onRemove={removeItem}
+            compact
+          />
         ) : (
           <div className="space-y-3">
             {cartItems.map((item) => (
@@ -229,6 +234,18 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
       {/* Footer */}
       {cartItems.length > 0 && (
         <div className="shrink-0 space-y-2 border-t border-border p-4">
+          {cart?.type === 'individual' && <CartRedemptionSelector />}
+          {cart?.type === 'group' && (
+            <div className="space-y-1 pb-2 text-sm">
+              {groupCartItemsByUser(cartItems).map((group) => (
+                <div key={group.key} className="flex justify-between">
+                  <span className="text-muted-foreground">{group.name}</span>
+                  <span>EGP {group.subtotal.toFixed(2)}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
           <div className="flex justify-between text-sm">
             <span>Subtotal</span>
 
@@ -249,7 +266,12 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
 
           {summary.discount > 0 && (
             <div className="flex justify-between text-sm">
-              <span>Discount</span>
+              <span>
+                Discount
+                {summary.appliedRedemptionTitle
+                  ? ` (${summary.appliedRedemptionTitle})`
+                  : ''}
+              </span>
 
               <span>EGP-{summary.discount.toFixed(2)}</span>
             </div>
@@ -261,16 +283,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
             <span>EGP {summary.total.toFixed(2)}</span>
           </div>
 
-          <Link
-            href="/checkout"
-            onClick={onClose}
-            className="
-              mt-4 block w-full rounded-md
-              bg-primary p-3 text-center
-              text-primary-foreground
-            ">
-            Checkout
-          </Link>
+          <GroupCartActionButton onCheckout={onClose} />
         </div>
       )}
     </aside>

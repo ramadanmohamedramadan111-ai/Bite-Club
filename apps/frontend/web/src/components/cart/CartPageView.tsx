@@ -19,6 +19,10 @@ import {
 } from '@/components/ui/alert-dialog';
 import CartItemRow from './CartItemRow';
 import CartTotals from './CartTotals';
+import CartRedemptionSelector from './CartRedemptionSelector';
+import GroupCartActionButton from './GroupCartActionButton';
+import GroupCartItemsList from './GroupCartItemsList';
+import GroupCartTotals from './GroupCartTotals';
 
 export default function CartPageView() {
   const cart = useCartStore((state) => state.cart);
@@ -103,15 +107,23 @@ export default function CartPageView() {
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
-              {cartItems.map((item) => (
-                <CartItemRow
-                  key={item.cartItemId}
-                  item={item}
-                  isGroupCart={cart.type === 'group'}
+              {cart.type === 'group' ? (
+                <GroupCartItemsList
+                  items={cartItems}
                   onUpdateQuantity={updateQuantity}
                   onRemove={removeItem}
                 />
-              ))}
+              ) : (
+                cartItems.map((item) => (
+                  <CartItemRow
+                    key={item.cartItemId}
+                    item={item}
+                    isGroupCart={false}
+                    onUpdateQuantity={updateQuantity}
+                    onRemove={removeItem}
+                  />
+                ))
+              )}
             </CardContent>
           </Card>
         </div>
@@ -121,10 +133,13 @@ export default function CartPageView() {
             <CardTitle className="text-base">Order Summary</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <CartTotals summary={summary} />
-            <Button asChild className="w-full" size="lg">
-              <Link href="/checkout">Proceed to checkout</Link>
-            </Button>
+            {cart.type === 'individual' && <CartRedemptionSelector />}
+            {cart.type === 'group' ? (
+              <GroupCartTotals items={cartItems} summary={summary} />
+            ) : (
+              <CartTotals summary={summary} />
+            )}
+            <GroupCartActionButton />
           </CardContent>
         </Card>
       </div>

@@ -27,6 +27,8 @@ export type IndividualCart = {
   items: CartItem[];
 
   members: [];
+
+  appliedRedemptionId?: string | null;
 };
 
 // ======================
@@ -88,6 +90,8 @@ export type CartMember = {
   name?: string;
 
   isOwner: boolean;
+
+  isReady?: boolean;
 };
 
 // ======================
@@ -162,5 +166,7 @@ export type CartSummary = {
   discount: number;
 
   total: number;
+
+  appliedRedemptionTitle?: string;
 };
 
