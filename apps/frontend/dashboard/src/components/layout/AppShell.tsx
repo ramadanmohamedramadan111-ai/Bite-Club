@@ -1,6 +1,7 @@
 import { type ReactNode } from 'react'
 import { Header } from './Header'
 import { Sidebar } from './Sidebar'
+import { Plus } from 'lucide-react'
 
 interface AppShellProps {
   children: ReactNode
@@ -12,14 +13,18 @@ interface AppShellProps {
 
 export function AppShell({ children, theme, toggleTheme, language, toggleLanguage }: AppShellProps) {
   return (
-    <div className="min-h-screen bg-brand-surface text-brand-navy transition-colors duration-200 dark:text-slate-100">
-      <div className="grid min-h-screen grid-cols-[280px_1fr] bg-brand-surface">
-        <Sidebar />
-        <div className="flex flex-col">
-          <Header theme={theme} toggleTheme={toggleTheme} language={language} toggleLanguage={toggleLanguage} />
-          <main className="flex-1 p-6 xl:p-8">{children}</main>
-        </div>
+    <div className="flex min-h-screen bg-gray-50 dark:bg-slate-950">
+      <Sidebar />
+      <div className="flex flex-1 flex-col min-w-0">
+        <Header theme={theme} toggleTheme={toggleTheme} language={language} toggleLanguage={toggleLanguage} />
+        <main className="flex-1 overflow-y-auto p-5 xl:p-6">
+          {children}
+        </main>
       </div>
+      {/* Floating Action Button */}
+      <button className="fixed bottom-6 right-6 flex h-14 w-14 items-center justify-center rounded-full bg-brand-orange text-white shadow-lg shadow-orange-200 hover:opacity-90 transition z-50 dark:shadow-none">
+        <Plus size={24} />
+      </button>
     </div>
   )
 }

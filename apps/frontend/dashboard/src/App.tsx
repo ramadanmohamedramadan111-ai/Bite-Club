@@ -1,23 +1,33 @@
 import { useEffect, useState } from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import i18next from './i18n'
-import { LoginPage } from './pages/LoginPage'
-import { DashboardPage } from './pages/DashboardPage'
+import { LoginPage } from './pages/auth/LoginPage'
+import { DashboardPage } from './pages/dashboard/DashboardPage'
+import { OrdersPage } from './pages/orders/OrdersPage'
+import { MenuPage } from './pages/menu/MenuPage'
+import { CustomersPage } from './pages/customers/CustomersPage'
 import { useAuthStore } from './store/authStore'
+import { AppShell } from './components/layout/AppShell'
 
 type ThemeMode = 'light' | 'dark'
 type LanguageMode = 'en' | 'ar'
 
+export type ShellProps = {
+  theme: ThemeMode
+  toggleTheme: () => void
+  language: LanguageMode
+  toggleLanguage: () => void
+}
+
 function App() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
-  const [theme, setTheme] = useState<ThemeMode>(() => {
-    const storedTheme = window.localStorage.getItem('biteclub-theme')
-    return storedTheme === 'dark' ? 'dark' : 'light'
-  })
-  const [language, setLanguage] = useState<LanguageMode>(() => {
-    const storedLanguage = window.localStorage.getItem('biteclub-language')
-    return storedLanguage === 'ar' ? 'ar' : 'en'
-  })
+  const [theme, setTheme] = useState<ThemeMode>(() =>
+    window.localStorage.getItem('biteclub-theme') === 'dark' ? 'dark' : 'light'
+  )
+  const [language, setLanguage] = useState<LanguageMode>(() =>
+    window.localStorage.getItem('biteclub-language') === 'ar' ? 'ar' : 'en'
+  )
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark')
@@ -28,17 +38,35 @@ function App() {
     void i18next.changeLanguage(language)
   }, [theme, language])
 
-  const toggleTheme = () => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))
-  const toggleLanguage = () => setLanguage((current) => (current === 'en' ? 'ar' : 'en'))
+  const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
+  const toggleLanguage = () => setLanguage((l) => (l === 'en' ? 'ar' : 'en'))
+
+  const shellProps: ShellProps = { theme, toggleTheme, language, toggleLanguage }
+
+  if (!isAuthenticated) {
+    return (
+      <>
+        <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+        <LoginPage {...shellProps} />
+      </>
+    )
+  }
 
   return (
     <>
       <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
-      {isAuthenticated ? (
-        <DashboardPage theme={theme} toggleTheme={toggleTheme} language={language} toggleLanguage={toggleLanguage} />
-      ) : (
-        <LoginPage theme={theme} toggleTheme={toggleTheme} language={language} toggleLanguage={toggleLanguage} />
-      )}
+      <BrowserRouter>
+        <AppShell {...shellProps}>
+          <Routes>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/orders"    element={<OrdersPage />}   />
+            <Route path="/menu"      element={<MenuPage />}     />
+            <Route path="/customers" element={<CustomersPage />}/>
+            <Route path="*"          element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </AppShell>
+      </BrowserRouter>
     </>
   )
 }
