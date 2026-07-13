@@ -17,6 +17,20 @@
     --brand-danger: #ef4444;
   }
 
+  .dark {
+    --brand-orange: #ff8a3d;
+    --brand-orange-soft: #3a2319;
+    --brand-navy: #f8fafc;
+    --brand-slate: #94a3b8;
+    --brand-surface: #0f172a;
+    --brand-muted: #334155;
+    --brand-card: #111827;
+    --brand-accent: #60a5fa;
+    --brand-success: #4ade80;
+    --brand-warning: #fbbf24;
+    --brand-danger: #f87171;
+  }
+
   html {
     scroll-behavior: smooth;
   }

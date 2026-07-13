@@ -35,19 +35,26 @@ const lowStock = [
   { item: 'Truffle Mayo', note: '12 units left (Restock soon)', icon: Coffee, badge: 'Warning' },
 ]
 
-export function DashboardPage() {
+interface DashboardPageProps {
+  theme: 'light' | 'dark'
+  toggleTheme: () => void
+  language: 'en' | 'ar'
+  toggleLanguage: () => void
+}
+
+export function DashboardPage({ theme, toggleTheme, language, toggleLanguage }: DashboardPageProps) {
   const logout = useAuthStore((state) => state.logout)
 
   return (
-    <AppShell>
+    <AppShell theme={theme} toggleTheme={toggleTheme} language={language} toggleLanguage={toggleLanguage}>
       <div className="mx-auto grid max-w-7xl gap-6">
-        <section className="flex flex-col gap-5 rounded-[32px] border border-brand-muted/70 bg-white p-6 shadow-panel lg:flex-row lg:items-center lg:justify-between">
+        <section className="flex flex-col gap-5 rounded-[32px] border border-brand-muted/70 bg-white p-6 shadow-panel dark:border-slate-700 dark:bg-slate-900 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-brand-slate">Operations Dashboard</p>
-            <h1 className="mt-3 text-3xl font-semibold text-brand-navy sm:text-4xl">Real-time performance metrics for BiteClub Main Branch</h1>
+            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-brand-slate dark:text-slate-400">Operations Dashboard</p>
+            <h1 className="mt-3 text-3xl font-semibold text-brand-navy sm:text-4xl dark:text-slate-100">Real-time performance metrics for BiteClub Main Branch</h1>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <button className="rounded-3xl border border-brand-muted/80 bg-brand-surface px-4 py-3 text-sm font-semibold text-brand-navy transition hover:border-brand-orange hover:text-brand-orange">
+            <button className="rounded-3xl border border-brand-muted/80 bg-brand-surface px-4 py-3 text-sm font-semibold text-brand-navy transition hover:border-brand-orange hover:text-brand-orange dark:bg-slate-800 dark:text-slate-100">
               This Week
             </button>
             <button className="inline-flex items-center gap-2 rounded-3xl bg-brand-orange px-4 py-3 text-sm font-semibold text-white transition hover:opacity-95">
@@ -62,7 +69,7 @@ export function DashboardPage() {
           {stats.map((stat) => {
             const Icon = stat.icon
             return (
-              <article key={stat.label} className="rounded-[28px] border border-brand-muted/70 bg-white p-5 shadow-panel">
+              <article key={stat.label} className="rounded-[28px] border border-brand-muted/70 bg-white p-5 shadow-panel dark:border-slate-700 dark:bg-slate-900">
                 <div className="flex items-center justify-between gap-3">
                   <div className="grid h-12 w-12 place-items-center rounded-3xl bg-brand-surface text-brand-orange">
                     <Icon size={18} />
@@ -71,9 +78,9 @@ export function DashboardPage() {
                     {stat.badge}
                   </span>
                 </div>
-                <p className="mt-5 text-sm font-semibold uppercase tracking-[0.24em] text-brand-slate">{stat.label}</p>
-                <p className="mt-3 text-3xl font-semibold text-brand-navy">{stat.value}</p>
-                <p className="mt-2 text-sm text-brand-slate">{stat.note}</p>
+                <p className="mt-5 text-sm font-semibold uppercase tracking-[0.24em] text-brand-slate dark:text-slate-400">{stat.label}</p>
+                <p className="mt-3 text-3xl font-semibold text-brand-navy dark:text-slate-100">{stat.value}</p>
+                <p className="mt-2 text-sm text-brand-slate dark:text-slate-400">{stat.note}</p>
               </article>
             )
           })}
@@ -83,15 +90,15 @@ export function DashboardPage() {
           <article className="rounded-[32px] border border-brand-muted/70 bg-white p-6 shadow-panel">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-brand-slate">Revenue Trend</p>
-                <h2 className="mt-3 text-2xl font-semibold text-brand-navy">Revenue Trend</h2>
+                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-brand-slate dark:text-slate-400">Revenue Trend</p>
+                <h2 className="mt-3 text-2xl font-semibold text-brand-navy dark:text-slate-100">Revenue Trend</h2>
               </div>
               <div className="flex items-center gap-2 rounded-full bg-brand-surface px-4 py-2 text-sm font-semibold text-brand-slate">
                 <span className="h-2 w-2 rounded-full bg-brand-orange" /> Revenue
                 <span className="h-2 w-2 rounded-full bg-brand-accent" /> Target
               </div>
             </div>
-            <div className="mt-6 overflow-hidden rounded-[28px] bg-brand-surface p-5">
+            <div className="mt-6 overflow-hidden rounded-[28px] bg-brand-surface p-5 dark:bg-slate-800">
               <div className="grid h-60 grid-cols-7 gap-3">
                 {[4, 5, 5, 7, 10, 7, 5].map((height, index) => (
                   <div key={index} className="flex items-end justify-center">
@@ -105,39 +112,39 @@ export function DashboardPage() {
           <article className="rounded-[32px] border border-brand-muted/70 bg-white p-6 shadow-panel">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-brand-slate">Sales by Category</p>
+                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-brand-slate dark:text-slate-400">Sales by Category</p>
               </div>
-              <span className="rounded-full bg-brand-surface px-3 py-2 text-sm font-semibold text-brand-navy">42% Burgers</span>
+              <span className="rounded-full bg-brand-surface px-3 py-2 text-sm font-semibold text-brand-navy dark:bg-slate-800 dark:text-slate-200">42% Burgers</span>
             </div>
             <div className="mt-7 flex items-center justify-center">
-              <div className="relative h-48 w-48 rounded-full bg-brand-surface">
+              <div className="relative h-48 w-48 rounded-full bg-brand-surface dark:bg-slate-800">
                 <div className="absolute inset-0 rounded-full bg-brand-accent/20" />
-                <div className="absolute inset-10 rounded-full bg-white" />
+                <div className="absolute inset-10 rounded-full bg-white dark:bg-slate-900" />
                 <div className="absolute inset-8 rounded-full border-8 border-brand-accent" />
                 <div className="absolute inset-16 rounded-full bg-brand-accent" />
-                <div className="absolute inset-0 flex items-center justify-center text-xl font-semibold text-brand-navy">42%</div>
+                <div className="absolute inset-0 flex items-center justify-center text-xl font-semibold text-brand-navy dark:text-slate-100">42%</div>
               </div>
             </div>
             <ul className="mt-8 space-y-3 text-sm text-brand-slate">
               <li className="flex items-center gap-3 rounded-3xl bg-brand-surface px-4 py-3">
                 <span className="h-2.5 w-2.5 rounded-full bg-brand-orange" />
                 <span>Burgers</span>
-                <span className="ml-auto font-semibold text-brand-navy">42%</span>
+                <span className="ml-auto font-semibold text-brand-navy dark:text-slate-100">42%</span>
               </li>
               <li className="flex items-center gap-3 rounded-3xl bg-brand-surface px-4 py-3">
                 <span className="h-2.5 w-2.5 rounded-full bg-brand-accent" />
                 <span>Sides</span>
-                <span className="ml-auto font-semibold text-brand-navy">28%</span>
+                <span className="ml-auto font-semibold text-brand-navy dark:text-slate-100">28%</span>
               </li>
               <li className="flex items-center gap-3 rounded-3xl bg-brand-surface px-4 py-3">
                 <span className="h-2.5 w-2.5 rounded-full bg-brand-warning" />
                 <span>Drinks</span>
-                <span className="ml-auto font-semibold text-brand-navy">20%</span>
+                <span className="ml-auto font-semibold text-brand-navy dark:text-slate-100">20%</span>
               </li>
               <li className="flex items-center gap-3 rounded-3xl bg-brand-surface px-4 py-3">
                 <span className="h-2.5 w-2.5 rounded-full bg-brand-danger" />
                 <span>Desserts</span>
-                <span className="ml-auto font-semibold text-brand-navy">10%</span>
+                <span className="ml-auto font-semibold text-brand-navy dark:text-slate-100">10%</span>
               </li>
             </ul>
           </article>

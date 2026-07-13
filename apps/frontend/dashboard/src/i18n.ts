@@ -37,6 +37,8 @@ const resources = {
       invalidEmail: 'Please enter a valid email address.',
       invalidPassword: 'Password must be at least 8 characters.',
       success: 'Signed in successfully.',
+      searchPlaceholder: 'Search orders, customers, or items...',
+      profile: 'Profile',
     },
   },
   ar: {
@@ -74,6 +76,8 @@ const resources = {
       invalidEmail: 'يرجى إدخال بريد إلكتروني صحيح.',
       invalidPassword: 'يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.',
       success: 'تم تسجيل الدخول بنجاح.',
+      searchPlaceholder: 'ابحث عن الطلبات أو العملاء أو العناصر...',
+      profile: 'الملف الشخصي',
     },
   },
 }
