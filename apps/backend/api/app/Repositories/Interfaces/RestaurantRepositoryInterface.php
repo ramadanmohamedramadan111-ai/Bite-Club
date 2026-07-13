@@ -8,4 +8,6 @@ interface RestaurantRepositoryInterface extends BaseRepositoryInterface
 {
     public function findByEmail(string $email): ?Restaurant;
     public function findByPhone(string $phone): ?Restaurant;
+
+    public function listForAdmin(array $filters): array;
 }
