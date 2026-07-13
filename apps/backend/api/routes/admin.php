@@ -18,4 +18,6 @@ Route::middleware('auth.admin')->group(function () {
         Route::put('/{id}', [RestaurantCategoryController::class, 'update'])->name('update');
         Route::delete('/{id}', [RestaurantCategoryController::class, 'destroy'])->name('destroy');
     });
+
+    
 });
