@@ -5,7 +5,11 @@ namespace App\Services\Application\Admin;
 use App\DTOs\Admin\Restaurant\IndexRestaurantDto;
 use App\DTOs\Admin\Restaurant\UpdateRestaurantStatusDto;
 use App\Enums\Restaurant\RestaurantStatusEnum;
+use App\Mail\RestaurantApprovedMail;
+use App\Mail\RestaurantClosedMail;
+use App\Mail\RestaurantRejectedMail;
 use App\Services\Domain\Admin\RestaurantDomainService;
+use Illuminate\Support\Facades\Mail;
 
 class RestaurantApplicationService
 {
@@ -26,6 +30,10 @@ class RestaurantApplicationService
     public function updateStatus(UpdateRestaurantStatusDto $dto): array
     {
         $result = $this->restaurantDomainService->updateStatus($dto);
+
+        if (!$result['unchanged']) {
+            $this->sendStatusMail($result['restaurant']);
+        }
 
         return [
             'restaurant' => $this->mapItem($result['restaurant']),
@@ -58,5 +66,21 @@ class RestaurantApplicationService
             'average_rating'    => $restaurant->average_rating,
             'total_orders_count' => $restaurant->total_orders_count,
         ];
+    }
+
+    private function sendStatusMail($restaurant): void
+    {
+        match ($restaurant->status->value ?? $restaurant->status) {
+            RestaurantStatusEnum::ACTIVE->value => Mail::to($restaurant->email)->queue(new RestaurantApprovedMail([
+                'restaurant_name' => $restaurant->name,
+            ])),
+            RestaurantStatusEnum::REJECTED->value => Mail::to($restaurant->email)->queue(new RestaurantRejectedMail([
+                'restaurant_name' => $restaurant->name,
+            ])),
+            RestaurantStatusEnum::CLOSED->value => Mail::to($restaurant->email)->queue(new RestaurantClosedMail([
+                'restaurant_name' => $restaurant->name,
+            ])),
+            default => null,
+        };
     }
 }
