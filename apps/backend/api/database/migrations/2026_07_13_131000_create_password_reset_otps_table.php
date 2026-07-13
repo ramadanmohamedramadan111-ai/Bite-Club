@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('phone_verifications', function (Blueprint $table) {
+        Schema::create('password_reset_otps', function (Blueprint $table) {
             $table->id();
-            $table->string('phone_number')->index();
-            $table->string('otp', 6);
+            $table->string('email')->index();
+            $table->string('otp_hash');
+            $table->boolean('is_verified')->default(false);
             $table->timestamp('expires_at');
-            $table->timestamp('verified_at')->nullable();
-            $table->unsignedTinyInteger('attempts')->default(0);
+            $table->unsignedInteger('attempts')->default(0);
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('phone_verifications');
+        Schema::dropIfExists('password_reset_otps');
     }
 };

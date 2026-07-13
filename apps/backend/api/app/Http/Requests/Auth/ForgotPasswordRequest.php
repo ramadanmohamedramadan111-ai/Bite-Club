@@ -4,7 +4,7 @@ namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class SendOtpRequest extends FormRequest
+class ForgotPasswordRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -14,10 +14,10 @@ class SendOtpRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'phone_number' => [
+            'email' => [
                 'required',
-                'string',
-                'regex:/^(\+[1-9]\d{7,14}|01[0-2,5]\d{8})$/',
+                'email',
+                'exists:users,email',
             ],
         ];
     }

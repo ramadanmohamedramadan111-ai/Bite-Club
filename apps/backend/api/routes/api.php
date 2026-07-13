@@ -4,8 +4,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\AdminAuthController;
 use App\Http\Controllers\Api\Auth\UserAuthController;
 use App\Http\Controllers\Api\RestaurantCategoryController;
-use App\Http\Controllers\Api\Auth\OtpController;
-
 
 Route::prefix('admin')->name('admin.')->group(function () {
 
@@ -26,15 +24,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
     });
 });
 
-
 //user auth
 Route::prefix('user')->name('user.')->group(function () {
-    Route::post('/send-otp', [OtpController::class, 'sendOtp']);
-    Route::post('/verify-otp', [OtpController::class, 'verifyOtp']);
-    Route::post('/resend-otp', [OtpController::class, 'resendOtp']);
-
     Route::post('/register', [UserAuthController::class, 'register'])->name('register');
     Route::post('/login', [UserAuthController::class, 'login'])->name('login');
+    Route::get('/verify-email/{id}/{hash}', [UserAuthController::class, 'verifyEmail'])->name('verification.verify');
+    Route::post('/forgot-password', [UserAuthController::class, 'forgotPassword'])->name('password.forgot');
+    Route::post('/verify-reset-otp', [UserAuthController::class, 'verifyResetOtp'])->name('password.verify-otp');
+    Route::post('/reset-password', [UserAuthController::class, 'resetPassword'])->name('password.reset');
 
     Route::middleware('auth.user')->group(function () {
 

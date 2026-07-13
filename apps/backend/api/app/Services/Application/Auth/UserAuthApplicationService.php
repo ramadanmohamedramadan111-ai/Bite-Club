@@ -4,6 +4,9 @@ namespace App\Services\Application\Auth;
 
 use App\DTOs\Auth\UserLoginDto;
 use App\DTOs\Auth\UserRegisterDto;
+use App\DTOs\Auth\ForgotPasswordDto;
+use App\DTOs\Auth\VerifyResetOtpDto;
+use App\DTOs\Auth\ResetPasswordDto;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Services\Domain\Auth\UserAuthDomainService;
 
@@ -17,6 +20,26 @@ class UserAuthApplicationService
     public function register(UserRegisterDto $dto): void
     {
         $this->userAuthDomainService->register($dto);
+    }
+
+    public function verifyEmail(int $id, string $hash, bool $hasValidSignature): void
+    {
+        $this->userAuthDomainService->verifyEmail($id, $hash, $hasValidSignature);
+    }
+
+    public function forgotPassword(ForgotPasswordDto $dto): void
+    {
+        $this->userAuthDomainService->sendPasswordResetOtp($dto);
+    }
+
+    public function verifyResetOtp(VerifyResetOtpDto $dto): void
+    {
+        $this->userAuthDomainService->verifyPasswordResetOtp($dto);
+    }
+
+    public function resetPassword(ResetPasswordDto $dto): void
+    {
+        $this->userAuthDomainService->resetPassword($dto);
     }
 
     public function login(UserLoginDto $dto): array

@@ -3,13 +3,20 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\DTOs\Auth\UserLoginDto;
 use App\DTOs\Auth\UserRegisterDto;
+use App\DTOs\Auth\ForgotPasswordDto;
+use App\DTOs\Auth\VerifyResetOtpDto;
+use App\DTOs\Auth\ResetPasswordDto;
 use App\Http\Requests\Auth\UserLoginRequest;
 use App\Http\Requests\Auth\UserRegisterRequest;
+use App\Http\Requests\Auth\ForgotPasswordRequest;
+use App\Http\Requests\Auth\VerifyResetOtpRequest;
+use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Services\Application\Auth\UserAuthApplicationService;
 
 class UserAuthController extends Controller
@@ -27,11 +34,89 @@ class UserAuthController extends Controller
             $this->userAuthApplicationService->register($dto);
 
             return $this->createdResponse(
-                'OTP Sent Successfully'
+                'Verification email sent successfully.'
             );
         } catch (Exception $e) {
 
             Log::error('User register failed: ' . $e->getMessage(), [
+                'email' => $request->input('email'),
+            ]);
+
+            return $this->errorResponse($e->getMessage());
+        }
+    }
+
+    public function verifyEmail(Request $request, $id, $hash): JsonResponse
+    {
+        try {
+            $this->userAuthApplicationService->verifyEmail(
+                (int) $id,
+                (string) $hash,
+                $request->hasValidSignature()
+            );
+
+            return $this->successResponse(
+                'Email verified successfully.'
+            );
+        } catch (Exception $e) {
+            Log::error('Email verification failed: ' . $e->getMessage(), [
+                'id' => $id,
+            ]);
+
+            return $this->errorResponse($e->getMessage());
+        }
+    }
+
+    public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
+    {
+        try {
+            $dto = ForgotPasswordDto::fromValidatedRequest($request);
+
+            $this->userAuthApplicationService->forgotPassword($dto);
+
+            return $this->successResponse(
+                'OTP sent successfully.'
+            );
+        } catch (Exception $e) {
+            Log::error('Forgot password failed: ' . $e->getMessage(), [
+                'email' => $request->input('email'),
+            ]);
+
+            return $this->errorResponse($e->getMessage());
+        }
+    }
+
+    public function verifyResetOtp(VerifyResetOtpRequest $request): JsonResponse
+    {
+        try {
+            $dto = VerifyResetOtpDto::fromValidatedRequest($request);
+
+            $this->userAuthApplicationService->verifyResetOtp($dto);
+
+            return $this->successResponse(
+                'OTP verified successfully.'
+            );
+        } catch (Exception $e) {
+            Log::error('Verify reset OTP failed: ' . $e->getMessage(), [
+                'email' => $request->input('email'),
+            ]);
+
+            return $this->errorResponse($e->getMessage());
+        }
+    }
+
+    public function resetPassword(ResetPasswordRequest $request): JsonResponse
+    {
+        try {
+            $dto = ResetPasswordDto::fromValidatedRequest($request);
+
+            $this->userAuthApplicationService->resetPassword($dto);
+
+            return $this->successResponse(
+                'Password reset successfully.'
+            );
+        } catch (Exception $e) {
+            Log::error('Reset password failed: ' . $e->getMessage(), [
                 'email' => $request->input('email'),
             ]);
 
