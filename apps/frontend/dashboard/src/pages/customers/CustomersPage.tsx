@@ -1,5 +1,9 @@
 import { useTranslation } from 'react-i18next'
-import { Download, UserPlus, TrendingUp, TrendingDown, MoreVertical, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
+import { useState } from 'react'
+import { Download, UserPlus, TrendingUp, TrendingDown, MoreVertical } from 'lucide-react'
+import { Table } from '../../components/common/Table'
+import type { Column } from '../../components/common/Table'
+import { Pagination } from '../../components/common/Pagination'
 
 const customers = [
   { id: 1, name: 'Ahmed Mansour', email: 'ahmed.m@example.com',  phone: '+20 100 234 5678', orders: 42, spend: 12450, lastOrder: 'Oct 24, 2023', segment: 'VIP'      },
@@ -21,9 +25,60 @@ const initials = (name: string) => name.split(' ').map((n) => n[0]).join('').sli
 
 export function CustomersPage() {
   const { t } = useTranslation()
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const columns: Column<typeof customers[0]>[] = [
+    {
+      header: t('customerName'),
+      key: 'name',
+      render: (c, idx) => (
+        <div className="flex items-center gap-3">
+          <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold ${avatarColors[idx % avatarColors.length]}`}>{initials(c.name)}</div>
+          <div>
+            <p className="font-semibold text-gray-800 dark:text-white">{c.name}</p>
+            <p className="text-xs text-gray-400 dark:text-slate-500">{c.email}</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: t('phoneNumber'),
+      key: 'phone',
+      render: (c) => c.phone,
+    },
+    {
+      header: t('totalOrders'),
+      key: 'orders',
+      render: (c) => c.orders,
+    },
+    {
+      header: t('spendEgp'),
+      key: 'spend',
+      render: (c) => c.spend.toLocaleString(),
+    },
+    {
+      header: t('lastOrder'),
+      key: 'lastOrder',
+      render: (c) => c.lastOrder,
+    },
+    {
+      header: t('segment'),
+      key: 'segment',
+      render: (c) => <span className={`inline-block rounded-full px-3 py-0.5 text-xs font-bold ${segBadge(c.segment)}`}>{c.segment}</span>,
+    },
+    {
+      header: t('actions'),
+      key: 'actions',
+      render: () => (
+        <button className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition dark:hover:bg-slate-700">
+          <MoreVertical size={15} />
+        </button>
+      ),
+    },
+  ]
 
   return (
-    <div className="flex flex-col gap-5 mx-auto">
+    <div className="flex flex-col gap-6 mx-auto w-full">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('customerDatabase')}</h1>
@@ -51,54 +106,17 @@ export function CustomersPage() {
       </div>
 
       <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden dark:border-slate-700 dark:bg-slate-900">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-gray-50 dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700">
-              <tr>
-                {[t('customerName'), t('phoneNumber'), t('totalOrders'), t('spendEgp'), t('lastOrder'), t('segment'), t('actions')].map((h) => (
-                  <th key={h} className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-slate-500 whitespace-nowrap">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50 dark:divide-slate-800">
-              {customers.map((c, i) => (
-                <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition">
-                  <td className="px-5 py-3.5">
-                    <div className="flex items-center gap-3">
-                      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold ${avatarColors[i % avatarColors.length]}`}>{initials(c.name)}</div>
-                      <div>
-                        <p className="font-semibold text-gray-800 dark:text-white">{c.name}</p>
-                        <p className="text-xs text-gray-400 dark:text-slate-500">{c.email}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3.5 text-gray-600 dark:text-slate-300 whitespace-nowrap">{c.phone}</td>
-                  <td className="px-5 py-3.5 font-semibold text-gray-800 dark:text-white">{c.orders}</td>
-                  <td className="px-5 py-3.5 font-semibold text-gray-800 dark:text-white">{c.spend.toLocaleString()}</td>
-                  <td className="px-5 py-3.5 text-gray-500 dark:text-slate-400 whitespace-nowrap">{c.lastOrder}</td>
-                  <td className="px-5 py-3.5"><span className={`inline-block rounded-full px-3 py-0.5 text-xs font-bold ${segBadge(c.segment)}`}>{c.segment}</span></td>
-                  <td className="px-5 py-3.5">
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition dark:hover:bg-slate-700"><MoreVertical size={15} /></button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="flex items-center justify-between border-t border-gray-100 dark:border-slate-700 px-5 py-3">
-          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-slate-400">
-            <span>{t('rowsPerPage')}</span>
-            <select className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-sm text-gray-700 outline-none dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">
-              <option>20</option><option>50</option><option>100</option>
-            </select>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="text-xs text-gray-400 mr-2">1 – 20 of 1,240</span>
-            {[ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight].map((Icon, i) => (
-              <button key={i} className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:border-brand-orange hover:text-brand-orange transition dark:border-slate-600"><Icon size={13} /></button>
-            ))}
-          </div>
-        </div>
+        <Table
+          columns={columns}
+          data={customers}
+          keyExtractor={(row) => row.id}
+        />
+        <Pagination
+          currentPage={currentPage}
+          totalPages={62}
+          onPageChange={setCurrentPage}
+          showingText="Showing 1 – 20 of 1,240"
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

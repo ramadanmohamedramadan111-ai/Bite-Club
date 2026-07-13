@@ -7,6 +7,10 @@ import { DashboardPage } from './pages/dashboard/DashboardPage'
 import { OrdersPage } from './pages/orders/OrdersPage'
 import { MenuPage } from './pages/menu/MenuPage'
 import { CustomersPage } from './pages/customers/CustomersPage'
+import { SettingsPage } from './pages/settings/SettingsPage'
+import { PromotionsPage } from './pages/promotions/PromotionsPage'
+import { ReviewsPage } from './pages/reviews/ReviewsPage'
+import { ReportsPage } from './pages/reports/ReportsPage'
 import { useAuthStore } from './store/authStore'
 import { AppShell } from './components/layout/AppShell'
 
@@ -63,7 +67,11 @@ function App() {
             <Route path="/orders"    element={<OrdersPage />}   />
             <Route path="/menu"      element={<MenuPage />}     />
             <Route path="/customers" element={<CustomersPage />}/>
-            <Route path="*"          element={<Navigate to="/dashboard" replace />} />
+            <Route path="/settings"   element={<SettingsPage />} />
+            <Route path="/promotions" element={<PromotionsPage />} />
+            <Route path="/reviews"    element={<ReviewsPage />} />
+            <Route path="/reports"    element={<ReportsPage />} />
+            <Route path="*"           element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </AppShell>
       </BrowserRouter>
