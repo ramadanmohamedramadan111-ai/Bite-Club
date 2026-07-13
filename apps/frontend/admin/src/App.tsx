@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useTheme } from './contexts/ThemeContext'
 import { useLocale } from './contexts/LocaleContext'
+import api from './lib/api'
+import { getAuthToken, clearAuth } from './lib/cookies'
 import { DashboardPage } from './pages/Dashboard'
 import { UsersPage } from './pages/Users'
 import { BlockedUsersPage } from './pages/BlockedUsers'
@@ -18,14 +20,14 @@ import { AIMonitoringPage } from './pages/AIMonitoring'
 import { ActivityLogsPage } from './pages/ActivityLogs'
 import { SystemSettingsPage } from './pages/SystemSettings'
 import { AdminProfilePage } from './pages/AdminProfile'
-import { ChangePasswordPage } from './pages/ChangePassword'
+import { LoginPage } from './pages/Login'
 import './App.css'
 
 type NavItemId =
   | 'dashboard' | 'users' | 'blockedUsers' | 'restaurants' | 'categories'
   | 'orders' | 'payments' | 'commissions' | 'loyalty' | 'referrals'
   | 'badges' | 'leaderboard' | 'feed' | 'aiMonitoring' | 'activityLogs'
-  | 'settings' | 'profile' | 'changePassword'
+  | 'settings' | 'profile'
 
 interface NavItem {
   id: NavItemId
@@ -62,9 +64,9 @@ const I = {
   activityLogs: <Svg d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z|M14 2v6h6|M16 13H8|M16 17H8|M10 9H8" />,
   settings: <Svg d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z|M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" stroke={1.6} />,
   profile: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/></svg>,
-  password: <Svg d="M12 2a7 7 0 0 0-7 7v3H3v9h18v-9h-2V9a7 7 0 0 0-7-7z|M9 11V9a3 3 0 0 1 6 0v2" />,
   sun: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M6.34 17.66l-1.41 1.41"/><path d="M19.07 4.93l-1.41 1.41"/></svg>,
   moon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
+  logout: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
 }
 
 const NAV_ITEMS: NavItem[] = [
@@ -85,14 +87,26 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'activityLogs',  labelKey: 'activityLogs',  icon: I.activityLogs, section: 'moderation' },
   { id: 'settings',      labelKey: 'settings',      icon: I.settings,    section: 'system' },
   { id: 'profile',       labelKey: 'profile',       icon: I.profile,     section: 'system' },
-  { id: 'changePassword',labelKey: 'changePassword',icon: I.password,    section: 'system' },
 ]
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return !!getAuthToken()
+  })
   const [activeNav, setActiveNav] = useState<NavItemId>('dashboard')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const { theme, toggleTheme } = useTheme()
   const { t, locale, setLocale, dir } = useLocale()
+
+  const handleLogout = useCallback(async () => {
+    try {
+      await api.post('/admin/logout')
+    } catch {
+      // proceed even if API call fails
+    }
+    clearAuth()
+    setIsAuthenticated(false)
+  }, [])
 
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     main: true,
@@ -104,6 +118,7 @@ function App() {
   })
 
   useEffect(() => {
+    if (!isAuthenticated) return
     const activeItem = NAV_ITEMS.find(item => item.id === activeNav)
     if (activeItem) {
       setExpandedSections(prev => ({
@@ -111,7 +126,7 @@ function App() {
         [activeItem.section]: true
       }))
     }
-  }, [activeNav])
+  }, [activeNav, isAuthenticated])
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev => ({
@@ -146,8 +161,11 @@ function App() {
       case 'activityLogs': return <ActivityLogsPage />
       case 'settings': return <SystemSettingsPage />
       case 'profile': return <AdminProfilePage />
-      case 'changePassword': return <ChangePasswordPage />
     }
+  }
+
+  if (!isAuthenticated) {
+    return <LoginPage onLogin={() => setIsAuthenticated(true)} />
   }
 
   return (
@@ -230,6 +248,9 @@ function App() {
             </button>
             <button className="topbar-btn theme-btn" onClick={toggleTheme} title={theme === 'dark' ? 'Light mode' : 'Dark mode'}>
               {theme === 'dark' ? I.sun : I.moon}
+            </button>
+            <button className="topbar-btn logout-btn" onClick={handleLogout} title={t('common.logout')}>
+              {I.logout}
             </button>
             <div
               className="admin-avatar"
