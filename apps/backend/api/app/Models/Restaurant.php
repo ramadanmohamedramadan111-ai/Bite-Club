@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Enums\Restaurant\RestaurantStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 
-class Restaurant extends Model
+class Restaurant extends Authenticatable implements JWTSubject
 {
     use HasFactory, SoftDeletes;
 
@@ -36,12 +37,34 @@ class Restaurant extends Model
     protected function casts(): array
     {
         return [
-            'category_id' => 'integer',
-            'approved_by' => 'integer',
+            'status'      => RestaurantStatusEnum::class,
             'approved_at' => 'datetime',
-            'average_rating' => 'decimal:2',
-            'total_orders_count' => 'integer',
         ];
+    }
+
+    public function getJWTIdentifier(): mixed
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims(): array
+    {
+        return [];
+    }
+
+    public function getAuthPassword(): string
+    {
+        return $this->password_hash;
+    }
+
+    public function canLogin(): bool
+    {
+        return $this->status->canLogin();
+    }
+
+    public function isPendingApproval(): bool
+    {
+        return $this->status->isPendingApproval();
     }
 
     public function category(): BelongsTo
@@ -52,10 +75,5 @@ class Restaurant extends Model
     public function approvedBy(): BelongsTo
     {
         return $this->belongsTo(Admin::class, 'approved_by');
-    }
-
-    public function settings(): HasOne
-    {
-        return $this->hasOne(RestaurantSetting::class);
     }
 }
