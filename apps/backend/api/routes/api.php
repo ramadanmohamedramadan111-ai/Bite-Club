@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\AdminAuthController;
 use App\Http\Controllers\Api\Auth\UserAuthController;
 use App\Http\Controllers\Api\RestaurantCategoryController;
+use App\Http\Controllers\Api\Auth\OtpController;
 
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -23,11 +24,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::delete('/{id}', [RestaurantCategoryController::class, 'destroy'])->name('destroy');
         });
     });
-
 });
 
 //user auth
 Route::prefix('user')->name('user.')->group(function () {
+    Route::post('/send-otp', [OtpController::class, 'sendOtp']);
+    Route::post('/verify-otp', [OtpController::class, 'verifyOtp']);
+    Route::post('/resend-otp', [OtpController::class, 'resendOtp']);
 
     Route::post('/register', [UserAuthController::class, 'register'])->name('register');
     Route::post('/login', [UserAuthController::class, 'login'])->name('login');
@@ -40,5 +43,4 @@ Route::prefix('user')->name('user.')->group(function () {
 
         Route::get('/me', [UserAuthController::class, 'me'])->name('me');
     });
-
 });
