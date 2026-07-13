@@ -21,15 +21,14 @@ class UserAuthController extends Controller
     public function register(UserRegisterRequest $request): JsonResponse
     {
         try {
+
             $dto = UserRegisterDto::fromValidatedRequest($request);
 
-            $result = $this->userAuthApplicationService->register($dto);
+            $this->userAuthApplicationService->register($dto);
 
             return $this->createdResponse(
-                trans('auth.register_success'),
-                $result
+                'OTP Sent Successfully'
             );
-
         } catch (Exception $e) {
 
             Log::error('User register failed: ' . $e->getMessage(), [
@@ -51,7 +50,6 @@ class UserAuthController extends Controller
                 trans('auth.login_success'),
                 $result
             );
-
         } catch (Exception $e) {
 
             Log::error('User login failed: ' . $e->getMessage(), [
@@ -70,7 +68,6 @@ class UserAuthController extends Controller
             return $this->successResponse(
                 trans('auth.logout_success')
             );
-
         } catch (Exception $e) {
 
             Log::error('User logout failed: ' . $e->getMessage());
@@ -90,7 +87,6 @@ class UserAuthController extends Controller
                 trans('auth.refresh_success'),
                 $result
             );
-
         } catch (Exception $e) {
 
             return $this->unauthorizedResponse(
@@ -108,7 +104,6 @@ class UserAuthController extends Controller
                 null,
                 $data
             );
-
         } catch (Exception $e) {
 
             return $this->serverErrorResponse(

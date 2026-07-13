@@ -14,27 +14,9 @@ class UserAuthApplicationService
         private UserRepositoryInterface $userRepository
     ) {}
 
-    public function register(UserRegisterDto $dto): array
+    public function register(UserRegisterDto $dto): void
     {
         $this->userAuthDomainService->register($dto);
-
-        $token = $this->userAuthDomainService->attemptLogin(
-            $dto->getEmail(),
-            $dto->getPassword()
-        );
-
-        $user = $this->userAuthDomainService->getAuthenticatedUser();
-
-        $this->userRepository->updateLastLogin($user->id);
-
-        return $this->buildTokenResponse($token, [
-            'id'            => $user->id,
-            'full_name'     => $user->full_name,
-            'username'      => $user->username,
-            'email'         => $user->email,
-            'phone_number'  => $user->phone_number,
-            'referral_code' => $user->referral_code,
-        ]);
     }
 
     public function login(UserLoginDto $dto): array
@@ -50,7 +32,9 @@ class UserAuthApplicationService
 
         return $this->buildTokenResponse($token, [
             'id'            => $user->id,
-            'full_name'     => $user->full_name,
+            'first_name'   => $user->first_name,
+            'last_name'    => $user->last_name,
+            'date_of_birth' => $user->date_of_birth,
             'username'      => $user->username,
             'email'         => $user->email,
             'phone_number'  => $user->phone_number,
@@ -76,7 +60,9 @@ class UserAuthApplicationService
 
         return [
             'id'             => $user->id,
-            'full_name'      => $user->full_name,
+            'first_name'   => $user->first_name,
+            'last_name'    => $user->last_name,
+            'date_of_birth' => $user->date_of_birth,
             'username'       => $user->username,
             'email'          => $user->email,
             'phone_number'   => $user->phone_number,
@@ -91,9 +77,9 @@ class UserAuthApplicationService
     private function buildTokenResponse(string $token, ?array $user = null): array
     {
         $response = [
-        'access_token' => $token,
-        'token_type'   => 'Bearer',
-        'expires_in'   => config('jwt.ttl') * 60,
+            'access_token' => $token,
+            'token_type'   => 'Bearer',
+            'expires_in'   => config('jwt.ttl') * 60,
         ];
 
         if ($user !== null) {
