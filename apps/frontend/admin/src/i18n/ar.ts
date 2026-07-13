@@ -17,7 +17,6 @@ export const ar: Record<string, any> = {
     activityLogs: 'سجل النشاطات',
     settings: 'إعدادات النظام',
     profile: 'الملف الشخصي',
-    changePassword: 'تغيير كلمة المرور',
   },
   sections: {
     main: 'الرئيسية',
@@ -85,6 +84,7 @@ export const ar: Record<string, any> = {
     description: 'الوصف',
     createdAt: 'تاريخ الإنشاء',
     updatedAt: 'تاريخ التحديث',
+    logout: 'تسجيل الخروج',
   },
   dashboard: {
     title: 'لوحة التحكم',
@@ -495,22 +495,18 @@ export const ar: Record<string, any> = {
     uploadPhoto: 'رفع صورة',
     removePhoto: 'إزالة الصورة',
   },
-  changePassword: {
-    title: 'تغيير كلمة المرور',
-    subtitle: 'تحديث كلمة مرور حسابك',
-    fields: {
-      currentPassword: 'كلمة المرور الحالية',
-      newPassword: 'كلمة المرور الجديدة',
-      confirmPassword: 'تأكيد كلمة المرور الجديدة',
-    },
-    requirements: {
-      minLength: '8 أحرف على الأقل',
-      uppercase: 'حرف كبير واحد',
-      lowercase: 'حرف صغير واحد',
-      number: 'رقم واحد',
-      special: 'رمز خاص واحد',
-    },
-    savePassword: 'تحديث كلمة المرور',
-    passwordChanged: 'تم تغيير كلمة المرور بنجاح',
+
+  login: {
+    title: 'مرحباً بعودتك',
+    subtitle: 'سجل الدخول إلى حساب المشرف الخاص بك',
+    emailLabel: 'البريد الإلكتروني',
+    emailPlaceholder: 'أدخل بريدك الإلكتروني',
+    passwordLabel: 'كلمة المرور',
+    passwordPlaceholder: 'أدخل كلمة المرور',
+    button: 'تسجيل الدخول',
+    loading: 'جاري تسجيل الدخول...',
+    errorInvalid: 'صيغة البريد الإلكتروني غير صحيحة',
+    errorPasswordLength: 'يجب أن تتكون كلمة المرور من 8 أحرف على الأقل',
+    errorInvalidCredentials: 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
   },
 }
