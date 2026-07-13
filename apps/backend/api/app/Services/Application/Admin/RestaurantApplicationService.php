@@ -3,6 +3,7 @@
 namespace App\Services\Application\Admin;
 
 use App\DTOs\Admin\Restaurant\IndexRestaurantDto;
+use App\DTOs\Admin\Restaurant\UpdateRestaurantStatusDto;
 use App\Enums\Restaurant\RestaurantStatusEnum;
 use App\Services\Domain\Admin\RestaurantDomainService;
 
@@ -20,6 +21,16 @@ class RestaurantApplicationService
             'items' => $data['items']->map(fn ($item) => $this->mapItem($item))->toArray(),
             'meta'  => $data['meta'] ?? null,
         ]);
+    }
+
+    public function updateStatus(UpdateRestaurantStatusDto $dto): array
+    {
+        $result = $this->restaurantDomainService->updateStatus($dto);
+
+        return [
+            'restaurant' => $this->mapItem($result['restaurant']),
+            'unchanged'  => $result['unchanged'],
+        ];
     }
 
     private function mapItem($restaurant): array
