@@ -6,7 +6,6 @@ use App\Http\Controllers\Api\Auth\UserAuthController;
 use App\Http\Controllers\Api\RestaurantCategoryController;
 use App\Http\Controllers\Api\Auth\OtpController;
 
-<<<<<<< HEAD
 
 Route::prefix('admin')->name('admin.')->group(function () {
 
@@ -27,8 +26,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     });
 });
 
-=======
->>>>>>> origin/master
+
 //user auth
 Route::prefix('user')->name('user.')->group(function () {
     Route::post('/send-otp', [OtpController::class, 'sendOtp']);
