@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useLocale } from '../contexts/LocaleContext'
 import { useTheme } from '../contexts/ThemeContext'
+import api from '../lib/api'
+import { setAuthToken, setAuthUser } from '../lib/cookies'
 
 interface LoginPageProps {
   onLogin: () => void
@@ -46,7 +48,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     return isValid
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setGeneralError('')
 
@@ -54,18 +56,20 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
     setIsLoading(true)
 
-    // Simulate login loading delay
-    setTimeout(() => {
-      // Allow specific admin login for demo purposes
-      if (email === 'admin@biteclub.com' && password === 'password') {
-        localStorage.setItem('admin-authenticated', 'true')
-        setIsLoading(false)
-        onLogin()
-      } else {
-        setIsLoading(false)
-        setGeneralError(t('login.errorInvalidCredentials'))
+    try {
+      const response = await api.post('/admin/login', { email, password })
+      const { access_token, user } = response.data.data
+      setAuthToken(access_token)
+      if (user) {
+        setAuthUser(user)
       }
-    }, 1000)
+      setIsLoading(false)
+      onLogin()
+    } catch (error: any) {
+      setIsLoading(false)
+      const message = error.response?.data?.message || t('login.errorInvalidCredentials')
+      setGeneralError(message)
+    }
   }
 
   const sunIcon = (

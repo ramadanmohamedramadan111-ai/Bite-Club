@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useTheme } from './contexts/ThemeContext'
 import { useLocale } from './contexts/LocaleContext'
+import api from './lib/api'
+import { getAuthToken, clearAuth } from './lib/cookies'
 import { DashboardPage } from './pages/Dashboard'
 import { UsersPage } from './pages/Users'
 import { BlockedUsersPage } from './pages/BlockedUsers'
@@ -89,17 +91,22 @@ const NAV_ITEMS: NavItem[] = [
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return localStorage.getItem('admin-authenticated') === 'true'
+    return !!getAuthToken()
   })
   const [activeNav, setActiveNav] = useState<NavItemId>('dashboard')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const { theme, toggleTheme } = useTheme()
   const { t, locale, setLocale, dir } = useLocale()
 
-  const handleLogout = () => {
-    localStorage.removeItem('admin-authenticated')
+  const handleLogout = useCallback(async () => {
+    try {
+      await api.post('/admin/logout')
+    } catch {
+      // proceed even if API call fails
+    }
+    clearAuth()
     setIsAuthenticated(false)
-  }
+  }, [])
 
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     main: true,
