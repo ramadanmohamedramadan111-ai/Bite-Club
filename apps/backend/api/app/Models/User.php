@@ -31,7 +31,7 @@ class User extends Authenticatable implements JWTSubject
         'referred_by',
         'failed_pickup_count',
         'status',
-        'phone_verified_at',
+        'email_verified_at',
         'last_login_at',
     ];
 
@@ -49,7 +49,7 @@ class User extends Authenticatable implements JWTSubject
             'deleted_at'          => 'datetime',
             'status'              => UserStatusEnum::class,
             'date_of_birth'       => 'date',
-            'phone_verified_at'   => 'datetime',
+            'email_verified_at'   => 'datetime',
         ];
     }
 

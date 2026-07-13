@@ -6,12 +6,12 @@ use App\Repositories\Eloquent\AdminRepository;
 use App\Repositories\Eloquent\UserRepository;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Repositories\Eloquent\RestaurantCategoryRepository;
-use App\Repositories\Eloquent\PhoneVerificationRepository;
-use App\Repositories\Interfaces\PhoneVerificationRepositoryInterface;
 use App\Repositories\Eloquent\RestaurantRepository;
+use App\Repositories\Eloquent\PasswordResetOtpRepository;
 use App\Repositories\Interfaces\AdminRepositoryInterface;
 use App\Repositories\Interfaces\RestaurantCategoryRepositoryInterface;
 use App\Repositories\Interfaces\RestaurantRepositoryInterface;
+use App\Repositories\Interfaces\PasswordResetOtpRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -39,8 +39,8 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(
-            PhoneVerificationRepositoryInterface::class,
-            PhoneVerificationRepository::class
+            PasswordResetOtpRepositoryInterface::class,
+            PasswordResetOtpRepository::class
         );
     }
 
