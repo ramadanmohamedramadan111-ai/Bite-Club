@@ -35,7 +35,7 @@ class RestaurantApplicationService
 
     public function updateStatus(UpdateRestaurantStatusDto $dto): array
     {
-        $result = $this->restaurantDomainService->updateStatus($dto);
+        $result = $this->restaurantDomainService->updateStatus($dto->getId(), $dto->getStatus());
 
         if (!$result['unchanged']) {
             $this->sendStatusMail($result['restaurant']);
