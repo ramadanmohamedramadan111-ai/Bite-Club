@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { ArrowRight, Eye, EyeOff, Lock, Mail, Moon, Sparkles, SunMedium } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Eye, EyeOff, Lock, Mail, Moon, Sparkles, SunMedium } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { SignJWT } from 'jose'
 import toast from 'react-hot-toast'
@@ -127,8 +127,8 @@ export function LoginPage({ theme, toggleTheme, language, toggleLanguage }: Logi
               </label>
             </div>
 
-            <button className="inline-flex w-full items-center justify-center gap-2 rounded-3xl bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:-translate-y-0.5 hover:shadow-orange-500/30">
-              {t('submit')} <ArrowRight size={18} />
+            <button className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:-translate-y-0.5 hover:shadow-orange-500/30">
+              {t('submit')} {language=="ar" ? <ArrowLeft size={18} />: <ArrowRight size={18} />}
             </button>
           </form>
 

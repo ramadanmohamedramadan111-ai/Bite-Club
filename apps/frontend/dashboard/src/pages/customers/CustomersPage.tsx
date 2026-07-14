@@ -1,16 +1,14 @@
 import { useTranslation } from 'react-i18next'
-import { Download, UserPlus, TrendingUp, TrendingDown, MoreVertical, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
-
-const customers = [
-  { id: 1, name: 'Ahmed Mansour', email: 'ahmed.m@example.com',  phone: '+20 100 234 5678', orders: 42, spend: 12450, lastOrder: 'Oct 24, 2023', segment: 'VIP'      },
-  { id: 2, name: 'Laila Hassan',  email: 'laila.h@outlook.com',  phone: '+20 112 889 4432', orders: 18, spend: 5120,  lastOrder: 'Oct 22, 2023', segment: 'FREQUENT' },
-  { id: 3, name: 'Omar Zaki',     email: 'omar_z@webmail.com',   phone: '+20 155 001 9988', orders: 1,  spend: 850,   lastOrder: 'Oct 25, 2023', segment: 'NEW'      },
-  { id: 4, name: 'Nour Adel',     email: 'nour.a@email.com',     phone: '+20 101 234 5670', orders: 9,  spend: 2100,  lastOrder: 'Oct 21, 2023', segment: 'FREQUENT' },
-  { id: 5, name: 'Sara Mostafa',  email: 'sara.m@email.com',     phone: '+20 102 234 5671', orders: 6,  spend: 1450,  lastOrder: 'Oct 20, 2023', segment: 'FREQUENT' },
-  { id: 6, name: 'Karim Fathy',   email: 'karim.f@email.com',    phone: '+20 103 234 5672', orders: 4,  spend: 980,   lastOrder: 'Oct 18, 2023', segment: 'NEW'      },
-  { id: 7, name: 'Hana Ibrahim',  email: 'hana.i@email.com',     phone: '+20 104 234 5673', orders: 15, spend: 3600,  lastOrder: 'Oct 23, 2023', segment: 'FREQUENT' },
-  { id: 8, name: 'Youssef Ali',   email: 'youss.a@email.com',    phone: '+20 105 234 5674', orders: 31, spend: 8200,  lastOrder: 'Oct 24, 2023', segment: 'VIP'      },
-]
+import { useState } from 'react'
+import { Download, UserPlus, TrendingUp, TrendingDown, Pencil, Trash2 } from 'lucide-react'
+import { Table } from '../../components/common/Table'
+import type { Column } from '../../components/common/Table'
+import { Pagination } from '../../components/common/Pagination'
+import { DeleteModal } from '../../components/common/DeleteModal'
+import { FormModal } from '../../components/common/FormModal'
+import { useCustomerStore, customerSchema } from '../../store/customerStore'
+import type { Customer } from '../../store/customerStore'
+import { z } from 'zod'
 
 const segBadge = (s: string) =>
   s === 'VIP' ? 'bg-purple-100 text-purple-700' : s === 'FREQUENT' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'
@@ -21,9 +19,133 @@ const initials = (name: string) => name.split(' ').map((n) => n[0]).join('').sli
 
 export function CustomersPage() {
   const { t } = useTranslation()
+  const { customers, addCustomer, updateCustomer, deleteCustomer } = useCustomerStore()
+  const [currentPage, setCurrentPage] = useState(1)
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState<Customer | null>(null)
+  const [showDeleteModal, setShowDeleteModal] = useState<Customer | null>(null)
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
+  const [newCustomer, setNewCustomer] = useState({ name: '', email: '', phone: '', segment: 'NEW' as 'VIP' | 'FREQUENT' | 'NEW' })
+
+  const handleCreateCustomer = () => {
+    try {
+      const validatedCustomer = customerSchema.parse({
+        name: newCustomer.name,
+        email: newCustomer.email,
+        phone: newCustomer.phone,
+        orders: 0,
+        spend: 0,
+        segment: newCustomer.segment,
+      })
+      
+      addCustomer(validatedCustomer)
+      setNewCustomer({ name: '', email: '', phone: '', segment: 'NEW' })
+      setValidationErrors({})
+      setShowCreateModal(false)
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errors: Record<string, string> = {}
+        error.issues.forEach((err) => {
+          if (err.path[0]) {
+            errors[err.path[0] as string] = err.message
+          }
+        })
+        setValidationErrors(errors)
+      }
+    }
+  }
+
+  const handleEditCustomer = () => {
+    if (showEditModal) {
+      try {
+        const validatedCustomer = customerSchema.parse(showEditModal)
+        updateCustomer(showEditModal.id!, validatedCustomer)
+        setShowEditModal(null)
+        setValidationErrors({})
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          const errors: Record<string, string> = {}
+          error.issues.forEach((err) => {
+            if (err.path[0]) {
+              errors[err.path[0] as string] = err.message
+            }
+          })
+          setValidationErrors(errors)
+        }
+      }
+    }
+  }
+
+  const handleDeleteCustomer = () => {
+    if (showDeleteModal) {
+      deleteCustomer(showDeleteModal.id!)
+      setShowDeleteModal(null)
+    }
+  }
+
+  const columns: Column<typeof customers[0]>[] = [
+    {
+      header: t('customerName'),
+      key: 'name',
+      render: (c, idx) => (
+        <div className="flex items-center gap-3">
+          <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold ${avatarColors[idx % avatarColors.length]}`}>{initials(c.name)}</div>
+          <div>
+            <p className="font-semibold text-gray-800 dark:text-white">{c.name}</p>
+            <p className="text-xs text-gray-400 dark:text-slate-500">{c.email}</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: t('phoneNumber'),
+      key: 'phone',
+      render: (c) => c.phone,
+    },
+    {
+      header: t('totalOrders'),
+      key: 'orders',
+      render: (c) => c.orders,
+    },
+    {
+      header: t('spendEgp'),
+      key: 'spend',
+      render: (c) => c.spend.toLocaleString(),
+    },
+    {
+      header: t('lastOrder'),
+      key: 'lastOrder',
+      render: (c) => c.lastOrder,
+    },
+    {
+      header: t('segment'),
+      key: 'segment',
+      render: (c) => <span className={`inline-block rounded-full px-3 py-0.5 text-xs font-bold ${segBadge(c.segment)}`}>{c.segment}</span>,
+    },
+    {
+      header: t('actions'),
+      key: 'actions',
+      render: (c) => (
+        <div className="flex items-center gap-1">
+          <button 
+            onClick={() => setShowEditModal(c)}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition dark:hover:bg-slate-700"
+          >
+            <Pencil size={14} />
+          </button>
+          <button 
+            onClick={() => setShowDeleteModal(c)}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-600 transition dark:hover:bg-red-950/20"
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
+      ),
+    },
+  ]
 
   return (
-    <div className="flex flex-col gap-5 mx-auto">
+    <div className="flex flex-col gap-6 mx-auto w-full">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('customerDatabase')}</h1>
@@ -33,7 +155,10 @@ export function CustomersPage() {
           <button className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:border-brand-orange hover:text-brand-orange transition dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">
             <Download size={14} /> {t('exportCSV')}
           </button>
-          <button className="flex items-center gap-2 rounded-xl bg-brand-orange px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition">
+          <button 
+            onClick={() => setShowCreateModal(true)}
+            className="flex items-center gap-2 rounded-xl bg-brand-orange px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition"
+          >
             <UserPlus size={14} /> {t('newCustomer')}
           </button>
         </div>
@@ -51,54 +176,17 @@ export function CustomersPage() {
       </div>
 
       <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden dark:border-slate-700 dark:bg-slate-900">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-gray-50 dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700">
-              <tr>
-                {[t('customerName'), t('phoneNumber'), t('totalOrders'), t('spendEgp'), t('lastOrder'), t('segment'), t('actions')].map((h) => (
-                  <th key={h} className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-slate-500 whitespace-nowrap">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50 dark:divide-slate-800">
-              {customers.map((c, i) => (
-                <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition">
-                  <td className="px-5 py-3.5">
-                    <div className="flex items-center gap-3">
-                      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold ${avatarColors[i % avatarColors.length]}`}>{initials(c.name)}</div>
-                      <div>
-                        <p className="font-semibold text-gray-800 dark:text-white">{c.name}</p>
-                        <p className="text-xs text-gray-400 dark:text-slate-500">{c.email}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3.5 text-gray-600 dark:text-slate-300 whitespace-nowrap">{c.phone}</td>
-                  <td className="px-5 py-3.5 font-semibold text-gray-800 dark:text-white">{c.orders}</td>
-                  <td className="px-5 py-3.5 font-semibold text-gray-800 dark:text-white">{c.spend.toLocaleString()}</td>
-                  <td className="px-5 py-3.5 text-gray-500 dark:text-slate-400 whitespace-nowrap">{c.lastOrder}</td>
-                  <td className="px-5 py-3.5"><span className={`inline-block rounded-full px-3 py-0.5 text-xs font-bold ${segBadge(c.segment)}`}>{c.segment}</span></td>
-                  <td className="px-5 py-3.5">
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition dark:hover:bg-slate-700"><MoreVertical size={15} /></button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="flex items-center justify-between border-t border-gray-100 dark:border-slate-700 px-5 py-3">
-          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-slate-400">
-            <span>{t('rowsPerPage')}</span>
-            <select className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-sm text-gray-700 outline-none dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">
-              <option>20</option><option>50</option><option>100</option>
-            </select>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="text-xs text-gray-400 mr-2">1 – 20 of 1,240</span>
-            {[ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight].map((Icon, i) => (
-              <button key={i} className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:border-brand-orange hover:text-brand-orange transition dark:border-slate-600"><Icon size={13} /></button>
-            ))}
-          </div>
-        </div>
+        <Table
+          columns={columns}
+          data={customers}
+          keyExtractor={(row) => row.id}
+        />
+        <Pagination
+          currentPage={currentPage}
+          totalPages={62}
+          onPageChange={setCurrentPage}
+          showingText="Showing 1 – 20 of 1,240"
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -120,6 +208,131 @@ export function CustomersPage() {
           )
         })}
       </div>
+
+      {/* Create Customer Modal */}
+      <FormModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        title={t('newCustomer')}
+        onSave={handleCreateCustomer}
+        saveDisabled={!newCustomer.name || !newCustomer.email || !newCustomer.phone}
+      >
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('customerName')}</label>
+          <input
+            type="text"
+            value={newCustomer.name}
+            onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })}
+            placeholder="e.g., Ahmed Mansour"
+            className={`w-full rounded-xl border px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500 ${validationErrors.name ? 'border-red-500' : 'border-gray-200'}`}
+          />
+          {validationErrors.name && <p className="text-xs text-red-500 mt-1">{validationErrors.name}</p>}
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('email')}</label>
+          <input
+            type="email"
+            value={newCustomer.email}
+            onChange={(e) => setNewCustomer({ ...newCustomer, email: e.target.value })}
+            placeholder="e.g., ahmed@example.com"
+            className={`w-full rounded-xl border px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500 ${validationErrors.email ? 'border-red-500' : 'border-gray-200'}`}
+          />
+          {validationErrors.email && <p className="text-xs text-red-500 mt-1">{validationErrors.email}</p>}
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('phoneNumber')}</label>
+          <input
+            type="text"
+            value={newCustomer.phone}
+            onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })}
+            placeholder="e.g., +20 100 234 5678"
+            className={`w-full rounded-xl border px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500 ${validationErrors.phone ? 'border-red-500' : 'border-gray-200'}`}
+          />
+          {validationErrors.phone && <p className="text-xs text-red-500 mt-1">{validationErrors.phone}</p>}
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('segment')}</label>
+          <select
+            value={newCustomer.segment}
+            onChange={(e) => setNewCustomer({ ...newCustomer, segment: e.target.value as 'VIP' | 'FREQUENT' | 'NEW' })}
+            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-700 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+          >
+            <option value="NEW">NEW</option>
+            <option value="FREQUENT">FREQUENT</option>
+            <option value="VIP">VIP</option>
+          </select>
+        </div>
+      </FormModal>
+
+      {/* Edit Customer Modal */}
+      <FormModal
+        isOpen={!!showEditModal}
+        onClose={() => setShowEditModal(null)}
+        title={t('editCustomer')}
+        onSave={handleEditCustomer}
+      >
+        {showEditModal && (
+          <>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('customerName')}</label>
+              <input
+                type="text"
+                value={showEditModal.name}
+                onChange={(e) => setShowEditModal({ ...showEditModal, name: e.target.value })}
+                className={`w-full rounded-xl border px-4 py-2.5 text-sm text-gray-700 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 ${validationErrors.name ? 'border-red-500' : 'border-gray-200'}`}
+              />
+              {validationErrors.name && <p className="text-xs text-red-500 mt-1">{validationErrors.name}</p>}
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('email')}</label>
+              <input
+                type="email"
+                value={showEditModal.email}
+                onChange={(e) => setShowEditModal({ ...showEditModal, email: e.target.value })}
+                className={`w-full rounded-xl border px-4 py-2.5 text-sm text-gray-700 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 ${validationErrors.email ? 'border-red-500' : 'border-gray-200'}`}
+              />
+              {validationErrors.email && <p className="text-xs text-red-500 mt-1">{validationErrors.email}</p>}
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('phoneNumber')}</label>
+              <input
+                type="text"
+                value={showEditModal.phone}
+                onChange={(e) => setShowEditModal({ ...showEditModal, phone: e.target.value })}
+                className={`w-full rounded-xl border px-4 py-2.5 text-sm text-gray-700 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 ${validationErrors.phone ? 'border-red-500' : 'border-gray-200'}`}
+              />
+              {validationErrors.phone && <p className="text-xs text-red-500 mt-1">{validationErrors.phone}</p>}
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('segment')}</label>
+              <select
+                value={showEditModal.segment}
+                onChange={(e) => setShowEditModal({ ...showEditModal, segment: e.target.value as 'VIP' | 'FREQUENT' | 'NEW' })}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-700 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+              >
+                <option value="NEW">NEW</option>
+                <option value="FREQUENT">FREQUENT</option>
+                <option value="VIP">VIP</option>
+              </select>
+            </div>
+          </>
+        )}
+      </FormModal>
+
+      {/* Delete Customer Modal */}
+      <DeleteModal
+        isOpen={!!showDeleteModal}
+        onClose={() => setShowDeleteModal(null)}
+        title={t('deleteCustomer')}
+        itemName={showDeleteModal?.name || ''}
+        onConfirm={handleDeleteCustomer}
+      />
     </div>
   )
 }

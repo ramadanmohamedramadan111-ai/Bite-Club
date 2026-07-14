@@ -1,5 +1,10 @@
 import { useTranslation } from 'react-i18next'
-import { Bell, CheckCircle, XCircle, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Bell, CheckCircle, XCircle } from 'lucide-react'
+import { Table } from '../../components/common/Table'
+import type { Column } from '../../components/common/Table'
+import { Pagination } from '../../components/common/Pagination'
 
 const orders = [
   { id: '#BC-1024', customer: 'Sarah Chen',  phone: '+20 100 293 8472', branch: 'Zamalek',   status: 'Preparing', payment: 'Paid',     total: 450,  time: '11:45 AM' },
@@ -10,28 +15,101 @@ const orders = [
 
 function statusPill(status: string) {
   switch (status) {
-    case 'Preparing':  return 'bg-blue-100 text-blue-600'
-    case 'Ready':      return 'bg-orange-100 text-orange-600'
-    case 'Completed':  return 'bg-green-100 text-green-700'
-    case 'Cancelled':  return 'bg-red-100 text-red-500'
-    default:           return 'bg-gray-100 text-gray-500'
+    case 'Preparing':  return 'bg-blue-105 text-blue-600 dark:bg-blue-950/20 dark:text-blue-500'
+    case 'Ready':      return 'bg-orange-50 text-brand-orange dark:bg-orange-950/20'
+    case 'Completed':  return 'bg-green-100 text-green-700 dark:bg-green-950/20 dark:text-green-500'
+    case 'Cancelled':  return 'bg-red-100 text-red-500 dark:bg-red-950/20 dark:text-red-500'
+    default:           return 'bg-gray-100 text-gray-500 dark:bg-slate-800 dark:text-slate-400'
   }
 }
 
 function paymentColor(p: string) {
   switch (p) {
-    case 'Paid':     return 'text-green-600'
+    case 'Paid':     return 'text-green-600 dark:text-green-500'
     case 'Unpaid':   return 'text-gray-400 dark:text-slate-500'
-    case 'Refunded': return 'text-red-500'
-    default:         return 'text-gray-400'
+    case 'Refunded': return 'text-red-550 dark:text-red-500'
+    default:         return 'text-gray-400 dark:text-slate-500'
   }
 }
 
 export function OrdersPage() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const columns: Column<typeof orders[0]>[] = [
+    {
+      header: t('orderHash', 'ORDER ID'),
+      key: 'id',
+      render: (o) => <span className="font-bold text-gray-800 dark:text-white">{o.id}</span>
+    },
+    {
+      header: t('customer', 'CUSTOMER'),
+      key: 'customer',
+      render: (o) => (
+        <div>
+          <p className="font-semibold text-gray-800 dark:text-white">{o.customer}</p>
+          <p className="text-xs text-gray-400 dark:text-slate-500">{o.phone}</p>
+        </div>
+      )
+    },
+    {
+      header: t('branch', 'BRANCH'),
+      key: 'branch',
+      render: (o) => o.branch
+    },
+    {
+      header: t('type', 'TYPE'),
+      key: 'type',
+      render: () => t('pickup', 'Pickup')
+    },
+    {
+      header: t('status', 'STATUS'),
+      key: 'status',
+      render: (o) => (
+        <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${statusPill(o.status)}`}>
+          {o.status}
+        </span>
+      )
+    },
+    {
+      header: t('payment', 'PAYMENT'),
+      key: 'payment',
+      render: (o) => (
+        <span className={`text-sm font-semibold ${paymentColor(o.payment)}`}>
+          {o.payment}
+        </span>
+      )
+    },
+    {
+      header: t('total', 'TOTAL'),
+      key: 'total',
+      render: (o) => <span className="font-bold text-gray-800 dark:text-white">{o.total} EGP</span>
+    },
+    {
+      header: t('date', 'DATE'),
+      key: 'time',
+      render: (o) => o.time
+    },
+    {
+      header: t('action', 'ACTION'),
+      key: 'action',
+      render: (o) => (
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            navigate(`/orders/${o.id.replace('#', '')}`)
+          }}
+          className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:border-brand-orange hover:text-brand-orange transition dark:border-slate-600 dark:text-slate-300"
+        >
+          {t('viewDetails')}
+        </button>
+      )
+    }
+  ]
 
   return (
-    <div className="flex flex-col gap-5 mx-auto">
+    <div className="flex flex-col gap-6 mx-auto w-full">
 
       {/* Incoming order + efficiency */}
       <div className="grid gap-4 xl:grid-cols-[1fr_300px]">
@@ -96,51 +174,18 @@ export function OrdersPage() {
 
       {/* Orders table */}
       <div className="rounded-xl border border-gray-100 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-gray-50 dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700">
-              <tr>
-                {[t('orderHash'), t('customer'), t('branch'), t('type'), t('status'), t('payment'), t('total'), t('date'), t('action')].map((h) => (
-                  <th key={h} className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400 whitespace-nowrap">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50 dark:divide-slate-800">
-              {orders.map((o) => (
-                <tr key={o.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition">
-                  <td className="px-4 py-4 font-bold text-gray-800 dark:text-white">{o.id}</td>
-                  <td className="px-4 py-4">
-                    <p className="font-semibold text-gray-800 dark:text-white">{o.customer}</p>
-                    <p className="text-xs text-gray-400">{o.phone}</p>
-                  </td>
-                  <td className="px-4 py-4 text-gray-600 dark:text-slate-300">{o.branch}</td>
-                  <td className="px-4 py-4 text-gray-600 dark:text-slate-300">{t('pickup')}</td>
-                  <td className="px-4 py-4">
-                    <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${statusPill(o.status)}`}>{o.status}</span>
-                  </td>
-                  <td className={`px-4 py-4 text-sm font-semibold ${paymentColor(o.payment)}`}>{o.payment}</td>
-                  <td className="px-4 py-4 font-bold text-gray-800 dark:text-white">{o.total} EGP</td>
-                  <td className="px-4 py-4 text-gray-500 dark:text-slate-400">{o.time}</td>
-                  <td className="px-4 py-4">
-                    <button className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:border-brand-orange hover:text-brand-orange transition dark:border-slate-600 dark:text-slate-300">
-                      {t('viewDetails')}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="flex items-center justify-between border-t border-gray-100 dark:border-slate-700 px-5 py-3">
-          <span className="text-sm text-gray-500 dark:text-slate-400">Showing 1 to 4 of 128 orders</span>
-          <div className="flex items-center gap-1">
-            <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:border-brand-orange hover:text-brand-orange transition dark:border-slate-600"><ChevronLeft size={14} /></button>
-            {[1, 2, 3].map((p) => (
-              <button key={p} className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-semibold transition ${p === 1 ? 'bg-brand-orange text-white' : 'border border-gray-200 text-gray-600 hover:border-brand-orange hover:text-brand-orange dark:border-slate-600 dark:text-slate-300'}`}>{p}</button>
-            ))}
-            <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:border-brand-orange hover:text-brand-orange transition dark:border-slate-600"><ChevronRight size={14} /></button>
-          </div>
-        </div>
+        <Table
+          columns={columns}
+          data={orders}
+          keyExtractor={(row) => row.id}
+          onRowClick={(row) => navigate(`/orders/${row.id.replace('#', '')}`)}
+        />
+        <Pagination
+          currentPage={currentPage}
+          totalPages={13}
+          onPageChange={setCurrentPage}
+          showingText="Showing 1 to 4 of 128 orders"
+        />
       </div>
     </div>
   )
