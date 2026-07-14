@@ -14,24 +14,22 @@ class RestaurantSetting extends Model
 
     const UPDATED_AT = 'updated_at';
 
+    protected $table = 'restaurant_settings';
+
     protected $fillable = [
         'restaurant_id',
-        'commission_rate',
         'deposit_threshold',
         'deposit_percentage',
-        'service_fee_amount',
         'updated_at',
     ];
 
     protected function casts(): array
     {
         return [
-            'restaurant_id' => 'integer',
-            'commission_rate' => 'decimal:2',
-            'deposit_threshold' => 'decimal:2',
+            'restaurant_id'      => 'integer',
+            'deposit_threshold'  => 'decimal:2',
             'deposit_percentage' => 'decimal:2',
-            'service_fee_amount' => 'decimal:2',
-            'updated_at' => 'datetime',
+            'updated_at'         => 'datetime',
         ];
     }
 
