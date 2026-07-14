@@ -142,6 +142,16 @@ const resources = {
       actions: 'Actions',
       soldOut: 'SOLD OUT',
       bestSeller: 'BEST SELLER',
+      itemName: 'Item Name',
+      itemNameAr: 'Item Name (Arabic)',
+      description: 'Description',
+      badge: 'Badge',
+      editItem: 'Edit Item',
+      deleteItem: 'Delete Item',
+      deleteItemConfirm: 'Are you sure you want to delete',
+      delete: 'Delete',
+      editCategory: 'Edit Category',
+      deleteCategory: 'Delete Category',
 
       // Customers page
       customerDatabase: 'Customer Database',
@@ -458,6 +468,16 @@ const resources = {
       actions: 'إجراءات',
       soldOut: 'نفذ',
       bestSeller: 'الأكثر مبيعاً',
+      itemName: 'اسم العنصر',
+      itemNameAr: 'اسم العنصر (عربي)',
+      description: 'الوصف',
+      badge: 'الشارة',
+      editItem: 'تعديل العنصر',
+      deleteItem: 'حذف العنصر',
+      deleteItemConfirm: 'هل أنت متأكد من حذف',
+      delete: 'حذف',
+      editCategory: 'تعديل التصنيف',
+      deleteCategory: 'حذف التصنيف',
 
       // Customers page
       customerDatabase: 'قاعدة بيانات العملاء',

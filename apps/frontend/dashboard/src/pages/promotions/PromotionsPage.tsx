@@ -5,19 +5,95 @@ import {
   Users,
   DollarSign,
   Plus,
-  MoreVertical,
   Ticket,
   Percent,
   Calendar,
+  Pencil,
+  Trash2,
 } from 'lucide-react'
 import { Table } from '../../components/common/Table'
 import type { Column } from '../../components/common/Table'
 import { Pagination } from '../../components/common/Pagination'
+import { DeleteModal } from '../../components/common/DeleteModal'
+import { FormModal } from '../../components/common/FormModal'
+import { usePromotionStore, promotionSchema } from '../../store/promotionStore'
+import type { Promotion } from '../../store/promotionStore'
+import { z } from 'zod'
 
 export function PromotionsPage() {
   const { t } = useTranslation()
+  const { promotions, addPromotion, updatePromotion, deletePromotion } = usePromotionStore()
   const [activeTrendTab, setActiveTrendTab] = useState<'week' | 'month'>('month')
   const [currentPage, setCurrentPage] = useState(1)
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState<Promotion | null>(null)
+  const [showDeleteModal, setShowDeleteModal] = useState<Promotion | null>(null)
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
+  const [newPromotion, setNewPromotion] = useState({ 
+    name: '', 
+    desc: '', 
+    status: 'ACTIVE' as 'ACTIVE' | 'SCHEDULED' | 'EXPIRED', 
+    type: 'Coupon Code' as 'Coupon Code' | 'Campaign' | 'Flash Sale', 
+    schedule: '', 
+    usage: 0, 
+    maxUsage: 100 
+  })
+
+  const handleCreatePromotion = () => {
+    try {
+      const validatedPromotion = promotionSchema.parse(newPromotion)
+      addPromotion(validatedPromotion)
+      setNewPromotion({ 
+        name: '', 
+        desc: '', 
+        status: 'ACTIVE', 
+        type: 'Coupon Code', 
+        schedule: '', 
+        usage: 0, 
+        maxUsage: 100 
+      })
+      setValidationErrors({})
+      setShowCreateModal(false)
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errors: Record<string, string> = {}
+        error.issues.forEach((err) => {
+          if (err.path[0]) {
+            errors[err.path[0] as string] = err.message
+          }
+        })
+        setValidationErrors(errors)
+      }
+    }
+  }
+
+  const handleEditPromotion = () => {
+    if (showEditModal) {
+      try {
+        const validatedPromotion = promotionSchema.parse(showEditModal)
+        updatePromotion(showEditModal.id!, validatedPromotion)
+        setShowEditModal(null)
+        setValidationErrors({})
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          const errors: Record<string, string> = {}
+          error.issues.forEach((err) => {
+            if (err.path[0]) {
+              errors[err.path[0] as string] = err.message
+            }
+          })
+          setValidationErrors(errors)
+        }
+      }
+    }
+  }
+
+  const handleDeletePromotion = () => {
+    if (showDeleteModal) {
+      deletePromotion(showDeleteModal.id!)
+      setShowDeleteModal(null)
+    }
+  }
 
   const metrics = [
     {
@@ -50,35 +126,7 @@ export function PromotionsPage() {
     },
   ]
 
-  const campaigns = [
-    {
-      name: 'FIRSTBITE25',
-      desc: t('firstBiteDesc', '25% off for new users'),
-      status: 'ACTIVE',
-      type: t('couponCode', 'Coupon Code'),
-      schedule: t('noExpiry', 'No Expiry'),
-      usage: 1204,
-      maxUsage: 2000,
-    },
-    {
-      name: 'FREE APPL TUESDAYS',
-      desc: t('freeApplDesc', 'Free Appetizer > 250 EGP'),
-      status: 'ACTIVE',
-      type: t('campaignType', 'Campaign'),
-      schedule: t('recurringTue', 'Recurring (Tue)'),
-      usage: 842,
-      maxUsage: 1000,
-    },
-    {
-      name: 'HOLIDAY FLASH 50',
-      desc: t('holidayFlashDesc', '50% off select menu items'),
-      status: 'SCHEDULED',
-      type: t('flashSale', 'Flash Sale'),
-      schedule: 'Dec 24 - Dec 26',
-      usage: 0,
-      maxUsage: 500,
-    },
-  ]
+  const campaigns = promotions
 
   // Redemption Trend dummy bar heights (as % of total)
   const barHeights = [40, 52, 35, 60, 80, 68, 80, 75, 55, 30]
@@ -154,10 +202,21 @@ export function PromotionsPage() {
     {
       header: t('actionsCol', 'ACTIONS'),
       key: 'actions',
-      render: () => (
-        <button className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-slate-800 transition">
-          <MoreVertical size={15} />
-        </button>
+      render: (c) => (
+        <div className="flex items-center gap-1">
+          <button 
+            onClick={() => setShowEditModal(c)}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-slate-800 transition"
+          >
+            <Pencil size={14} />
+          </button>
+          <button 
+            onClick={() => setShowDeleteModal(c)}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/20 transition"
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
       ),
     },
   ]
@@ -174,7 +233,10 @@ export function PromotionsPage() {
             {t('promotionsSubtitle', 'Drive growth with targeted campaigns and real-time performance tracking.')}
           </p>
         </div>
-        <button className="flex items-center gap-2 rounded-xl bg-brand-orange px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition shadow-sm self-start sm:self-auto">
+        <button 
+          onClick={() => setShowCreateModal(true)}
+          className="flex items-center gap-2 rounded-xl bg-brand-orange px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition shadow-sm self-start sm:self-auto"
+        >
           <Plus size={16} /> {t('createCampaign', 'Create Campaign')}
         </button>
       </div>
@@ -315,7 +377,7 @@ export function PromotionsPage() {
         <Table
           columns={columns}
           data={campaigns}
-          keyExtractor={(row) => row.name}
+          keyExtractor={(row) => row.id}
         />
 
         {/* Reusable Pagination */}
@@ -326,6 +388,184 @@ export function PromotionsPage() {
           showingText={t('showingPromotions', 'Showing 3 of 12 promotions')}
         />
       </div>
+
+      {/* Create Promotion Modal */}
+      <FormModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        title={t('createCampaign')}
+        onSave={handleCreatePromotion}
+        saveDisabled={!newPromotion.name || !newPromotion.desc || !newPromotion.schedule}
+      >
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('campaignName')}</label>
+          <input
+            type="text"
+            value={newPromotion.name}
+            onChange={(e) => setNewPromotion({ ...newPromotion, name: e.target.value })}
+            placeholder="e.g., FIRSTBITE25"
+            className={`w-full rounded-xl border px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500 ${validationErrors.name ? 'border-red-500' : 'border-gray-200'}`}
+          />
+          {validationErrors.name && <p className="text-xs text-red-500 mt-1">{validationErrors.name}</p>}
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('description')}</label>
+          <textarea
+            value={newPromotion.desc}
+            onChange={(e) => setNewPromotion({ ...newPromotion, desc: e.target.value })}
+            placeholder="Brief description of this promotion..."
+            rows={3}
+            className={`w-full rounded-xl border px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500 resize-none ${validationErrors.desc ? 'border-red-500' : 'border-gray-200'}`}
+          />
+          {validationErrors.desc && <p className="text-xs text-red-500 mt-1">{validationErrors.desc}</p>}
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('typeCol')}</label>
+            <select
+              value={newPromotion.type}
+              onChange={(e) => setNewPromotion({ ...newPromotion, type: e.target.value as 'Coupon Code' | 'Campaign' | 'Flash Sale' })}
+              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-700 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+            >
+              <option value="Coupon Code">{t('couponCode')}</option>
+              <option value="Campaign">{t('campaignType')}</option>
+              <option value="Flash Sale">{t('flashSale')}</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('statusCol')}</label>
+            <select
+              value={newPromotion.status}
+              onChange={(e) => setNewPromotion({ ...newPromotion, status: e.target.value as 'ACTIVE' | 'SCHEDULED' | 'EXPIRED' })}
+              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-700 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+            >
+              <option value="ACTIVE">ACTIVE</option>
+              <option value="SCHEDULED">SCHEDULED</option>
+              <option value="EXPIRED">EXPIRED</option>
+            </select>
+          </div>
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('scheduleCol')}</label>
+          <input
+            type="text"
+            value={newPromotion.schedule}
+            onChange={(e) => setNewPromotion({ ...newPromotion, schedule: e.target.value })}
+            placeholder="e.g., No Expiry or Dec 24 - Dec 26"
+            className={`w-full rounded-xl border px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500 ${validationErrors.schedule ? 'border-red-500' : 'border-gray-200'}`}
+          />
+          {validationErrors.schedule && <p className="text-xs text-red-500 mt-1">{validationErrors.schedule}</p>}
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Max Usage</label>
+          <input
+            type="number"
+            value={newPromotion.maxUsage}
+            onChange={(e) => setNewPromotion({ ...newPromotion, maxUsage: parseInt(e.target.value) || 0 })}
+            placeholder="100"
+            className={`w-full rounded-xl border px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500 ${validationErrors.maxUsage ? 'border-red-500' : 'border-gray-200'}`}
+          />
+          {validationErrors.maxUsage && <p className="text-xs text-red-500 mt-1">{validationErrors.maxUsage}</p>}
+        </div>
+      </FormModal>
+
+      {/* Edit Promotion Modal */}
+      <FormModal
+        isOpen={!!showEditModal}
+        onClose={() => setShowEditModal(null)}
+        title={t('editPromotion')}
+        onSave={handleEditPromotion}
+      >
+        {showEditModal && (
+          <>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('campaignName')}</label>
+              <input
+                type="text"
+                value={showEditModal.name}
+                onChange={(e) => setShowEditModal({ ...showEditModal, name: e.target.value })}
+                className={`w-full rounded-xl border px-4 py-2.5 text-sm text-gray-700 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 ${validationErrors.name ? 'border-red-500' : 'border-gray-200'}`}
+              />
+              {validationErrors.name && <p className="text-xs text-red-500 mt-1">{validationErrors.name}</p>}
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('description')}</label>
+              <textarea
+                value={showEditModal.desc}
+                onChange={(e) => setShowEditModal({ ...showEditModal, desc: e.target.value })}
+                rows={3}
+                className={`w-full rounded-xl border px-4 py-2.5 text-sm text-gray-700 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 resize-none ${validationErrors.desc ? 'border-red-500' : 'border-gray-200'}`}
+              />
+              {validationErrors.desc && <p className="text-xs text-red-500 mt-1">{validationErrors.desc}</p>}
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('typeCol')}</label>
+                <select
+                  value={showEditModal.type}
+                  onChange={(e) => setShowEditModal({ ...showEditModal, type: e.target.value as 'Coupon Code' | 'Campaign' | 'Flash Sale' })}
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-700 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+                >
+                  <option value="Coupon Code">{t('couponCode')}</option>
+                  <option value="Campaign">{t('campaignType')}</option>
+                  <option value="Flash Sale">{t('flashSale')}</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('statusCol')}</label>
+                <select
+                  value={showEditModal.status}
+                  onChange={(e) => setShowEditModal({ ...showEditModal, status: e.target.value as 'ACTIVE' | 'SCHEDULED' | 'EXPIRED' })}
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-700 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+                >
+                  <option value="ACTIVE">ACTIVE</option>
+                  <option value="SCHEDULED">SCHEDULED</option>
+                  <option value="EXPIRED">EXPIRED</option>
+                </select>
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('scheduleCol')}</label>
+              <input
+                type="text"
+                value={showEditModal.schedule}
+                onChange={(e) => setShowEditModal({ ...showEditModal, schedule: e.target.value })}
+                className={`w-full rounded-xl border px-4 py-2.5 text-sm text-gray-700 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 ${validationErrors.schedule ? 'border-red-500' : 'border-gray-200'}`}
+              />
+              {validationErrors.schedule && <p className="text-xs text-red-500 mt-1">{validationErrors.schedule}</p>}
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Max Usage</label>
+              <input
+                type="number"
+                value={showEditModal.maxUsage}
+                onChange={(e) => setShowEditModal({ ...showEditModal, maxUsage: parseInt(e.target.value) || 0 })}
+                className={`w-full rounded-xl border px-4 py-2.5 text-sm text-gray-700 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 ${validationErrors.maxUsage ? 'border-red-500' : 'border-gray-200'}`}
+              />
+              {validationErrors.maxUsage && <p className="text-xs text-red-500 mt-1">{validationErrors.maxUsage}</p>}
+            </div>
+          </>
+        )}
+      </FormModal>
+
+      {/* Delete Promotion Modal */}
+      <DeleteModal
+        isOpen={!!showDeleteModal}
+        onClose={() => setShowDeleteModal(null)}
+        title={t('deletePromotion')}
+        itemName={showDeleteModal?.name || ''}
+        onConfirm={handleDeletePromotion}
+      />
     </div>
   )
 }

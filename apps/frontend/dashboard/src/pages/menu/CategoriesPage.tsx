@@ -1,64 +1,21 @@
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
-import { Plus, Pencil, Trash2, Search, ArrowLeft, X, ArrowRight } from 'lucide-react'
+import { Plus, Pencil, Trash2, Search, ArrowLeft, ArrowRight } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
-
-interface Category {
-  id: string
-  name: string
-  nameAr: string
-  description: string
-  icon: string
-  itemsCount: number
-  visible: boolean
-}
-
-const CATEGORIES: Category[] = [
-  { 
-    id: '1', 
-    name: 'Signature Burgers', 
-    nameAr: 'برجر المميزة',
-    description: 'Premium hand-crafted burgers with unique toppings',
-    icon: '🍔', 
-    itemsCount: 8, 
-    visible: true 
-  },
-  { 
-    id: '2', 
-    name: 'Appetizers', 
-    nameAr: 'المقبلات',
-    description: 'Start your meal with our delicious appetizers',
-    icon: '🍟', 
-    itemsCount: 12, 
-    visible: true 
-  },
-  { 
-    id: '3', 
-    name: 'Desserts', 
-    nameAr: 'الحلويات',
-    description: 'Sweet treats to end your meal perfectly',
-    icon: '🍰', 
-    itemsCount: 5, 
-    visible: true 
-  },
-  { 
-    id: '4', 
-    name: 'Refreshments', 
-    nameAr: 'المشروبات',
-    description: 'Cold and hot beverages for every taste',
-    icon: '🥤', 
-    itemsCount: 15, 
-    visible: true 
-  },
-]
+import { DeleteModal } from '../../components/common/DeleteModal'
+import { FormModal } from '../../components/common/FormModal'
+import { useCategoryStore, categorySchema } from '../../store/categoryStore'
+import type { Category } from '../../store/categoryStore'
+import { z } from 'zod'
 
 export function CategoriesPage() {
   const { t, i18n } = useTranslation()
+  const { categories, addCategory, updateCategory, deleteCategory, toggleVisibility } = useCategoryStore()
   const [search, setSearch] = useState('')
-  const [categories, setCategories] = useState<Category[]>(CATEGORIES)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState<Category | null>(null)
   const [showDeleteModal, setShowDeleteModal] = useState<Category | null>(null)
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
   const [newCategory, setNewCategory] = useState({ name: '', nameAr: '', description: '', icon: '🍔' })
   const navigate = useNavigate()
 
@@ -67,26 +24,59 @@ export function CategoriesPage() {
     return c.name.toLowerCase().includes(q) || c.nameAr.includes(q) || c.description.toLowerCase().includes(q)
   })
 
-  const toggleVisibility = (id: string) => {
-    setCategories(prev => prev.map(c => 
-      c.id === id ? { ...c, visible: !c.visible } : c
-    ))
-  }
-
   const handleCreateCategory = () => {
-    if (newCategory.name && newCategory.nameAr) {
-      const category: Category = {
-        id: String(categories.length + 1),
+    try {
+      const validatedCategory = categorySchema.parse({
         name: newCategory.name,
         nameAr: newCategory.nameAr,
         description: newCategory.description,
         icon: newCategory.icon,
         itemsCount: 0,
-        visible: true
-      }
-      setCategories([...categories, category])
+        visible: true,
+      })
+      
+      addCategory(validatedCategory)
       setNewCategory({ name: '', nameAr: '', description: '', icon: '🍔' })
+      setValidationErrors({})
       setShowCreateModal(false)
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errors: Record<string, string> = {}
+        error.issues.forEach((err) => {
+          if (err.path[0]) {
+            errors[err.path[0] as string] = err.message
+          }
+        })
+        setValidationErrors(errors)
+      }
+    }
+  }
+
+  const handleEditCategory = () => {
+    if (showEditModal) {
+      try {
+        const validatedCategory = categorySchema.parse(showEditModal)
+        updateCategory(showEditModal.id!, validatedCategory)
+        setShowEditModal(null)
+        setValidationErrors({})
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          const errors: Record<string, string> = {}
+          error.issues.forEach((err) => {
+            if (err.path[0]) {
+              errors[err.path[0] as string] = err.message
+            }
+          })
+          setValidationErrors(errors)
+        }
+      }
+    }
+  }
+
+  const handleDeleteCategory = () => {
+    if (showDeleteModal) {
+      deleteCategory(showDeleteModal.id!)
+      setShowDeleteModal(null)
     }
   }
 
@@ -202,88 +192,135 @@ export function CategoriesPage() {
       </div>
 
       {/* Create Category Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('addNewCategory')}</h2>
-              <button 
-                onClick={() => setShowCreateModal(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-slate-800 dark:hover:text-slate-200"
-              >
-                <X size={18} />
-              </button>
-            </div>
-            
-            <div className="flex flex-col gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('categoryName')}</label>
-                <input
-                  type="text"
-                  value={newCategory.name}
-                  onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
-                  placeholder="e.g., Signature Burgers"
-                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('categoryNameAr')}</label>
-                <input
-                  type="text"
-                  value={newCategory.nameAr}
-                  onChange={(e) => setNewCategory({ ...newCategory, nameAr: e.target.value })}
-                  placeholder="مثال: برجر مميز"
-                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500"
-                  dir="rtl"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('categoryDescription')}</label>
-                <textarea
-                  value={newCategory.description}
-                  onChange={(e) => setNewCategory({ ...newCategory, description: e.target.value })}
-                  placeholder="Brief description of this category..."
-                  rows={3}
-                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500 resize-none"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('categoryIcon')}</label>
-                <div className="flex gap-2">
-                  {['🍔', '🍕', '🍣', '🥗', '🍰', '🥤', '🌮', '🍛'].map((emoji) => (
-                    <button
-                      key={emoji}
-                      onClick={() => setNewCategory({ ...newCategory, icon: emoji })}
-                      className={`h-12 w-12 rounded-xl border-2 text-2xl transition ${newCategory.icon === emoji ? 'border-brand-orange bg-orange-50 dark:bg-orange-900/20' : 'border-gray-200 bg-white hover:border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:hover:border-slate-500'}`}
-                    >
-                      {emoji}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex gap-3 mt-6">
+      <FormModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        title={t('addNewCategory')}
+        onSave={handleCreateCategory}
+        saveDisabled={!newCategory.name || !newCategory.nameAr}
+      >
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('categoryName')}</label>
+          <input
+            type="text"
+            value={newCategory.name}
+            onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
+            placeholder="e.g., Signature Burgers"
+            className={`w-full rounded-xl border px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500 ${validationErrors.name ? 'border-red-500' : 'border-gray-200'}`}
+          />
+          {validationErrors.name && <p className="text-xs text-red-500 mt-1">{validationErrors.name}</p>}
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('categoryNameAr')}</label>
+          <input
+            type="text"
+            value={newCategory.nameAr}
+            onChange={(e) => setNewCategory({ ...newCategory, nameAr: e.target.value })}
+            placeholder="مثال: برجر مميز"
+            className={`w-full rounded-xl border px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500 ${validationErrors.nameAr ? 'border-red-500' : 'border-gray-200'}`}
+            dir="rtl"
+          />
+          {validationErrors.nameAr && <p className="text-xs text-red-500 mt-1">{validationErrors.nameAr}</p>}
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('categoryDescription')}</label>
+          <textarea
+            value={newCategory.description}
+            onChange={(e) => setNewCategory({ ...newCategory, description: e.target.value })}
+            placeholder="Brief description of this category..."
+            rows={3}
+            className={`w-full rounded-xl border px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500 resize-none ${validationErrors.description ? 'border-red-500' : 'border-gray-200'}`}
+          />
+          {validationErrors.description && <p className="text-xs text-red-500 mt-1">{validationErrors.description}</p>}
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('categoryIcon')}</label>
+          <div className="flex gap-2">
+            {['🍔', '🍕', '🍣', '🥗', '🍰', '🥤', '🌮', '🍛'].map((emoji) => (
               <button
-                onClick={() => setShowCreateModal(false)}
-                className="flex-1 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                key={emoji}
+                onClick={() => setNewCategory({ ...newCategory, icon: emoji })}
+                className={`h-12 w-12 rounded-xl border-2 text-2xl transition ${newCategory.icon === emoji ? 'border-brand-orange bg-orange-50 dark:bg-orange-900/20' : 'border-gray-200 bg-white hover:border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:hover:border-slate-500'}`}
               >
-                {t('cancel')}
+                {emoji}
               </button>
-              <button
-                onClick={handleCreateCategory}
-                disabled={!newCategory.name || !newCategory.nameAr}
-                className="flex-1 rounded-xl bg-brand-orange px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {t('save')}
-              </button>
-            </div>
+            ))}
           </div>
         </div>
-      )}
+      </FormModal>
+
+      {/* Edit Category Modal */}
+      <FormModal
+        isOpen={!!showEditModal}
+        onClose={() => setShowEditModal(null)}
+        title={t('editCategory')}
+        onSave={handleEditCategory}
+      >
+        {showEditModal && (
+          <>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('categoryName')}</label>
+              <input
+                type="text"
+                value={showEditModal.name}
+                onChange={(e) => setShowEditModal({ ...showEditModal, name: e.target.value })}
+                className={`w-full rounded-xl border px-4 py-2.5 text-sm text-gray-700 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 ${validationErrors.name ? 'border-red-500' : 'border-gray-200'}`}
+              />
+              {validationErrors.name && <p className="text-xs text-red-500 mt-1">{validationErrors.name}</p>}
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('categoryNameAr')}</label>
+              <input
+                type="text"
+                value={showEditModal.nameAr}
+                onChange={(e) => setShowEditModal({ ...showEditModal, nameAr: e.target.value })}
+                className={`w-full rounded-xl border px-4 py-2.5 text-sm text-gray-700 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 ${validationErrors.nameAr ? 'border-red-500' : 'border-gray-200'}`}
+                dir="rtl"
+              />
+              {validationErrors.nameAr && <p className="text-xs text-red-500 mt-1">{validationErrors.nameAr}</p>}
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('categoryDescription')}</label>
+              <textarea
+                value={showEditModal.description}
+                onChange={(e) => setShowEditModal({ ...showEditModal, description: e.target.value })}
+                rows={3}
+                className={`w-full rounded-xl border px-4 py-2.5 text-sm text-gray-700 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 resize-none ${validationErrors.description ? 'border-red-500' : 'border-gray-200'}`}
+              />
+              {validationErrors.description && <p className="text-xs text-red-500 mt-1">{validationErrors.description}</p>}
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">{t('categoryIcon')}</label>
+              <div className="flex gap-2">
+                {['🍔', '🍕', '🍣', '🥗', '🍰', '🥤', '🌮', '🍛'].map((emoji) => (
+                  <button
+                    key={emoji}
+                    onClick={() => setShowEditModal({ ...showEditModal, icon: emoji })}
+                    className={`h-12 w-12 rounded-xl border-2 text-2xl transition ${showEditModal.icon === emoji ? 'border-brand-orange bg-orange-50 dark:bg-orange-900/20' : 'border-gray-200 bg-white hover:border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:hover:border-slate-500'}`}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+      </FormModal>
+
+      {/* Delete Category Modal */}
+      <DeleteModal
+        isOpen={!!showDeleteModal}
+        onClose={() => setShowDeleteModal(null)}
+        onConfirm={handleDeleteCategory}
+        title={t('deleteCategory')}
+        itemName={showDeleteModal?.name || ''}
+      />
     </div>
   )
 }
