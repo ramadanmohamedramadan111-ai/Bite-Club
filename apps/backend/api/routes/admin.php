@@ -22,6 +22,7 @@ Route::middleware('auth.admin')->group(function () {
 
     Route::prefix('restaurants')->name('restaurants.')->group(function () {
         Route::get('/', [RestaurantController::class, 'index'])->name('index');
+        Route::get('/{id}/available-statuses', [RestaurantController::class, 'availableTransitions'])->name('available-statuses');
         Route::put('/{id}/status', [RestaurantController::class, 'updateStatus'])->name('update-status');
     });
 });

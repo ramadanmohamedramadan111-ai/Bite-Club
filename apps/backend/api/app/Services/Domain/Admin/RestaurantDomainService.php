@@ -20,6 +20,13 @@ class RestaurantDomainService
         return $this->restaurantRepository->listForAdmin($filters);
     }
 
+    public function getAvailableTransitions(int $id): array
+    {
+        $restaurant = $this->restaurantRepository->findOrFail($id);
+        
+        return RestaurantStatusTransition::getAvailableTransitions($restaurant->status);
+    }
+
     public function updateStatus(UpdateRestaurantStatusDto $dto): array
     {
         $restaurant = $this->restaurantRepository->findOrFail($dto->getId());
