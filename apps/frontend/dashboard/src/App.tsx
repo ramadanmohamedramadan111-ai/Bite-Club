@@ -5,6 +5,7 @@ import i18next from './i18n'
 import { LoginPage } from './pages/auth/LoginPage'
 import { DashboardPage } from './pages/dashboard/DashboardPage'
 import { OrdersPage } from './pages/orders/OrdersPage'
+import { OrderTrackingPage } from './pages/orders/OrderTrackingPage'
 import { MenuPage } from './pages/menu/MenuPage'
 import { CustomersPage } from './pages/customers/CustomersPage'
 import { SettingsPage } from './pages/settings/SettingsPage'
@@ -50,7 +51,7 @@ function App() {
   if (!isAuthenticated) {
     return (
       <>
-        <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+        <Toaster position="top-right" toastOptions={{ duration: 3050 }} />
         <LoginPage {...shellProps} />
       </>
     )
@@ -65,6 +66,7 @@ function App() {
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/orders"    element={<OrdersPage />}   />
+            <Route path="/orders/:id" element={<OrderTrackingPage />} />
             <Route path="/menu"      element={<MenuPage />}     />
             <Route path="/customers" element={<CustomersPage />}/>
             <Route path="/settings"   element={<SettingsPage />} />

@@ -34,7 +34,7 @@ export function Sidebar() {
         </div>
         <div>
           <p className="text-sm font-bold text-gray-900 dark:text-white leading-none">BiteClub</p>
-          <p className="text-[11px] text-gray-400 dark:text-slate-400 mt-0.5">Admin Terminal</p>
+          <p className="text-[11px] text-gray-400 dark:text-slate-400 mt-0.5">Restaurant Terminal</p>
         </div>
       </div>
 

@@ -24,7 +24,7 @@ export function Table<T>({
 }: TableProps<T>) {
   return (
     <div className="overflow-x-auto w-full">
-      <table className="w-full text-sm text-left">
+      <table className="w-full text-sm">
         <thead className="bg-gray-50 dark:bg-slate-800/70 border-b border-gray-100 dark:border-slate-800">
           <tr>
             {columns.map((col) => (
