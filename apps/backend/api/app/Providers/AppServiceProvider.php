@@ -9,11 +9,13 @@ use App\Repositories\Eloquent\RestaurantCategoryRepository;
 use App\Repositories\Eloquent\RestaurantRepository;
 use App\Repositories\Eloquent\PasswordResetOtpRepository;
 use App\Repositories\Eloquent\RestaurantSettingRepository;
+use App\Repositories\Eloquent\GeneralSettingRepository;
 use App\Repositories\Interfaces\AdminRepositoryInterface;
 use App\Repositories\Interfaces\RestaurantCategoryRepositoryInterface;
 use App\Repositories\Interfaces\RestaurantRepositoryInterface;
 use App\Repositories\Interfaces\PasswordResetOtpRepositoryInterface;
 use App\Repositories\Interfaces\RestaurantSettingRepositoryInterface;
+use App\Repositories\Interfaces\GeneralSettingRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -48,6 +50,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             RestaurantSettingRepositoryInterface::class,
             RestaurantSettingRepository::class
+        );
+
+        $this->app->bind(
+            GeneralSettingRepositoryInterface::class,
+            GeneralSettingRepository::class
         );
     }
 

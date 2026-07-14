@@ -18,4 +18,6 @@ return [
     'rejected'            => 'Your account has been rejected. Please contact support.',
     'email_taken'         => 'This email is already registered.',
     'phone_taken'         => 'This phone number is already registered.',
+    'email_not_found'     => 'We could not find a restaurant with that email address.',
+    'reset_link_failed'   => 'Failed to send the password reset link.',
 ];

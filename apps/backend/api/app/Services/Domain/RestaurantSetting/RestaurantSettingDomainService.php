@@ -2,7 +2,9 @@
 
 namespace App\Services\Domain\RestaurantSetting;
 
+use Exception;
 use App\Models\RestaurantSetting;
+use Illuminate\Support\Facades\Auth;
 use App\Repositories\Interfaces\RestaurantSettingRepositoryInterface;
 
 class RestaurantSettingDomainService
@@ -40,7 +42,25 @@ class RestaurantSettingDomainService
 
     public function findOrFail(int $id): RestaurantSetting
     {
-        return $this->restaurantSettingRepository->findOrFail($id);
+        $setting = $this->restaurantSettingRepository->findOrFail($id);
+        
+        $this->authorize($setting);
+
+        return $setting;
+    }
+
+    public function update(int $id, array $data): RestaurantSetting
+    {
+        $setting = $this->restaurantSettingRepository->findOrFail($id);
+        
+        $this->authorize($setting);
+
+        if (isset($data['restaurant_id'])) {
+            unset($data['restaurant_id']);
+        }
+
+        $this->restaurantSettingRepository->update($id, $data);
+        return $this->findOrFail($id);
     }
 
     public function create(array $data): RestaurantSetting
@@ -48,9 +68,11 @@ class RestaurantSettingDomainService
         return $this->restaurantSettingRepository->create($data);
     }
 
-    public function update(int $id, array $data): RestaurantSetting
+    private function authorize(RestaurantSetting $setting): void
     {
-        $this->restaurantSettingRepository->update($id, $data);
-        return $this->findOrFail($id);
+        $restaurant = Auth::guard('restaurant')->user();
+        if ($restaurant && $setting->restaurant_id !== $restaurant->id) {
+            throw new Exception("Unauthorized to access these restaurant settings.");
+        }
     }
 }

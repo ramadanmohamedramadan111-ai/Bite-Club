@@ -4,8 +4,10 @@ namespace App\Services\Application\Auth;
 
 use App\DTOs\Auth\Restaurant\RestaurantLoginDto;
 use App\DTOs\Auth\Restaurant\RestaurantRegisterDto;
+use App\Mail\RestaurantPendingMail;
 use App\Repositories\Interfaces\RestaurantRepositoryInterface;
 use App\Services\Domain\Auth\RestaurantAuthDomainService;
+use Illuminate\Support\Facades\Mail;
 
 class RestaurantAuthApplicationService
 {
@@ -25,6 +27,10 @@ class RestaurantAuthApplicationService
             'category_id'  => $dto->getCategoryId(),
             'description'  => $dto->getDescription(),
         ]);
+
+        Mail::to($restaurant->email)->queue(new RestaurantPendingMail([
+            'restaurant_name' => $restaurant->name,
+        ]));
 
         return $this->mapRestaurant($restaurant);
     }

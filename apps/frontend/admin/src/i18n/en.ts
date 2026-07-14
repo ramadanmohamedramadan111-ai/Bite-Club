@@ -17,7 +17,6 @@ export const en = {
     activityLogs: 'Activity Logs',
     settings: 'System Settings',
     profile: 'Admin Profile',
-    changePassword: 'Change Password',
   },
   sections: {
     main: 'Main',
@@ -85,6 +84,7 @@ export const en = {
     description: 'Description',
     createdAt: 'Created At',
     updatedAt: 'Updated At',
+    logout: 'Logout',
   },
   dashboard: {
     title: 'Dashboard',
@@ -495,22 +495,18 @@ export const en = {
     uploadPhoto: 'Upload Photo',
     removePhoto: 'Remove Photo',
   },
-  changePassword: {
-    title: 'Change Password',
-    subtitle: 'Update your account password',
-    fields: {
-      currentPassword: 'Current Password',
-      newPassword: 'New Password',
-      confirmPassword: 'Confirm New Password',
-    },
-    requirements: {
-      minLength: 'At least 8 characters',
-      uppercase: 'One uppercase letter',
-      lowercase: 'One lowercase letter',
-      number: 'One number',
-      special: 'One special character',
-    },
-    savePassword: 'Update Password',
-    passwordChanged: 'Password has been changed successfully',
+
+  login: {
+    title: 'Welcome back',
+    subtitle: 'Sign in to your admin account',
+    emailLabel: 'Email',
+    emailPlaceholder: 'Enter your email',
+    passwordLabel: 'Password',
+    passwordPlaceholder: 'Enter your password',
+    button: 'Login',
+    loading: 'Logging in...',
+    errorInvalid: 'Invalid email format',
+    errorPasswordLength: 'Password must be at least 8 characters',
+    errorInvalidCredentials: 'Invalid email or password',
   },
 }

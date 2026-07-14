@@ -4,15 +4,15 @@ namespace App\Services\Application;
 
 use App\DTOs\RestaurantSetting\IndexRestaurantSettingDto;
 use App\DTOs\RestaurantSetting\ShowRestaurantSettingDto;
-use App\DTOs\RestaurantSetting\StoreRestaurantSettingDto;
 use App\DTOs\RestaurantSetting\UpdateRestaurantSettingDto;
+use App\DTOs\RestaurantSetting\StoreRestaurantSettingDto;
 use App\Services\Domain\RestaurantSetting\RestaurantSettingDomainService;
 use App\Repositories\Interfaces\RestaurantSettingRepositoryInterface;
 
 class RestaurantSettingApplicationService
 {
     public function __construct(
-        private RestaurantSettingDomainService       $restaurantSettingDomainService,
+        private RestaurantSettingDomainService $restaurantSettingDomainService,
         private RestaurantSettingRepositoryInterface $restaurantSettingRepository
     ) {}
 
@@ -49,10 +49,8 @@ class RestaurantSettingApplicationService
         return [
             'id'                 => $setting->id,
             'restaurant_id'      => $setting->restaurant_id,
-            'commission_rate'    => $setting->commission_rate,
             'deposit_threshold'  => $setting->deposit_threshold,
             'deposit_percentage' => $setting->deposit_percentage,
-            'service_fee_amount' => $setting->service_fee_amount,
             'updated_at'         => $setting->updated_at ? $setting->updated_at->toIso8601String() : null,
         ];
     }

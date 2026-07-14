@@ -8,10 +8,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\Restaurant\ResetPasswordMail;
 
 class Restaurant extends Authenticatable implements JWTSubject
 {
     use HasFactory, SoftDeletes;
+
+    public function sendPasswordResetNotification($token): void
+    {
+        Mail::to($this->email)->send(new ResetPasswordMail($token, $this->email));
+    }
 
     protected $fillable = [
         'name',
