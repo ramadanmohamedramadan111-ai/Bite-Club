@@ -31,13 +31,18 @@ class RestaurantStatusTransition
         ];
     }
 
+    public static function getAvailableTransitions(RestaurantStatusEnum $status): array
+    {
+        return self::transitions()[$status->value] ?? [];
+    }
+
     public static function can(
         RestaurantStatusEnum $from,
         RestaurantStatusEnum $to
     ): bool {
         return in_array(
             $to->value,
-            self::transitions()[$from->value] ?? [],
+            self::getAvailableTransitions($from),
             true
         );
     }

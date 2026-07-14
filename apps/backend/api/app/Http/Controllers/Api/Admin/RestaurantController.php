@@ -12,6 +12,8 @@ use App\DTOs\Admin\Restaurant\IndexRestaurantDto;
 use App\DTOs\Admin\Restaurant\UpdateRestaurantStatusDto;
 use App\Http\Requests\Admin\Restaurant\IndexRestaurantRequest;
 use App\Http\Requests\Admin\Restaurant\UpdateRestaurantStatusRequest;
+use App\Http\Requests\Admin\Restaurant\AvailableRestaurantTransitionsRequest;
+use App\DTOs\Admin\Restaurant\AvailableRestaurantTransitionsDto;
 use App\Services\Application\Admin\RestaurantApplicationService;
 
 class RestaurantController extends Controller
@@ -33,6 +35,24 @@ class RestaurantController extends Controller
         } catch (Exception $e) {
             Log::error('Failed to list restaurants: ' . $e->getMessage(), $request->validated());
             return $this->serverErrorResponse(trans('restaurant.list_failed'));
+        }
+    }
+
+    public function availableTransitions(AvailableRestaurantTransitionsRequest $request): JsonResponse
+    {
+        try {
+            $dto = AvailableRestaurantTransitionsDto::fromValidatedRequest($request);
+            $statuses = $this->restaurantApplicationService->getAvailableTransitions($dto);
+
+            return $this->successResponse(
+                trans('restaurant.available_transitions_success'),
+                ['statuses' => $statuses]
+            );
+        } catch (ModelNotFoundException $e) {
+            return $this->notFoundResponse(trans('restaurant.not_found'));
+        } catch (Exception $e) {
+            Log::error('Failed to get available transitions for restaurant: ' . $e->getMessage(), ['restaurant_id' => $request->route('id')]);
+            return $this->serverErrorResponse(trans('restaurant.available_transitions_failed'));
         }
     }
 
