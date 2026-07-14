@@ -1,7 +1,6 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -21,10 +20,11 @@ import {
   FieldLabel,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { clientFetch } from '@/utils/client-fetch';
 import { cn } from '@/lib/utils';
 import { NewPasswordSchema, useNewPasswordSchema } from './new-password-schema';
 import { useRouter } from '@/i18n/navigation';
+import { useAction } from 'next-safe-action/hooks';
+import { resetPasswordAction } from '@/actions/auth/reset-password';
 
 type NewPasswordFormProps = React.ComponentProps<'div'> & {
   email: string;
@@ -48,24 +48,23 @@ export default function NewPasswordForm({
     resolver: zodResolver(schema),
   });
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: (data: NewPasswordSchema) =>
-      clientFetch('/api/auth/update-password', 'POST', {
-        body: {
-          email,
-          password: data.password,
-        },
-      }),
-
+  const { execute: resetPassword, isExecuting } = useAction(resetPasswordAction, {
     onSuccess: () => {
       toast.success(t('success'));
       router.replace('/login');
     },
-
-    onError: () => {
-      toast.error(t('error'));
+    onError: ({ error }) => {
+      toast.error(error.serverError?.message || t('error'));
     },
   });
+
+  const onSubmit = (data: NewPasswordSchema) => {
+    resetPassword({
+      email,
+      password: data.password,
+      confirmPassword: data.confirmPassword,
+    });
+  };
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
@@ -76,7 +75,7 @@ export default function NewPasswordForm({
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit((data) => mutate(data))}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="password">
@@ -86,7 +85,7 @@ export default function NewPasswordForm({
                 <Input
                   id="password"
                   type="password"
-                  disabled={isPending}
+                  disabled={isExecuting}
                   {...register('password')}
                 />
 
@@ -105,7 +104,7 @@ export default function NewPasswordForm({
                 <Input
                   id="confirmPassword"
                   type="password"
-                  disabled={isPending}
+                  disabled={isExecuting}
                   {...register('confirmPassword')}
                 />
 
@@ -117,8 +116,8 @@ export default function NewPasswordForm({
               </Field>
 
               <Field>
-                <Button type="submit" disabled={isPending}>
-                  {isPending
+                <Button type="submit" disabled={isExecuting}>
+                  {isExecuting
                     ? t('submitButton.loadingText')
                     : t('submitButton.text')}
                 </Button>

@@ -16,46 +16,47 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { clientFetch } from '@/utils/client-fetch';
-import { useQuery } from '@tanstack/react-query';
 import {
   ChevronsUpDownIcon,
-  SparklesIcon,
-  BadgeCheckIcon,
-  CreditCardIcon,
   BellIcon,
   LogOutIcon,
-  RefreshCw,
   User,
   CircleUserRound,
 } from 'lucide-react';
-import { Spinner } from '../ui/spinner';
-import { QueryBoundary } from '../fetch/QueryBoundary';
 import { capitalize } from '@/utils/format';
-import { deleteCookie } from 'cookies-next/client';
 import { Link, useRouter } from '@/i18n/navigation';
+import { useAction } from 'next-safe-action/hooks';
+import { logoutUserAction } from '@/actions/auth/logout';
+import { toast } from 'sonner';
 
-export function NavUser() {
+export interface SidebarUser {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  profile_image: string | null;
+}
+
+interface NavUserProps {
+  user: SidebarUser | null;
+}
+
+export function NavUser({ user }: NavUserProps) {
   const { isMobile } = useSidebar();
   const router = useRouter();
 
-  const { data, isPending, error, refetch } = useQuery({
-    queryFn: async () => {
-      const res = await clientFetch('/api/user/me');
-      return res;
+  const { execute: logout, isExecuting } = useAction(logoutUserAction, {
+    onSuccess: ({ data }) => {
+      toast.success(data?.message ?? 'Logged out successfully');
+
+      router.replace('/login');
+      router.refresh();
     },
-    queryKey: ['me'],
+    onError: ({ error }) => {
+      toast.error(error.serverError?.message ?? 'Logout failed');
+    },
   });
-
-  console.log('NavUser data:', data);
-
-  function logout() {
-    deleteCookie('accessToken');
-
-    router.replace('/login');
-  }
-
-  if (!isPending && (!data?.data?.user || error)) {
+  if (!user) {
     return (
       <SidebarMenu>
         <SidebarMenuItem>
@@ -73,94 +74,92 @@ export function NavUser() {
   }
 
   return (
-    <QueryBoundary isPending={isPending} error={error} refetch={refetch}>
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <SidebarMenuButton
-                size="lg"
-                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <SidebarMenuButton
+              size="lg"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+              <Avatar className="h-8 w-8 rounded-lg">
+                <AvatarImage
+                  src={user.profile_image ?? undefined}
+                  alt={user.first_name}
+                />
+                <AvatarFallback className="rounded-lg">
+                  {(
+                    (user.first_name?.charAt(0) ?? '') +
+                    (user.last_name?.charAt(0) ?? '')
+                  ).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-medium">
+                  {`${capitalize(user.first_name ?? '')} ${capitalize(
+                    user.last_name ?? '',
+                  )}`}{' '}
+                </span>
+                <span className="truncate text-xs">{user.email}</span>
+              </div>
+              <ChevronsUpDownIcon className="ml-auto size-4" />
+            </SidebarMenuButton>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            className="w-fit"
+            side={isMobile ? 'bottom' : 'right'}
+            align="end"
+            sideOffset={4}>
+            <DropdownMenuLabel className="p-0 font-normal">
+              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage
-                    src={data?.data.user.profileImage}
-                    alt={data?.data.user.firstName}
+                    src={user.profile_image ?? undefined}
+                    alt={user.first_name}
                   />
                   <AvatarFallback className="rounded-lg">
-                    {data?.data.user.firstName.charAt(0).toUpperCase() +
-                      data?.data.user.lastName.charAt(0).toUpperCase()}
+                    {(
+                      (user.first_name?.charAt(0) ?? '') +
+                      (user.last_name?.charAt(0) ?? '')
+                    ).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">
-                    {`${capitalize(data?.data.user.firstName ?? '')} ${capitalize(
-                      data?.data.user.lastName ?? '',
+                    {' '}
+                    {`${capitalize(user.first_name ?? '')} ${capitalize(
+                      user.last_name ?? '',
                     )}`}{' '}
                   </span>
-                  <span className="truncate text-xs">
-                    {data?.data.user.email}
-                  </span>
+                  <span className="truncate text-xs">{user.email}</span>
                 </div>
-                <ChevronsUpDownIcon className="ml-auto size-4" />
-              </SidebarMenuButton>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              className="w-fit"
-              side={isMobile ? 'bottom' : 'right'}
-              align="end"
-              sideOffset={4}>
-              <DropdownMenuLabel className="p-0 font-normal">
-                <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                  <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage
-                      src={data?.data.user.profileImage}
-                      alt={data?.data.user.firstName}
-                    />
-                    <AvatarFallback className="rounded-lg">
-                      {data?.data.user.firstName.charAt(0).toUpperCase() +
-                        data?.data.user.lastName.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-medium">
-                      {' '}
-                      {`${capitalize(data?.data.user.firstName ?? '')} ${capitalize(
-                        data?.data.user.lastName ?? '',
-                      )}`}{' '}
-                    </span>
-                    <span className="truncate text-xs">
-                      {data?.data.user.email}
-                    </span>
-                  </div>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuItem asChild>
-                  <Link href="/profile">
-                    <CircleUserRound />
-                    Profile
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/notifications">
-                    <BellIcon />
-                    Notifications
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={() => logout()}>
-                <LogOutIcon />
-                Log out
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem asChild>
+                <Link href="/profile">
+                  <CircleUserRound />
+                  Profile
+                </Link>
               </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </SidebarMenuItem>
-      </SidebarMenu>
-    </QueryBoundary>
+              <DropdownMenuItem asChild>
+                <Link href="/notifications">
+                  <BellIcon />
+                  Notifications
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => logout()}>
+              <LogOutIcon />
+              {isExecuting ? 'Logging out...' : 'Logout'}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarMenuItem>
+    </SidebarMenu>
   );
 }
 

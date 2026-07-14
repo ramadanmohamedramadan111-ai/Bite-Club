@@ -28,7 +28,10 @@ import {
 } from '@/components/ui/select';
 
 import { Link } from '@/i18n/navigation';
-import { type RegisterSchema, useRegisterSchema } from './register-schema';
+import {
+  createUserRegisterSchema,
+  type UserRegisterSchema,
+} from '@/schemas/auth/user-register-schema';
 import { useTranslations } from 'next-intl';
 import { useMutation } from '@tanstack/react-query';
 import { clientFetch } from '@/utils/client-fetch';
@@ -36,14 +39,18 @@ import { toast } from 'sonner';
 import { useState } from 'react';
 import VerifyForm from '@/components/auth/verify-form';
 import useNavigation from '@/hooks/useNavigation';
+import { registerUserAction } from '@/actions/auth/register';
+
+import { useAction } from 'next-safe-action/hooks';
+import { serverFetch } from '@/utils/server-fetch';
+import { mapServerFieldErrors } from '@/utils/server/map-server-field-errors';
 
 export function RegisterForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
-  const registerSchema = useRegisterSchema();
-
   const t = useTranslations('forms.register');
+  const registerSchema = createUserRegisterSchema(t);
 
   const [step, setStep] = useState(1);
 
@@ -52,8 +59,9 @@ export function RegisterForm({
     control,
     handleSubmit,
     watch,
+    setError,
     formState: { errors, isSubmitting },
-  } = useForm<RegisterSchema>({
+  } = useForm<UserRegisterSchema>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       gender: undefined,
@@ -62,29 +70,27 @@ export function RegisterForm({
 
   const email = watch('email');
 
-  const onSubmit = (data: RegisterSchema) => {
-    mutate(data);
-  };
-
-  const { mutate, isPending, error } = useMutation({
-    mutationFn: async (data: RegisterSchema) => {
-      console.log('Submitting registration data:', data);
-      const response = await clientFetch('/api/auth/signup', 'POST', {
-        body: data,
-      });
-    },
-    onError: (error) => {
-      toast.error(t('error'));
-    },
-    onSuccess: (data) => {
-      toast.success(t('success'));
-    },
-  });
-
   const { navigate } = useNavigation();
 
+  const { execute: registerUser, isExecuting } = useAction(registerUserAction, {
+    onSuccess: ({ data }) => {
+      console.log('Registration successful:', data);
+      toast.success(data.message || t('success'));
+      navigate('/login');
+    },
+    onError: ({ error }) => {
+      if (error.serverError?.data?.errors) {
+        mapServerFieldErrors(error.serverError.data.errors, setError);
+      }
+      toast.error(error.serverError?.message || t('error'));
+    },
+  });
+  const onSubmit = (data: UserRegisterSchema) => {
+    registerUser(data);
+  };
+
   if (step === 2) {
-    return <VerifyForm email={email} purpose="login" />;
+    return <VerifyForm email={email} purpose="login" type="user" />;
   }
 
   return (
@@ -106,12 +112,12 @@ export function RegisterForm({
 
                   <Input
                     id="first-name"
-                    disabled={isPending}
-                    {...register('firstName')}
+                    disabled={isExecuting}
+                    {...register('first_name')}
                   />
 
                   <FieldDescription className="text-destructive">
-                    {errors.firstName?.message}
+                    {errors.first_name?.message}
                   </FieldDescription>
                 </Field>
 
@@ -122,12 +128,12 @@ export function RegisterForm({
 
                   <Input
                     id="last-name"
-                    disabled={isPending}
-                    {...register('lastName')}
+                    disabled={isExecuting}
+                    {...register('last_name')}
                   />
 
                   <FieldDescription className="text-destructive">
-                    {errors.lastName?.message}
+                    {errors.last_name?.message}
                   </FieldDescription>
                 </Field>
               </Field>
@@ -140,7 +146,7 @@ export function RegisterForm({
                 <Input
                   id="email"
                   type="email"
-                  disabled={isPending}
+                  disabled={isExecuting}
                   placeholder="m@example.com"
                   {...register('email')}
                 />
@@ -158,7 +164,7 @@ export function RegisterForm({
 
                   <Input
                     id="username"
-                    disabled={isPending}
+                    disabled={isExecuting}
                     {...register('username')}
                   />
 
@@ -174,12 +180,12 @@ export function RegisterForm({
 
                   <Input
                     id="mobile-number"
-                    disabled={isPending}
-                    {...register('mobileNumber')}
+                    disabled={isExecuting}
+                    {...register('phone_number')}
                   />
 
                   <FieldDescription className="text-destructive">
-                    {errors.mobileNumber?.message}
+                    {errors.phone_number?.message}
                   </FieldDescription>
                 </Field>
               </Field>
@@ -191,7 +197,7 @@ export function RegisterForm({
                   <Controller
                     control={control}
                     name="gender"
-                    disabled={isPending}
+                    disabled={isExecuting}
                     render={({ field }) => (
                       <Select
                         value={field.value}
@@ -228,12 +234,12 @@ export function RegisterForm({
                   <Input
                     id="dob"
                     type="date"
-                    disabled={isPending}
-                    {...register('dob')}
+                    disabled={isExecuting}
+                    {...register('date_of_birth')}
                   />
 
                   <FieldDescription className="text-destructive">
-                    {errors.dob?.message}
+                    {errors.date_of_birth?.message}
                   </FieldDescription>
                 </Field>
               </Field>
@@ -246,7 +252,7 @@ export function RegisterForm({
 
                   <Input
                     id="password"
-                    disabled={isPending}
+                    disabled={isExecuting}
                     type="password"
                     {...register('password')}
                   />
@@ -264,19 +270,19 @@ export function RegisterForm({
                   <Input
                     id="confirm-password"
                     type="password"
-                    disabled={isPending}
-                    {...register('confirmPassword')}
+                    disabled={isExecuting}
+                    {...register('password_confirmation')}
                   />
 
                   <FieldDescription className="text-destructive">
-                    {errors.confirmPassword?.message}
+                    {errors.password_confirmation?.message}
                   </FieldDescription>
                 </Field>
               </Field>
 
               <Field>
-                <Button type="submit" disabled={isPending} className="w-full">
-                  {isPending
+                <Button type="submit" disabled={isExecuting} className="w-full">
+                  {isExecuting
                     ? t('submitButton.loadingText')
                     : t('submitButton.text')}
                 </Button>

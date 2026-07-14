@@ -39,3 +39,10 @@ export type RestaurantReview = {
   comment: string;
   date: string;
 };
+
+export interface RestaurantCategory {
+  id: number;
+  name: string;
+  slug: string;
+}
+

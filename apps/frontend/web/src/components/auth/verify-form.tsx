@@ -29,6 +29,9 @@ import { usePathname, useRouter } from '@/i18n/navigation';
 import { useState } from 'react';
 import NewPasswordForm from '@/app/[locale]/(auth)/forget-password/new-password-form';
 import { toast } from 'sonner';
+import { useAction } from 'next-safe-action/hooks';
+import { verifyResetOtpAction } from '@/actions/auth/verify-reset-otp';
+import { forgotPasswordAction } from '@/actions/auth/forgot-password';
 
 type VerifyFormValues = {
   otp: string;
@@ -37,6 +40,7 @@ type VerifyFormValues = {
 type VerifyFormProps = React.ComponentProps<'div'> & {
   email: string;
   purpose: 'login' | 'forgot-password';
+  type: 'user' | 'restaurant';
 };
 
 export default function VerifyForm({
@@ -50,6 +54,7 @@ export default function VerifyForm({
   const router = useRouter();
   const pathname = usePathname();
   const [step, setStep] = useState(1);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   function navigate(path: string) {
     if (pathname === path) {
@@ -69,64 +74,80 @@ export default function VerifyForm({
     },
   });
 
-  const onSubmit = (data: VerifyFormValues) => {
-    mutate(data);
-  };
-
-  const { mutate, isPending, error } = useMutation({
-    mutationFn: async (data: VerifyFormValues) => {
-      const response = await clientFetch(
-        purpose === 'forgot-password'
-          ? '/api/auth/verify-otp'
-          : '/api/auth/verify-email',
-        'POST',
-        {
-          body: {
-            email,
-            otp: data.otp,
-          },
-        },
-      );
-
-      return response;
+  const { execute: verifyResetOtp, isExecuting: isVerifyingReset } = useAction(verifyResetOtpAction, {
+    onSuccess: () => {
+      toast.success(t('reset'));
+      setStep(2);
     },
-    onSuccess: (data) => {
-      if (purpose === 'login') {
-        toast.success(t('success'));
-        navigate('/login');
-      } else {
-        toast.success(t('reset'));
-        setStep(2);
-      }
-    },
-    onError: (error) => {
-      toast.error(t('error'));
+    onError: ({ error }) => {
+      const msg = error.serverError?.message || t('error');
+      toast.error(msg);
+      setErrorMessage(msg);
     },
   });
 
-  const { mutate: resendOTP, isPending: isResending } = useMutation({
-    mutationFn: async () => {
-      const response = await clientFetch(
-        purpose === 'forgot-password'
-          ? '/api/auth/send-otp'
-          : '/api/auth/resend-verification',
-        'POST',
-        {
-          body: {
-            email,
-          },
+  const { mutate: verifyEmail, isPending: isVerifyingEmail } = useMutation({
+    mutationFn: async (data: VerifyFormValues) => {
+      return clientFetch('/api/auth/verify-email', 'POST', {
+        body: {
+          email,
+          otp: data.otp,
         },
-      );
-
-      return response;
+      });
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
+      toast.success(t('success'));
+      navigate('/login');
+    },
+    onError: (err: unknown) => {
+      const msg = (err as Error)?.message || t('error');
+      toast.error(msg);
+      setErrorMessage(msg);
+    },
+  });
+
+  const onSubmit = (data: VerifyFormValues) => {
+    setErrorMessage(null);
+    if (purpose === 'forgot-password') {
+      verifyResetOtp({ email, otp: data.otp });
+    } else {
+      verifyEmail(data);
+    }
+  };
+
+  const { execute: resendForgotPasswordOtp, isExecuting: isResendingForgot } = useAction(forgotPasswordAction, {
+    onSuccess: () => {
       toast.success(t('resendSuccess'));
     },
-    onError: (error) => {
+    onError: ({ error }) => {
+      toast.error(error.serverError?.message || t('resendError'));
+    },
+  });
+
+  const { mutate: resendEmailVerification, isPending: isResendingEmail } = useMutation({
+    mutationFn: async () => {
+      return clientFetch('/api/auth/resend-verification', 'POST', {
+        body: { email },
+      });
+    },
+    onSuccess: () => {
+      toast.success(t('resendSuccess'));
+    },
+    onError: () => {
       toast.error(t('resendError'));
     },
   });
+
+  const handleResend = () => {
+    if (purpose === 'forgot-password') {
+      resendForgotPasswordOtp({ email });
+    } else {
+      resendEmailVerification();
+    }
+  };
+
+  const isPending = isVerifyingReset || isVerifyingEmail;
+  const isResending = isResendingForgot || isResendingEmail;
 
   if (step === 2) {
     return <NewPasswordForm email={email} />;
@@ -175,8 +196,8 @@ export default function VerifyForm({
               </Field>
 
               <Field>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting
+                <Button type="submit" disabled={isSubmitting || isPending}>
+                  {isSubmitting || isPending
                     ? t('submitButton.loadingText')
                     : t('submitButton.text')}
                 </Button>
@@ -184,16 +205,18 @@ export default function VerifyForm({
                 <Button
                   type="button"
                   variant="link"
-                  onClick={() => resendOTP()}
+                  onClick={handleResend}
                   disabled={isResending}>
                   {isResending
                     ? t('resendLink.loadingText')
                     : t('resendLink.linkText')}
                 </Button>
 
-                <FieldDescription className="text-destructive">
-                  {error?.message}
-                </FieldDescription>
+                {errorMessage && (
+                  <FieldDescription className="text-destructive">
+                    {errorMessage}
+                  </FieldDescription>
+                )}
               </Field>
             </FieldGroup>
           </form>

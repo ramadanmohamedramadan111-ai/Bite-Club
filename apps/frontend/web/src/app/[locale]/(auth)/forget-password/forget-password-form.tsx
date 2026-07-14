@@ -4,11 +4,9 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 import { cn } from '@/lib/utils';
-import { clientFetch } from '@/utils/client-fetch';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -31,6 +29,8 @@ import {
 } from './forget-password-schema';
 import VerifyForm from '@/components/auth/verify-form';
 import { Link } from '@/i18n/navigation';
+import { useAction } from 'next-safe-action/hooks';
+import { forgotPasswordAction } from '@/actions/auth/forgot-password';
 
 export function ForgotPasswordForm({
   className,
@@ -45,31 +45,25 @@ export function ForgotPasswordForm({
     register,
     handleSubmit,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<ForgotPasswordSchema>({
     resolver: zodResolver(schema),
   });
 
   const email = watch('email');
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: (data: ForgotPasswordSchema) =>
-      clientFetch('/api/auth/send-otp', 'POST', {
-        body: data,
-      }),
-
+  const { execute: sendOtp, isExecuting } = useAction(forgotPasswordAction, {
     onSuccess: () => {
       toast.success(t('success'));
       setStep(2);
     },
-
-    onError: (error) => {
-      toast.error(t('error'));
+    onError: ({ error }) => {
+      toast.error(error.serverError?.message || t('error'));
     },
   });
 
   if (step === 2) {
-    return <VerifyForm email={email} purpose="forgot-password" />;
+    return <VerifyForm email={email} purpose="forgot-password" type="user" />;
   }
 
   return (
@@ -81,7 +75,7 @@ export function ForgotPasswordForm({
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit((data) => mutate(data))}>
+          <form onSubmit={handleSubmit((data) => sendOtp(data))}>
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="email">
@@ -91,7 +85,7 @@ export function ForgotPasswordForm({
                 <Input
                   id="email"
                   type="email"
-                  disabled={isPending}
+                  disabled={isExecuting}
                   {...register('email')}
                 />
 
@@ -101,8 +95,8 @@ export function ForgotPasswordForm({
               </Field>
 
               <Field>
-                <Button type="submit" disabled={isPending}>
-                  {isPending
+                <Button type="submit" disabled={isExecuting}>
+                  {isExecuting
                     ? t('submitButton.loadingText')
                     : t('submitButton.text')}
                 </Button>

@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import { NavProjects } from '@/components/sidebar/nav-projects';
-import { NavUser } from '@/components/sidebar/nav-user';
+import { NavUser, type SidebarUser } from '@/components/sidebar/nav-user';
 import { TeamSwitcher } from '@/components/sidebar/team-switcher';
 import {
   Sidebar,
@@ -16,7 +16,6 @@ import {
   BellIcon,
   CircleUserRound,
   Coins,
-  Gift,
   Handshake,
   Heart,
   House,
@@ -32,7 +31,10 @@ import { getLangDir } from 'rtl-detect';
 import { useCartStore } from '@/stores/cart';
 import { useUnreadNotificationCount } from '@/stores/notifications';
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  user,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & { user: SidebarUser | null }) {
   const locale = useLocale();
   const direction = getLangDir(locale);
   const side = direction === 'rtl' ? 'right' : 'left';
@@ -44,11 +46,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const unreadNotifications = useUnreadNotificationCount();
 
   const data = {
-    user: {
-      name: 'shadcn',
-      email: 'm@example.com',
-      avatar: '/avatars/shadcn.jpg',
-    },
     projects: [
       {
         name: t('home'),
@@ -124,7 +121,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

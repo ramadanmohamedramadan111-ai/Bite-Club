@@ -36,6 +36,9 @@
         "text": "Login",
         "loadingText": "Logging in..."
       },
+      "guestLoginButton": {
+        "text": "Continue as a guest"
+      },
       "registerLink": {
         "text": "Don't have an account?",
         "linkText": "Register",
@@ -227,6 +230,97 @@
       },
       "success": "Password reset successful! You can now log in with your new password.",
       "error": "Failed to reset password. Please try again."
+    },
+    "registerRestaurant": {
+      "title": "Register your restaurant",
+      "subtitle": "Fill in the details to create your restaurant account",
+      "fields": {
+        "name": {
+          "label": "Restaurant Name",
+          "placeholder": "Enter your restaurant name",
+          "errors": {
+            "required": "Restaurant name is required",
+            "minLength": "Restaurant name must be at least 2 characters"
+          }
+        },
+        "email": {
+          "label": "Email",
+          "placeholder": "Enter your email",
+          "errors": {
+            "required": "Email is required",
+            "invalid": "Please enter a valid email address"
+          }
+        },
+        "phoneNumber": {
+          "label": "Phone Number",
+          "placeholder": "Enter your phone number",
+          "errors": {
+            "required": "Phone number is required",
+            "invalid": "Please enter a valid phone number"
+          }
+        },
+        "password": {
+          "label": "Password",
+          "placeholder": "Enter your password",
+          "errors": {
+            "required": "Password is required",
+            "minLength": "Password must be at least 8 characters"
+          }
+        },
+        "confirmPassword": {
+          "label": "Confirm Password",
+          "placeholder": "Confirm your password",
+          "errors": {
+            "required": "Please confirm your password",
+            "mismatch": "Passwords do not match"
+          }
+        },
+        "category": {
+          "label": "Restaurant Category",
+          "placeholder": "Select your restaurant category",
+          "errors": {
+            "required": "Please select a restaurant category"
+          }
+        },
+        "description": {
+          "label": "Description",
+          "placeholder": "Enter a brief description of your restaurant",
+          "errors": {
+            "required": "Description is required",
+            "minLength": "Description must be at least 10 characters"
+          }
+        },
+        "address": {
+          "label": "Address",
+          "placeholder": "Enter your restaurant address",
+          "errors": {
+            "required": "Address is required",
+            "minLength": "Address must be at least 5 characters"
+          }
+        }
+      },
+      "submitButton": {
+        "text": "Register Restaurant",
+        "loadingText": "Registering..."
+      },
+      "loginLink": {
+        "text": "Already have a restaurant account?",
+        "linkText": "Login",
+        "href": "/login?type=restaurant"
+      }
+    },
+    "loginRestaurant": {
+      "title": "Restaurant Login",
+      "subtitle": "Sign in to your restaurant account",
+      "dashboardLink": {
+        "text": "Login as restaurant"
+      },
+      "registerLink": {
+        "text": "Register as restaurant"
+      },
+
+      "success": "Login successful! Redirecting...",
+      "error": "Invalid credentials, please try again."
     }
   },
   "sidebar": {
@@ -244,6 +338,12 @@
     "notifications": "Notifications",
     "cart": "Cart",
     "logout": "Logout"
+  },
+  "errors": {
+    "serverUnavailable": "Server is unavailable. Please try again later.",
+    "requestFailed": "Request failed. Please try again.",
+    "somethingWentWrong": "Something went wrong. Please try again.",
+    "tryAgain": "Please try again."
   }
 }
 
