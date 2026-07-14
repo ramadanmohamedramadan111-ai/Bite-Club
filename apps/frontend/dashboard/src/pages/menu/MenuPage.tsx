@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
-import { Filter, Plus, Pencil, Trash2, Copy } from 'lucide-react'
+import { Filter, Plus, Pencil, Trash2, Copy, Utensils } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 const burgerItems = [
   { id: 1, name: 'Signature Wagyu Burger', nameAr: 'برجر واجيو فاخر', price: 450, available: true,  badge: 'bestSeller' },
@@ -35,6 +36,12 @@ export function MenuPage() {
           <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">{t('menuManagementSub')}</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
+          <Link 
+            to="/menu/categories"
+            className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:border-brand-orange hover:text-brand-orange transition dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+          >
+            <Utensils size={14} /> {t('categoryManagement')}
+          </Link>
           <button className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:border-brand-orange hover:text-brand-orange transition dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">
             <Filter size={14} /> {t('filter')}
           </button>

@@ -7,6 +7,7 @@ import { DashboardPage } from './pages/dashboard/DashboardPage'
 import { OrdersPage } from './pages/orders/OrdersPage'
 import { OrderTrackingPage } from './pages/orders/OrderTrackingPage'
 import { MenuPage } from './pages/menu/MenuPage'
+import { CategoriesPage } from './pages/menu/CategoriesPage'
 import { CustomersPage } from './pages/customers/CustomersPage'
 import { SettingsPage } from './pages/settings/SettingsPage'
 import { PromotionsPage } from './pages/promotions/PromotionsPage'
@@ -68,6 +69,7 @@ function App() {
             <Route path="/orders"    element={<OrdersPage />}   />
             <Route path="/orders/:id" element={<OrderTrackingPage />} />
             <Route path="/menu"      element={<MenuPage />}     />
+            <Route path="/menu/categories" element={<CategoriesPage />} />
             <Route path="/customers" element={<CustomersPage />}/>
             <Route path="/settings"   element={<SettingsPage />} />
             <Route path="/promotions" element={<PromotionsPage />} />
