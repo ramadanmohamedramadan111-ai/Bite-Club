@@ -20,11 +20,20 @@ export interface SocialUser {
   };
 }
 
-export type FriendsTab =
-  | 'friends'
-  | 'received'
-  | 'sent'
-  | 'following'
-  | 'blocked'
-  | 'discover';
+export const FRIENDS_TABS = [
+  'friends',
+  'received',
+  'sent',
+  'following',
+  'blocked',
+  'discover',
+] as const;
+
+export type FriendsTabType = (typeof FRIENDS_TABS)[number];
+export interface FriendResponseType {
+  id: number;
+  username: string;
+  full_name: string;
+  profile_image: string;
+}
 

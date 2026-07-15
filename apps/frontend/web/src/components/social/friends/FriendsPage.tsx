@@ -1,5 +1,3 @@
-'use client';
-
 import { useSearchParams } from 'next/navigation';
 
 import { FriendsTab } from '@/types/social/friends';
@@ -12,9 +10,6 @@ import UserList from './UserList';
 import { useSocialStore } from '@/stores/social';
 
 export default function FriendsPage() {
-  const searchParams = useSearchParams();
-  const users = useSocialStore((state) => state.users);
-
   const tab = (searchParams.get('tab') ?? 'friends') as FriendsTab;
 
   const search = searchParams.get('search') ?? '';
@@ -69,3 +64,4 @@ export default function FriendsPage() {
     </div>
   );
 }
+
