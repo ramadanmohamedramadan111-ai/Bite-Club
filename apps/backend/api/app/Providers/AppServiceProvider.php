@@ -11,6 +11,8 @@ use App\Repositories\Eloquent\PasswordResetOtpRepository;
 use App\Repositories\Eloquent\RestaurantSettingRepository;
 use App\Repositories\Eloquent\GeneralSettingRepository;
 use App\Repositories\Interfaces\AdminRepositoryInterface;
+use App\Repositories\Interfaces\MenuCategoryRepositoryInterface;
+use App\Repositories\Eloquent\MenuCategoryRepository;
 use App\Repositories\Interfaces\RestaurantCategoryRepositoryInterface;
 use App\Repositories\Interfaces\RestaurantRepositoryInterface;
 use App\Repositories\Interfaces\PasswordResetOtpRepositoryInterface;
@@ -55,6 +57,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             GeneralSettingRepositoryInterface::class,
             GeneralSettingRepository::class
+        );
+
+        $this->app->bind(
+            MenuCategoryRepositoryInterface::class,
+            MenuCategoryRepository::class
         );
     }
 

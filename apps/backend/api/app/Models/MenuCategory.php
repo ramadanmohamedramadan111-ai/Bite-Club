@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Enums\MenuCategory\MenuCategoryVisibilityEnum;
 
 class MenuCategory extends Model
 {
@@ -16,7 +17,15 @@ class MenuCategory extends Model
         'title',
         'icon_name',
         'short_description',
+        'visibility',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'visibility' => MenuCategoryVisibilityEnum::class,
+        ];
+    }
 
     public function restaurant(): BelongsTo
     {

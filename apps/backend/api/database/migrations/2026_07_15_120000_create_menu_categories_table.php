@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use App\Enums\MenuCategory\MenuCategoryVisibilityEnum;
 
 return new class extends Migration
 {
@@ -17,6 +18,7 @@ return new class extends Migration
             $table->string('title', 100);
             $table->string('icon_name', 100);
             $table->string('short_description', 100);
+            $table->string('visibility')->default(MenuCategoryVisibilityEnum::VISIBLE->value);
             $table->timestamps();
 
             // Adding unique constraint

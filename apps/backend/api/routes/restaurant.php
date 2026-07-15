@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Auth\RestaurantAuthController;
 use App\Http\Controllers\Api\RestaurantSettingController;
 use App\Http\Controllers\Api\Auth\RestaurantPasswordResetController;
 use App\Http\Controllers\Api\RestaurantCategoryController;
+use App\Http\Controllers\Api\MenuCategoryController;
 
 Route::post('/register', [RestaurantAuthController::class, 'register'])->name('register');
 Route::post('/login',    [RestaurantAuthController::class, 'login'])->name('login');
@@ -24,5 +25,13 @@ Route::middleware('auth.restaurant')->group(function () {
         Route::get('/{id}', [RestaurantSettingController::class, 'show'])->name('show');
         Route::post('/', [RestaurantSettingController::class, 'store'])->name('store');
         Route::put('/{id}', [RestaurantSettingController::class, 'update'])->name('update');
+    });
+
+    Route::prefix('menu-categories')->name('menu-categories.')->group(function () {
+        Route::get('/', [MenuCategoryController::class, 'index'])->name('index');
+        Route::post('/', [MenuCategoryController::class, 'store'])->name('store');
+        Route::put('/{id}', [MenuCategoryController::class, 'update'])->name('update');
+        Route::put('/{id}/visibility', [MenuCategoryController::class, 'updateVisibility'])->name('update-visibility');
+        Route::delete('/{id}', [MenuCategoryController::class, 'destroy'])->name('destroy');
     });
 });
