@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\Restaurant\RestaurantStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
@@ -82,5 +83,10 @@ class Restaurant extends Authenticatable implements JWTSubject
     public function approvedBy(): BelongsTo
     {
         return $this->belongsTo(Admin::class, 'approved_by');
+    }
+
+    public function menuCategories(): HasMany
+    {
+        return $this->hasMany(MenuCategory::class, 'restaurant_id');
     }
 }
