@@ -65,8 +65,8 @@ class FriendSystemTest extends TestCase
         $response = $this->getJson('/api/friends/requests', $this->getHeadersForUser($user1));
 
         $response->assertOk();
-        $response->assertJsonCount(1, 'data');
-        $response->assertJsonPath('data.0.sender_id', $user2->id);
+        $response->assertJsonCount(1, 'data.items');
+        $response->assertJsonPath('data.items.0.sender_id', $user2->id);
     }
 
     public function test_user_can_accept_friend_request(): void
@@ -151,8 +151,8 @@ class FriendSystemTest extends TestCase
         $response = $this->getJson('/api/friends', $this->getHeadersForUser($user1));
 
         $response->assertOk();
-        $response->assertJsonCount(1, 'data');
-        $response->assertJsonPath('data.0.id', $user2->id);
+        $response->assertJsonCount(1, 'data.items');
+        $response->assertJsonPath('data.items.0.id', $user2->id);
     }
 
     public function test_user_can_remove_friendship(): void
@@ -189,8 +189,8 @@ class FriendSystemTest extends TestCase
         $response = $this->getJson('/api/friends/requests/sent', $this->getHeadersForUser($user1));
 
         $response->assertOk();
-        $response->assertJsonCount(1, 'data');
-        $response->assertJsonPath('data.0.recipient_id', $user2->id);
+        $response->assertJsonCount(1, 'data.items');
+        $response->assertJsonPath('data.items.0.recipient_id', $user2->id);
     }
 
     public function test_user_can_search_users_globally(): void
@@ -202,6 +202,6 @@ class FriendSystemTest extends TestCase
         $response = $this->getJson('/api/users/search?search=searchable', $this->getHeadersForUser($user1));
 
         $response->assertOk();
-        $response->assertJsonCount(2, 'data');
+        $response->assertJsonCount(2, 'data.items');
     }
 }

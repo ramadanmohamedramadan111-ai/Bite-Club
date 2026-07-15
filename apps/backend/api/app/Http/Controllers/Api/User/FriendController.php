@@ -54,7 +54,10 @@ class FriendController extends Controller
 
             return $this->successResponse(
                 'Pending friend requests retrieved successfully.',
-                FriendRequestResource::collection(collect($result))
+                [
+                    'items' => FriendRequestResource::collection(collect($result['items'])),
+                    'meta'  => $result['meta'],
+                ]
             );
         } catch (Exception $e) {
             Log::error('Failed to retrieve pending friend requests: ' . $e->getMessage());
@@ -70,7 +73,10 @@ class FriendController extends Controller
 
             return $this->successResponse(
                 'Sent friend requests retrieved successfully.',
-                SentFriendRequestResource::collection(collect($result))
+                [
+                    'items' => SentFriendRequestResource::collection(collect($result['items'])),
+                    'meta'  => $result['meta'],
+                ]
             );
         } catch (Exception $e) {
             Log::error('Failed to retrieve sent friend requests: ' . $e->getMessage());
@@ -139,7 +145,10 @@ class FriendController extends Controller
 
             return $this->successResponse(
                 'Friends retrieved successfully.',
-                FriendResource::collection(collect($result))
+                [
+                    'items' => FriendResource::collection(collect($result['items'])),
+                    'meta'  => $result['meta'],
+                ]
             );
         } catch (Exception $e) {
             Log::error('Failed to retrieve friends: ' . $e->getMessage());

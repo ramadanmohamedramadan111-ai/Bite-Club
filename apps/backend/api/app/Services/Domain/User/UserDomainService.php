@@ -5,10 +5,11 @@ namespace App\Services\Domain\User;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class UserDomainService
 {
-    public function searchUsers(?string $search = null): array
+    public function searchUsers(?string $search = null, int $perPage = 15): LengthAwarePaginator
     {
         $query = User::query();
 
@@ -27,6 +28,6 @@ class UserDomainService
             $query->where('id', '!=', Auth::guard('user')->id());
         }
 
-        return $query->get()->all();
+        return $query->paginate($perPage);
     }
 }

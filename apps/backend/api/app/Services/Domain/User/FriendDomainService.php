@@ -11,6 +11,8 @@ use App\Repositories\Interfaces\User\FriendRequestRepositoryInterface;
 use App\Repositories\Interfaces\User\FriendshipRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 
 class FriendDomainService
 {
@@ -25,6 +27,19 @@ class FriendDomainService
             throw new Exception("Unauthenticated.");
         }
         return $currentUser;
+    }
+
+    private function paginateCollection($items, int $perPage): LengthAwarePaginator
+    {
+        $page = Paginator::resolveCurrentPage() ?: 1;
+        $items = $items instanceof \Illuminate\Support\Collection ? $items : collect($items);
+        return new LengthAwarePaginator(
+            $items->forPage($page, $perPage)->values(),
+            $items->count(),
+            $perPage,
+            $page,
+            ['path' => Paginator::resolveCurrentPath()]
+        );
     }
 
     public function sendRequest(int $addresseeId): FriendRequest
@@ -87,7 +102,7 @@ class FriendDomainService
         ]);
     }
 
-    public function listPendingRequests(?string $search = null): array
+    public function listPendingRequests(?string $search = null, int $perPage = 15): LengthAwarePaginator
     {
         $currentUser = $this->checkUserAuth();
 
@@ -108,10 +123,10 @@ class FriendDomainService
             });
         }
 
-        return $requests->values()->all();
+        return $this->paginateCollection($requests, $perPage);
     }
 
-    public function listSentRequests(?string $search = null): array
+    public function listSentRequests(?string $search = null, int $perPage = 15): LengthAwarePaginator
     {
         $currentUser = $this->checkUserAuth();
 
@@ -132,7 +147,7 @@ class FriendDomainService
             });
         }
 
-        return $requests->values()->all();
+        return $this->paginateCollection($requests, $perPage);
     }
 
     public function acceptRequest(int $requestId): Friendship
@@ -208,7 +223,7 @@ class FriendDomainService
         $this->friendRequestRepository->delete($requestId);
     }
 
-    public function listFriends(?string $search = null): array
+    public function listFriends(?string $search = null, int $perPage = 15): LengthAwarePaginator
     {
         $currentUser = $this->checkUserAuth();
         $friends = $currentUser->friends;
@@ -221,7 +236,7 @@ class FriendDomainService
             });
         }
 
-        return $friends->values()->all();
+        return $this->paginateCollection($friends, $perPage);
     }
 
     public function removeFriendship(int $friendId): void

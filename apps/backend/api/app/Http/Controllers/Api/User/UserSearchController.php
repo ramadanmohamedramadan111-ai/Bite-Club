@@ -25,7 +25,10 @@ class UserSearchController extends Controller
 
             return $this->successResponse(
                 'Users retrieved successfully.',
-                UserSearchResource::collection(collect($result))
+                [
+                    'items' => UserSearchResource::collection(collect($result['items'])),
+                    'meta'  => $result['meta'],
+                ]
             );
         } catch (Exception $e) {
             Log::error('Failed to search users: ' . $e->getMessage());
