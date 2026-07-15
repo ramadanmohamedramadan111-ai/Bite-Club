@@ -71,6 +71,12 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(
+            FriendshipRepositoryInterface::class,
+            FriendshipRepository::class
+        );
+
+
+        $this->app->bind(
             MenuCategoryRepositoryInterface::class,
             MenuCategoryRepository::class
         );
