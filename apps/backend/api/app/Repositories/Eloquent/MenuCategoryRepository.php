@@ -6,6 +6,7 @@ use App\Models\MenuCategory;
 use App\Repositories\Interfaces\MenuCategoryRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use App\Enums\MenuItem\MenuItemAvailabilityEnum;
 
 class MenuCategoryRepository extends BaseRepository implements MenuCategoryRepositoryInterface
 {
@@ -20,7 +21,7 @@ class MenuCategoryRepository extends BaseRepository implements MenuCategoryRepos
             ->where('restaurant_id', $restaurantId)
             ->withCount([
                 'items as total_items',
-                'items as active_items' => fn($q) => $q->where('is_available', true)
+                'items as active_items' => fn($q) => $q->where('availability', MenuItemAvailabilityEnum::AVAILABLE->value)
             ])
             ->orderBy('id', 'desc');
 
