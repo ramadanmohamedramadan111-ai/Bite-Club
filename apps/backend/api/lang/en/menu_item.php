@@ -12,4 +12,5 @@ return [
     'delete_success' => 'Menu item deleted successfully.',
     'delete_failed' => 'Failed to delete menu item.',
     'not_found' => 'Menu item not found.',
+    'title_unique' => 'An item with this title already exists in the selected category.',
 ];

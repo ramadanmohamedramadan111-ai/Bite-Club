@@ -22,7 +22,14 @@ class StoreMenuItemRequest extends FormRequest
     {
         return [
             'menu_category_id' => ['required', 'integer', 'exists:menu_categories,id'],
-            'title'            => ['required', 'string', 'max:150'],
+            'title'            => [
+                'required',
+                'string',
+                'max:150',
+                Rule::unique('items', 'title')->where(function ($query) {
+                    return $query->where('menu_category_id', $this->input('menu_category_id'));
+                })
+            ],
             'description'      => ['required', 'string'],
             'image'            => ['required', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
             'price'            => ['required', 'numeric', 'min:0'],
@@ -36,6 +43,7 @@ class StoreMenuItemRequest extends FormRequest
             'menu_category_id.required' => trans('validation.required', ['attribute' => 'menu_category_id']),
             'menu_category_id.exists'   => trans('validation.exists', ['attribute' => 'menu category']),
             'title.required'            => trans('validation.required', ['attribute' => 'title']),
+            'title.unique'              => trans('menu_item.title_unique'),
             'description.required'      => trans('validation.required', ['attribute' => 'description']),
             'image.required'            => trans('validation.required', ['attribute' => 'image']),
             'image.image'               => trans('validation.image', ['attribute' => 'image']),
