@@ -34,7 +34,7 @@ class UpdateMenuCategoryDto
     {
         $data = $request->validated();
         return new self(
-            $request->route('id'),
+            $data['id'],
             auth('restaurant')->id(),
             $data['title'],
             $data['icon_name'],

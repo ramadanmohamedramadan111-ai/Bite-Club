@@ -15,6 +15,8 @@ use App\Repositories\Eloquent\User\FriendshipRepository;
 use App\Repositories\Interfaces\AdminRepositoryInterface;
 use App\Repositories\Interfaces\MenuCategoryRepositoryInterface;
 use App\Repositories\Eloquent\MenuCategoryRepository;
+use App\Repositories\Interfaces\MenuItemRepositoryInterface;
+use App\Repositories\Eloquent\MenuItemRepository;
 use App\Repositories\Interfaces\RestaurantCategoryRepositoryInterface;
 use App\Repositories\Interfaces\RestaurantRepositoryInterface;
 use App\Repositories\Interfaces\PasswordResetOtpRepositoryInterface;
@@ -69,9 +71,13 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(
-
             MenuCategoryRepositoryInterface::class,
             MenuCategoryRepository::class
+        );
+
+        $this->app->bind(
+            MenuItemRepositoryInterface::class,
+            MenuItemRepository::class
         );
     }
 

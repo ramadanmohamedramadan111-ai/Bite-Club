@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Requests\MenuCategory;
+namespace App\Http\Requests\MenuItem;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use App\Traits\ApiResponseTrait;
 
-class DestroyMenuCategoryRequest extends FormRequest
+class DestroyMenuItemRequest extends FormRequest
 {
     use ApiResponseTrait;
 
@@ -26,7 +26,7 @@ class DestroyMenuCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => ['required', 'integer', 'exists:menu_categories,id'],
+            'id' => ['required', 'integer', 'exists:items,id'],
         ];
     }
 

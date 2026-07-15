@@ -18,12 +18,20 @@ class UpdateMenuCategoryRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'id' => $this->route('id'),
+        ]);
+    }
+
     public function rules(): array
     {
         $restaurantId = auth('restaurant')->id();
         $id = $this->route('id');
 
         return [
+            'id'    => ['required', 'integer', 'exists:menu_categories,id'],
             'title' => [
                 'required', 
                 'string', 

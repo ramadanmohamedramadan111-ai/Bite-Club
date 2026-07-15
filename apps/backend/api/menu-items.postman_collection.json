@@ -1,0 +1,285 @@
+{
+  "info": {
+    "name": "Restaurant Menu Items",
+    "description": "API Endpoints for managing menu items by a restaurant",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{restaurant_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. List Menu Items",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/restaurant/menu-items?per_page=15&all=0&title=&menu_category_id=&sort_by=id&sort_dir=desc",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "restaurant",
+            "menu-items"
+          ],
+          "query": [
+            {
+              "key": "per_page",
+              "value": "15",
+              "description": "Number of items per page"
+            },
+            {
+              "key": "all",
+              "value": "0",
+              "description": "Set to 1 to get all without pagination"
+            },
+            {
+              "key": "title",
+              "value": "",
+              "description": "Filter by title (Optional)"
+            },
+            {
+              "key": "menu_category_id",
+              "value": "",
+              "description": "Filter by category ID (Optional)"
+            },
+            {
+              "key": "sort_by",
+              "value": "id",
+              "description": "Sort by field (id, price, title, created_at)"
+            },
+            {
+              "key": "sort_dir",
+              "value": "desc",
+              "description": "Sort direction (asc, desc)"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2. Create Menu Item",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "menu_category_id",
+              "value": "1",
+              "type": "text"
+            },
+            {
+              "key": "title",
+              "value": "Delicious Burger",
+              "type": "text"
+            },
+            {
+              "key": "description",
+              "value": "A very tasty burger with extra cheese.",
+              "type": "text"
+            },
+            {
+              "key": "price",
+              "value": "15.99",
+              "type": "text"
+            },
+            {
+              "key": "availability",
+              "value": "available",
+              "type": "text"
+            },
+            {
+              "key": "image",
+              "type": "file",
+              "src": []
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/restaurant/menu-items",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "restaurant",
+            "menu-items"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3. Update Menu Item",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "menu_category_id",
+              "value": "1",
+              "type": "text"
+            },
+            {
+              "key": "title",
+              "value": "Updated Burger",
+              "type": "text"
+            },
+            {
+              "key": "description",
+              "value": "Updated description",
+              "type": "text"
+            },
+            {
+              "key": "price",
+              "value": "18.50",
+              "type": "text"
+            },
+            {
+              "key": "availability",
+              "value": "available",
+              "type": "text"
+            },
+            {
+              "key": "image",
+              "type": "file",
+              "src": [],
+              "disabled": true
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/restaurant/menu-items/:id",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "restaurant",
+            "menu-items",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "4. Update Menu Item Availability",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"availability\": \"unavailable\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/restaurant/menu-items/:id/availability",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "restaurant",
+            "menu-items",
+            ":id",
+            "availability"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "5. Delete Menu Item",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/restaurant/menu-items/:id",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "restaurant",
+            "menu-items",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api",
+      "type": "string"
+    },
+    {
+      "key": "restaurant_token",
+      "value": "YOUR_RESTAURANT_TOKEN_HERE",
+      "type": "string"
+    }
+  ]
+}
