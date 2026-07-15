@@ -31,6 +31,7 @@ class UpdateMenuCategoryRequest extends FormRequest
         $id = $this->route('id');
 
         return [
+            'id'    => ['required', 'integer', 'exists:menu_categories,id'],
             'title' => [
                 'required', 
                 'string', 
