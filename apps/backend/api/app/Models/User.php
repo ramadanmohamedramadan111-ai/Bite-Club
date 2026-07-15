@@ -95,4 +95,31 @@ class User extends Authenticatable implements JWTSubject
     {
         return "{$this->first_name} {$this->last_name}";
     }
+
+    public function sentFriendRequests(): HasMany
+    {
+        return $this->hasMany(FriendRequest::class, 'requester_id');
+    }
+
+    public function receivedFriendRequests(): HasMany
+    {
+        return $this->hasMany(FriendRequest::class, 'addressee_id');
+    }
+
+    public function friendshipsAsLow(): HasMany
+    {
+        return $this->hasMany(Friendship::class, 'user_low_id');
+    }
+
+    public function friendshipsAsHigh(): HasMany
+    {
+        return $this->hasMany(Friendship::class, 'user_high_id');
+    }
+
+    public function getFriendsAttribute()
+    {
+        $lows = $this->friendshipsAsLow()->with('highUser')->get()->pluck('highUser');
+        $highs = $this->friendshipsAsHigh()->with('lowUser')->get()->pluck('lowUser');
+        return $lows->concat($highs);
+    }
 }
