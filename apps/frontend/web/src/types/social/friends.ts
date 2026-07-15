@@ -3,21 +3,9 @@ export interface SocialUser {
 
   username: string;
 
-  name: string;
+  full_name: string;
 
-  avatar: string | null;
-
-  relationships: {
-    isFriend: boolean;
-
-    hasSentRequest: boolean;
-
-    hasReceivedRequest: boolean;
-
-    isFollowing: boolean;
-
-    isBlocked: boolean;
-  };
+  profile_image: string | null;
 }
 
 export const FRIENDS_TABS = [
@@ -35,5 +23,25 @@ export interface FriendResponseType {
   username: string;
   full_name: string;
   profile_image: string;
+}
+
+export interface SentFriendResponse {
+  id: number;
+  recipient_id: number;
+  username: string;
+  full_name: string;
+  profile_image?: string;
+}
+
+export interface sendFriendRequestResponse {
+  id: number;
+  requester_id: number;
+  addressee_id: number;
+  status: string;
+}
+
+export interface cancelFriendRequestResponse {
+  id: number;
+  status: string;
 }
 

@@ -6,16 +6,16 @@ import React from 'react';
 import UserCard from './UserCard';
 import UsersFallback from './UsersFallback';
 
-export default async function FriendsTab({ search }: { search: string }) {
+export default async function ReceivedTab({ search }: { search: string }) {
   const query = buildQueryString({ search });
   const userId = getUserId();
 
   const data = await serverFetch<ApiResponse<FriendResponseType[]>>(
-    `/friends${query}`,
+    `/friends/requests${query}`,
     'GET',
     {
       next: {
-        tags: ['friends', `friends-${userId}`],
+        tags: ['friends-requests', `friends-requests-${userId}`],
       },
     },
   );
@@ -28,7 +28,7 @@ export default async function FriendsTab({ search }: { search: string }) {
   return (
     <div className="space-y-3">
       {users.map((user) => (
-        <UserCard key={user.id} user={user} tab={'friends'} />
+        <UserCard key={user.id} user={user} tab={'received'} />
       ))}
     </div>
   );

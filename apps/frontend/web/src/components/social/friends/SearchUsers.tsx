@@ -3,7 +3,7 @@
 import { useRouter } from '@/i18n/navigation';
 import { useSearchParams } from 'next/navigation';
 
-import { Search, SearchIcon } from 'lucide-react';
+import { SearchIcon } from 'lucide-react';
 
 import { Input } from '@/components/ui/input';
 

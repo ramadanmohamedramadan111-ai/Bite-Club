@@ -4,40 +4,60 @@ import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 
-import { FriendsTab, SocialUser } from '@/types/social/friends';
+import { FriendResponseType, FriendsTabType } from '@/types/social/friends';
 
 import ConfirmDialog from '@/components/shared/ConfirmationDialog';
-import { useSocialStore } from '@/stores/social';
+import { useAction } from 'next-safe-action/hooks';
+import {
+  acceptFriendRequestAction,
+  cancelFriendRequestAction,
+  rejectFriendRequestAction,
+  removeFriendRequestAction,
+  sendFriendRequestAction,
+} from '@/actions/friends';
+import { toast } from 'sonner';
 
 interface Props {
-  user: SocialUser;
+  user: FriendResponseType;
 
-  tab: FriendsTab;
+  tab: FriendsTabType;
 }
 
-type Action =
-  | 'removeFriend'
-  | 'cancelRequest'
-  | 'unfollow'
-  | 'unblock'
-  | 'block'
-  | null;
+type Action = 'removeFriend' | 'cancelRequest' | null;
 
 export default function UserActions({ user, tab }: Props) {
   const [action, setAction] = useState<Action>(null);
-  const {
-    removeFriend,
-    cancelFriendRequest,
-    unfollowUser,
-    unblockUser,
-    blockUser,
-    sendFriendRequest,
-    acceptFriendRequest,
-    rejectFriendRequest,
-    followUser,
-  } = useSocialStore();
 
-  const relationships = user.relationships;
+  const actionCallbacks = {
+    onSuccess: ({ data }: { data: { message: string } }) =>
+      toast.success(data.message),
+
+    onError: ({ error }: { error: any }) =>
+      toast.error(error.serverError?.message),
+  };
+
+  const {
+    execute: sendFriendRequest,
+    isExecuting: isExecutingSendFriendRequest,
+  } = useAction(sendFriendRequestAction, actionCallbacks);
+
+  const {
+    execute: cancelFriendRequest,
+    isExecuting: isExecutingCancelFriendRequest,
+  } = useAction(cancelFriendRequestAction, actionCallbacks);
+
+  const {
+    execute: rejectFriendRequest,
+    isExecuting: isExecutingRejectFriendRequest,
+  } = useAction(rejectFriendRequestAction, actionCallbacks);
+
+  const { execute: removeFriend, isExecuting: isExecutingRemoveFriend } =
+    useAction(removeFriendRequestAction, actionCallbacks);
+
+  const {
+    execute: acceptFriendRequest,
+    isExecuting: isExecutingAcceptFriendRequest,
+  } = useAction(acceptFriendRequestAction, actionCallbacks);
 
   function executeAction() {
     if (!action) return;
@@ -49,15 +69,6 @@ export default function UserActions({ user, tab }: Props) {
       case 'cancelRequest':
         cancelFriendRequest(user.id);
         break;
-      case 'unfollow':
-        unfollowUser(user.id);
-        break;
-      case 'unblock':
-        unblockUser(user.id);
-        break;
-      case 'block':
-        blockUser(user.id);
-        break;
     }
 
     setAction(null);
@@ -66,31 +77,31 @@ export default function UserActions({ user, tab }: Props) {
   const dialogConfig = {
     removeFriend: {
       title: 'Remove friend?',
-      description: `Are you sure you want to remove ${user.name} from your friends?`,
+      description: `Are you sure you want to remove ${user.full_name} from your friends?`,
       confirmText: 'Remove',
     },
 
     cancelRequest: {
       title: 'Cancel request?',
-      description: `Are you sure you want to cancel your request to ${user.name}?`,
+      description: `Are you sure you want to cancel your request to ${user.full_name}?`,
       confirmText: 'Cancel Request',
     },
 
     unfollow: {
       title: 'Unfollow user?',
-      description: `Are you sure you want to unfollow ${user.name}?`,
+      description: `Are you sure you want to unfollow ${user.full_name}?`,
       confirmText: 'Unfollow',
     },
 
     unblock: {
       title: 'Unblock user?',
-      description: `Are you sure you want to unblock ${user.name}?`,
+      description: `Are you sure you want to unblock ${user.full_name}?`,
       confirmText: 'Unblock',
     },
 
     block: {
       title: 'Block user?',
-      description: `Are you sure you want to block ${user.name}?`,
+      description: `Are you sure you want to block ${user.full_name}?`,
       confirmText: 'Block',
     },
   };
@@ -98,80 +109,53 @@ export default function UserActions({ user, tab }: Props) {
   return (
     <>
       {tab === 'friends' && (
-        <Button variant="destructive" onClick={() => setAction('removeFriend')}>
+        <Button
+          disabled={isExecutingRemoveFriend}
+          variant="destructive"
+          onClick={() => setAction('removeFriend')}>
           Remove Friend
         </Button>
       )}
 
       {tab === 'received' && (
         <div className="flex gap-2">
-          <Button onClick={() => acceptFriendRequest(user.id)}>Accept</Button>
+          <Button
+            disabled={isExecutingAcceptFriendRequest}
+            onClick={() => acceptFriendRequest(user.id)}>
+            Accept
+          </Button>
 
           <Button
+            disabled={isExecutingRejectFriendRequest}
             variant="destructive"
-            onClick={() => rejectFriendRequest(user.id)}
-          >
+            onClick={() => rejectFriendRequest(user.id)}>
             Reject
           </Button>
         </div>
       )}
 
       {tab === 'sent' && (
-        <Button variant="outline" onClick={() => setAction('cancelRequest')}>
+        <Button
+          variant="outline"
+          disabled={isExecutingCancelFriendRequest}
+          onClick={() => setAction('cancelRequest')}>
           Cancel Request
         </Button>
       )}
 
-      {tab === 'following' && (
-        <Button variant="outline" onClick={() => setAction('unfollow')}>
-          Unfollow
-        </Button>
-      )}
-
-      {tab === 'blocked' && (
-        <Button onClick={() => setAction('unblock')}>Unblock</Button>
-      )}
-
       {tab === 'discover' && (
-        <div className="flex gap-2">
-          {!relationships.isFriend && !relationships.hasSentRequest && (
-            <Button onClick={() => sendFriendRequest(user.id)}>
-              Add Friend
-            </Button>
-          )}
-
-          {relationships.hasSentRequest && (
-            <Button variant="outline" onClick={() => setAction('cancelRequest')}>
-              Cancel Request
-            </Button>
-          )}
-
-          {!relationships.isFollowing && (
-            <Button variant="outline" onClick={() => followUser(user.id)}>
-              Follow
-            </Button>
-          )}
-
-          {relationships.isFollowing && (
-            <Button variant="outline" onClick={() => setAction('unfollow')}>
-              Unfollow
-            </Button>
-          )}
-
-          <Button variant="destructive" onClick={() => setAction('block')}>
-            Block
-          </Button>
-        </div>
+        <Button
+          variant="outline"
+          disabled={isExecutingSendFriendRequest}
+          onClick={() => sendFriendRequest(user.id)}>
+          Add as friend
+        </Button>
       )}
 
       {action && (
         <ConfirmDialog
-          open={!!action}
-          onOpenChange={(open) => {
-            if (!open) {
-              setAction(null);
-            }
-          }}
+          open
+          onOpenChange={(open) => !open && setAction(null)}
           title={dialogConfig[action].title}
           description={dialogConfig[action].description}
           confirmText={dialogConfig[action].confirmText}
@@ -181,3 +165,4 @@ export default function UserActions({ user, tab }: Props) {
     </>
   );
 }
+
