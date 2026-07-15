@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Enums\MenuItem\MenuItemAvailabilityEnum;
 
 class MenuItem extends Model
 {
@@ -18,14 +19,14 @@ class MenuItem extends Model
         'description',
         'image_url',
         'price',
-        'is_available',
+        'availability',
     ];
 
     protected function casts(): array
     {
         return [
             'price' => 'decimal:2',
-            'is_available' => 'boolean',
+            'availability' => MenuItemAvailabilityEnum::class,
         ];
     }
 

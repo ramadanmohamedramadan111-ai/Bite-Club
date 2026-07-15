@@ -18,9 +18,17 @@ class UpdateMenuCategoryVisibilityRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'id' => $this->route('id'),
+        ]);
+    }
+
     public function rules(): array
     {
         return [
+            'id'         => ['required', 'integer', 'exists:menu_categories,id'],
             'visibility' => ['required', 'string', Rule::in(MenuCategoryVisibilityEnum::values())],
         ];
     }

@@ -1,29 +1,29 @@
 <?php
 
-namespace App\DTOs\MenuCategory;
+namespace App\DTOs\MenuItem;
 
-use App\Http\Requests\MenuCategory\UpdateMenuCategoryVisibilityRequest;
+use App\Http\Requests\MenuItem\UpdateMenuItemAvailabilityRequest;
 
-class UpdateMenuCategoryVisibilityDto
+class UpdateMenuItemAvailabilityDto
 {
     private int $id;
     private int $restaurantId;
-    private string $visibility;
+    private string $availability;
 
-    public function __construct(int $id, int $restaurantId, string $visibility)
+    public function __construct(int $id, int $restaurantId, string $availability)
     {
         $this->id = $id;
         $this->restaurantId = $restaurantId;
-        $this->visibility = $visibility;
+        $this->availability = $availability;
     }
 
-    public static function fromValidatedRequest(UpdateMenuCategoryVisibilityRequest $request): self
+    public static function fromValidatedRequest(UpdateMenuItemAvailabilityRequest $request): self
     {
         $data = $request->validated();
         return new self(
             $data['id'],
             auth('restaurant')->id(),
-            $data['visibility']
+            $data['availability']
         );
     }
 
@@ -40,7 +40,7 @@ class UpdateMenuCategoryVisibilityDto
     public function toArray(): array
     {
         return [
-            'visibility' => $this->visibility,
+            'availability' => $this->availability,
         ];
     }
 }

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\DTOs\MenuCategory;
+namespace App\DTOs\MenuItem;
 
-use App\Http\Requests\MenuCategory\DestroyMenuCategoryRequest;
+use App\Http\Requests\MenuItem\DestroyMenuItemRequest;
 
-class DestroyMenuCategoryDto
+class DestroyMenuItemDto
 {
     private int $id;
     private int $restaurantId;
@@ -15,7 +15,7 @@ class DestroyMenuCategoryDto
         $this->restaurantId = $restaurantId;
     }
 
-    public static function fromValidatedRequest(DestroyMenuCategoryRequest $request): self
+    public static function fromValidatedRequest(DestroyMenuItemRequest $request): self
     {
         $data = $request->validated();
         return new self(
