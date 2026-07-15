@@ -6,6 +6,33 @@ export type RestaurantLocation = {
 
 export type RestaurantDetail = {
   id: number;
+  // name: string;
+  email: string;
+  phone_number: string;
+  category_id: number;
+  category: RestaurantCategory;
+  // description: string;
+  logo_url: string;
+  cover_image_uri: string;
+  address: string;
+  status: string;
+  average_rating: string;
+  total_orders_count: number;
+
+  // isFavorite
+  // reviewsCount
+  // categories??
+  // location??
+  // delivery
+  // pickup
+  // creditCard
+  // isAvailable
+  // deliveryTime
+  // deliveryPrice
+  // scannedMenu
+  // minimumOrder
+  // openingHours
+
   logo: string;
   coverImage: string;
   isFavorite: boolean;
