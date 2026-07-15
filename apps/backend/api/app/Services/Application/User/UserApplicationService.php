@@ -13,6 +13,15 @@ class UserApplicationService
 
     public function searchUsers(SearchQueryDto $dto): array
     {
-        return $this->userDomainService->searchUsers($dto->getSearch());
+        $paginator = $this->userDomainService->searchUsers($dto->getSearch(), $dto->getPerPage());
+        return [
+            'items' => $paginator->items(),
+            'meta'  => [
+                'current_page' => $paginator->currentPage(),
+                'last_page'    => $paginator->lastPage(),
+                'per_page'     => $paginator->perPage(),
+                'total'        => $paginator->total(),
+            ]
+        ];
     }
 }

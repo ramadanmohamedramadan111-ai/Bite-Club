@@ -30,12 +30,30 @@ class FriendApplicationService
 
     public function listPendingRequests(SearchQueryDto $dto): array
     {
-        return $this->friendDomainService->listPendingRequests($dto->getSearch());
+        $paginator = $this->friendDomainService->listPendingRequests($dto->getSearch(), $dto->getPerPage());
+        return [
+            'items' => $paginator->items(),
+            'meta'  => [
+                'current_page' => $paginator->currentPage(),
+                'last_page'    => $paginator->lastPage(),
+                'per_page'     => $paginator->perPage(),
+                'total'        => $paginator->total(),
+            ]
+        ];
     }
 
     public function listSentRequests(SearchQueryDto $dto): array
     {
-        return $this->friendDomainService->listSentRequests($dto->getSearch());
+        $paginator = $this->friendDomainService->listSentRequests($dto->getSearch(), $dto->getPerPage());
+        return [
+            'items' => $paginator->items(),
+            'meta'  => [
+                'current_page' => $paginator->currentPage(),
+                'last_page'    => $paginator->lastPage(),
+                'per_page'     => $paginator->perPage(),
+                'total'        => $paginator->total(),
+            ]
+        ];
     }
 
     public function acceptRequest(AcceptFriendRequestDto $dto): array
@@ -69,7 +87,16 @@ class FriendApplicationService
 
     public function listFriends(SearchQueryDto $dto): array
     {
-        return $this->friendDomainService->listFriends($dto->getSearch());
+        $paginator = $this->friendDomainService->listFriends($dto->getSearch(), $dto->getPerPage());
+        return [
+            'items' => $paginator->items(),
+            'meta'  => [
+                'current_page' => $paginator->currentPage(),
+                'last_page'    => $paginator->lastPage(),
+                'per_page'     => $paginator->perPage(),
+                'total'        => $paginator->total(),
+            ]
+        ];
     }
 
     public function removeFriendship(RemoveFriendshipDto $dto): void
