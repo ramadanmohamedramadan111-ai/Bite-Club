@@ -4,6 +4,7 @@ namespace App\Services\Application\Admin;
 
 use App\DTOs\Admin\Restaurant\IndexRestaurantDto;
 use App\DTOs\Admin\Restaurant\UpdateRestaurantStatusDto;
+use App\DTOs\Admin\Restaurant\AvailableRestaurantTransitionsDto;
 use App\Enums\Restaurant\RestaurantStatusEnum;
 use App\Mail\RestaurantApprovedMail;
 use App\Mail\RestaurantClosedMail;
@@ -27,9 +28,14 @@ class RestaurantApplicationService
         ]);
     }
 
+    public function getAvailableTransitions(AvailableRestaurantTransitionsDto $dto): array
+    {
+        return $this->restaurantDomainService->getAvailableTransitions($dto->getId());
+    }
+
     public function updateStatus(UpdateRestaurantStatusDto $dto): array
     {
-        $result = $this->restaurantDomainService->updateStatus($dto);
+        $result = $this->restaurantDomainService->updateStatus($dto->getId(), $dto->getStatus());
 
         if (!$result['unchanged']) {
             $this->sendStatusMail($result['restaurant']);

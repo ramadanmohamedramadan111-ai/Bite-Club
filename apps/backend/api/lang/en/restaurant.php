@@ -8,4 +8,6 @@ return [
     'status_update_failed'     => 'Failed to update restaurant status.',
     'invalid_status_transition' => 'This restaurant status transition is not allowed.',
     'not_found'                => 'Restaurant not found.',
+    'available_transitions_success' => 'Available statuses retrieved successfully.',
+    'available_transitions_failed'  => 'Failed to retrieve available statuses.',
 ];

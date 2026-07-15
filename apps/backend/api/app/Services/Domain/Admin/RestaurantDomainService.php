@@ -2,7 +2,6 @@
 
 namespace App\Services\Domain\Admin;
 
-use App\DTOs\Admin\Restaurant\UpdateRestaurantStatusDto;
 use App\Enums\Restaurant\RestaurantStatusEnum;
 use App\Models\Restaurant;
 use App\Repositories\Interfaces\RestaurantRepositoryInterface;
@@ -20,11 +19,18 @@ class RestaurantDomainService
         return $this->restaurantRepository->listForAdmin($filters);
     }
 
-    public function updateStatus(UpdateRestaurantStatusDto $dto): array
+    public function getAvailableTransitions(int $id): array
     {
-        $restaurant = $this->restaurantRepository->findOrFail($dto->getId());
+        $restaurant = $this->restaurantRepository->findOrFail($id);
+        
+        return RestaurantStatusTransition::getAvailableTransitions($restaurant->status);
+    }
 
-        if ($restaurant->status === $dto->getStatus()) {
+    public function updateStatus(int $id, RestaurantStatusEnum $status): array
+    {
+        $restaurant = $this->restaurantRepository->findOrFail($id);
+
+        if ($restaurant->status === $status) {
             return [
                 'restaurant' => $restaurant->load('category'),
                 'unchanged'  => true,
@@ -33,14 +39,14 @@ class RestaurantDomainService
 
         RestaurantStatusTransition::assert(
             $restaurant->status,
-            $dto->getStatus()
+            $status
         );
 
         $attributes = [
-            'status' => $dto->getStatus()->value,
+            'status' => $status->value,
         ];
 
-        if ($dto->getStatus()->isActive() && $restaurant->status->isPendingApproval()) {
+        if ($status->isActive() && $restaurant->status->isPendingApproval()) {
             $attributes['approved_at'] = now();
             $attributes['approved_by'] = Auth::guard('admin')->id();
         }
