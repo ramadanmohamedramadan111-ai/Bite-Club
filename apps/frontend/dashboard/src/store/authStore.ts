@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 type AuthState = {
   isAuthenticated: boolean
@@ -7,9 +8,17 @@ type AuthState = {
   logout: () => void
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-  isAuthenticated: false,
-  token: null,
-  login: (token) => set({ isAuthenticated: true, token }),
-  logout: () => set({ isAuthenticated: false, token: null }),
-}))
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      isAuthenticated: false,
+      token: null,
+      login: (token) => set({ isAuthenticated: true, token }),
+      logout: () => set({ isAuthenticated: false, token: null }),
+    }),
+    {
+      name: 'biteclub-auth',
+      partialize: (state) => ({ isAuthenticated: state.isAuthenticated, token: state.token }),
+    }
+  )
+)

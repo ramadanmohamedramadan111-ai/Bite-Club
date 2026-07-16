@@ -1,50 +1,51 @@
 import { useState, type FormEvent } from 'react'
-import { ArrowLeft, ArrowRight, Eye, EyeOff, Lock, Mail, Moon, SunMedium } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Mail, Moon, SunMedium } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
-import { loginSchema, type LoginFormValues } from '../../lib/validation'
-import { useAuthStore } from '../../store/authStore'
+import { forgotPasswordSchema } from '../../lib/validation'
 import { authService } from '../../lib/authService'
 import Logo from '../../assets/images/logo.svg'
 
-interface LoginPageProps {
+interface ForgotPasswordPageProps {
   theme: 'light' | 'dark'
   toggleTheme: () => void
   language: 'en' | 'ar'
   toggleLanguage: () => void
-  onForgotPassword: () => void
+  onBack: () => void
+  onResetPassword: (email: string) => void
 }
 
-export function LoginPage({ theme, toggleTheme, language, toggleLanguage, onForgotPassword }: LoginPageProps) {
+export function ForgotPasswordPage({
+  theme,
+  toggleTheme,
+  language,
+  toggleLanguage,
+  onBack,
+  onResetPassword,
+}: ForgotPasswordPageProps) {
   const { t, i18n } = useTranslation()
-  const login = useAuthStore((state) => state.login)
 
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
+  const [emailError, setEmailError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [errors, setErrors] = useState<Partial<Record<keyof LoginFormValues, string>>>({})
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
-    const result = loginSchema.safeParse({ email, password })
+    const result = forgotPasswordSchema.safeParse({ email })
     if (!result.success) {
-      const fieldErrors = result.error.flatten().fieldErrors
-      setErrors({
-        email: fieldErrors.email?.[0] ? t(fieldErrors.email[0]) : undefined,
-        password: fieldErrors.password?.[0] ? t(fieldErrors.password[0]) : undefined,
-      })
+      const msg = result.error.flatten().fieldErrors.email?.[0]
+      setEmailError(msg ? t(msg) : null)
       return
     }
 
-    setErrors({})
+    setEmailError(null)
     setIsLoading(true)
 
     try {
-      const response = await authService.login(email, password)
-      login(response.token)
-      toast.success(t('success'))
+      await authService.forgotPassword(email)
+      toast.success(t('resetLinkSent'))
+      onResetPassword(email)
     } catch (error) {
       const message = error instanceof Error ? error.message : t('loginError')
       toast.error(message)
@@ -80,8 +81,8 @@ export function LoginPage({ theme, toggleTheme, language, toggleLanguage, onForg
               <img src={Logo} alt="logo" />
             </div>
             <div>
-              <h1 className="text-3xl font-semibold text-slate-900 dark:text-slate-100">{t('brandTitle')}</h1>
-              <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">{t('brandSubtitle')}</p>
+              <h1 className="text-3xl font-semibold text-slate-900 dark:text-slate-100">{t('forgotPassword')}</h1>
+              <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">{t('forgotPasswordSubtitle')}</p>
             </div>
           </div>
 
@@ -101,49 +102,7 @@ export function LoginPage({ theme, toggleTheme, language, toggleLanguage, onForg
                   required
                 />
               </div>
-              {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
-            </div>
-
-            {/* Password */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between gap-4">
-                <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t('password')}</label>
-                <button
-                  type="button"
-                  onClick={onForgotPassword}
-                  className="text-sm font-medium text-orange-600 hover:text-orange-700"
-                >
-                  {t('forgot')}
-                </button>
-              </div>
-              <div className="flex items-center gap-3 rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm focus-within:border-orange-500 focus-within:ring-2 focus-within:ring-orange-100 dark:border-slate-700 dark:bg-slate-800">
-                <Lock size={18} className="shrink-0 text-slate-400" />
-                <input
-                  className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400 dark:text-slate-100"
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  autoComplete="current-password"
-                  required
-                />
-                <button
-                  type="button"
-                  className="text-slate-400 transition hover:text-slate-600"
-                  onClick={() => setShowPassword((v) => !v)}
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-              {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
-            </div>
-
-            {/* Remember me */}
-            <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-slate-300 accent-orange-500" />
-                {t('remember')}
-              </label>
+              {emailError && <p className="text-sm text-red-500">{emailError}</p>}
             </div>
 
             {/* Submit */}
@@ -156,14 +115,22 @@ export function LoginPage({ theme, toggleTheme, language, toggleLanguage, onForg
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
               ) : (
                 <>
-                  {t('submit')}
+                  {t('sendResetLink')}
                   {language === 'ar' ? <ArrowLeft size={18} /> : <ArrowRight size={18} />}
                 </>
               )}
             </button>
-          </form>
 
-          <p className="mt-8 text-center text-sm leading-6 text-slate-500 dark:text-slate-400">{t('loginNote')}</p>
+            {/* Back to login */}
+            <button
+              type="button"
+              onClick={onBack}
+              className="flex w-full items-center justify-center gap-2 text-sm font-medium text-slate-500 transition hover:text-orange-600 dark:text-slate-400"
+            >
+              {language === 'ar' ? <ArrowRight size={16} /> : <ArrowLeft size={16} />}
+              {t('backToLogin')}
+            </button>
+          </form>
 
           <div className="mt-8 flex flex-wrap justify-center gap-4 text-center text-xs uppercase tracking-[0.24em] text-slate-400 dark:text-slate-500">
             <span>© 2026 BITECLUB</span>
