@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AdminSeeder::class,
             GeneralSettingSeeder::class,
+            RestaurantSeeder::class,
         ]);
 
         User::factory()->create([

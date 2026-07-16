@@ -23,8 +23,8 @@ class RestaurantApplicationService
                 'id'              => $restaurant->id,
                 'name'            => $restaurant->name,
                 'description'     => $restaurant->description,
-                'logo_url'        => $restaurant->logo_url ? url($restaurant->logo_url) : url('storage/restaurants/restaurant.jpeg'),
-                'cover_image_url' => $restaurant->cover_image_url ? url($restaurant->cover_image_url) : url('storage/restaurants/restaurant.jpeg'),
+                'logo_url'        => $restaurant->logo_url ? url($restaurant->logo_url) : config('app.url') . '/storage/restaurants/restaurant.jpeg',
+                'cover_image_url' => $restaurant->cover_image_url ? url($restaurant->cover_image_url) : config('app.url') . '/storage/restaurants/restaurant.jpeg',
                 'distance'        => round($restaurant->distance, 2),
                 'settings'        => [
                     'is_open'          => $restaurant->setting->is_open,
