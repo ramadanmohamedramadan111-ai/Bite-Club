@@ -18,7 +18,7 @@ import { LeaderboardPage } from './pages/Leaderboard'
 import { FeedModerationPage } from './pages/FeedModeration'
 import { AIMonitoringPage } from './pages/AIMonitoring'
 import { ActivityLogsPage } from './pages/ActivityLogs'
-import { SystemSettingsPage } from './pages/SystemSettings'
+import { GeneralSettingsPage } from './pages/GeneralSettings'
 import { AdminProfilePage } from './pages/AdminProfile'
 import { LoginPage } from './pages/Login'
 import './App.css'
@@ -159,7 +159,7 @@ function App() {
       case 'feed': return <FeedModerationPage />
       case 'aiMonitoring': return <AIMonitoringPage />
       case 'activityLogs': return <ActivityLogsPage />
-      case 'settings': return <SystemSettingsPage />
+      case 'settings': return <GeneralSettingsPage />
       case 'profile': return <AdminProfilePage />
     }
   }

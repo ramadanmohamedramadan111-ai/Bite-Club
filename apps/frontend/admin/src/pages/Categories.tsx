@@ -13,9 +13,23 @@ interface Category {
   id: string | number
   name: string
   slug: string
+  image_url?: string | null
 }
 
 const PAGE_SIZE = 5
+
+const getImageUrl = (url?: string | null) => {
+  if (!url) return ''
+  try {
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      const parsed = new URL(url)
+      return parsed.pathname
+    }
+  } catch (e) {
+    console.error(e)
+  }
+  return url
+}
 
 export function CategoriesPage() {
   const { t } = useLocale()
@@ -33,10 +47,14 @@ export function CategoriesPage() {
   const [showCreate, setShowCreate] = useState(false)
   const [createName, setCreateName] = useState('')
   const [createSlug, setCreateSlug] = useState('')
+  const [createImageFile, setCreateImageFile] = useState<File | null>(null)
+  const [createImagePreview, setCreateImagePreview] = useState<string>('')
 
   const [showEdit, setShowEdit] = useState<Category | null>(null)
   const [editName, setEditName] = useState('')
   const [editSlug, setEditSlug] = useState('')
+  const [editImageFile, setEditImageFile] = useState<File | null>(null)
+  const [editImagePreview, setEditImagePreview] = useState<string>('')
 
   const [showDetails, setShowDetails] = useState<Category | null>(null)
   const [showDelete, setShowDelete] = useState<Category | null>(null)
@@ -74,6 +92,8 @@ export function CategoriesPage() {
     setShowEdit(c)
     setEditName(c.name)
     setEditSlug(c.slug || '')
+    setEditImageFile(null)
+    setEditImagePreview(getImageUrl(c.image_url) || '')
     setFormError('')
   }
 
@@ -81,7 +101,29 @@ export function CategoriesPage() {
     setShowCreate(true)
     setCreateName('')
     setCreateSlug('')
+    setCreateImageFile(null)
+    setCreateImagePreview('')
     setFormError('')
+  }
+
+  const handleCreateImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null
+    setCreateImageFile(file)
+    if (file) {
+      setCreateImagePreview(URL.createObjectURL(file))
+    } else {
+      setCreateImagePreview('')
+    }
+  }
+
+  const handleEditImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null
+    setEditImageFile(file)
+    if (file) {
+      setEditImagePreview(URL.createObjectURL(file))
+    } else {
+      setEditImagePreview('')
+    }
   }
 
   // Create a new category
@@ -93,9 +135,19 @@ export function CategoriesPage() {
     setSaving(true)
     setFormError('')
     try {
-      await api.post('/admin/restaurant-categories', {
-        name: createName.trim(),
-        slug: createSlug.trim() || undefined,
+      const formData = new FormData()
+      formData.append('name', createName.trim())
+      if (createSlug.trim()) {
+        formData.append('slug', createSlug.trim())
+      }
+      if (createImageFile) {
+        formData.append('image', createImageFile)
+      }
+
+      await api.post('/admin/restaurant-categories', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       })
       setShowCreate(false)
       fetchCategories()
@@ -123,9 +175,19 @@ export function CategoriesPage() {
     setSaving(true)
     setFormError('')
     try {
-      await api.put(`/admin/restaurant-categories/${showEdit.id}`, {
-        name: editName.trim(),
-        slug: editSlug.trim() || undefined,
+      const formData = new FormData()
+      formData.append('name', editName.trim())
+      formData.append('slug', editSlug.trim())
+      if (editImageFile) {
+        formData.append('image', editImageFile)
+      }
+      // Laravel PUT multipart workaround override
+      formData.append('_method', 'PUT')
+
+      await api.post(`/admin/restaurant-categories/${showEdit.id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       })
       setShowEdit(null)
       fetchCategories()
@@ -174,6 +236,21 @@ export function CategoriesPage() {
 
   const columns: Column<Category>[] = [
     { key: 'id', label: 'ID', sortable: true },
+    {
+      key: 'image_url',
+      label: t('categories.fields.image') || 'Image',
+      render: (c) => c.image_url ? (
+        <img
+          src={getImageUrl(c.image_url)}
+          alt={c.name}
+          style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }}
+        />
+      ) : (
+        <div style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--border-color)', borderRadius: 'var(--radius-sm)', opacity: 0.5, fontSize: '18px' }}>
+          📁
+        </div>
+      ),
+    },
     { key: 'name', label: t('categories.fields.name'), sortable: true },
     { key: 'slug', label: t('categories.fields.slug'), sortable: true },
     {
@@ -314,6 +391,25 @@ export function CategoriesPage() {
               disabled={saving}
             />
           </div>
+          <div className="form-group" style={{ gridColumn: 'span 2' }}>
+            <label className="form-label">{t('categories.fields.image')}</label>
+            <input
+              type="file"
+              accept="image/*"
+              className="form-input"
+              onChange={handleCreateImageChange}
+              disabled={saving}
+            />
+            {createImagePreview && (
+              <div style={{ marginTop: '10px' }}>
+                <img
+                  src={createImagePreview}
+                  alt="Preview"
+                  style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}
+                />
+              </div>
+            )}
+          </div>
         </div>
         <div className="modal-actions">
           <button className="btn btn-outline" onClick={() => setShowCreate(false)} disabled={saving}>
@@ -363,6 +459,25 @@ export function CategoriesPage() {
                   disabled={saving}
                 />
               </div>
+              <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                <label className="form-label">{t('categories.fields.image')}</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="form-input"
+                  onChange={handleEditImageChange}
+                  disabled={saving}
+                />
+                {editImagePreview && (
+                  <div style={{ marginTop: '10px' }}>
+                    <img
+                      src={editImagePreview}
+                      alt="Preview"
+                      style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
             <div className="modal-actions">
               <button className="btn btn-outline" onClick={() => setShowEdit(null)} disabled={saving}>
@@ -382,6 +497,20 @@ export function CategoriesPage() {
             <div className="details-field">
               <span className="details-label">{t('common.id') || 'ID'}</span>
               <span>{showDetails.id}</span>
+            </div>
+            <div className="details-field">
+              <span className="details-label">{t('categories.fields.image')}</span>
+              <span>
+                {showDetails.image_url ? (
+                  <img
+                    src={getImageUrl(showDetails.image_url)}
+                    alt={showDetails.name}
+                    style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: 'var(--radius-md)', marginTop: '5px' }}
+                  />
+                ) : (
+                  '-'
+                )}
+              </span>
             </div>
             <div className="details-field">
               <span className="details-label">{t('categories.fields.name')}</span>
