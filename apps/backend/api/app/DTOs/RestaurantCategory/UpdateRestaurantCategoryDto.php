@@ -4,18 +4,21 @@ namespace App\DTOs\RestaurantCategory;
 
 use App\Http\Requests\RestaurantCategory\UpdateRestaurantCategoryRequest;
 use Illuminate\Support\Str;
+use Illuminate\Http\UploadedFile;
 
 class UpdateRestaurantCategoryDto
 {
     private int $id;
     private ?string $name;
     private ?string $slug;
+    private ?UploadedFile $image;
 
-    public function __construct(int $id, ?string $name = null, ?string $slug = null)
+    public function __construct(int $id, ?string $name = null, ?string $slug = null, ?UploadedFile $image = null)
     {
         $this->id = $id;
         $this->name = $name;
         $this->slug = $slug ?? ($name ? Str::slug($name) : null);
+        $this->image = $image;
     }
 
     public static function fromValidatedRequest(UpdateRestaurantCategoryRequest $request): self
@@ -24,7 +27,8 @@ class UpdateRestaurantCategoryDto
         return new self(
             (int) $request->route('id'),
             $data['name'] ?? null,
-            $data['slug'] ?? null
+            $data['slug'] ?? null,
+            $data['image'] ?? null
         );
     }
 
@@ -41,6 +45,11 @@ class UpdateRestaurantCategoryDto
     public function getSlug(): ?string
     {
         return $this->slug;
+    }
+
+    public function getImage(): ?UploadedFile
+    {
+        return $this->image;
     }
 
     public function toArray(): array

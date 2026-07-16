@@ -112,6 +112,10 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     public function update(int $id, array $attributes): bool
     {
+        if (empty($attributes)) {
+            return false;
+        }
+
         return (bool) $this->query()
             ->whereKey($id)
             ->update($attributes);

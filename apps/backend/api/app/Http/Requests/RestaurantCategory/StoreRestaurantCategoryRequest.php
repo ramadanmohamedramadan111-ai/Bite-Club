@@ -19,8 +19,9 @@ class StoreRestaurantCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255', 'unique:restaurant_categories,name'],
-            'slug' => ['nullable', 'string', 'max:255', 'unique:restaurant_categories,slug'],
+            'name'  => ['required', 'string', 'max:255', 'unique:restaurant_categories,name'],
+            'slug'  => ['nullable', 'string', 'max:255', 'unique:restaurant_categories,slug'],
+            'image' => ['nullable', 'image', 'max:2048'],
         ];
     }
 

@@ -15,6 +15,7 @@ class RestaurantCategory extends Model
     protected $fillable = [
         'name',
         'slug',
+        'image_url',
     ];
 
     public function restaurants(): HasMany

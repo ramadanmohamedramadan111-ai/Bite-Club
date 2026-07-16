@@ -28,9 +28,10 @@ class UpdateRestaurantCategoryRequest extends FormRequest
         $id = $this->route('id');
 
         return [
-            'id'   => ['required', 'integer', 'exists:restaurant_categories,id'],
-            'name' => ['sometimes', 'required', 'string', 'max:255', 'unique:restaurant_categories,name,' . $id],
-            'slug' => ['sometimes', 'required', 'string', 'max:255', 'unique:restaurant_categories,slug,' . $id],
+            'id'    => ['required', 'integer', 'exists:restaurant_categories,id'],
+            'name'  => ['sometimes', 'required', 'string', 'max:255', 'unique:restaurant_categories,name,' . $id],
+            'slug'  => ['sometimes', 'required', 'string', 'max:255', 'unique:restaurant_categories,slug,' . $id],
+            'image' => ['nullable', 'image', 'max:2048'],
         ];
     }
 
