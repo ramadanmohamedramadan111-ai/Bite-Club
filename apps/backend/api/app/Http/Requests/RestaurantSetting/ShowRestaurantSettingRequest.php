@@ -19,24 +19,20 @@ class ShowRestaurantSettingRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'id' => $this->route('id'),
+            'restaurant_id' => auth('restaurant')->id(),
         ]);
     }
 
     public function rules(): array
     {
         return [
-            'id' => ['required', 'integer', 'exists:restaurant_settings,id'],
+            'restaurant_id' => ['required', 'integer'],
         ];
     }
 
     public function messages(): array
     {
-        return [
-            'id.required' => trans('validation.required', ['attribute' => 'id']),
-            'id.integer'  => trans('validation.integer', ['attribute' => 'id']),
-            'id.exists'   => trans('restaurant_setting.not_found'),
-        ];
+        return [];
     }
 
     protected function failedValidation(Validator $validator)
