@@ -25,6 +25,8 @@ use App\Repositories\Interfaces\GeneralSettingRepositoryInterface;
 use App\Repositories\Interfaces\User\FriendRequestRepositoryInterface;
 use App\Repositories\Interfaces\User\FriendshipRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
+use App\Models\Restaurant;
+use App\Observers\RestaurantObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -87,5 +89,8 @@ class AppServiceProvider extends ServiceProvider
         );
     }
 
-    public function boot(): void {}
+    public function boot(): void
+    {
+        Restaurant::observe(RestaurantObserver::class);
+    }
 }
