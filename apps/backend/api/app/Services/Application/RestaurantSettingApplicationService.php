@@ -2,10 +2,8 @@
 
 namespace App\Services\Application;
 
-use App\DTOs\RestaurantSetting\IndexRestaurantSettingDto;
 use App\DTOs\RestaurantSetting\ShowRestaurantSettingDto;
 use App\DTOs\RestaurantSetting\UpdateRestaurantSettingDto;
-use App\DTOs\RestaurantSetting\StoreRestaurantSettingDto;
 use App\Services\Domain\RestaurantSetting\RestaurantSettingDomainService;
 use App\Repositories\Interfaces\RestaurantSettingRepositoryInterface;
 
@@ -16,31 +14,15 @@ class RestaurantSettingApplicationService
         private RestaurantSettingRepositoryInterface $restaurantSettingRepository
     ) {}
 
-    public function index(IndexRestaurantSettingDto $dto): array
-    {
-        $data = $this->restaurantSettingDomainService->list($dto->toArray());
-
-        return array_filter([
-            'items' => $data['items']->map(fn($item) => $this->mapItem($item))->toArray(),
-            'meta'  => $data['meta'] ?? null,
-        ]);
-    }
-
     public function show(ShowRestaurantSettingDto $dto): array
     {
-        $setting = $this->restaurantSettingDomainService->findOrFail($dto->getId());
-        return $this->mapItem($setting);
-    }
-
-    public function store(StoreRestaurantSettingDto $dto): array
-    {
-        $setting = $this->restaurantSettingDomainService->create($dto->toArray());
+        $setting = $this->restaurantSettingDomainService->current($dto->getRestaurantId());
         return $this->mapItem($setting);
     }
 
     public function update(UpdateRestaurantSettingDto $dto): array
     {
-        $setting = $this->restaurantSettingDomainService->update($dto->getId(), $dto->toArray());
+        $setting = $this->restaurantSettingDomainService->updateCurrent($dto->getRestaurantId(), $dto->toArray());
         return $this->mapItem($setting);
     }
 
@@ -49,9 +31,17 @@ class RestaurantSettingApplicationService
         return [
             'id'                 => $setting->id,
             'restaurant_id'      => $setting->restaurant_id,
-            'deposit_threshold'  => $setting->deposit_threshold,
-            'deposit_percentage' => $setting->deposit_percentage,
-            'updated_at'         => $setting->updated_at ? $setting->updated_at->toIso8601String() : null,
+            'is_open'             => $setting->is_open,
+            'accept_orders'       => $setting->accept_orders,
+            'delivery_enabled'    => $setting->delivery_enabled,
+            'pickup_enabled'      => $setting->pickup_enabled,
+            'latitude'            => $setting->latitude,
+            'longitude'           => $setting->longitude,
+            'delivery_radius'     => $setting->delivery_radius,
+            'delivery_fee_per_km' => $setting->delivery_fee_per_km,
+            'deposit_threshold'   => $setting->deposit_threshold,
+            'deposit_percentage'  => $setting->deposit_percentage,
+            'updated_at'          => $setting->updated_at ? $setting->updated_at->toIso8601String() : null,
         ];
     }
 }

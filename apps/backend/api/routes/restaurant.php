@@ -22,10 +22,8 @@ Route::middleware('auth.restaurant')->group(function () {
     Route::get('/me',       [RestaurantAuthController::class, 'me'])->name('me');
 
     Route::prefix('settings')->name('settings.')->group(function () {
-        Route::get('/', [RestaurantSettingController::class, 'index'])->name('index');
-        Route::get('/{id}', [RestaurantSettingController::class, 'show'])->name('show');
-        Route::post('/', [RestaurantSettingController::class, 'store'])->name('store');
-        Route::put('/{id}', [RestaurantSettingController::class, 'update'])->name('update');
+        Route::get('/', [RestaurantSettingController::class, 'show'])->name('show');
+        Route::put('/', [RestaurantSettingController::class, 'update'])->name('update');
     });
 
     Route::prefix('menu-categories')->name('menu-categories.')->group(function () {
