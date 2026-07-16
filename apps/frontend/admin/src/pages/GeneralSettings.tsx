@@ -17,7 +17,7 @@ export function GeneralSettingsPage() {
     setLoading(true)
     setError('')
     try {
-      const response = await api.get('/admin/general-settings/1')
+      const response = await api.get('/admin/general-settings')
       const data = response.data?.data
       if (data) {
         setCommissionRate(data.commission_rate)
@@ -38,13 +38,27 @@ export function GeneralSettingsPage() {
   // Handle settings update
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    const rate = Number(commissionRate)
+    const fee = Number(serviceFeeAmount)
+
+    if (isNaN(rate) || rate < 1 || rate > 100) {
+      setError('Commission rate must be a number between 1 and 100')
+      return
+    }
+
+    if (isNaN(fee) || fee < 0 || fee > 20) {
+      setError('Service fee amount must be a number between 0 and 20')
+      return
+    }
+
     setSaving(true)
     setError('')
     setSuccessMessage('')
     try {
-      const response = await api.put('/admin/general-settings/1', {
-        commission_rate: Number(commissionRate),
-        service_fee_amount: Number(serviceFeeAmount),
+      const response = await api.put('/admin/general-settings', {
+        commission_rate: rate,
+        service_fee_amount: fee,
       })
       const data = response.data?.data
       if (data) {
@@ -121,6 +135,8 @@ export function GeneralSettingsPage() {
                 <input
                   type="number"
                   step="0.01"
+                  min="1"
+                  max="100"
                   className="form-input"
                   value={commissionRate}
                   onChange={(e) => setCommissionRate(e.target.value)}
@@ -133,6 +149,8 @@ export function GeneralSettingsPage() {
                 <input
                   type="number"
                   step="0.01"
+                  min="0"
+                  max="20"
                   className="form-input"
                   value={serviceFeeAmount}
                   onChange={(e) => setServiceFeeAmount(e.target.value)}
