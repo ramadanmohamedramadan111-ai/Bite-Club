@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Auth\UserAuthController;
 use App\Http\Controllers\Api\RestaurantCategoryController;
 use App\Http\Controllers\Api\User\FriendController;
 use App\Http\Controllers\Api\User\UserSearchController;
+use App\Http\Controllers\Api\User\GroupController;
 use App\Http\Controllers\Api\User\RestaurantCategoryController as UserRestaurantCategoryController;
 use App\Http\Controllers\Api\User\RestaurantController as UserRestaurantController;
 
@@ -66,3 +67,23 @@ Route::middleware('auth.user')->prefix('friends')->name('friends.')->group(funct
 Route::middleware('auth.user')->prefix('users')->name('users.')->group(function () {
     Route::get('/search', [UserSearchController::class, 'search'])->name('search');
 });
+
+// Groups module
+Route::middleware('auth.user')->prefix('groups')->name('groups.')->group(function () {
+    Route::post('/', [GroupController::class, 'store'])->name('store');
+    // Eager match invite links before group wildcard
+    Route::get('/invite/{token}', [GroupController::class, 'showInvite'])->name('invite.show');
+    Route::post('/invite/{token}', [GroupController::class, 'joinByInvite'])->name('invite.join');
+    Route::get('/', [GroupController::class, 'index'])->name('index');
+    Route::get('/{group}', [GroupController::class, 'show'])->name('show');
+    Route::patch('/{group}', [GroupController::class, 'update'])->name('update');
+    Route::delete('/{group}', [GroupController::class, 'destroy'])->name('destroy');
+    Route::get('/{group}/members', [GroupController::class, 'listMembers'])->name('members.index');
+    Route::post('/{group}/members', [GroupController::class, 'addMember'])->name('members.store');
+    Route::delete('/{group}/members/{user}', [GroupController::class, 'removeMember'])->name('members.destroy');
+    Route::patch('/{group}/members/{user}', [GroupController::class, 'updateMemberRole'])->name('members.update-role');
+    Route::post('/{group}/leave', [GroupController::class, 'leave'])->name('leave');
+    Route::patch('/{group}/join-settings', [GroupController::class, 'updateJoinSettings'])->name('join-settings');
+    Route::post('/{group}/regenerate-link', [GroupController::class, 'regenerateInviteToken'])->name('regenerate-link');
+});
+

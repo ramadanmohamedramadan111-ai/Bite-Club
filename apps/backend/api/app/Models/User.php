@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -121,5 +122,17 @@ class User extends Authenticatable implements JWTSubject
         $lows = $this->friendshipsAsLow()->with('highUser')->get()->pluck('highUser');
         $highs = $this->friendshipsAsHigh()->with('lowUser')->get()->pluck('lowUser');
         return $lows->concat($highs);
+    }
+
+    public function groups(): BelongsToMany
+    {
+        return $this->belongsToMany(Group::class, 'group_members', 'user_id', 'group_id')
+            ->withPivot('role', 'status', 'joined_at', 'left_at')
+            ->withTimestamps();
+    }
+
+    public function activeGroups(): BelongsToMany
+    {
+        return $this->groups()->wherePivot('status', 'active');
     }
 }
