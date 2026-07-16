@@ -76,16 +76,28 @@ class RestaurantRepository extends BaseRepository implements RestaurantRepositor
     {
         return $this->query()
             ->select('restaurants.*')
-            ->selectRaw(
-                '(6371 * acos(cos(radians(?)) * cos(radians(restaurant_settings.latitude)) * cos(radians(restaurant_settings.longitude) - radians(?)) + sin(radians(?)) * sin(radians(restaurant_settings.latitude)))) AS distance',
-                [$latitude, $longitude, $latitude]
-            )
+            ->where('status', RestaurantStatusEnum::ACTIVE->value)
             ->join('restaurant_settings', 'restaurants.id', '=', 'restaurant_settings.restaurant_id')
-            ->with('setting') 
-            ->where('restaurants.status', RestaurantStatusEnum::ACTIVE->value)
             ->where('restaurant_settings.is_open', true)
+            ->selectRaw(
+                '( 6371 * acos( cos( radians(?) ) *
+                  cos( radians( restaurant_settings.latitude ) )
+                  * cos( radians( restaurant_settings.longitude ) - radians(?)
+                  ) + sin( radians(?) ) *
+                  sin( radians( restaurant_settings.latitude ) ) )
+                ) AS distance', [$latitude, $longitude, $latitude]
+            )
             ->orderBy('distance')
             ->limit($limit)
+            ->with('setting')
             ->get();
+    }
+
+    public function updateStats(int $restaurantId, float $averageRating, int $reviewsCount): bool
+    {
+        return $this->update($restaurantId, [
+            'average_rating' => $averageRating,
+            'reviews_count'  => $reviewsCount,
+        ]);
     }
 }

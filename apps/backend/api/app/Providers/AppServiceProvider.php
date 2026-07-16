@@ -24,13 +24,17 @@ use App\Repositories\Interfaces\RestaurantSettingRepositoryInterface;
 use App\Repositories\Interfaces\GeneralSettingRepositoryInterface;
 use App\Repositories\Interfaces\User\FriendRequestRepositoryInterface;
 use App\Repositories\Interfaces\User\FriendshipRepositoryInterface;
+use App\Repositories\Interfaces\RestaurantReviewRepositoryInterface;
+use App\Repositories\Eloquent\RestaurantReviewRepository;
 use App\Repositories\Interfaces\User\GroupRepositoryInterface;
 use App\Repositories\Interfaces\User\GroupMemberRepositoryInterface;
 use App\Repositories\Eloquent\User\GroupRepository;
 use App\Repositories\Eloquent\User\GroupMemberRepository;
 use Illuminate\Support\ServiceProvider;
 use App\Models\Restaurant;
+use App\Models\RestaurantReview;
 use App\Observers\RestaurantObserver;
+use App\Observers\RestaurantReviewObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -92,6 +96,11 @@ class AppServiceProvider extends ServiceProvider
             MenuItemRepository::class
         );
 
+        $this->app->bind(
+            RestaurantReviewRepositoryInterface::class,
+            RestaurantReviewRepository::class
+        );
+
 
         
         $this->app->bind(
@@ -108,5 +117,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Restaurant::observe(RestaurantObserver::class);
+        RestaurantReview::observe(RestaurantReviewObserver::class);
     }
 }

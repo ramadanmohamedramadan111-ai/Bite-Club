@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\User\UserSearchController;
 use App\Http\Controllers\Api\User\GroupController;
 use App\Http\Controllers\Api\User\RestaurantCategoryController as UserRestaurantCategoryController;
 use App\Http\Controllers\Api\User\RestaurantController as UserRestaurantController;
+use App\Http\Controllers\Api\User\RestaurantReviewController as UserRestaurantReviewController;
 
 Route::prefix('admin')->name('admin.')->group(function () {
 
@@ -47,7 +48,20 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::get('/me', [UserAuthController::class, 'me'])->name('me');
 
         Route::get('/restaurant-categories', [UserRestaurantCategoryController::class, 'index'])->name('restaurant-categories.index');
-        Route::get('/restaurants/nearest', [UserRestaurantController::class, 'nearest'])->name('restaurants.nearest');
+        
+        // Restaurants (User)
+        Route::prefix('restaurants')->group(function () {
+            Route::get('nearest', [UserRestaurantController::class, 'nearest'])->name('restaurants.nearest');
+            
+            // Reviews
+            Route::prefix('{restaurantId}/reviews')->group(function () {
+                Route::get('/', [UserRestaurantReviewController::class, 'index']);
+                Route::get('me', [UserRestaurantReviewController::class, 'me']);
+                Route::post('/', [UserRestaurantReviewController::class, 'store']);
+                Route::put('/', [UserRestaurantReviewController::class, 'update']);
+                Route::delete('/', [UserRestaurantReviewController::class, 'destroy']);
+            });
+        });
     });
 });
 
