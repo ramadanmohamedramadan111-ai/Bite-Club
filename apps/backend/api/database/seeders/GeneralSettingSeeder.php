@@ -13,8 +13,8 @@ class GeneralSettingSeeder extends Seeder
      */
     public function run(): void
     {
-        GeneralSetting::updateOrCreate(
-            ['id' => 1],
+        GeneralSetting::firstOrCreate(
+            [],
             [
                 'commission_rate' => 10.00,
                 'service_fee_amount' => 3.00,

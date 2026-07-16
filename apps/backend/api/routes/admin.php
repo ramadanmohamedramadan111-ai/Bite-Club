@@ -28,9 +28,7 @@ Route::middleware('auth.admin')->group(function () {
     });
 
     Route::prefix('general-settings')->name('general-settings.')->group(function () {
-        Route::get('/', [GeneralSettingController::class, 'index'])->name('index');
-        Route::get('/{id}', [GeneralSettingController::class, 'show'])->name('show');
-        Route::post('/', [GeneralSettingController::class, 'store'])->name('store');
-        Route::put('/{id}', [GeneralSettingController::class, 'update'])->name('update');
+        Route::get('/', [GeneralSettingController::class, 'show'])->name('show');
+        Route::put('/', [GeneralSettingController::class, 'update'])->name('update');
     });
 });

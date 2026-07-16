@@ -16,17 +16,9 @@ class UpdateGeneralSettingRequest extends FormRequest
         return true;
     }
 
-    protected function prepareForValidation(): void
-    {
-        $this->merge([
-            'id' => $this->route('id'),
-        ]);
-    }
-
     public function rules(): array
     {
         return [
-            'id'                 => ['required', 'integer', 'exists:general_settings,id'],
             'commission_rate'    => ['sometimes', 'required', 'numeric', 'min:1', 'max:100'],
             'service_fee_amount' => ['sometimes', 'required', 'numeric', 'min:0', 'max:20'],
         ];
@@ -35,9 +27,6 @@ class UpdateGeneralSettingRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'id.required'                 => trans('validation.required', ['attribute' => 'id']),
-            'id.integer'                  => trans('validation.integer', ['attribute' => 'id']),
-            'id.exists'                   => trans('general_setting.not_found'),
             'commission_rate.required'    => trans('validation.required', ['attribute' => 'commission_rate']),
             'commission_rate.numeric'     => trans('validation.numeric', ['attribute' => 'commission_rate']),
             'commission_rate.min'         => trans('validation.min.numeric', ['attribute' => 'commission_rate', 'min' => 1]),

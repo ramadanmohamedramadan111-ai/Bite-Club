@@ -16,27 +16,14 @@ class ShowGeneralSettingRequest extends FormRequest
         return true;
     }
 
-    protected function prepareForValidation(): void
-    {
-        $this->merge([
-            'id' => $this->route('id'),
-        ]);
-    }
-
     public function rules(): array
     {
-        return [
-            'id' => ['required', 'integer', 'exists:general_settings,id'],
-        ];
+        return [];
     }
 
     public function messages(): array
     {
-        return [
-            'id.required' => trans('validation.required', ['attribute' => 'id']),
-            'id.integer'  => trans('validation.integer', ['attribute' => 'id']),
-            'id.exists'   => trans('general_setting.not_found'),
-        ];
+        return [];
     }
 
     protected function failedValidation(Validator $validator)

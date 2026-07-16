@@ -6,16 +6,13 @@ use App\Http\Requests\GeneralSetting\UpdateGeneralSettingRequest;
 
 class UpdateGeneralSettingDto
 {
-    private int $id;
     private ?float $commissionRate;
     private ?float $serviceFeeAmount;
 
     public function __construct(
-        int $id,
         ?float $commissionRate = null,
         ?float $serviceFeeAmount = null
     ) {
-        $this->id = $id;
         $this->commissionRate = $commissionRate;
         $this->serviceFeeAmount = $serviceFeeAmount;
     }
@@ -24,15 +21,9 @@ class UpdateGeneralSettingDto
     {
         $data = $request->validated();
         return new self(
-            (int) $request->route('id'),
             isset($data['commission_rate']) ? (float) $data['commission_rate'] : null,
             isset($data['service_fee_amount']) ? (float) $data['service_fee_amount'] : null
         );
-    }
-
-    public function getId(): int
-    {
-        return $this->id;
     }
 
     public function getCommissionRate(): ?float

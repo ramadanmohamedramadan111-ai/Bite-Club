@@ -2,10 +2,7 @@
 
 namespace App\Services\Application;
 
-use App\DTOs\GeneralSetting\IndexGeneralSettingDto;
-use App\DTOs\GeneralSetting\ShowGeneralSettingDto;
 use App\DTOs\GeneralSetting\UpdateGeneralSettingDto;
-use App\DTOs\GeneralSetting\StoreGeneralSettingDto;
 use App\Services\Domain\GeneralSetting\GeneralSettingDomainService;
 use App\Repositories\Interfaces\GeneralSettingRepositoryInterface;
 
@@ -16,31 +13,15 @@ class GeneralSettingApplicationService
         private GeneralSettingRepositoryInterface $generalSettingRepository
     ) {}
 
-    public function index(IndexGeneralSettingDto $dto): array
+    public function show(): array
     {
-        $data = $this->generalSettingDomainService->list($dto->toArray());
-
-        return array_filter([
-            'items' => $data['items']->map(fn($item) => $this->mapItem($item))->toArray(),
-            'meta'  => $data['meta'] ?? null,
-        ]);
-    }
-
-    public function show(ShowGeneralSettingDto $dto): array
-    {
-        $setting = $this->generalSettingDomainService->findOrFail($dto->getId());
-        return $this->mapItem($setting);
-    }
-
-    public function store(StoreGeneralSettingDto $dto): array
-    {
-        $setting = $this->generalSettingDomainService->create($dto->toArray());
+        $setting = $this->generalSettingDomainService->current();
         return $this->mapItem($setting);
     }
 
     public function update(UpdateGeneralSettingDto $dto): array
     {
-        $setting = $this->generalSettingDomainService->update($dto->getId(), $dto->toArray());
+        $setting = $this->generalSettingDomainService->updateCurrent($dto->toArray());
         return $this->mapItem($setting);
     }
 
