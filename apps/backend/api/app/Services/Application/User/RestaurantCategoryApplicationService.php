@@ -23,9 +23,10 @@ class RestaurantCategoryApplicationService
     private function mapItem($category): array
     {
         return [
-            'id'   => $category->id,
-            'name' => $category->name,
-            'slug' => $category->slug,
+            'id'        => $category->id,
+            'name'      => $category->name,
+            'slug'      => $category->slug,
+            'image_url' => $category->image_url,
         ];
     }
 }
