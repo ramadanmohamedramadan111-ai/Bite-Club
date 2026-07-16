@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\RestaurantCategoryController;
 use App\Http\Controllers\Api\User\FriendController;
 use App\Http\Controllers\Api\User\UserSearchController;
 use App\Http\Controllers\Api\User\RestaurantCategoryController as UserRestaurantCategoryController;
+use App\Http\Controllers\Api\User\RestaurantController as UserRestaurantController;
 
 Route::prefix('admin')->name('admin.')->group(function () {
 
@@ -45,6 +46,7 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::get('/me', [UserAuthController::class, 'me'])->name('me');
 
         Route::get('/restaurant-categories', [UserRestaurantCategoryController::class, 'index'])->name('restaurant-categories.index');
+        Route::get('/restaurants/nearest', [UserRestaurantController::class, 'nearest'])->name('restaurants.nearest');
     });
 });
 
