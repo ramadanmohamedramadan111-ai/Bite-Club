@@ -15,7 +15,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(AdminSeeder::class);
+        $this->call([
+            AdminSeeder::class,
+            GeneralSettingSeeder::class,
+        ]);
 
         User::factory()->create([
             'phone_number' => '01000000000',
