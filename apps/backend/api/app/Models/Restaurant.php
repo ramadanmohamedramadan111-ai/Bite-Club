@@ -36,6 +36,7 @@ class Restaurant extends Authenticatable implements JWTSubject
         'approved_at',
         'approved_by',
         'average_rating',
+        'reviews_count',
         'total_orders_count',
     ];
 
@@ -89,6 +90,11 @@ class Restaurant extends Authenticatable implements JWTSubject
     public function menuCategories(): HasMany
     {
         return $this->hasMany(MenuCategory::class, 'restaurant_id');
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(RestaurantReview::class, 'restaurant_id');
     }
 
     public function setting(): HasOne

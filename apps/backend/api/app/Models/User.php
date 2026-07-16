@@ -135,4 +135,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->groups()->wherePivot('status', 'active');
     }
+
+    public function restaurantReviews(): HasMany
+    {
+        return $this->hasMany(RestaurantReview::class, 'user_id');
+    }
 }
