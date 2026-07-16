@@ -3,15 +3,21 @@
 namespace App\Observers;
 
 use App\Models\Restaurant;
+use App\Repositories\Interfaces\RestaurantSettingRepositoryInterface;
 
 class RestaurantObserver
 {
+    public function __construct(
+        private RestaurantSettingRepositoryInterface $restaurantSettingRepository
+    ) {}
+
     /**
      * Handle the Restaurant "created" event.
      */
     public function created(Restaurant $restaurant): void
     {
-        $restaurant->setting()->create([
+        $this->restaurantSettingRepository->create([
+            'restaurant_id'       => $restaurant->id,
             'is_open'             => true,
             'accept_orders'       => true,
             'delivery_enabled'    => true,
