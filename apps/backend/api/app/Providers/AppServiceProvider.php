@@ -24,6 +24,10 @@ use App\Repositories\Interfaces\RestaurantSettingRepositoryInterface;
 use App\Repositories\Interfaces\GeneralSettingRepositoryInterface;
 use App\Repositories\Interfaces\User\FriendRequestRepositoryInterface;
 use App\Repositories\Interfaces\User\FriendshipRepositoryInterface;
+use App\Repositories\Interfaces\User\GroupRepositoryInterface;
+use App\Repositories\Interfaces\User\GroupMemberRepositoryInterface;
+use App\Repositories\Eloquent\User\GroupRepository;
+use App\Repositories\Eloquent\User\GroupMemberRepository;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -84,6 +88,18 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             MenuItemRepositoryInterface::class,
             MenuItemRepository::class
+        );
+
+
+        
+        $this->app->bind(
+            GroupRepositoryInterface::class,
+            GroupRepository::class
+        );
+
+        $this->app->bind(
+            GroupMemberRepositoryInterface::class,
+            GroupMemberRepository::class
         );
     }
 
