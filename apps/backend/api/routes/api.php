@@ -21,7 +21,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/', [RestaurantCategoryController::class, 'index'])->name('index')->withoutMiddleware('auth.admin');
             Route::get('/{id}', [RestaurantCategoryController::class, 'show'])->name('show');
             Route::post('/', [RestaurantCategoryController::class, 'store'])->name('store');
-            Route::put('/{id}', [RestaurantCategoryController::class, 'update'])->name('update');
+            Route::post('/{id}', [RestaurantCategoryController::class, 'update'])->name('update');
             Route::delete('/{id}', [RestaurantCategoryController::class, 'destroy'])->name('destroy');
         });
     });

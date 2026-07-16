@@ -4,6 +4,8 @@ namespace Tests\Feature\RestaurantCategory;
 
 use App\Models\RestaurantCategory;
 use Tests\Feature\Auth\AdminAuthTest;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class RestaurantCategoryUpdateTest extends AdminAuthTest
 {
@@ -17,7 +19,7 @@ class RestaurantCategoryUpdateTest extends AdminAuthTest
         ];
 
         // Act
-        $response = $this->withToken($token)->putJson("/api/admin/restaurant-categories/{$category->id}", $payload);
+        $response = $this->withToken($token)->postJson("/api/admin/restaurant-categories/{$category->id}", $payload);
 
         // Assert
         $response->assertOk();
@@ -42,10 +44,34 @@ class RestaurantCategoryUpdateTest extends AdminAuthTest
         ];
 
         // Act
-        $response = $this->withToken($token)->putJson('/api/admin/restaurant-categories/999', $payload);
+        $response = $this->withToken($token)->postJson('/api/admin/restaurant-categories/999', $payload);
 
         // Assert
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['id']);
+    }
+
+    public function test_admin_can_update_restaurant_category_with_image(): void
+    {
+        // Arrange
+        Storage::fake('public');
+        [$admin, $token] = $this->loginAdmin();
+        $category = RestaurantCategory::factory()->create(['name' => 'Old Name', 'slug' => 'old-name']);
+        
+        $image = UploadedFile::fake()->create('category.jpg', 100, 'image/jpeg');
+        
+        $payload = [
+            'name'  => 'New Name',
+            'image' => $image,
+        ];
+
+        // Act
+        $response = $this->withToken($token)->postJson("/api/admin/restaurant-categories/{$category->id}", $payload);
+
+        // Assert
+        $response->assertOk();
+        
+        $imageUrl = $response->json('data.image_url');
+        Storage::disk('public')->assertExists(str_replace('/storage/', '', $imageUrl));
     }
 }
