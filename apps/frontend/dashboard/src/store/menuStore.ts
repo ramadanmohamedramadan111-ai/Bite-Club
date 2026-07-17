@@ -1,110 +1,85 @@
 import { create } from 'zustand'
-import { z } from 'zod'
+import { menuItemService } from '../lib/menuService'
+import type { ApiMenuItem } from './menuTypes'
 
-// Zod schema for menu item validation
-export const menuItemSchema = z.object({
-  id: z.string().optional(),
-  name: z.string().min(1, 'Name is required'),
-  nameAr: z.string().min(1, 'Arabic name is required'),
-  description: z.string().min(1, 'Description is required'),
-  price: z.number().positive('Price must be positive'),
-  category: z.enum(['burgers', 'appetizers', 'beverages', 'desserts']),
-  image: z.string().optional(),
-  available: z.boolean().default(true),
-  badge: z.enum(['bestSeller', 'soldOut']).nullable().default(null),
-})
+export type { ApiMenuItem as MenuItem }
 
-export type MenuItem = z.infer<typeof menuItemSchema>
-
-interface MenuStore {
-  items: MenuItem[]
-  addItem: (item: Omit<MenuItem, 'id'>) => void
-  updateItem: (id: string, item: Partial<MenuItem>) => void
-  deleteItem: (id: string) => void
-  toggleAvailability: (id: string) => void
-  setItems: (items: MenuItem[]) => void
+type Meta = {
+  current_page: number
+  last_page: number
+  per_page: number
+  total: number
 }
 
-const INITIAL_ITEMS: MenuItem[] = [
-  { 
-    id: '1', 
-    name: 'Signature Wagyu Burger', 
-    nameAr: 'برجر واجيو فاخر', 
-    description: 'Premium wagyu beef with special sauce', 
-    price: 450, 
-    category: 'burgers', 
-    image: '', 
-    available: true, 
-    badge: 'bestSeller' 
-  },
-  { 
-    id: '2', 
-    name: 'Double Smash Burger', 
-    nameAr: 'دبل سماش برجر', 
-    description: 'Two smashed patties with cheese', 
-    price: 320, 
-    category: 'burgers', 
-    image: '', 
-    available: true, 
-    badge: null 
-  },
-  { 
-    id: '3', 
-    name: 'Spicy Zinger Tower', 
-    nameAr: 'سبيسي زنجر تاور', 
-    description: 'Crispy chicken with spicy sauce', 
-    price: 280, 
-    category: 'burgers', 
-    image: '', 
-    available: false, 
-    badge: 'soldOut' 
-  },
-  { 
-    id: '4', 
-    name: 'Truffle Parmesan Fries', 
-    nameAr: 'بطاطس تراقل بارميزان', 
-    description: 'Crispy fries with truffle oil', 
-    price: 120, 
-    category: 'appetizers', 
-    image: '', 
-    available: true, 
-    badge: null 
-  },
-  { 
-    id: '5', 
-    name: 'Mozzarella Sticks', 
-    nameAr: 'أصابع الموزاريلا', 
-    description: 'Golden fried mozzarella sticks', 
-    price: 145, 
-    category: 'appetizers', 
-    image: '', 
-    available: true, 
-    badge: null 
-  },
-]
+interface MenuStore {
+  items: ApiMenuItem[]
+  meta: Meta
+  isLoading: boolean
+  error: string | null
+
+  fetchItems: (params?: { menu_category_id?: number; page?: number }) => Promise<void>
+  addItem: (payload: {
+    title: string
+    description: string
+    price: number
+    menu_category_id: number
+    availability: 'available' | 'unavailable'
+    image: File
+  }) => Promise<void>
+  updateItem: (id: number, payload: {
+    title: string
+    description: string
+    price: number
+    menu_category_id: number
+    availability: 'available' | 'unavailable'
+    image?: File | null
+  }) => Promise<void>
+  toggleAvailability: (id: number, current: 'available' | 'unavailable') => Promise<void>
+  deleteItem: (id: number) => Promise<void>
+}
+
+const DEFAULT_META: Meta = { current_page: 1, last_page: 1, per_page: 15, total: 0 }
 
 export const useMenuStore = create<MenuStore>((set) => ({
-  items: INITIAL_ITEMS,
-  
-  addItem: (item) => set((state) => ({
-    items: [...state.items, { ...item, id: String(state.items.length + 1) }]
-  })),
-  
-  updateItem: (id, updatedItem) => set((state) => ({
-    items: state.items.map((item) => 
-      item.id === id ? { ...item, ...updatedItem } : item
-    )
-  })),
-  
-  deleteItem: (id) => set((state) => ({
-    items: state.items.filter((item) => item.id !== id)
-  })),
-  
-  toggleAvailability: (id) => set((state) => ({
-    items: state.items.map((item) => 
-      item.id === id ? { ...item, available: !item.available } : item
-    )
-  })),
-  
-  setItems: (items) => set({ items }),
+  items: [],
+  meta: DEFAULT_META,
+  isLoading: false,
+  error: null,
+
+  fetchItems: async (params) => {
+    set({ isLoading: true, error: null })
+    try {
+      const { items, meta } = await menuItemService.index(params)
+      set({ items, meta })
+    } catch (e) {
+      set({ error: e instanceof Error ? e.message : 'Failed to load items' })
+    } finally {
+      set({ isLoading: false })
+    }
+  },
+
+  addItem: async (payload) => {
+    const created = await menuItemService.store(payload)
+    set((s) => ({ items: [created, ...s.items], meta: { ...s.meta, total: s.meta.total + 1 } }))
+  },
+
+  updateItem: async (id, payload) => {
+    const updated = await menuItemService.update(id, payload)
+    set((s) => ({ items: s.items.map((i) => (i.id === id ? updated : i)) }))
+  },
+
+  toggleAvailability: async (id, current) => {
+    const next = current === 'available' ? 'unavailable' : 'available'
+    set((s) => ({ items: s.items.map((i) => (i.id === id ? { ...i, availability: next } : i)) }))
+    try {
+      await menuItemService.updateAvailability(id, next)
+    } catch {
+      set((s) => ({ items: s.items.map((i) => (i.id === id ? { ...i, availability: current } : i)) }))
+    }
+  },
+
+  deleteItem: async (id) => {
+    await menuItemService.destroy(id)
+    set((s) => ({ items: s.items.filter((i) => i.id !== id), meta: { ...s.meta, total: s.meta.total - 1 } }))
+  },
 }))

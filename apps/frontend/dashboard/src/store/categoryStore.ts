@@ -1,89 +1,68 @@
 import { create } from 'zustand'
-import { z } from 'zod'
+import { menuCategoryService } from '../lib/menuService'
+import type { ApiCategory } from './menuTypes'
 
-// Zod schema for category validation
-export const categorySchema = z.object({
-  id: z.string().optional(),
-  name: z.string().min(1, 'Name is required'),
-  nameAr: z.string().min(1, 'Arabic name is required'),
-  description: z.string().min(1, 'Description is required'),
-  icon: z.string().min(1, 'Icon is required'),
-  itemsCount: z.number().default(0),
-  visible: z.boolean().default(true),
-})
-
-export type Category = z.infer<typeof categorySchema>
+export type { ApiCategory as Category }
 
 interface CategoryStore {
-  categories: Category[]
-  addCategory: (category: Omit<Category, 'id'>) => void
-  updateCategory: (id: string, category: Partial<Category>) => void
-  deleteCategory: (id: string) => void
-  toggleVisibility: (id: string) => void
-  setCategories: (categories: Category[]) => void
+  categories: ApiCategory[]
+  isLoading: boolean
+  error: string | null
+
+  fetchCategories: () => Promise<void>
+  addCategory: (payload: { title: string; icon_name: string; short_description: string; visibility?: 'visible' | 'hidden' }) => Promise<void>
+  updateCategory: (id: number, payload: { title: string; icon_name: string; short_description: string; visibility?: 'visible' | 'hidden' }) => Promise<void>
+  toggleVisibility: (id: number, current: 'visible' | 'hidden') => Promise<void>
+  deleteCategory: (id: number) => Promise<void>
 }
 
-const INITIAL_CATEGORIES: Category[] = [
-  { 
-    id: '1', 
-    name: 'Signature Burgers', 
-    nameAr: 'برجر المميزة',
-    description: 'Premium hand-crafted burgers with unique toppings',
-    icon: '🍔', 
-    itemsCount: 8, 
-    visible: true 
-  },
-  { 
-    id: '2', 
-    name: 'Appetizers', 
-    nameAr: 'المقبلات',
-    description: 'Start your meal with our delicious appetizers',
-    icon: '🍟', 
-    itemsCount: 12, 
-    visible: true 
-  },
-  { 
-    id: '3', 
-    name: 'Desserts', 
-    nameAr: 'الحلويات',
-    description: 'Sweet treats to end your meal perfectly',
-    icon: '🍰', 
-    itemsCount: 5, 
-    visible: true 
-  },
-  { 
-    id: '4', 
-    name: 'Refreshments', 
-    nameAr: 'المشروبات',
-    description: 'Cold and hot beverages for every taste',
-    icon: '🥤', 
-    itemsCount: 15, 
-    visible: true 
-  },
-]
+export const useCategoryStore = create<CategoryStore>((set, get) => ({
+  categories: [],
+  isLoading: false,
+  error: null,
 
-export const useCategoryStore = create<CategoryStore>((set) => ({
-  categories: INITIAL_CATEGORIES,
-  
-  addCategory: (category) => set((state) => ({
-    categories: [...state.categories, { ...category, id: String(state.categories.length + 1) }]
-  })),
-  
-  updateCategory: (id, updatedCategory) => set((state) => ({
-    categories: state.categories.map((category) => 
-      category.id === id ? { ...category, ...updatedCategory } : category
-    )
-  })),
-  
-  deleteCategory: (id) => set((state) => ({
-    categories: state.categories.filter((category) => category.id !== id)
-  })),
-  
-  toggleVisibility: (id) => set((state) => ({
-    categories: state.categories.map((category) => 
-      category.id === id ? { ...category, visible: !category.visible } : category
-    )
-  })),
-  
-  setCategories: (categories) => set({ categories }),
+  fetchCategories: async () => {
+    set({ isLoading: true, error: null })
+    try {
+      const categories = await menuCategoryService.index()
+      set({ categories })
+    } catch (e) {
+      set({ error: e instanceof Error ? e.message : 'Failed to load categories' })
+    } finally {
+      set({ isLoading: false })
+    }
+  },
+
+  addCategory: async (payload) => {
+    const created = await menuCategoryService.store(payload)
+    set((s) => ({ categories: [...s.categories, created] }))
+  },
+
+  updateCategory: async (id, payload) => {
+    const updated = await menuCategoryService.update(id, payload)
+    set((s) => ({
+      categories: s.categories.map((c) => (c.id === id ? updated : c)),
+    }))
+  },
+
+  toggleVisibility: async (id, current) => {
+    const next = current === 'visible' ? 'hidden' : 'visible'
+    // optimistic update
+    set((s) => ({
+      categories: s.categories.map((c) => (c.id === id ? { ...c, visibility: next } : c)),
+    }))
+    try {
+      await menuCategoryService.updateVisibility(id, next)
+    } catch {
+      // revert on failure
+      set((s) => ({
+        categories: s.categories.map((c) => (c.id === id ? { ...c, visibility: current } : c)),
+      }))
+    }
+  },
+
+  deleteCategory: async (id) => {
+    await menuCategoryService.destroy(id)
+    set((s) => ({ categories: s.categories.filter((c) => c.id !== id) }))
+  },
 }))
