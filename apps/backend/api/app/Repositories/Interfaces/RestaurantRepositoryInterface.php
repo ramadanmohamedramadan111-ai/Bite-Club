@@ -12,6 +12,7 @@ interface RestaurantRepositoryInterface extends BaseRepositoryInterface
 
     public function listForAdmin(array $filters): array;
     public function listForUser(array $filters): array;
+    public function findForUser(int $id): ?Restaurant;
     
     public function getNearest(float $latitude, float $longitude, int $limit = 5): Collection;
     public function getHighestRated(int $limit = 10): Collection;

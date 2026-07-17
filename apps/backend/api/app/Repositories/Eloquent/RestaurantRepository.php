@@ -138,6 +138,20 @@ class RestaurantRepository extends BaseRepository implements RestaurantRepositor
         ];
     }
 
+    public function findForUser(int $id): ?Restaurant
+    {
+        return $this->query()
+            ->select('restaurants.*')
+            ->where('restaurants.id', $id)
+            ->where('restaurants.status', RestaurantStatusEnum::ACTIVE->value)
+            ->join('restaurant_settings', 'restaurants.id', '=', 'restaurant_settings.restaurant_id')
+            ->where('restaurant_settings.is_open', true)
+            ->with(['setting', 'category' => function ($q) {
+                $q->select('id', 'name', 'slug');
+            }])
+            ->first();
+    }
+
     public function getNearest(float $latitude, float $longitude, int $limit = 5): Collection
     {
         return $this->query()

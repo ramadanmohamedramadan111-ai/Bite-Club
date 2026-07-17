@@ -11,6 +11,7 @@ use App\Http\Requests\User\Restaurant\ListRestaurantsRequest;
 use App\DTOs\User\Restaurant\NearestRestaurantsDto;
 use App\DTOs\User\Restaurant\ListRestaurantsDto;
 use App\Services\Application\User\Restaurant\RestaurantApplicationService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class RestaurantController extends Controller
 {
@@ -31,6 +32,23 @@ class RestaurantController extends Controller
         } catch (Exception $e) {
             Log::error('Failed to list restaurants: ' . $e->getMessage());
             return $this->serverErrorResponse(trans('restaurant.list_failed'));
+        }
+    }
+
+    public function show(int $restaurantId): JsonResponse
+    {
+        try {
+            $result = $this->restaurantApplicationService->getRestaurant($restaurantId);
+
+            return $this->successResponse(
+                trans('restaurant.show_success'),
+                $result
+            );
+        } catch (ModelNotFoundException $e) {
+            return $this->notFoundResponse(trans('restaurant.not_found'));
+        } catch (Exception $e) {
+            Log::error('Failed to get restaurant details: ' . $e->getMessage());
+            return $this->serverErrorResponse(trans('restaurant.show_failed'));
         }
     }
 

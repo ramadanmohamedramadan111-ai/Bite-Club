@@ -23,6 +23,12 @@ class RestaurantApplicationService
         ];
     }
 
+    public function getRestaurant(int $id): RestaurantResource
+    {
+        $restaurant = $this->restaurantDomainService->getRestaurantForUser($id);
+        return new RestaurantResource($restaurant);
+    }
+
     public function getNearest(NearestRestaurantsDto $dto): array
     {
         if ($dto->getLatitude() !== null && $dto->getLongitude() !== null) {
