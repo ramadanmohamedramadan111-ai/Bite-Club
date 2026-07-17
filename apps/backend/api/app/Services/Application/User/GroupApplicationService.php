@@ -67,9 +67,9 @@ class GroupApplicationService
         return $this->groupDomainService->getGroup($groupId);
     }
 
-    public function listMembers(int $groupId): Collection
+    public function listMembers(int $groupId, ?string $search = null, int $perPage = 15): LengthAwarePaginator
     {
-        return $this->groupDomainService->listMembers($groupId);
+        return $this->groupDomainService->listMembers($groupId, $search, $perPage);
     }
 
     public function addMember(int $groupId, AddMemberDto $dto): void
