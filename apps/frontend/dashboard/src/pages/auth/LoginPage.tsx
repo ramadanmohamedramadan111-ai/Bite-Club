@@ -43,7 +43,7 @@ export function LoginPage({ theme, toggleTheme, language, toggleLanguage, onForg
 
     try {
       const response = await authService.login(email, password)
-      login(response.token)
+      login(response.data.access_token, response.data.restaurant)
       toast.success(t('success'))
     } catch (error) {
       const message = error instanceof Error ? error.message : t('loginError')

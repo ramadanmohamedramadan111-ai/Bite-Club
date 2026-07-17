@@ -1,42 +1,34 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL as string
+import axios from 'axios'
+import { useAuthStore } from '../store/authStore'
 
-type RequestOptions = {
-  method?: string
-  body?: unknown
-  token?: string | null
-}
-
-async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-  const { method = 'GET', body, token } = options
-
-  const headers: Record<string, string> = {
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL as string,
+  headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
-  }
+  },
+})
 
+// Attach token from store to every request automatically
+api.interceptors.request.use((config) => {
+  const token = useAuthStore.getState().token
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`
+    config.headers.Authorization = `Bearer ${token}`
   }
+  return config
+})
 
-  const response = await fetch(`${BASE_URL}${endpoint}`, {
-    method,
-    headers,
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-  })
-
-  const data = await response.json().catch(() => ({}))
-
-  if (!response.ok) {
+// Normalize error messages so callers always get a plain Error with a message
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
     const message =
-      (data as { message?: string }).message ??
-      `Request failed with status ${response.status}`
-    throw new Error(message)
+      error.response?.data?.message ??
+      error.response?.data?.errors?.email?.[0] ??
+      error.message ??
+      'Something went wrong'
+    return Promise.reject(new Error(message))
   }
+)
 
-  return data as T
-}
-
-export const api = {
-  post: <T>(endpoint: string, body: unknown, token?: string | null) =>
-    request<T>(endpoint, { method: 'POST', body, token }),
-}
+export { api }

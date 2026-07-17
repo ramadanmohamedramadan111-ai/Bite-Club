@@ -33,7 +33,7 @@ function SidebarContent({ onClose, showClose }: { onClose: () => void; showClose
 
   const handleLogout = async () => {
     try {
-      if (token) await authService.logout(token)
+      await authService.logout()
     } catch {
       // always logout locally even if API fails
     } finally {
