@@ -22,6 +22,7 @@ use App\DTOs\User\SearchQueryDto;
 use App\Http\Resources\User\Groups\GroupResource;
 use App\Http\Resources\User\Groups\GroupDetailResource;
 use App\Http\Resources\User\Groups\GroupMemberResource;
+use App\Http\Resources\User\Friend\FriendResource;
 use App\Services\Application\User\GroupApplicationService;
 
 class GroupController extends Controller
@@ -146,6 +147,32 @@ class GroupController extends Controller
         } catch (Exception $e) {
             Log::error('Failed to retrieve group members: ' . $e->getMessage(), ['group_id' => $group]);
             return $this->serverErrorResponse($e->getMessage() ?: 'Failed to retrieve group members.');
+        }
+    }
+
+    public function listInvitableFriends(SearchQueryRequest $request, int $group): JsonResponse
+    {
+        try {
+            $dto = SearchQueryDto::fromValidatedRequest($request);
+            $paginator = $this->groupApplicationService->listInvitableFriends($group, $dto->getSearch(), $dto->getPerPage());
+
+            return $this->successResponse(
+                'Invitable friends retrieved successfully.',
+                [
+                    'items' => FriendResource::collection($paginator->getCollection()),
+                    'meta'  => [
+                        'current_page' => $paginator->currentPage(),
+                        'last_page'    => $paginator->lastPage(),
+                        'per_page'     => $paginator->perPage(),
+                        'total'        => $paginator->total(),
+                    ]
+                ]
+            );
+        } catch (ModelNotFoundException $e) {
+            return $this->notFoundResponse('Group not found.');
+        } catch (Exception $e) {
+            Log::error('Failed to retrieve invitable friends: ' . $e->getMessage(), ['group_id' => $group]);
+            return $this->serverErrorResponse($e->getMessage() ?: 'Failed to retrieve invitable friends.');
         }
     }
 

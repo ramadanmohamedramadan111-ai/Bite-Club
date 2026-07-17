@@ -195,6 +195,50 @@ class GroupDomainService
         return $query->paginate($perPage);
     }
 
+    public function listInvitableFriends(int $groupId, ?string $search = null, int $perPage = 15): LengthAwarePaginator
+    {
+        $currentUser = $this->checkUserAuth();
+        $group = $this->groupRepository->findOrFail($groupId);
+
+        $requesterMembership = $this->groupMemberRepository->first([
+            'group_id' => $groupId,
+            'user_id'  => $currentUser->id,
+            'status'   => GroupMemberStatusEnum::ACTIVE->value,
+        ]);
+
+        if (!$requesterMembership || !in_array($requesterMembership->role, [GroupMemberRoleEnum::OWNER, GroupMemberRoleEnum::ADMIN], true)) {
+            throw new Exception("Unauthorized to invite members to this group.");
+        }
+
+        $activeMemberIds = $group->members()
+            ->where('group_members.status', GroupMemberStatusEnum::ACTIVE->value)
+            ->pluck('users.id')
+            ->toArray();
+
+        $friends = $currentUser->friends;
+
+        $invitableFriends = $friends->filter(function ($friend) use ($activeMemberIds) {
+            return !in_array($friend->id, $activeMemberIds);
+        });
+
+        if ($search) {
+            $search = strtolower($search);
+            $invitableFriends = $invitableFriends->filter(function ($friend) use ($search) {
+                return str_contains(strtolower($friend->first_name ?? ''), $search)
+                    || str_contains(strtolower($friend->last_name ?? ''), $search);
+            });
+        }
+
+        $page = \Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1;
+        return new \Illuminate\Pagination\LengthAwarePaginator(
+            $invitableFriends->forPage($page, $perPage)->values(),
+            $invitableFriends->count(),
+            $perPage,
+            $page,
+            ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()]
+        );
+    }
+
     public function addMember(int $groupId, int $userId): void
     {
         $currentUser = $this->checkUserAuth();

@@ -97,6 +97,7 @@ Route::middleware('auth.user')->prefix('groups')->name('groups.')->group(functio
     Route::patch('/{group}', [GroupController::class, 'update'])->name('update');
     Route::delete('/{group}', [GroupController::class, 'destroy'])->name('destroy');
     Route::get('/{group}/members', [GroupController::class, 'listMembers'])->name('members.index');
+    Route::get('/{group}/invitable-friends', [GroupController::class, 'listInvitableFriends'])->name('members.invitable-friends');
     Route::post('/{group}/members', [GroupController::class, 'addMember'])->name('members.store');
     Route::delete('/{group}/members/{user}', [GroupController::class, 'removeMember'])->name('members.destroy');
     Route::patch('/{group}/members/{user}', [GroupController::class, 'updateMemberRole'])->name('members.update-role');
