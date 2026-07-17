@@ -19,18 +19,18 @@ class NearestRestaurantsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'latitude'  => ['required', 'numeric', 'between:-90,90'],
-            'longitude' => ['required', 'numeric', 'between:-180,180'],
+            'latitude'  => ['sometimes', 'numeric', 'between:-90,90'],
+            'longitude' => ['sometimes', 'numeric', 'between:-180,180'],
+            'limit'     => ['sometimes', 'integer', 'min:1', 'max:50'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'latitude.required' => trans('validation.required', ['attribute' => 'latitude']),
             'latitude.numeric'  => trans('validation.numeric', ['attribute' => 'latitude']),
-            'longitude.required' => trans('validation.required', ['attribute' => 'longitude']),
-            'longitude.numeric'  => trans('validation.numeric', ['attribute' => 'longitude']),
+            'longitude.numeric' => trans('validation.numeric', ['attribute' => 'longitude']),
+            'limit.integer'     => trans('validation.integer', ['attribute' => 'limit']),
         ];
     }
 

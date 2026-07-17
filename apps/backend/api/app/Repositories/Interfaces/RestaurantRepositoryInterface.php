@@ -13,5 +13,6 @@ interface RestaurantRepositoryInterface extends BaseRepositoryInterface
     public function listForAdmin(array $filters): array;
     
     public function getNearest(float $latitude, float $longitude, int $limit = 5): Collection;
+    public function getHighestRated(int $limit = 10): Collection;
     public function updateStats(int $restaurantId, float $averageRating, int $reviewsCount): bool;
 }

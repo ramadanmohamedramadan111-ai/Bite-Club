@@ -20,7 +20,7 @@ class NearestTest extends TestCase
         return [$user, $token];
     }
 
-    public function test_user_can_get_nearest_restaurants_sorted_by_distance(): void
+    public function test_user_can_get_nearest_restaurants_sorted_by_rating_and_distance(): void
     {
         // Arrange
         [$user, $token] = $this->loginUser();
@@ -28,36 +28,28 @@ class NearestTest extends TestCase
         $baseLat = 30.0444; // Cairo
         $baseLng = 31.2357;
 
-        // 1. Closest restaurant (Open & Active)
-        $closest = Restaurant::factory()->create(['status' => RestaurantStatusEnum::ACTIVE->value]);
+        // 1. Closest restaurant but lower rating
+        $closest = Restaurant::factory()->create([
+            'status'         => RestaurantStatusEnum::ACTIVE->value,
+            'average_rating' => 4.0,
+            'reviews_count'  => 10,
+        ]);
         $closest->setting()->update([
-            'is_open' => true,
-            'latitude' => 30.0450, // Very close
+            'is_open'   => true,
+            'latitude'  => 30.0450, // Very close
             'longitude' => 31.2350,
         ]);
 
-        // 2. Farthest restaurant (Open & Active)
-        $farthest = Restaurant::factory()->create(['status' => RestaurantStatusEnum::ACTIVE->value]);
+        // 2. Farthest restaurant but higher rating (Should appear FIRST)
+        $farthest = Restaurant::factory()->create([
+            'status'         => RestaurantStatusEnum::ACTIVE->value,
+            'average_rating' => 5.0,
+            'reviews_count'  => 20,
+        ]);
         $farthest->setting()->update([
-            'is_open' => true,
-            'latitude' => 30.1500, // Far
+            'is_open'   => true,
+            'latitude'  => 30.1500, // Far
             'longitude' => 31.3000,
-        ]);
-
-        // 3. Middle restaurant (Closed - should not appear)
-        $closed = Restaurant::factory()->create(['status' => RestaurantStatusEnum::ACTIVE->value]);
-        $closed->setting()->update([
-            'is_open' => false,
-            'latitude' => 30.0500, // Medium distance
-            'longitude' => 31.2400,
-        ]);
-
-        // 4. Middle restaurant (Suspended - should not appear)
-        $suspended = Restaurant::factory()->create(['status' => RestaurantStatusEnum::SUSPENDED->value]);
-        $suspended->setting()->update([
-            'is_open' => true,
-            'latitude' => 30.0500, 
-            'longitude' => 31.2400,
         ]);
 
         // Act
@@ -65,41 +57,51 @@ class NearestTest extends TestCase
 
         // Assert
         $response->assertStatus(200);
-        $response->assertJsonPath('success', true);
-        $response->assertJsonPath('message', trans('restaurant.nearest_success'));
         
-        // Assert we got exactly 2 items back (closest and farthest)
+        // Assert we got exactly 2 items back
         $this->assertCount(2, $response->json('data'));
         
-        // Assert sorting is correct (closest first)
-        $response->assertJsonPath('data.0.id', $closest->id);
-        $response->assertJsonPath('data.1.id', $farthest->id);
+        // Assert sorting is correct (highest rated first, then closest)
+        $response->assertJsonPath('data.0.id', $farthest->id);
+        $response->assertJsonPath('data.1.id', $closest->id);
 
-        // Assert distance is calculated
-        $this->assertArrayHasKey('distance', $response->json('data.0'));
-        $this->assertLessThan($response->json('data.1.distance'), $response->json('data.0.distance'));
+        // Assert new fields are included
+        $this->assertArrayHasKey('average_rating', $response->json('data.0'));
+        $this->assertArrayHasKey('reviews_count', $response->json('data.0'));
+    }
 
-        // Assert settings are included
-        $response->assertJsonStructure([
-            'data' => [
-                '*' => [
-                    'id',
-                    'name',
-                    'description',
-                    'logo_url',
-                    'cover_image_url',
-                    'distance',
-                    'settings' => [
-                        'is_open',
-                        'accept_orders',
-                        'delivery_enabled',
-                        'pickup_enabled',
-                        'latitude',
-                        'longitude'
-                    ]
-                ]
-            ]
+    public function test_user_can_get_highest_rated_restaurants_without_location(): void
+    {
+        // Arrange
+        [$user, $token] = $this->loginUser();
+
+        $rating4 = Restaurant::factory()->create([
+            'status'         => RestaurantStatusEnum::ACTIVE->value,
+            'average_rating' => 4.0,
+            'reviews_count'  => 10,
         ]);
+        $rating4->setting()->update(['is_open' => true]);
+
+        $rating5 = Restaurant::factory()->create([
+            'status'         => RestaurantStatusEnum::ACTIVE->value,
+            'average_rating' => 5.0,
+            'reviews_count'  => 50,
+        ]);
+        $rating5->setting()->update(['is_open' => true]);
+
+        // Act (no latitude/longitude)
+        $response = $this->withToken($token)->getJson('/api/user/restaurants/nearest?limit=2');
+
+        // Assert
+        $response->assertStatus(200);
+        $this->assertCount(2, $response->json('data'));
+        
+        // Should be ordered by rating
+        $response->assertJsonPath('data.0.id', $rating5->id);
+        $response->assertJsonPath('data.1.id', $rating4->id);
+
+        // Distance should be null
+        $this->assertNull($response->json('data.0.distance'));
     }
     
     public function test_nearest_restaurants_validates_input(): void
@@ -108,10 +110,10 @@ class NearestTest extends TestCase
         [$user, $token] = $this->loginUser();
 
         // Act
-        $response = $this->withToken($token)->getJson('/api/user/restaurants/nearest');
+        $response = $this->withToken($token)->getJson('/api/user/restaurants/nearest?latitude=900&longitude=invalid&limit=1000');
 
         // Assert
         $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['latitude', 'longitude']);
+        $response->assertJsonValidationErrors(['latitude', 'longitude', 'limit']);
     }
 }

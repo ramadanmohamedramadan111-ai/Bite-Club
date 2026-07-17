@@ -13,10 +13,15 @@ class RestaurantApplicationService
 
     public function getNearest(NearestRestaurantsDto $dto): array
     {
-        $restaurants = $this->restaurantDomainService->getNearest(
-            $dto->getLatitude(),
-            $dto->getLongitude()
-        );
+        if ($dto->getLatitude() !== null && $dto->getLongitude() !== null) {
+            $restaurants = $this->restaurantDomainService->getNearest(
+                $dto->getLatitude(),
+                $dto->getLongitude(),
+                $dto->getLimit()
+            );
+        } else {
+            $restaurants = $this->restaurantDomainService->getHighestRated($dto->getLimit());
+        }
 
         return $restaurants->map(function ($restaurant) {
             return [
@@ -25,7 +30,9 @@ class RestaurantApplicationService
                 'description'     => $restaurant->description,
                 'logo_url'        => $restaurant->logo_url ? url($restaurant->logo_url) : config('app.url') . '/storage/restaurants/restaurant.jpeg',
                 'cover_image_url' => $restaurant->cover_image_url ? url($restaurant->cover_image_url) : config('app.url') . '/storage/restaurants/restaurant.jpeg',
-                'distance'        => round($restaurant->distance, 2),
+                'distance'        => isset($restaurant->distance) ? round($restaurant->distance, 2) : null,
+                'average_rating'  => $restaurant->average_rating,
+                'reviews_count'   => $restaurant->reviews_count,
                 'settings'        => [
                     'is_open'          => $restaurant->setting->is_open,
                     'accept_orders'    => $restaurant->setting->accept_orders,

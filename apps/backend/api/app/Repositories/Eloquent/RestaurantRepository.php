@@ -87,7 +87,23 @@ class RestaurantRepository extends BaseRepository implements RestaurantRepositor
                   sin( radians( restaurant_settings.latitude ) ) )
                 ) AS distance', [$latitude, $longitude, $latitude]
             )
+            ->orderByDesc('average_rating')
+            ->orderByDesc('reviews_count')
             ->orderBy('distance')
+            ->limit($limit)
+            ->with('setting')
+            ->get();
+    }
+
+    public function getHighestRated(int $limit = 10): Collection
+    {
+        return $this->query()
+            ->select('restaurants.*')
+            ->where('status', RestaurantStatusEnum::ACTIVE->value)
+            ->join('restaurant_settings', 'restaurants.id', '=', 'restaurant_settings.restaurant_id')
+            ->where('restaurant_settings.is_open', true)
+            ->orderByDesc('average_rating')
+            ->orderByDesc('reviews_count')
             ->limit($limit)
             ->with('setting')
             ->get();

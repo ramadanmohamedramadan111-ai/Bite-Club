@@ -15,4 +15,9 @@ class RestaurantDomainService
     {
         return $this->restaurantRepository->getNearest($latitude, $longitude, $limit);
     }
+
+    public function getHighestRated(int $limit = 10): Collection
+    {
+        return $this->restaurantRepository->getHighestRated($limit);
+    }
 }
