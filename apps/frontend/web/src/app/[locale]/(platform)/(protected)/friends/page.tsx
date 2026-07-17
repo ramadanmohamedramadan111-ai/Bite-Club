@@ -13,10 +13,20 @@ import { Suspense } from 'react';
 export default async function page({
   searchParams,
 }: {
-  searchParams: { tab: FriendsTabType; search: string };
+  searchParams: {
+    tab: FriendsTabType;
+    search: string;
+    page: string;
+    per_page: string;
+  };
 }) {
   const searchParamsValue = await searchParams;
-  const { tab = 'friends', search } = searchParamsValue;
+  const {
+    tab = 'friends',
+    search,
+    page = '1',
+    per_page = '1',
+  } = searchParamsValue;
 
   const result = friendsSearchParamsSchema.safeParse(searchParamsValue);
 
@@ -32,24 +42,24 @@ export default async function page({
 
       {tab === 'friends' && (
         <Suspense fallback={<Spinner />}>
-          <FriendsTab search={search} />
+          <FriendsTab search={search} page={page} perPage={per_page} />
         </Suspense>
       )}
       {tab === 'discover' && (
         <Suspense fallback={<Spinner />}>
-          <DiscoverTab search={search} />
+          <DiscoverTab search={search} page={page} perPage={per_page} />
         </Suspense>
       )}
 
       {tab === 'sent' && (
         <Suspense fallback={<Spinner />}>
-          <SentTab search={search} />
+          <SentTab search={search} page={page} perPage={per_page} />
         </Suspense>
       )}
 
       {tab === 'received' && (
         <Suspense fallback={<Spinner />}>
-          <ReceivedTab search={search} />
+          <ReceivedTab search={search} page={page} perPage={per_page} />
         </Suspense>
       )}
 

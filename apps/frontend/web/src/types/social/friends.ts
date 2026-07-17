@@ -45,3 +45,9 @@ export interface cancelFriendRequestResponse {
   status: string;
 }
 
+export interface FriendsTabProps {
+  search?: string;
+  page?: string;
+  perPage?: string;
+}
+
