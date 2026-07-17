@@ -12,4 +12,6 @@ return [
     'available_transitions_failed'  => 'Failed to retrieve available statuses.',
     'nearest_success'               => 'Nearest restaurants retrieved successfully.',
     'nearest_failed'                => 'Failed to retrieve nearest restaurants.',
+    'show_success'                  => 'Restaurant details retrieved successfully.',
+    'show_failed'                   => 'Failed to retrieve restaurant details.',
 ];
