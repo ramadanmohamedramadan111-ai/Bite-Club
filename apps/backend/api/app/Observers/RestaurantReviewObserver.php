@@ -21,10 +21,7 @@ class RestaurantReviewObserver
 
     public function updated(RestaurantReview $review): void
     {
-        // Only update if the rating changed
-        if ($review->wasChanged('rating')) {
-            $this->updateRestaurantStats($review);
-        }
+        $this->updateRestaurantStats($review);
     }
 
     public function deleted(RestaurantReview $review): void

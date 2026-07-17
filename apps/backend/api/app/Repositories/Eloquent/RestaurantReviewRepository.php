@@ -59,4 +59,20 @@ class RestaurantReviewRepository extends BaseRepository implements RestaurantRev
             'average' => (float) ($result->average_rating ?? 0.0),
         ];
     }
+
+    public function update(int $id, array $attributes): bool
+    {
+        if (empty($attributes)) {
+            return false;
+        }
+
+        $review = $this->findOrFail($id);
+        return $review->update($attributes);
+    }
+
+    public function delete(int $id): bool
+    {
+        $review = $this->findOrFail($id);
+        return $review->delete();
+    }
 }
