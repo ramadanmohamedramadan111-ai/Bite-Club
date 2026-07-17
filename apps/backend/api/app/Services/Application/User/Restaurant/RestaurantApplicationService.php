@@ -2,14 +2,26 @@
 
 namespace App\Services\Application\User\Restaurant;
 
+use App\DTOs\User\Restaurant\ListRestaurantsDto;
 use App\DTOs\User\Restaurant\NearestRestaurantsDto;
 use App\Services\Domain\User\Restaurant\RestaurantDomainService;
+use App\Http\Resources\User\Restaurant\RestaurantResource;
 
 class RestaurantApplicationService
 {
     public function __construct(
         private RestaurantDomainService $restaurantDomainService
     ) {}
+
+    public function listRestaurants(ListRestaurantsDto $dto): array
+    {
+        $result = $this->restaurantDomainService->listForUser($dto->getFilters());
+
+        return [
+            'items' => RestaurantResource::collection($result['items']),
+            'meta'  => $result['meta'],
+        ];
+    }
 
     public function getNearest(NearestRestaurantsDto $dto): array
     {

@@ -72,6 +72,72 @@ class RestaurantRepository extends BaseRepository implements RestaurantRepositor
         ];
     }
 
+    public function listForUser(array $filters): array
+    {
+        $query = $this->query()
+            ->select('restaurants.*')
+            ->where('restaurants.status', RestaurantStatusEnum::ACTIVE->value)
+            ->join('restaurant_settings', 'restaurants.id', '=', 'restaurant_settings.restaurant_id')
+            ->where('restaurant_settings.is_open', true)
+            ->with(['setting', 'category' => function ($q) {
+                $q->select('id', 'name', 'slug');
+            }]);
+
+        if (!empty($filters['name'])) {
+            $query->where('restaurants.name', 'like', '%' . $filters['name'] . '%');
+        }
+
+        if (!empty($filters['category'])) {
+            if (is_numeric($filters['category'])) {
+                $query->where('restaurants.category_id', (int) $filters['category']);
+            } else {
+                $query->whereHas('category', function ($q) use ($filters) {
+                    $q->where('name', 'like', '%' . $filters['category'] . '%');
+                });
+            }
+        }
+
+        if (isset($filters['min_rating'])) {
+            $query->where('restaurants.average_rating', '>=', (float) $filters['min_rating']);
+        }
+
+        if (isset($filters['delivery_enabled'])) {
+            $query->where('restaurant_settings.delivery_enabled', $filters['delivery_enabled']);
+        }
+
+        if (isset($filters['pickup_enabled'])) {
+            $query->where('restaurant_settings.pickup_enabled', $filters['pickup_enabled']);
+        }
+
+        if (isset($filters['accept_orders'])) {
+            $query->where('restaurant_settings.accept_orders', $filters['accept_orders']);
+        }
+
+        if (!empty($filters['sort_by'])) {
+            if ($filters['sort_by'] === 'rating') {
+                $query->orderBy('restaurants.average_rating', 'desc')
+                      ->orderBy('restaurants.reviews_count', 'desc');
+            } elseif ($filters['sort_by'] === 'alphabetical') {
+                $query->orderBy('restaurants.name', 'asc');
+            }
+        } else {
+            $query->orderBy('restaurants.id', 'desc');
+        }
+
+        $perPage = isset($filters['per_page']) ? (int) $filters['per_page'] : 15;
+        $paginator = $query->paginate($perPage);
+
+        return [
+            'items' => collect($paginator->items()),
+            'meta'  => [
+                'current_page' => $paginator->currentPage(),
+                'last_page'    => $paginator->lastPage(),
+                'per_page'     => $paginator->perPage(),
+                'total'        => $paginator->total(),
+            ],
+        ];
+    }
+
     public function getNearest(float $latitude, float $longitude, int $limit = 5): Collection
     {
         return $this->query()

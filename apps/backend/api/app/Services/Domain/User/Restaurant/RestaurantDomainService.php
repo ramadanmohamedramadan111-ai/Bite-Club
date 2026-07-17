@@ -11,6 +11,11 @@ class RestaurantDomainService
         private RestaurantRepositoryInterface $restaurantRepository
     ) {}
 
+    public function listForUser(array $filters): array
+    {
+        return $this->restaurantRepository->listForUser($filters);
+    }
+
     public function getNearest(float $latitude, float $longitude, int $limit = 5): Collection
     {
         return $this->restaurantRepository->getNearest($latitude, $longitude, $limit);

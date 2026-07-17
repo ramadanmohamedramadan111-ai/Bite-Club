@@ -51,6 +51,7 @@ Route::prefix('user')->name('user.')->group(function () {
         
         // Restaurants (User)
         Route::prefix('restaurants')->group(function () {
+            Route::get('/', [UserRestaurantController::class, 'index'])->name('restaurants.index');
             Route::get('nearest', [UserRestaurantController::class, 'nearest'])->name('restaurants.nearest');
             
             // Reviews
