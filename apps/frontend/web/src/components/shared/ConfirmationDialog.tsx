@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,7 +24,11 @@ interface Props {
 
   confirmText?: string;
 
-  onConfirm: () => void;
+  cancelText?: string;
+
+  onConfirm: () => void | Promise<void>;
+
+  isLoading?: boolean;
 }
 
 export default function ConfirmDialog({
@@ -31,13 +37,24 @@ export default function ConfirmDialog({
   title,
   description,
   confirmText = 'Confirm',
+  cancelText = 'Cancel',
   onConfirm,
+  isLoading = false,
 }: Props) {
-  function handleConfirm() {
-    onConfirm();
+  const [internalLoading, setInternalLoading] = useState(false);
 
-    onOpenChange(false);
+  async function handleConfirm() {
+    setInternalLoading(true);
+
+    try {
+      await onConfirm();
+      onOpenChange(false);
+    } finally {
+      setInternalLoading(false);
+    }
   }
+
+  const loading = isLoading || internalLoading;
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -49,10 +66,10 @@ export default function ConfirmDialog({
         </AlertDialogHeader>
 
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={loading}>{cancelText}</AlertDialogCancel>
 
-          <AlertDialogAction onClick={handleConfirm}>
-            {confirmText}
+          <AlertDialogAction disabled={loading} onClick={handleConfirm}>
+            {loading ? 'Please wait...' : confirmText}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

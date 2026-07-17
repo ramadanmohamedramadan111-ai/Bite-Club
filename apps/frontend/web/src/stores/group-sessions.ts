@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import type { ActiveGroupSession } from '@/types/group/group';
+import type { ActiveGroupSession } from '@/types/groups/groups';
 
 type GroupSessionsStore = {
   sessions: ActiveGroupSession[];
@@ -32,7 +32,9 @@ export const useGroupSessionsStore = create<GroupSessionsStore>()(
 
       removeSession: (sessionId) =>
         set((state) => ({
-          sessions: state.sessions.filter((session) => session.id !== sessionId),
+          sessions: state.sessions.filter(
+            (session) => session.id !== sessionId,
+          ),
         })),
 
       getSessionById: (sessionId) =>
@@ -51,3 +53,4 @@ export const useGroupSessionsStore = create<GroupSessionsStore>()(
     },
   ),
 );
+

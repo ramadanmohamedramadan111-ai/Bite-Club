@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { mockGroups } from '@/data/groups';
-import type { Group, GroupMember } from '@/types/group/group';
+import type { Group, GroupMember } from '@/types/groups/groups';
 
 function createInviteToken() {
   return `group-${crypto.randomUUID().slice(0, 8)}`;
@@ -20,7 +20,9 @@ type GroupsStore = {
 
   updateGroup: (
     groupId: string,
-    data: Partial<Pick<Group, 'name' | 'description' | 'image' | 'invitationsOpen'>>,
+    data: Partial<
+      Pick<Group, 'name' | 'description' | 'image' | 'invitationsOpen'>
+    >,
   ) => void;
 
   addMember: (groupId: string, member: GroupMember) => void;
@@ -106,3 +108,4 @@ export const useGroupsStore = create<GroupsStore>()(
     },
   ),
 );
+

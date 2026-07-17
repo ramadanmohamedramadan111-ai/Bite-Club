@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dialog';
 import { socialUsers } from '@/data/social-users';
 import { useGroupsStore } from '@/stores/groups';
-import type { Group, GroupMember } from '@/types/group/group';
+import type { Group, GroupMember } from '@/types/groups/groups';
 
 type Props = {
   group: Group;
@@ -27,37 +27,34 @@ export default function GroupMembersTab({ group }: Props) {
   const removeMember = useGroupsStore((state) => state.removeMember);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
 
-  const existingMemberIds = new Set(group.members.map((member) => member.userId));
-  const availableFriends = socialUsers.filter(
-    (user) =>
-      user.relationships.isFriend &&
-      !existingMemberIds.has(user.id),
-  );
+  // const existingMemberIds = new Set(
+  //   group.members.map((member) => member.userId),
+  // );
 
-  function handleAddMember(user: (typeof socialUsers)[number]) {
-    const member: GroupMember = {
-      id: crypto.randomUUID(),
-      userId: user.id,
-      name: user.name,
-      username: user.username,
-      avatar: user.avatar,
-      isOwner: false,
-    };
+  // function handleAddMember(user: (typeof socialUsers)[number]) {
+  //   const member: GroupMember = {
+  //     id: crypto.randomUUID(),
+  //     userId: user.id,
+  //     name: user.name,
+  //     username: user.username,
+  //     avatar: user.avatar,
+  //     isOwner: false,
+  //   };
 
-    addMember(group.id, member);
-    toast.success(`${user.name} added to the group`);
-    setAddDialogOpen(false);
-  }
+  //   addMember(group.id, member);
+  //   toast.success(`${user.name} added to the group`);
+  //   setAddDialogOpen(false);
+  // }
 
-  function handleRemoveMember(member: GroupMember) {
-    if (member.isOwner) {
-      toast.error('Cannot remove the group owner');
-      return;
-    }
+  // function handleRemoveMember(member: GroupMember) {
+  //   if (member.isOwner) {
+  //     toast.error('Cannot remove the group owner');
+  //     return;
+  //   }
 
-    removeMember(group.id, member.id);
-    toast.success(`${member.name} removed from the group`);
-  }
+  //   removeMember(group.id, member.id);
+  //   toast.success(`${member.name} removed from the group`);
+  // }
 
   return (
     <div className="space-y-4">
@@ -83,11 +80,11 @@ export default function GroupMembersTab({ group }: Props) {
             <div className="flex items-center gap-3">
               <Avatar>
                 <AvatarImage src={member.avatar ?? undefined} />
-                <AvatarFallback>{member.name[0]}</AvatarFallback>
+                <AvatarFallback>{member.full_name}</AvatarFallback>
               </Avatar>
               <div>
                 <p className="font-medium">
-                  {member.name}
+                  {member.full_name}
                   {member.isOwner && (
                     <span className="ml-2 text-xs text-muted-foreground">
                       (Owner)
@@ -105,7 +102,8 @@ export default function GroupMembersTab({ group }: Props) {
                 variant="ghost"
                 size="icon"
                 className="text-destructive hover:text-destructive"
-                onClick={() => handleRemoveMember(member)}>
+                // onClick={() => handleRemoveMember(member)}
+              >
                 <UserMinus className="size-4" />
               </Button>
             )}
@@ -117,12 +115,10 @@ export default function GroupMembersTab({ group }: Props) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add member</DialogTitle>
-            <DialogDescription>
-              Add a friend to {group.name}
-            </DialogDescription>
+            <DialogDescription>Add a friend to {group.name}</DialogDescription>
           </DialogHeader>
 
-          <div className="max-h-64 space-y-2 overflow-y-auto">
+          {/* <div className="max-h-64 space-y-2 overflow-y-auto">
             {availableFriends.length === 0 ? (
               <p className="py-4 text-center text-sm text-muted-foreground">
                 No friends available to add
@@ -147,7 +143,7 @@ export default function GroupMembersTab({ group }: Props) {
                 </button>
               ))
             )}
-          </div>
+          </div> */}
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setAddDialogOpen(false)}>
@@ -159,3 +155,4 @@ export default function GroupMembersTab({ group }: Props) {
     </div>
   );
 }
+

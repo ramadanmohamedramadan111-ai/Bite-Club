@@ -321,6 +321,48 @@
 
       "success": "Login successful! Redirecting...",
       "error": "Invalid credentials, please try again."
+    },
+    "createGroup": {
+      "trigger": "Create Group",
+      "title": "Create a group",
+      "subtitle": "Create a new group to order together with friends.",
+      "fields": {
+        "name": {
+          "label": "Group name",
+          "placeholder": "Enter group name",
+          "errors": {
+            "required": "Group name is required",
+            "minLength": "Group name must be at least 2 characters"
+          }
+        },
+        "description": {
+          "label": "Group description",
+          "placeholder": "Enter group description",
+          "errors": {
+            "required": "Group description is required",
+            "minLength": "Group description must be at least 2 characters"
+          }
+        },
+        "image": {
+          "label": "Group image",
+          "placeholder": "Enter group image",
+          "errors": {
+            "required": "Image is required",
+            "invalid": "Selected File must be an image",
+            "maxSize": "Image must be at max 5mb"
+          }
+        }
+      },
+      "submitButton": {
+        "text": "Create",
+        "loadingText": "Creating..."
+      },
+      "updateButton": {
+        "text": "Update",
+        "loadingText": "Updating..."
+      },
+      "cancel": "Cancel",
+      "reset": "Reset"
     }
   },
   "sidebar": {

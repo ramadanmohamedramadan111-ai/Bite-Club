@@ -1,11 +1,11 @@
 import { Link } from '@/i18n/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { Group } from '@/types/group/group';
+import type { GroupTypeSimplified } from '@/types/groups/groups';
 
 import GroupImage from './GroupImage';
 
 type Props = {
-  group: Group;
+  group: GroupTypeSimplified;
 };
 
 export default function GroupCard({ group }: Props) {
@@ -14,7 +14,7 @@ export default function GroupCard({ group }: Props) {
       <Card className="transition-colors hover:bg-muted/50">
         <CardHeader className="flex flex-row items-center gap-3">
           <GroupImage
-            src={group.image}
+            src={group.image_url}
             alt={group.name}
             className="size-12 rounded-lg"
             fallbackClassName="size-12 rounded-lg"
@@ -28,11 +28,12 @@ export default function GroupCard({ group }: Props) {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            {group.members.length} member
-            {group.members.length !== 1 ? 's' : ''}
+            {group.members_count} member
+            {group.members_count !== 1 ? 's' : ''}
           </p>
         </CardContent>
       </Card>
     </Link>
   );
 }
+

@@ -4,7 +4,7 @@ import { useRouter } from '@/i18n/navigation';
 import { useSearchParams } from 'next/navigation';
 
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { GroupTab } from '@/types/group/group';
+import type { GroupTab } from '@/types/groups/groups';
 
 const tabs: { value: GroupTab; label: string }[] = [
   { value: 'members', label: 'Members' },
@@ -13,7 +13,7 @@ const tabs: { value: GroupTab; label: string }[] = [
 ];
 
 type Props = {
-  groupId: string;
+  groupId: number;
 };
 
 export default function GroupTabs({ groupId }: Props) {
@@ -42,3 +42,4 @@ export default function GroupTabs({ groupId }: Props) {
     </Tabs>
   );
 }
+

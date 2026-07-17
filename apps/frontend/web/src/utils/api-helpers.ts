@@ -20,7 +20,7 @@ export function buildQueryString<T extends Record<string, QueryValue>>(
 }
 
 export async function getUserId() {
-  const token = (await cookies()).get('token')?.value;
+  const token = (await cookies()).get('accessToken')?.value;
 
   if (!token) return null;
 
@@ -28,6 +28,6 @@ export async function getUserId() {
 
   const { payload } = await jwtVerify(token, secret);
 
-  return payload.sub;
+  return Number(payload.sub);
 }
 

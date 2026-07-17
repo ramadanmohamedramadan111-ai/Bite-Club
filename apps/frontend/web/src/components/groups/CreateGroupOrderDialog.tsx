@@ -31,7 +31,7 @@ import {
   createMockGroupMember,
   createMockGroupOrderItems,
 } from '@/data/mock-group-order-items';
-import type { GroupOrderSessionType } from '@/types/group/group';
+import type { GroupOrderSessionType } from '@/types/groups/groups';
 import type { RestaurantDetail } from '@/types/restaurant/restaurant';
 import { generateGroupOrderCode } from '@/utils/group-order';
 
@@ -173,7 +173,9 @@ export default function CreateGroupOrderDialog({
           {sessionType === 'fixed' && (
             <div className="space-y-2">
               <Label htmlFor="group-select">Select group</Label>
-              <Select value={selectedGroupId} onValueChange={setSelectedGroupId}>
+              <Select
+                value={selectedGroupId}
+                onValueChange={setSelectedGroupId}>
                 <SelectTrigger id="group-select">
                   <SelectValue placeholder="Choose a group" />
                 </SelectTrigger>
@@ -199,3 +201,4 @@ export default function CreateGroupOrderDialog({
     </Dialog>
   );
 }
+

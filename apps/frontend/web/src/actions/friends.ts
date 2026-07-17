@@ -11,8 +11,6 @@ import { getUserId } from '@/utils/api-helpers';
 import { serverFetch } from '@/utils/server-fetch';
 import { updateTag } from 'next/cache';
 
-const userId = getUserId();
-
 export const sendFriendRequestAction = actionClient
   .inputSchema(idSchema)
   .action(async ({ parsedInput }) => {
@@ -25,6 +23,8 @@ export const sendFriendRequestAction = actionClient
         },
       },
     );
+
+    const userId = await getUserId();
 
     await updateTag(`friends-sent-${parsedInput}`);
     await updateTag(`friends-sent-${userId}`);
@@ -40,6 +40,7 @@ export const cancelFriendRequestAction = actionClient
     const response = await serverFetch<
       ApiResponse<cancelFriendRequestResponse>
     >(`/friends/requests/${parsedInput}`, 'DELETE');
+    const userId = await getUserId();
 
     await updateTag(`friends-sent-${parsedInput}`);
     await updateTag(`friends-sent-${userId}`);
@@ -55,6 +56,7 @@ export const rejectFriendRequestAction = actionClient
     const response = await serverFetch<
       ApiResponse<cancelFriendRequestResponse>
     >(`/friends/requests/${parsedInput}/reject`, 'POST');
+    const userId = await getUserId();
 
     await updateTag(`friends-requests-${parsedInput}`);
     await updateTag(`friends-requests-${userId}`);
@@ -71,6 +73,8 @@ export const removeFriendRequestAction = actionClient
       ApiResponse<cancelFriendRequestResponse>
     >(`/friends/${parsedInput}`, 'DELETE');
 
+    const userId = await getUserId();
+
     await updateTag(`friends-${parsedInput}`);
     await updateTag(`friends-${userId}`);
     await updateTag(`friends-discover-${parsedInput}`);
@@ -86,6 +90,7 @@ export const acceptFriendRequestAction = actionClient
       `/friends/requests/${parsedInput}/accept`,
       'POST',
     );
+    const userId = await getUserId();
 
     await updateTag(`friends-${parsedInput}`);
     await updateTag(`friends-${userId}`);

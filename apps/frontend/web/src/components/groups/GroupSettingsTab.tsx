@@ -1,129 +1,100 @@
 'use client';
 
-import { useRef, useState } from 'react';
 import { Copy, Link as LinkIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
-import GroupImage from '@/components/groups/GroupImage';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { useGroupsStore } from '@/stores/groups';
-import type { Group } from '@/types/group/group';
-import { getGroupInviteUrl } from '@/utils/group-order';
+import type { GroupType } from '@/types/groups/groups';
+import GroupForm from './GroupForm';
+import { useAction } from 'next-safe-action/hooks';
+import {
+  deleteGroupAction,
+  leaveGroupAction,
+  toggleJoinGroupAction,
+} from '@/actions/groups';
+import ConfirmDialog from '../shared/ConfirmationDialog';
+import { useState } from 'react';
+import { useLocale } from 'next-intl';
 
 type Props = {
-  group: Group;
+  group: GroupType;
+  isOwner: boolean;
 };
 
-export default function GroupSettingsTab({ group }: Props) {
-  const updateGroup = useGroupsStore((state) => state.updateGroup);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const [name, setName] = useState(group.name);
-  const [description, setDescription] = useState(group.description);
-  const [imagePreview, setImagePreview] = useState<string | null>(
-    group.image ?? null,
-  );
-  const [invitationsOpen, setInvitationsOpen] = useState(group.invitationsOpen);
-
-  const inviteUrl = getGroupInviteUrl(group.inviteToken);
-
-  function handleImageChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-
-    if (!file) {
-      return;
-    }
-
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      setImagePreview(result);
-      updateGroup(group.id, { image: result });
-    };
-    reader.readAsDataURL(file);
-  }
-
-  function handleRemoveImage() {
-    setImagePreview(null);
-    updateGroup(group.id, { image: null });
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  }
-
-  function handleSave() {
-    updateGroup(group.id, {
-      name: name.trim(),
-      description: description.trim(),
-      invitationsOpen,
-    });
-    toast.success('Group settings saved');
-  }
+export default function GroupSettingsTab({ group, isOwner }: Props) {
+  const locale = useLocale();
+  const inviteLink = `${process.env.NEXT_PUBLIC_BASE_URL}/${locale}/groups/invite/${group.invite_token}`;
 
   function handleCopyInviteLink() {
-    navigator.clipboard.writeText(inviteUrl);
+    navigator.clipboard.writeText(inviteLink);
     toast.success('Invite link copied');
   }
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const { execute: toggleGroup, isExecuting: isToggling } = useAction(
+    toggleJoinGroupAction,
+    {
+      onSuccess: ({ data }) => {
+        toast.success(data.message);
+      },
+      onError: ({ error }) => {
+        toast.error(error.serverError?.message);
+      },
+    },
+  );
+
+  const { execute: deleteGroup, isExecuting: isDeleting } = useAction(
+    deleteGroupAction,
+    {
+      onSuccess: ({ data }) => {
+        toast.success(data.message);
+      },
+      onError: ({ error }) => {
+        toast.error(error.serverError?.message);
+      },
+    },
+  );
+
+  const { execute: leaveGroup, isExecuting: isLeaving } = useAction(
+    leaveGroupAction,
+    {
+      onSuccess: ({ data }) => {
+        toast.success(data.message);
+      },
+      onError: ({ error }) => {
+        toast.error(error.serverError?.message);
+      },
+    },
+  );
+
+  const handleToggle = () => {
+    if (group.allow_join_by_link) {
+      toggleGroup({
+        id: group.id,
+        allow_join_by_link: false,
+      });
+    } else {
+      toggleGroup({
+        id: group.id,
+        allow_join_by_link: true,
+      });
+    }
+  };
+
+  const handleDelete = () => {
+    if (isOwner) {
+      deleteGroup(group.id);
+    } else {
+      leaveGroup(group.id);
+    }
+  };
 
   return (
     <div className="space-y-6">
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="group-name">Group name</Label>
-          <Input
-            id="group-name"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="group-description">Description</Label>
-          <Input
-            id="group-description"
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="group-image">Group image</Label>
-          <div className="flex items-center gap-4">
-            <GroupImage
-              src={imagePreview}
-              alt={group.name}
-              className="size-20 rounded-lg"
-              fallbackClassName="size-20 rounded-lg"
-            />
-            <div className="space-y-2">
-              <Input
-                id="group-image"
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-              />
-              {imagePreview && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleRemoveImage}>
-                  Remove image
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+      <GroupForm group={group} type="edit" key={group?.id ?? 'new'} />
 
       <div className="space-y-3 rounded-lg border p-4">
         <div className="flex items-center gap-2">
@@ -131,7 +102,7 @@ export default function GroupSettingsTab({ group }: Props) {
           <Label>Invite link</Label>
         </div>
         <div className="flex gap-2">
-          <Input readOnly value={inviteUrl} className="text-sm" />
+          <Input readOnly value={inviteLink} className="text-sm" />
           <Button
             type="button"
             variant="outline"
@@ -150,13 +121,40 @@ export default function GroupSettingsTab({ group }: Props) {
           </p>
         </div>
         <Switch
-          checked={invitationsOpen}
-          onCheckedChange={setInvitationsOpen}
+          checked={group.allow_join_by_link}
+          onCheckedChange={handleToggle}
+          disabled={isToggling}
           aria-label="Toggle open invitations"
         />
       </div>
 
-      <Button onClick={handleSave}>Save changes</Button>
+      <Button
+        type="button"
+        variant="destructive"
+        onClick={() => setConfirmOpen(true)}
+        disabled={isOwner ? isDeleting : isLeaving}>
+        {isOwner && isDeleting
+          ? 'Deleting...'
+          : !isOwner && isLeaving
+            ? 'Leaving...'
+            : isOwner
+              ? 'Delete Group'
+              : 'Leave Group'}
+      </Button>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title={isOwner ? 'Delete group?' : 'Leave group?'}
+        description={
+          isOwner
+            ? 'This action cannot be undone. The group and all its data will be permanently deleted.'
+            : 'Are you sure you want to leave this group?'
+        }
+        confirmText={isOwner ? 'Delete' : 'Leave'}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }
+
