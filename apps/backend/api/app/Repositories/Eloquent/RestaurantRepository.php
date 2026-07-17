@@ -4,6 +4,8 @@ namespace App\Repositories\Eloquent;
 
 use App\Models\Restaurant;
 use App\Repositories\Interfaces\RestaurantRepositoryInterface;
+use App\Enums\Restaurant\RestaurantStatusEnum;
+use Illuminate\Support\Collection;
 
 class RestaurantRepository extends BaseRepository implements RestaurantRepositoryInterface
 {
@@ -68,5 +70,53 @@ class RestaurantRepository extends BaseRepository implements RestaurantRepositor
                 'total'        => $paginator->total(),
             ],
         ];
+    }
+
+    public function getNearest(float $latitude, float $longitude, int $limit = 5): Collection
+    {
+        return $this->query()
+            ->select('restaurants.*')
+            ->where('status', RestaurantStatusEnum::ACTIVE->value)
+            ->join('restaurant_settings', 'restaurants.id', '=', 'restaurant_settings.restaurant_id')
+            ->where('restaurant_settings.is_open', true)
+            ->selectRaw(
+                '( 6371 * acos( cos( radians(?) ) *
+                  cos( radians( restaurant_settings.latitude ) )
+                  * cos( radians( restaurant_settings.longitude ) - radians(?)
+                  ) + sin( radians(?) ) *
+                  sin( radians( restaurant_settings.latitude ) ) )
+                ) AS distance', [$latitude, $longitude, $latitude]
+            )
+            ->orderBy('distance')
+            ->limit($limit)
+            ->with('setting')
+            ->get()
+            ->sortBy([
+                ['average_rating', 'desc'],
+                ['reviews_count', 'desc']
+            ])
+            ->values();
+    }
+
+    public function getHighestRated(int $limit = 10): Collection
+    {
+        return $this->query()
+            ->select('restaurants.*')
+            ->where('status', RestaurantStatusEnum::ACTIVE->value)
+            ->join('restaurant_settings', 'restaurants.id', '=', 'restaurant_settings.restaurant_id')
+            ->where('restaurant_settings.is_open', true)
+            ->orderByDesc('average_rating')
+            ->orderByDesc('reviews_count')
+            ->limit($limit)
+            ->with('setting')
+            ->get();
+    }
+
+    public function updateStats(int $restaurantId, float $averageRating, int $reviewsCount): bool
+    {
+        return $this->update($restaurantId, [
+            'average_rating' => $averageRating,
+            'reviews_count'  => $reviewsCount,
+        ]);
     }
 }
