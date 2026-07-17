@@ -123,14 +123,23 @@ class GroupController extends Controller
         }
     }
 
-    public function listMembers(int $group): JsonResponse
+    public function listMembers(SearchQueryRequest $request, int $group): JsonResponse
     {
         try {
-            $members = $this->groupApplicationService->listMembers($group);
+            $dto = SearchQueryDto::fromValidatedRequest($request);
+            $paginator = $this->groupApplicationService->listMembers($group, $dto->getSearch(), $dto->getPerPage());
 
             return $this->successResponse(
                 'Group members retrieved successfully.',
-                GroupMemberResource::collection($members)
+                [
+                    'items' => GroupMemberResource::collection($paginator->getCollection()),
+                    'meta'  => [
+                        'current_page' => $paginator->currentPage(),
+                        'last_page'    => $paginator->lastPage(),
+                        'per_page'     => $paginator->perPage(),
+                        'total'        => $paginator->total(),
+                    ]
+                ]
             );
         } catch (ModelNotFoundException $e) {
             return $this->notFoundResponse('Group not found.');

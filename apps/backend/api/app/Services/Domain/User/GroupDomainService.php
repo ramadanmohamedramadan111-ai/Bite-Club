@@ -167,7 +167,7 @@ class GroupDomainService
         return $group;
     }
 
-    public function listMembers(int $groupId): Collection
+    public function listMembers(int $groupId, ?string $search = null, int $perPage = 15): LengthAwarePaginator
     {
         $currentUser = $this->checkUserAuth();
         $group = $this->groupRepository->findOrFail($groupId);
@@ -182,9 +182,17 @@ class GroupDomainService
             throw new Exception("Unauthorized to view this group's members.");
         }
 
-        return $group->members()
-            ->where('group_members.status', GroupMemberStatusEnum::ACTIVE->value)
-            ->get();
+        $query = $group->members()
+            ->where('group_members.status', GroupMemberStatusEnum::ACTIVE->value);
+            
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%");
+            });
+        }
+
+        return $query->paginate($perPage);
     }
 
     public function addMember(int $groupId, int $userId): void
