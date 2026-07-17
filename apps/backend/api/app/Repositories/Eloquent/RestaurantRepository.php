@@ -87,12 +87,15 @@ class RestaurantRepository extends BaseRepository implements RestaurantRepositor
                   sin( radians( restaurant_settings.latitude ) ) )
                 ) AS distance', [$latitude, $longitude, $latitude]
             )
-            ->orderByDesc('average_rating')
-            ->orderByDesc('reviews_count')
             ->orderBy('distance')
             ->limit($limit)
             ->with('setting')
-            ->get();
+            ->get()
+            ->sortBy([
+                ['average_rating', 'desc'],
+                ['reviews_count', 'desc']
+            ])
+            ->values();
     }
 
     public function getHighestRated(int $limit = 10): Collection
