@@ -8,4 +8,5 @@ use Illuminate\Database\Eloquent\Collection;
 interface MenuCategoryRepositoryInterface extends BaseRepositoryInterface
 {
     public function listWithCounts(array $filters, int $restaurantId): LengthAwarePaginator|Collection;
+    public function listWithItemsForUser(int $restaurantId, array $filters): array;
 }

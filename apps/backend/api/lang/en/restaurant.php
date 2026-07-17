@@ -14,4 +14,6 @@ return [
     'nearest_failed'                => 'Failed to retrieve nearest restaurants.',
     'show_success'                  => 'Restaurant details retrieved successfully.',
     'show_failed'                   => 'Failed to retrieve restaurant details.',
+    'menu_list_success'             => 'Restaurant menu retrieved successfully.',
+    'menu_list_failed'              => 'Failed to retrieve restaurant menu.',
 ];

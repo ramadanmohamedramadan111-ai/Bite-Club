@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\User\UserSearchController;
 use App\Http\Controllers\Api\User\GroupController;
 use App\Http\Controllers\Api\User\RestaurantCategoryController as UserRestaurantCategoryController;
 use App\Http\Controllers\Api\User\RestaurantController as UserRestaurantController;
+use App\Http\Controllers\Api\User\RestaurantMenuController as UserRestaurantMenuController;
 use App\Http\Controllers\Api\User\RestaurantReviewController as UserRestaurantReviewController;
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -54,6 +55,7 @@ Route::prefix('user')->name('user.')->group(function () {
             Route::get('/', [UserRestaurantController::class, 'index'])->name('restaurants.index');
             Route::get('nearest', [UserRestaurantController::class, 'nearest'])->name('restaurants.nearest');
             Route::get('/{restaurantId}', [UserRestaurantController::class, 'show'])->name('restaurants.show');
+            Route::get('/{restaurantId}/menu', [UserRestaurantMenuController::class, 'index'])->name('restaurants.menu');
             
             // Reviews
             Route::prefix('{restaurantId}/reviews')->group(function () {
