@@ -10,4 +10,6 @@ return [
     'not_found'                => 'Restaurant not found.',
     'available_transitions_success' => 'Available statuses retrieved successfully.',
     'available_transitions_failed'  => 'Failed to retrieve available statuses.',
+    'nearest_success'               => 'Nearest restaurants retrieved successfully.',
+    'nearest_failed'                => 'Failed to retrieve nearest restaurants.',
 ];

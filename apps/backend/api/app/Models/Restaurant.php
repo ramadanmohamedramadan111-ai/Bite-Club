@@ -6,6 +6,7 @@ use App\Enums\Restaurant\RestaurantStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
@@ -35,6 +36,7 @@ class Restaurant extends Authenticatable implements JWTSubject
         'approved_at',
         'approved_by',
         'average_rating',
+        'reviews_count',
         'total_orders_count',
     ];
 
@@ -88,5 +90,15 @@ class Restaurant extends Authenticatable implements JWTSubject
     public function menuCategories(): HasMany
     {
         return $this->hasMany(MenuCategory::class, 'restaurant_id');
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(RestaurantReview::class, 'restaurant_id');
+    }
+
+    public function setting(): HasOne
+    {
+        return $this->hasOne(RestaurantSetting::class, 'restaurant_id');
     }
 }

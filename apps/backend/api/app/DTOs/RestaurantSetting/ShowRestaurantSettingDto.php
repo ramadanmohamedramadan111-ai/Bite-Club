@@ -6,20 +6,23 @@ use App\Http\Requests\RestaurantSetting\ShowRestaurantSettingRequest;
 
 class ShowRestaurantSettingDto
 {
-    private int $id;
+    private int $restaurantId;
 
-    public function __construct(int $id)
+    public function __construct(int $restaurantId)
     {
-        $this->id = $id;
+        $this->restaurantId = $restaurantId;
     }
 
     public static function fromValidatedRequest(ShowRestaurantSettingRequest $request): self
     {
-        return new self((int) $request->route('id'));
+        $data = $request->validated();
+        return new self(
+            (int) $data['restaurant_id']
+        );
     }
 
-    public function getId(): int
+    public function getRestaurantId(): int
     {
-        return $this->id;
+        return $this->restaurantId;
     }
 }
