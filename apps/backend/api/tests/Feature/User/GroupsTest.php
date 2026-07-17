@@ -572,4 +572,24 @@ class GroupsTest extends TestCase
         $response = $this->deleteJson("/api/groups/{$group->id}/members/{$owner->id}", [], $this->getHeadersForUser($admin));
         $response->assertStatus(500); // Admins can only remove members
     }
+
+    public function test_owner_can_list_invitable_friends(): void
+    {
+        $owner = User::factory()->create();
+        $friendNotInGroup = User::factory()->create();
+        $friendInGroup = User::factory()->create();
+
+        $this->establishFriendship($owner, $friendNotInGroup);
+        $this->establishFriendship($owner, $friendInGroup);
+
+        $group = Group::factory()->create(['owner_user_id' => $owner->id, 'name' => 'Core Club', 'invite_token' => 'token1']);
+        GroupMember::create(['group_id' => $group->id, 'user_id' => $owner->id, 'role' => 'owner', 'status' => 'active']);
+        GroupMember::create(['group_id' => $group->id, 'user_id' => $friendInGroup->id, 'role' => 'member', 'status' => 'active']);
+
+        $response = $this->getJson("/api/groups/{$group->id}/invitable-friends", $this->getHeadersForUser($owner));
+        $response->assertOk();
+        
+        $response->assertJsonCount(1, 'data.items');
+        $response->assertJsonPath('data.items.0.id', $friendNotInGroup->id);
+    }
 }
