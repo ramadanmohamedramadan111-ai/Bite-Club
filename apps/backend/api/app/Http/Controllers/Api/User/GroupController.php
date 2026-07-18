@@ -52,7 +52,7 @@ class GroupController extends Controller
     {
         try {
             $dto = SearchQueryDto::fromValidatedRequest($request);
-            $paginator = $this->groupApplicationService->listGroups($dto->getSearch(), $dto->getPerPage());
+            $paginator = $this->groupApplicationService->listGroups($dto->getSearch(), $dto->getPerPage(), $dto->getStatus());
 
             return $this->successResponse(
                 'Groups retrieved successfully.',
