@@ -20,6 +20,8 @@ class DatabaseSeeder extends Seeder
             GeneralSettingSeeder::class,
             RestaurantSeeder::class,
             RestaurantMenuSeeder::class,
+            FiveRestaurantsSeeder::class,
+            
         ]);
 
         User::factory()->create([
