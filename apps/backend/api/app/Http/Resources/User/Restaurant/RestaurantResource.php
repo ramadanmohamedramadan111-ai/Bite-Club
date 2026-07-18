@@ -3,6 +3,7 @@
 namespace App\Http\Resources\User\Restaurant;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\RestaurantOpeningHourResource;
 
 class RestaurantResource extends JsonResource
 {
@@ -19,6 +20,11 @@ class RestaurantResource extends JsonResource
             'pickup_enabled'   => (bool) optional($this->setting)->pickup_enabled,
             'accept_orders'    => (bool) optional($this->setting)->accept_orders,
             'category_name'    => $this->category ? $this->category->name : null,
+            'is_open_now'      => (bool) $this->isOpenNow(),
+            'opening_hours'    => $this->when(
+                $request->routeIs('*.restaurants.show') && $this->relationLoaded('openingHours'),
+                fn() => RestaurantOpeningHourResource::collection($this->openingHours)
+            ),
         ];
     }
 }

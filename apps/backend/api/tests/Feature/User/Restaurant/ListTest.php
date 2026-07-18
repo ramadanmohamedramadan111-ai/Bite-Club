@@ -57,7 +57,8 @@ class ListTest extends TestCase
                         'delivery_enabled',
                         'pickup_enabled',
                         'accept_orders',
-                        'category_name'
+                        'category_name',
+                        'is_open_now'
                     ]
                 ],
                 'meta'

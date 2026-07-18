@@ -53,7 +53,16 @@ class ShowTest extends TestCase
                 'delivery_enabled',
                 'pickup_enabled',
                 'accept_orders',
-                'category_name'
+                'category_name',
+                'is_open_now',
+                'opening_hours' => [
+                    '*' => [
+                        'day_of_week',
+                        'opens_at',
+                        'closes_at',
+                        'is_closed'
+                    ]
+                ]
             ]
         ]);
         

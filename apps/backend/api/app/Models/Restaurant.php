@@ -101,4 +101,57 @@ class Restaurant extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(RestaurantSetting::class, 'restaurant_id');
     }
+
+    public function openingHours(): HasMany
+    {
+        return $this->hasMany(RestaurantOpeningHour::class, 'restaurant_id');
+    }
+
+    public function isOpenNow(): bool
+    {
+        $now = now();
+        $currentTime = $now->format('H:i:s');
+        $currentDay = $now->dayOfWeek;
+
+        $openingHours = $this->relationLoaded('openingHours') 
+            ? $this->openingHours 
+            : $this->openingHours()->get();
+
+        if ($openingHours->isEmpty()) {
+            return false;
+        }
+
+        $hoursByDay = $openingHours->keyBy('day_of_week');
+
+        $todayRecord = $hoursByDay->get($currentDay);
+        if ($todayRecord && !$todayRecord->is_closed && $todayRecord->opens_at && $todayRecord->closes_at) {
+            $opens = \Illuminate\Support\Carbon::parse($todayRecord->opens_at)->format('H:i:s');
+            $closes = \Illuminate\Support\Carbon::parse($todayRecord->closes_at)->format('H:i:s');
+
+            if ($opens <= $closes) {
+                if ($currentTime >= $opens && $currentTime <= $closes) {
+                    return true;
+                }
+            } else {
+                if ($currentTime >= $opens) {
+                    return true;
+                }
+            }
+        }
+
+        $yesterdayDay = ($currentDay - 1 + 7) % 7;
+        $yesterdayRecord = $hoursByDay->get($yesterdayDay);
+        if ($yesterdayRecord && !$yesterdayRecord->is_closed && $yesterdayRecord->opens_at && $yesterdayRecord->closes_at) {
+            $opens = \Illuminate\Support\Carbon::parse($yesterdayRecord->opens_at)->format('H:i:s');
+            $closes = \Illuminate\Support\Carbon::parse($yesterdayRecord->closes_at)->format('H:i:s');
+
+            if ($opens > $closes) {
+                if ($currentTime <= $closes) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }

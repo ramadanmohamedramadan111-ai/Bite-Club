@@ -79,7 +79,7 @@ class RestaurantRepository extends BaseRepository implements RestaurantRepositor
             ->where('restaurants.status', RestaurantStatusEnum::ACTIVE->value)
             ->join('restaurant_settings', 'restaurants.id', '=', 'restaurant_settings.restaurant_id')
             ->where('restaurant_settings.is_open', true)
-            ->with(['setting', 'category' => function ($q) {
+            ->with(['setting', 'openingHours', 'category' => function ($q) {
                 $q->select('id', 'name', 'slug');
             }]);
 
@@ -146,7 +146,7 @@ class RestaurantRepository extends BaseRepository implements RestaurantRepositor
             ->where('restaurants.status', RestaurantStatusEnum::ACTIVE->value)
             ->join('restaurant_settings', 'restaurants.id', '=', 'restaurant_settings.restaurant_id')
             ->where('restaurant_settings.is_open', true)
-            ->with(['setting', 'category' => function ($q) {
+            ->with(['setting', 'openingHours', 'category' => function ($q) {
                 $q->select('id', 'name', 'slug');
             }])
             ->first();
