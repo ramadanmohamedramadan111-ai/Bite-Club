@@ -9,6 +9,7 @@ use App\Repositories\Eloquent\RestaurantCategoryRepository;
 use App\Repositories\Eloquent\RestaurantRepository;
 use App\Repositories\Eloquent\PasswordResetOtpRepository;
 use App\Repositories\Eloquent\RestaurantSettingRepository;
+use App\Repositories\Eloquent\RestaurantOpeningHourRepository;
 use App\Repositories\Eloquent\GeneralSettingRepository;
 use App\Repositories\Eloquent\User\FriendRequestRepository;
 use App\Repositories\Eloquent\User\FriendshipRepository;
@@ -21,6 +22,7 @@ use App\Repositories\Interfaces\RestaurantCategoryRepositoryInterface;
 use App\Repositories\Interfaces\RestaurantRepositoryInterface;
 use App\Repositories\Interfaces\PasswordResetOtpRepositoryInterface;
 use App\Repositories\Interfaces\RestaurantSettingRepositoryInterface;
+use App\Repositories\Interfaces\RestaurantOpeningHourRepositoryInterface;
 use App\Repositories\Interfaces\GeneralSettingRepositoryInterface;
 use App\Repositories\Interfaces\User\FriendRequestRepositoryInterface;
 use App\Repositories\Interfaces\User\FriendshipRepositoryInterface;
@@ -69,6 +71,15 @@ class AppServiceProvider extends ServiceProvider
             RestaurantSettingRepositoryInterface::class,
             RestaurantSettingRepository::class
         );
+
+
+
+        $this->app->bind(
+            RestaurantOpeningHourRepositoryInterface::class,
+            RestaurantOpeningHourRepository::class
+        );
+
+        
 
         $this->app->bind(
             GeneralSettingRepositoryInterface::class,

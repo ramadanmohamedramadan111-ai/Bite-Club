@@ -4,11 +4,13 @@ namespace App\Observers;
 
 use App\Models\Restaurant;
 use App\Repositories\Interfaces\RestaurantSettingRepositoryInterface;
+use App\Repositories\Interfaces\RestaurantOpeningHourRepositoryInterface;
 
 class RestaurantObserver
 {
     public function __construct(
-        private RestaurantSettingRepositoryInterface $restaurantSettingRepository
+        private RestaurantSettingRepositoryInterface $restaurantSettingRepository,
+        private RestaurantOpeningHourRepositoryInterface $restaurantOpeningHourRepository
     ) {}
 
     /**
@@ -29,5 +31,15 @@ class RestaurantObserver
             'deposit_threshold'   => 250.00,
             'deposit_percentage'  => 50.00,
         ]);
+
+        for ($day = 0; $day <= 6; $day++) {
+            $this->restaurantOpeningHourRepository->create([
+                'restaurant_id' => $restaurant->id,
+                'day_of_week'   => $day,
+                'opens_at'      => '10:00',
+                'closes_at'     => '22:00',
+                'is_closed'     => false,
+            ]);
+        }
     }
 }

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\Auth\RestaurantAuthController;
 use App\Http\Controllers\Api\RestaurantSettingController;
+use App\Http\Controllers\Api\RestaurantOpeningHourController;
 use App\Http\Controllers\Api\Auth\RestaurantPasswordResetController;
 use App\Http\Controllers\Api\RestaurantCategoryController;
 use App\Http\Controllers\Api\MenuCategoryController;
@@ -24,6 +25,8 @@ Route::middleware('auth.restaurant')->group(function () {
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::get('/', [RestaurantSettingController::class, 'show'])->name('show');
         Route::put('/', [RestaurantSettingController::class, 'update'])->name('update');
+        Route::get('/opening-hours', [RestaurantOpeningHourController::class, 'show'])->name('opening-hours.show');
+        Route::put('/opening-hours', [RestaurantOpeningHourController::class, 'update'])->name('opening-hours.update');
     });
 
     Route::prefix('menu-categories')->name('menu-categories.')->group(function () {
