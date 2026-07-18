@@ -102,3 +102,70 @@ export const leaveGroupAction = actionClient
     return response;
   });
 
+export const removeGroupMemberAction = actionClient
+  .inputSchema(
+    z.object({
+      user_id: idSchema,
+      group_id: idSchema,
+    }),
+  )
+  .action(async ({ parsedInput }) => {
+    const { user_id, group_id } = parsedInput;
+    const response = await serverFetch<ApiResponse<GroupType>>(
+      `/groups/${group_id}/members/${user_id}`,
+      'DELETE',
+    );
+
+    updateTag(`groups`);
+
+    return response;
+  });
+
+export const promoteGroupMemberAction = actionClient
+  .inputSchema(
+    z.object({
+      user_id: idSchema,
+      group_id: idSchema,
+    }),
+  )
+  .action(async ({ parsedInput }) => {
+    const { user_id, group_id } = parsedInput;
+    const response = await serverFetch<ApiResponse<GroupType>>(
+      `/groups/${group_id}/members/${user_id}`,
+      'PATCH',
+      {
+        body: {
+          role: 'admin',
+        },
+      },
+    );
+
+    updateTag(`groups`);
+
+    return response;
+  });
+
+export const demoteGroupMemberAction = actionClient
+  .inputSchema(
+    z.object({
+      user_id: idSchema,
+      group_id: idSchema,
+    }),
+  )
+  .action(async ({ parsedInput }) => {
+    const { user_id, group_id } = parsedInput;
+    const response = await serverFetch<ApiResponse<GroupType>>(
+      `/groups/${group_id}/members/${user_id}`,
+      'PATCH',
+      {
+        body: {
+          role: 'member',
+        },
+      },
+    );
+
+    updateTag(`groups`);
+
+    return response;
+  });
+

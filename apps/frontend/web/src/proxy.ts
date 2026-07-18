@@ -8,9 +8,7 @@ import { anonymousRoutes, protectedRoutes } from './routes';
 
 const intlMiddleware = createMiddleware(routing);
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.NEXT_PUBLIC_JWT_SECRET!,
-);
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET!);
 
 function normalizeRoute(route: string) {
   return route.replace(/^\/+|\/+$/g, '');

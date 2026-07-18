@@ -1,10 +1,16 @@
 import { SocialUser } from '../social/friends';
 
-export type GroupTab = 'members' | 'history' | 'settings';
+export const GROUP_TABS = ['members', 'history', 'settings'] as const;
+export const GROUP_ROLES = ['owner', 'admin', 'member'] as const;
+export const GROUP_STATUS = ['active', 'archived'] as const;
+
+export type GroupTab = (typeof GROUP_TABS)[number];
+export type GroupRole = (typeof GROUP_ROLES)[number];
+export type GroupStatus = (typeof GROUP_STATUS)[number];
 
 export type GroupMember = SocialUser & {
-  role: 'owner';
-  status: 'active';
+  role: GroupRole;
+  status: GroupStatus;
   joined_at: string;
   left_at: string | null;
 };
@@ -16,7 +22,7 @@ export type GroupType = {
   image_url?: string | null;
   invite_token: string;
   allow_join_by_link: boolean;
-  status: 'active';
+  status: GroupStatus;
   owner: SocialUser;
   members: GroupMember[];
   createdAt: string;
@@ -29,7 +35,7 @@ export type GroupTypeSimplified = {
   image_url?: string | null;
   invite_token: string;
   allow_join_by_link: boolean;
-  status: 'active';
+  status: GroupStatus;
   owner: SocialUser;
   members_count: number;
   createdAt: string;
