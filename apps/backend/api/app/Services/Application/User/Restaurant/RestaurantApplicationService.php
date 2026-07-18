@@ -6,6 +6,7 @@ use App\DTOs\User\Restaurant\ListRestaurantsDto;
 use App\DTOs\User\Restaurant\NearestRestaurantsDto;
 use App\Services\Domain\User\Restaurant\RestaurantDomainService;
 use App\Http\Resources\User\Restaurant\RestaurantResource;
+use App\Http\Resources\User\Restaurant\RestaurantDetailResource;
 
 class RestaurantApplicationService
 {
@@ -23,10 +24,10 @@ class RestaurantApplicationService
         ];
     }
 
-    public function getRestaurant(int $id): RestaurantResource
+    public function getRestaurant(int $id): RestaurantDetailResource
     {
         $restaurant = $this->restaurantDomainService->getRestaurantForUser($id);
-        return new RestaurantResource($restaurant);
+        return new RestaurantDetailResource($restaurant);
     }
 
     public function getNearest(NearestRestaurantsDto $dto): array

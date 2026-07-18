@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\RestaurantAuthController;
 use App\Http\Controllers\Api\RestaurantSettingController;
 use App\Http\Controllers\Api\RestaurantOpeningHourController;
+use App\Http\Controllers\Api\RestaurantProfileController;
 use App\Http\Controllers\Api\Auth\RestaurantPasswordResetController;
 use App\Http\Controllers\Api\RestaurantCategoryController;
 use App\Http\Controllers\Api\MenuCategoryController;
@@ -21,6 +22,9 @@ Route::middleware('auth.restaurant')->group(function () {
     Route::post('/logout',  [RestaurantAuthController::class, 'logout'])->name('logout');
     Route::post('/refresh', [RestaurantAuthController::class, 'refresh'])->name('refresh');
     Route::get('/me',       [RestaurantAuthController::class, 'me'])->name('me');
+
+    Route::get('/profile',  [RestaurantProfileController::class, 'show'])->name('profile.show');
+    Route::patch('/profile', [RestaurantProfileController::class, 'update'])->name('profile.update');
 
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::get('/', [RestaurantSettingController::class, 'show'])->name('show');
