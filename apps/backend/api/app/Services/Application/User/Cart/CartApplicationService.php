@@ -3,7 +3,9 @@
 namespace App\Services\Application\User\Cart;
 
 use App\DTOs\User\Cart\AddItemToCartDto;
+use App\DTOs\User\Cart\ListCartsDto;
 use App\Services\Domain\User\Cart\CartDomainService;
+use Illuminate\Database\Eloquent\Collection;
 
 class CartApplicationService
 {
@@ -20,5 +22,10 @@ class CartApplicationService
             $dto->getQuantity(),
             $dto->getNotes()
         );
+    }
+
+    public function listCarts(ListCartsDto $dto): Collection
+    {
+        return $this->cartDomainService->listCarts($dto->getUserId());
     }
 }

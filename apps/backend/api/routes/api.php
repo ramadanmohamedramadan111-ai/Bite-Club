@@ -69,6 +69,10 @@ Route::prefix('user')->name('user.')->group(function () {
         });
 
         // Cart
+        Route::prefix('carts')->group(function () {
+            Route::get('/', [UserCartController::class, 'index'])->name('carts.index');
+        });
+        
         Route::prefix('cart')->group(function () {
             Route::post('items', [UserCartController::class, 'addItem'])->name('cart.items.add');
         });

@@ -7,6 +7,7 @@ use App\Repositories\Interfaces\CartItemRepositoryInterface;
 use App\Repositories\Interfaces\MenuItemRepositoryInterface;
 use App\Enums\MenuItem\MenuItemAvailabilityEnum;
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 
 class CartDomainService
 {
@@ -38,5 +39,9 @@ class CartDomainService
             'unit_price' => $item->price,
             'notes'      => $notes,
         ]);
+    }
+    public function listCarts(int $userId): Collection
+    {
+        return $this->cartRepository->getUserCarts($userId);
     }
 }
