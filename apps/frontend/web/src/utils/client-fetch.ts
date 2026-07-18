@@ -20,6 +20,7 @@ export async function clientFetch<T>(
   }
 
   const token = getCookie('accessToken');
+  console.log('tokennn', getCookie('accessToken'));
 
   if (token) {
     requestHeaders.set('Authorization', `Bearer ${token}`);
@@ -29,7 +30,7 @@ export async function clientFetch<T>(
   console.log('clientFetch: ', body);
 
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}${endpoint}`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}${endpoint}`,
     {
       method,
       credentials: 'include',

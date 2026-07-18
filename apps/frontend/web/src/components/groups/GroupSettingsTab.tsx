@@ -94,8 +94,9 @@ export default function GroupSettingsTab({ group, isOwner }: Props) {
 
   return (
     <div className="space-y-6">
-      <GroupForm group={group} type="edit" key={group?.id ?? 'new'} />
-
+      {group.my_role !== 'member' && (
+        <GroupForm group={group} type="edit" key={group?.id ?? 'new'} />
+      )}
       <div className="space-y-3 rounded-lg border p-4">
         <div className="flex items-center gap-2">
           <LinkIcon className="size-4 text-muted-foreground" />
@@ -113,20 +114,22 @@ export default function GroupSettingsTab({ group, isOwner }: Props) {
         </div>
       </div>
 
-      <div className="flex items-center justify-between rounded-lg border p-4">
-        <div>
-          <p className="font-medium">Open invitations</p>
-          <p className="text-sm text-muted-foreground">
-            Allow new members to join via the invite link
-          </p>
+      {group.my_role !== 'member' && (
+        <div className="flex items-center justify-between rounded-lg border p-4">
+          <div>
+            <p className="font-medium">Open invitations</p>
+            <p className="text-sm text-muted-foreground">
+              Allow new members to join via the invite link
+            </p>
+          </div>
+          <Switch
+            checked={group.allow_join_by_link}
+            onCheckedChange={handleToggle}
+            disabled={isToggling}
+            aria-label="Toggle open invitations"
+          />
         </div>
-        <Switch
-          checked={group.allow_join_by_link}
-          onCheckedChange={handleToggle}
-          disabled={isToggling}
-          aria-label="Toggle open invitations"
-        />
-      </div>
+      )}
 
       <Button
         type="button"

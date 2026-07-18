@@ -385,7 +385,9 @@
     "serverUnavailable": "Server is unavailable. Please try again later.",
     "requestFailed": "Request failed. Please try again.",
     "somethingWentWrong": "Something went wrong. Please try again.",
-    "tryAgain": "Please try again."
+    "tryAgain": "Please try again.",
+    "tryAgainButton": "Try Again",
+    "goHome": "Go Home"
   }
 }
 

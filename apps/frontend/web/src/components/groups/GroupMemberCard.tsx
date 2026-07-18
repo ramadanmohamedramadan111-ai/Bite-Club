@@ -45,7 +45,7 @@ export default function GroupMemberCard({ member, group, type }: Props) {
 
       {!isMe && (
         <GroupMemberActions
-          currentUserRole={group.status}
+          currentUserRole={group.my_role}
           targetRole={member.role}
           groupId={group.id}
           memberId={member.id}
@@ -54,3 +54,4 @@ export default function GroupMemberCard({ member, group, type }: Props) {
     </div>
   );
 }
+

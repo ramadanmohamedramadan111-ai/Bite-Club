@@ -7,6 +7,7 @@ import { ApiResponse, PaginatedResponse } from '@/types/api/api-response';
 import AppPagination from '../shared/AppPagination';
 import GroupMemberCard from './GroupMemberCard';
 import AppSearch from '../shared/AppSearch';
+import AddMembersPaginatedDialog from './AddMembersPaginated';
 
 type Props = SearchPaginatedType & {
   group: GroupType;
@@ -41,7 +42,9 @@ export default async function GroupMembersTab({
         </p>
         <div className="flex gap-4 items-center">
           <AppSearch route={`/groups/${group.id}`} />
-          <AddMemberDialog group={group} />
+          {group.my_role !== 'member' && (
+            <AddMembersPaginatedDialog groupId={group.id} />
+          )}
         </div>
       </div>
 

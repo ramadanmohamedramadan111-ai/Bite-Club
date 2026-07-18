@@ -25,6 +25,9 @@ export default function AppPagination({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  // Always have at least one page.
+  const pages = Math.max(totalPages, 1);
+
   function navigate(page: number) {
     const params = new URLSearchParams(searchParams);
 
@@ -34,23 +37,23 @@ export default function AppPagination({
   }
 
   function getPages() {
-    if (totalPages <= 7) {
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    if (pages <= 7) {
+      return Array.from({ length: pages }, (_, i) => i + 1);
     }
 
     if (currentPage <= 4) {
-      return [1, 2, 3, 4, 5, '...', totalPages] as const;
+      return [1, 2, 3, 4, 5, '...', pages] as const;
     }
 
-    if (currentPage >= totalPages - 3) {
+    if (currentPage >= pages - 3) {
       return [
         1,
         '...',
-        totalPages - 4,
-        totalPages - 3,
-        totalPages - 2,
-        totalPages - 1,
-        totalPages,
+        pages - 4,
+        pages - 3,
+        pages - 2,
+        pages - 1,
+        pages,
       ] as const;
     }
 
@@ -61,11 +64,9 @@ export default function AppPagination({
       currentPage,
       currentPage + 1,
       '...',
-      totalPages,
+      pages,
     ] as const;
   }
-
-  if (totalPages <= 1) return null;
 
   return (
     <Pagination className="mt-6">
@@ -109,7 +110,7 @@ export default function AppPagination({
             onClick={(e) => {
               e.preventDefault();
 
-              if (currentPage < totalPages) {
+              if (currentPage < pages) {
                 navigate(currentPage + 1);
               }
             }}

@@ -169,3 +169,45 @@ export const demoteGroupMemberAction = actionClient
     return response;
   });
 
+export const addGroupMemberAction = actionClient
+  .inputSchema(
+    z.object({
+      user_id: idSchema,
+      group_id: idSchema,
+    }),
+  )
+  .action(async ({ parsedInput }) => {
+    const { user_id, group_id } = parsedInput;
+    const response = await serverFetch<ApiResponse<GroupType>>(
+      `/groups/${group_id}/members`,
+      'POST',
+      {
+        body: {
+          user_id: user_id,
+        },
+      },
+    );
+
+    updateTag(`groups`);
+
+    return response;
+  });
+
+export const joinGroupByLinkAction = actionClient
+  .inputSchema(
+    z.object({
+      invite_token: z.string(),
+    }),
+  )
+  .action(async ({ parsedInput }) => {
+    const { invite_token } = parsedInput;
+    const response = await serverFetch<ApiResponse<GroupType>>(
+      `/groups/invite/${invite_token}`,
+      'POST',
+    );
+
+    updateTag(`groups`);
+
+    return response;
+  });
+
