@@ -30,6 +30,10 @@ use App\Repositories\Interfaces\User\GroupRepositoryInterface;
 use App\Repositories\Interfaces\User\GroupMemberRepositoryInterface;
 use App\Repositories\Eloquent\User\GroupRepository;
 use App\Repositories\Eloquent\User\GroupMemberRepository;
+use App\Repositories\Interfaces\CartRepositoryInterface;
+use App\Repositories\Eloquent\CartRepository;
+use App\Repositories\Interfaces\CartItemRepositoryInterface;
+use App\Repositories\Eloquent\CartItemRepository;
 use Illuminate\Support\ServiceProvider;
 use App\Models\Restaurant;
 use App\Models\RestaurantReview;
@@ -111,6 +115,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             GroupMemberRepositoryInterface::class,
             GroupMemberRepository::class
+        );
+
+        $this->app->bind(
+            CartRepositoryInterface::class,
+            CartRepository::class
+        );
+
+        $this->app->bind(
+            CartItemRepositoryInterface::class,
+            CartItemRepository::class
         );
     }
 
