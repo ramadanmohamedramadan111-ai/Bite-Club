@@ -8,6 +8,10 @@ use App\Http\Requests\User\Cart\AddItemToCartRequest;
 use App\Http\Requests\User\Cart\ListCartsRequest;
 use App\DTOs\User\Cart\AddItemToCartDto;
 use App\DTOs\User\Cart\ListCartsDto;
+use App\DTOs\User\Cart\UpdateCartItemQuantityDto;
+use App\DTOs\User\Cart\RemoveCartItemDto;
+use App\Http\Requests\User\Cart\UpdateCartItemQuantityRequest;
+use App\Http\Requests\User\Cart\RemoveCartItemRequest;
 use App\Services\Application\User\Cart\CartApplicationService;
 use App\Http\Resources\User\Cart\CartResource;
 use Exception;
@@ -46,6 +50,36 @@ class CartController extends Controller
             );
         } catch (Exception $e) {
             Log::error('Failed to retrieve carts: ' . $e->getMessage());
+            return $this->errorResponse($e->getMessage(), [], 400);
+        }
+    }
+
+    public function updateItemQuantity(UpdateCartItemQuantityRequest $request): JsonResponse
+    {
+        try {
+            $dto = UpdateCartItemQuantityDto::fromValidatedRequest($request);
+            $this->cartApplicationService->updateItemQuantity($dto);
+
+            return $this->successResponse(
+                'Cart item updated successfully.'
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to update cart item: ' . $e->getMessage());
+            return $this->errorResponse($e->getMessage(), [], 400);
+        }
+    }
+
+    public function removeItem(RemoveCartItemRequest $request): JsonResponse
+    {
+        try {
+            $dto = RemoveCartItemDto::fromValidatedRequest($request);
+            $this->cartApplicationService->removeItem($dto);
+
+            return $this->successResponse(
+                'Cart item removed successfully.'
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to remove cart item: ' . $e->getMessage());
             return $this->errorResponse($e->getMessage(), [], 400);
         }
     }

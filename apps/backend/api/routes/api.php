@@ -75,6 +75,8 @@ Route::prefix('user')->name('user.')->group(function () {
         
         Route::prefix('cart')->group(function () {
             Route::post('items', [UserCartController::class, 'addItem'])->name('cart.items.add');
+            Route::put('items/{itemId}', [UserCartController::class, 'updateItemQuantity'])->name('cart.items.update');
+            Route::delete('items/{itemId}', [UserCartController::class, 'removeItem'])->name('cart.items.remove');
         });
     });
 });

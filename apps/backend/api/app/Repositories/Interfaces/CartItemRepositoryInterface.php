@@ -6,5 +6,5 @@ use App\Models\CartItem;
 
 interface CartItemRepositoryInterface extends BaseRepositoryInterface
 {
-    public function updateOrCreateItem(int $cartId, array $itemData): CartItem;
+    public function updateOrCreateItem(int $cartId, array $data): CartItem;
 }

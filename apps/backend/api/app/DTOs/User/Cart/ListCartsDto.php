@@ -2,7 +2,7 @@
 
 namespace App\DTOs\User\Cart;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\User\Cart\ListCartsRequest;
 
 class ListCartsDto
 {
@@ -10,7 +10,7 @@ class ListCartsDto
         private readonly int $userId
     ) {}
 
-    public static function fromValidatedRequest(Request $request): self
+    public static function fromValidatedRequest(ListCartsRequest $request): self
     {
         $validated = $request->validated();
 

@@ -44,4 +44,33 @@ class CartDomainService
     {
         return $this->cartRepository->getUserCarts($userId);
     }
+
+    public function updateItemQuantity(int $userId, int $cartItemId, int $quantity): void
+    {
+        $cartItem = $this->cartItemRepository->findOrFail($cartItemId);
+        $cart = $this->cartRepository->findOrFail($cartItem->cart_id);
+
+        if ($cart->user_id !== $userId) {
+            throw new Exception(trans('cart.unauthorized_action'));
+        }
+
+        $this->cartItemRepository->update($cartItemId, ['quantity' => $quantity]);
+    }
+
+    public function removeItem(int $userId, int $cartItemId): void
+    {
+        $cartItem = $this->cartItemRepository->findOrFail($cartItemId);
+        $cart = $this->cartRepository->findOrFail($cartItem->cart_id);
+
+        if ($cart->user_id !== $userId) {
+            throw new Exception(trans('cart.unauthorized_action'));
+        }
+
+        $this->cartItemRepository->delete($cartItemId);
+        
+        // If cart is empty after removing the item, delete the cart
+        if ($cart->items()->count() === 0) {
+            $this->cartRepository->delete($cart->id);
+        }
+    }
 }

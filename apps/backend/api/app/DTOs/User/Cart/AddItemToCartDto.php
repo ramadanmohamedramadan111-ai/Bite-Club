@@ -2,7 +2,7 @@
 
 namespace App\DTOs\User\Cart;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\User\Cart\AddItemToCartRequest;
 
 class AddItemToCartDto
 {
@@ -14,7 +14,7 @@ class AddItemToCartDto
         private readonly ?string $notes = null
     ) {}
 
-    public static function fromValidatedRequest(Request $request): self
+    public static function fromValidatedRequest(AddItemToCartRequest $request): self
     {
         $validated = $request->validated();
 
