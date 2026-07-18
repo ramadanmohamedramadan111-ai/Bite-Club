@@ -21,6 +21,7 @@ class SearchQueryRequest extends FormRequest
         return [
             'search'   => ['nullable', 'string', 'max:255'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'status'   => ['nullable', 'string', 'in:active,archived'],
         ];
     }
 

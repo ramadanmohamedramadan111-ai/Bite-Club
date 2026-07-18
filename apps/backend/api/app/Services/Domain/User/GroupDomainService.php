@@ -120,7 +120,7 @@ class GroupDomainService
         return $group->refresh();
     }
 
-    public function listGroups(?string $search = null, int $perPage = 15): LengthAwarePaginator
+    public function listGroups(?string $search = null, int $perPage = 15, ?string $status = null): LengthAwarePaginator
     {
         $currentUser = $this->checkUserAuth();
 
@@ -137,7 +137,14 @@ class GroupDomainService
             });
         }
 
-        $query->with(['owner'])
+        if ($status) {
+            $query->where('groups.status', $status);
+        }
+
+        $query->with(['owner', 'members' => function ($q) use ($currentUser) {
+            $q->where('user_id', $currentUser->id)
+              ->where('group_members.status', GroupMemberStatusEnum::ACTIVE->value);
+        }])
               ->withCount(['members as active_members_count' => function ($q) {
                   $q->where('group_members.status', GroupMemberStatusEnum::ACTIVE->value);
               }]);
@@ -160,8 +167,17 @@ class GroupDomainService
             throw new Exception("Unauthorized to view this group.");
         }
 
-        $group->load(['owner', 'members' => function ($q) {
-            $q->where('group_members.status', GroupMemberStatusEnum::ACTIVE->value);
+        $group->load(['owner', 'members' => function ($q) use ($currentUser) {
+            $q->where('group_members.status', GroupMemberStatusEnum::ACTIVE->value)
+              ->orderByRaw("
+                  CASE 
+                      WHEN users.id = ? THEN 1
+                      WHEN group_members.role = 'owner' THEN 2
+                      WHEN group_members.role = 'admin' THEN 3
+                      ELSE 4
+                  END ASC
+              ", [$currentUser->id])
+              ->orderBy('users.first_name', 'asc');
         }]);
 
         return $group;
@@ -191,6 +207,16 @@ class GroupDomainService
                   ->orWhere('last_name', 'like', "%{$search}%");
             });
         }
+
+        $query->orderByRaw("
+            CASE 
+                WHEN users.id = ? THEN 1
+                WHEN group_members.role = 'owner' THEN 2
+                WHEN group_members.role = 'admin' THEN 3
+                ELSE 4
+            END ASC
+        ", [$currentUser->id])
+        ->orderBy('users.first_name', 'asc');
 
         return $query->paginate($perPage);
     }

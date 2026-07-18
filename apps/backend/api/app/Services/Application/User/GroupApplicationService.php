@@ -57,9 +57,9 @@ class GroupApplicationService
         return $this->groupDomainService->archiveGroup($groupId);
     }
 
-    public function listGroups(?string $search = null, int $perPage = 15): LengthAwarePaginator
+    public function listGroups(?string $search = null, int $perPage = 15, ?string $status = null): LengthAwarePaginator
     {
-        return $this->groupDomainService->listGroups($search, $perPage);
+        return $this->groupDomainService->listGroups($search, $perPage, $status);
     }
 
     public function getGroup(int $groupId): Group

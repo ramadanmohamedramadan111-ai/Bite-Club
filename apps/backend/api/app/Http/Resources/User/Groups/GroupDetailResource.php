@@ -10,6 +10,16 @@ class GroupDetailResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $currentUser = auth('user')->user();
+        $myRole = null;
+        
+        if ($currentUser && $this->relationLoaded('members')) {
+            $member = $this->members->firstWhere('id', $currentUser->id);
+            if ($member && $member->pivot) {
+                $myRole = $member->pivot->role;
+            }
+        }
+
         return [
             'id'                 => $this->id,
             'name'               => $this->name,
@@ -18,6 +28,7 @@ class GroupDetailResource extends JsonResource
             'invite_token'       => $this->invite_token,
             'allow_join_by_link' => (bool) $this->allow_join_by_link,
             'status'             => $this->status instanceof \UnitEnum ? $this->status->value : $this->status,
+            'my_role'            => $myRole,
             'owner'              => new UserSearchResource($this->owner),
             'members'            => GroupMemberResource::collection($this->members),
         ];
