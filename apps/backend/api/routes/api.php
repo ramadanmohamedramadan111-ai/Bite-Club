@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\User\RestaurantController as UserRestaurantControll
 use App\Http\Controllers\Api\User\RestaurantMenuController as UserRestaurantMenuController;
 use App\Http\Controllers\Api\User\RestaurantReviewController as UserRestaurantReviewController;
 use App\Http\Controllers\Api\User\CartController as UserCartController;
+use App\Http\Controllers\Api\User\OrderController as UserOrderController;
 
 Route::prefix('admin')->name('admin.')->group(function () {
 
@@ -77,6 +78,11 @@ Route::prefix('user')->name('user.')->group(function () {
             Route::post('items', [UserCartController::class, 'addItem'])->name('cart.items.add');
             Route::put('items/{itemId}', [UserCartController::class, 'updateItemQuantity'])->name('cart.items.update');
             Route::delete('items/{itemId}', [UserCartController::class, 'removeItem'])->name('cart.items.remove');
+        });
+
+        // Order
+        Route::prefix('checkout')->group(function () {
+            Route::post('preview', [UserOrderController::class, 'previewCheckout'])->name('checkout.preview');
         });
     });
 });
