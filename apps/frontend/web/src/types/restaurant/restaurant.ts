@@ -71,5 +71,26 @@ export interface RestaurantCategory {
   id: number;
   name: string;
   slug: string;
+  image_url?: string;
 }
 
+export interface TopRestaurant {
+  id: number;
+  name: string;
+  description: string;
+  logo_url: string;
+  cover_image_url: string;
+  distance: number;
+  average_rating: string;
+  reviews_count: number;
+  settings: RestaurantSettings;
+}
+
+export type RestaurantSettings = {
+  is_open: boolean;
+  accept_orders: boolean;
+  delivery_enabled: boolean;
+  pickup_enabled: boolean;
+  latitude: string;
+  longitude: string;
+};
