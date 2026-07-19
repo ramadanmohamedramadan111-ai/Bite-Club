@@ -76,9 +76,68 @@ class OrderDomainService
             $calculator->calculate($context);
         }
 
+        $items = $cart->items->map(function ($item) {
+            return [
+                'item_id' => $item->item_id,
+                'name' => $item->item_name,
+                'quantity' => $item->quantity,
+                'unit_price' => round($item->unit_price, 2),
+                'total_price' => round($item->quantity * $item->unit_price, 2),
+            ];
+        })->toArray();
+
+        $depositAmount = round($context->depositAmount, 2);
+        $totalAmount = round($context->total, 2);
+        $availablePaymentOptions = [];
+
+        if ($context->requiresDeposit) {
+            $availablePaymentOptions[] = [
+                'id' => 'split_payment',
+                'title' => 'Pay Deposit Online, Remaining Cash',
+                'description' => "Pay {$depositAmount} now to confirm your order, and the rest upon delivery.",
+                'required_now' => [
+                    'type' => 'deposit',
+                    'method' => 'online',
+                    'amount' => $depositAmount,
+                ]
+            ];
+            $availablePaymentOptions[] = [
+                'id' => 'full_online',
+                'title' => 'Pay Full Amount Online',
+                'description' => "Pay the total {$totalAmount} now.",
+                'required_now' => [
+                    'type' => 'full',
+                    'method' => 'online',
+                    'amount' => $totalAmount,
+                ]
+            ];
+        } else {
+            $availablePaymentOptions[] = [
+                'id' => 'full_cash',
+                'title' => 'Pay Cash on Delivery',
+                'description' => "Pay the total {$totalAmount} upon delivery.",
+                'required_now' => [
+                    'type' => 'full',
+                    'method' => 'cash',
+                    'amount' => $totalAmount,
+                ]
+            ];
+            $availablePaymentOptions[] = [
+                'id' => 'full_online',
+                'title' => 'Pay Full Amount Online',
+                'description' => "Pay the total {$totalAmount} now.",
+                'required_now' => [
+                    'type' => 'full',
+                    'method' => 'online',
+                    'amount' => $totalAmount,
+                ]
+            ];
+        }
+
         return [
             'cart_id' => $cart->id,
             'order_type' => $orderType,
+            'items' => $items,
             'financials' => [
                 'subtotal' => round($context->subtotal, 2),
                 'delivery_fee' => round($context->deliveryFee, 2),
@@ -91,6 +150,7 @@ class OrderDomainService
                 'deposit_amount' => round($context->depositAmount, 2),
                 'remaining_amount' => round($context->remainingAmount, 2),
             ],
+            'available_payment_options' => $availablePaymentOptions,
             'internal_data' => [
                 'system_commission' => round($context->systemCommission, 2),
             ]
