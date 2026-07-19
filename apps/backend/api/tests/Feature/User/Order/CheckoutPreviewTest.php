@@ -64,7 +64,6 @@ class CheckoutPreviewTest extends TestCase
         ]);
 
         $payload = [
-            'cart_id' => $cart->id,
             'order_type' => OrderTypeEnum::PICKUP->value,
         ];
 

@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Api\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\User\Cart\AddItemToCartRequest;
-use App\Http\Requests\User\Cart\ListCartsRequest;
+use App\Http\Requests\User\Cart\GetCartRequest;
 use App\DTOs\User\Cart\AddItemToCartDto;
-use App\DTOs\User\Cart\ListCartsDto;
+use App\DTOs\User\Cart\GetCartDto;
 use App\DTOs\User\Cart\UpdateCartItemQuantityDto;
 use App\DTOs\User\Cart\RemoveCartItemDto;
 use App\Http\Requests\User\Cart\UpdateCartItemQuantityRequest;
@@ -38,15 +38,19 @@ class CartController extends Controller
         }
     }
 
-    public function index(ListCartsRequest $request): JsonResponse
+    public function show(GetCartRequest $request): JsonResponse
     {
         try {
-            $dto = ListCartsDto::fromValidatedRequest($request);
-            $carts = $this->cartApplicationService->listCarts($dto);
+            $dto = GetCartDto::fromValidatedRequest($request);
+            $cart = $this->cartApplicationService->getCart($dto);
+
+            if (!$cart) {
+                return $this->successResponse('Cart is empty', null);
+            }
 
             return $this->successResponse(
-                'Carts retrieved successfully.',
-                CartResource::collection($carts)
+                'Cart retrieved successfully.',
+                new CartResource($cart)
             );
         } catch (Exception $e) {
             Log::error('Failed to retrieve carts: ' . $e->getMessage());

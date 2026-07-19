@@ -87,4 +87,52 @@ class AddItemToCartTest extends TestCase
         $response = $this->withToken($token)->postJson('/api/user/cart/items', $payload);
         $response->assertStatus(400);
     }
+
+    public function test_user_can_only_have_one_cart_across_all_restaurants()
+    {
+        [$user, $token] = $this->loginUser();
+
+        // Restaurant 1
+        $restaurant1 = Restaurant::factory()->create(['status' => RestaurantStatusEnum::ACTIVE->value]);
+        $category1 = MenuCategory::factory()->create(['restaurant_id' => $restaurant1->id]);
+        $item1 = MenuItem::factory()->create([
+            'menu_category_id' => $category1->id,
+            'availability'     => MenuItemAvailabilityEnum::AVAILABLE->value,
+        ]);
+
+        $this->withToken($token)->postJson('/api/user/cart/items', [
+            'restaurant_id' => $restaurant1->id,
+            'item_id'       => $item1->id,
+            'quantity'      => 1,
+        ]);
+
+        $this->assertDatabaseHas('carts', [
+            'user_id'       => $user->id,
+            'restaurant_id' => $restaurant1->id,
+        ]);
+
+        // Restaurant 2
+        $restaurant2 = Restaurant::factory()->create(['status' => RestaurantStatusEnum::ACTIVE->value]);
+        $category2 = MenuCategory::factory()->create(['restaurant_id' => $restaurant2->id]);
+        $item2 = MenuItem::factory()->create([
+            'menu_category_id' => $category2->id,
+            'availability'     => MenuItemAvailabilityEnum::AVAILABLE->value,
+        ]);
+
+        $this->withToken($token)->postJson('/api/user/cart/items', [
+            'restaurant_id' => $restaurant2->id,
+            'item_id'       => $item2->id,
+            'quantity'      => 1,
+        ]);
+
+        $this->assertDatabaseMissing('carts', [
+            'user_id'       => $user->id,
+            'restaurant_id' => $restaurant1->id, // old cart deleted
+        ]);
+
+        $this->assertDatabaseHas('carts', [
+            'user_id'       => $user->id,
+            'restaurant_id' => $restaurant2->id, // new cart created
+        ]);
+    }
 }

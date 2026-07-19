@@ -30,16 +30,12 @@ class OrderDomainService
         ];
     }
 
-    public function previewCheckout(int $userId, int $cartId, string $orderType, ?float $lat, ?float $long): array
+    public function previewCheckout(int $userId, string $orderType, ?float $lat, ?float $long): array
     {
-        $cart = $this->cartRepository->find($cartId);
+        $cart = $this->cartRepository->getUserCart($userId);
 
         if (!$cart) {
             throw new Exception(trans('order.cart_not_found'));
-        }
-
-        if ($cart->user_id !== $userId) {
-            throw new Exception(trans('order.unauthorized_cart'));
         }
 
         if ($cart->items->isEmpty()) {

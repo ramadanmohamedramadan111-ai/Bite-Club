@@ -2,15 +2,15 @@
 
 namespace App\DTOs\User\Cart;
 
-use App\Http\Requests\User\Cart\ListCartsRequest;
+use App\Http\Requests\User\Cart\GetCartRequest;
 
-class ListCartsDto
+class GetCartDto
 {
     public function __construct(
         private readonly int $userId
     ) {}
 
-    public static function fromValidatedRequest(ListCartsRequest $request): self
+    public static function fromValidatedRequest(GetCartRequest $request): self
     {
         $validated = $request->validated();
 

@@ -3,11 +3,11 @@
 namespace App\Services\Application\User\Cart;
 
 use App\DTOs\User\Cart\AddItemToCartDto;
-use App\DTOs\User\Cart\ListCartsDto;
+use App\DTOs\User\Cart\GetCartDto;
 use App\DTOs\User\Cart\UpdateCartItemQuantityDto;
 use App\DTOs\User\Cart\RemoveCartItemDto;
 use App\Services\Domain\User\Cart\CartDomainService;
-use Illuminate\Database\Eloquent\Collection;
+use App\Models\Cart;
 
 class CartApplicationService
 {
@@ -26,9 +26,9 @@ class CartApplicationService
         );
     }
 
-    public function listCarts(ListCartsDto $dto): Collection
+    public function getCart(GetCartDto $dto): ?Cart
     {
-        return $this->cartDomainService->listCarts($dto->getUserId());
+        return $this->cartDomainService->getCart($dto->getUserId());
     }
 
     public function updateItemQuantity(UpdateCartItemQuantityDto $dto): void

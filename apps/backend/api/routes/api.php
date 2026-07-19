@@ -70,8 +70,8 @@ Route::prefix('user')->name('user.')->group(function () {
         });
 
         // Cart
-        Route::prefix('carts')->group(function () {
-            Route::get('/', [UserCartController::class, 'index'])->name('carts.index');
+        Route::prefix('cart')->group(function () {
+            Route::get('/', [UserCartController::class, 'show'])->name('cart.show');
         });
         
         Route::prefix('cart')->group(function () {
