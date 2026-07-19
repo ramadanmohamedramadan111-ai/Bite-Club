@@ -40,6 +40,13 @@ use App\Models\RestaurantReview;
 use App\Observers\RestaurantObserver;
 use App\Observers\RestaurantReviewObserver;
 
+use App\Repositories\Interfaces\OrderRepositoryInterface;
+use App\Repositories\Eloquent\OrderRepository;
+use App\Repositories\Interfaces\OrderItemRepositoryInterface;
+use App\Repositories\Eloquent\OrderItemRepository;
+use App\Repositories\Interfaces\OrderPaymentRepositoryInterface;
+use App\Repositories\Eloquent\OrderPaymentRepository;
+
 class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
@@ -117,15 +124,11 @@ class AppServiceProvider extends ServiceProvider
             GroupMemberRepository::class
         );
 
-        $this->app->bind(
-            CartRepositoryInterface::class,
-            CartRepository::class
-        );
-
-        $this->app->bind(
-            CartItemRepositoryInterface::class,
-            CartItemRepository::class
-        );
+        $this->app->bind(CartRepositoryInterface::class, CartRepository::class);
+        $this->app->bind(CartItemRepositoryInterface::class, CartItemRepository::class);
+        $this->app->bind(OrderRepositoryInterface::class, OrderRepository::class);
+        $this->app->bind(OrderItemRepositoryInterface::class, OrderItemRepository::class);
+        $this->app->bind(OrderPaymentRepositoryInterface::class, OrderPaymentRepository::class);
     }
 
     public function boot(): void

@@ -3,6 +3,7 @@
 namespace App\Services\Application\User\Order;
 
 use App\DTOs\User\Order\CheckoutPreviewDto;
+use App\DTOs\User\Order\PlaceOrderDto;
 use App\Services\Domain\User\Order\OrderDomainService;
 
 class OrderApplicationService
@@ -18,6 +19,18 @@ class OrderApplicationService
             $dto->getOrderType(),
             $dto->getLat(),
             $dto->getLong()
+        );
+    }
+
+    public function placeOrder(PlaceOrderDto $dto): array
+    {
+        return $this->orderDomainService->placeOrder(
+            $dto->getUserId(),
+            $dto->getOrderType(),
+            $dto->getPaymentOptionId(),
+            $dto->getLat(),
+            $dto->getLong(),
+            $dto->getNotes()
         );
     }
 }

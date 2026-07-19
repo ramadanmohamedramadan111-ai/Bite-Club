@@ -83,6 +83,7 @@ Route::prefix('user')->name('user.')->group(function () {
         // Order
         Route::prefix('checkout')->group(function () {
             Route::post('preview', [UserOrderController::class, 'previewCheckout'])->name('checkout.preview');
+            Route::post('place', [UserOrderController::class, 'placeOrder'])->name('checkout.place');
         });
     });
 });
