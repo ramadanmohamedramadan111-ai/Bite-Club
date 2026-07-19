@@ -15,7 +15,6 @@ class OrderApplicationService
     {
         return $this->orderDomainService->previewCheckout(
             $dto->getUserId(),
-            $dto->getCartId(),
             $dto->getOrderType(),
             $dto->getLat(),
             $dto->getLong()

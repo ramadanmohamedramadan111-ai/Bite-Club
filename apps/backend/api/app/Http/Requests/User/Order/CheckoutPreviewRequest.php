@@ -21,7 +21,6 @@ class CheckoutPreviewRequest extends FormRequest
     {
         return [
             'user_id' => 'required|integer',
-            'cart_id' => 'required|integer|exists:carts,id',
             'order_type' => 'required|string|in:' . implode(',', OrderTypeEnum::values()),
             'lat' => 'required_if:order_type,' . OrderTypeEnum::DELIVERY->value . '|numeric|between:-90,90',
             'long' => 'required_if:order_type,' . OrderTypeEnum::DELIVERY->value . '|numeric|between:-180,180',

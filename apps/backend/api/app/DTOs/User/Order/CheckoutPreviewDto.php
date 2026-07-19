@@ -8,7 +8,6 @@ class CheckoutPreviewDto
 {
     public function __construct(
         private readonly int $userId,
-        private readonly int $cartId,
         private readonly string $orderType,
         private readonly ?float $lat,
         private readonly ?float $long
@@ -20,7 +19,6 @@ class CheckoutPreviewDto
 
         return new self(
             $validated['user_id'],
-            $validated['cart_id'],
             $validated['order_type'],
             $validated['lat'] ?? null,
             $validated['long'] ?? null
@@ -30,11 +28,6 @@ class CheckoutPreviewDto
     public function getUserId(): int
     {
         return $this->userId;
-    }
-
-    public function getCartId(): int
-    {
-        return $this->cartId;
     }
 
     public function getOrderType(): string
