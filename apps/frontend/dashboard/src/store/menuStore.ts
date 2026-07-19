@@ -17,7 +17,13 @@ interface MenuStore {
   isLoading: boolean
   error: string | null
 
-  fetchItems: (params?: { menu_category_id?: number; page?: number }) => Promise<void>
+  fetchItems: (params?: {
+    menu_category_id?: number
+    title?: string
+    sort_by?: 'title' | 'price' | 'availability'
+    sort_dir?: 'asc' | 'desc'
+    page?: number
+  }) => Promise<void>
   addItem: (payload: {
     title: string
     description: string

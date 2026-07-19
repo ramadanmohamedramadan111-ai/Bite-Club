@@ -1,13 +1,17 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ChevronLeft, ChevronRight, Copy, Filter, Pencil, Plus, Trash2, Utensils } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Copy, Filter, Pencil, Plus, Search, SortAsc, SortDesc, Trash2, Utensils, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
+import { useDebounce } from 'use-debounce'
 import { DeleteModal } from '../../components/common/DeleteModal'
 import { FormModal } from '../../components/common/FormModal'
 import { useMenuStore } from '../../store/menuStore'
 import { useCategoryStore } from '../../store/categoryStore'
 import type { ApiMenuItem } from '../../store/menuTypes'
+
+type SortBy  = 'title' | 'price' | 'availability'
+type SortDir = 'asc' | 'desc'
 
 type ItemForm = {
   title: string
@@ -32,8 +36,17 @@ export function MenuPage() {
   const { items, meta, isLoading, fetchItems, addItem, updateItem, deleteItem, toggleAvailability } = useMenuStore()
   const { categories, fetchCategories } = useCategoryStore()
 
-  const [activeCatId, setActiveCatId]   = useState<'all' | number>('all')
-  const [page, setPage]                 = useState(1)
+  // ── Filter state ──────────────────────────────────────────────────────
+  const [activeCatId, setActiveCatId] = useState<'all' | number>('all')
+  const [search, setSearch]           = useState('')
+  const [sortBy, setSortBy]           = useState<SortBy>('title')
+  const [sortDir, setSortDir]         = useState<SortDir>('asc')
+  const [showFilters, setShowFilters] = useState(false)
+  const [page, setPage]               = useState(1)
+
+  const [debouncedSearch] = useDebounce(search, 400)
+
+  // ── Modal state ───────────────────────────────────────────────────────
   const [showCreate, setShowCreate]     = useState(false)
   const [editTarget, setEditTarget]     = useState<ApiMenuItem | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<ApiMenuItem | null>(null)
@@ -42,17 +55,26 @@ export function MenuPage() {
 
   useEffect(() => { fetchCategories() }, [])
 
-  useEffect(() => {
+  const doFetch = useCallback(() => {
     fetchItems({
       menu_category_id: activeCatId === 'all' ? undefined : activeCatId,
+      title: debouncedSearch || undefined,
+      sort_by: sortBy,
+      sort_dir: sortDir,
       page,
     })
-  }, [activeCatId, page])
+  }, [activeCatId, debouncedSearch, sortBy, sortDir, page])
 
-  const handleTabChange = (id: 'all' | number) => {
-    setActiveCatId(id)
-    setPage(1)
-  }
+  useEffect(() => { doFetch() }, [doFetch])
+
+  const resetPage = () => setPage(1)
+
+  const handleTabChange = (id: 'all' | number) => { setActiveCatId(id); resetPage() }
+  const handleSortBy    = (v: SortBy)           => { setSortBy(v);       resetPage() }
+  const handleSortDir   = (v: SortDir)          => { setSortDir(v);      resetPage() }
+  const handleSearch    = (v: string)           => { setSearch(v);       resetPage() }
+
+  const hasActiveFilters = search !== '' || sortBy !== 'title' || sortDir !== 'asc'
 
   const openCreate = () => {
     setForm({ ...EMPTY_FORM, menu_category_id: categories[0] ? String(categories[0].id) : '' })
@@ -88,6 +110,7 @@ export function MenuPage() {
       })
       toast.success(t('itemCreated'))
       setShowCreate(false)
+      doFetch()
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t('errorOccurred'))
     } finally {
@@ -109,6 +132,7 @@ export function MenuPage() {
       })
       toast.success(t('itemUpdated'))
       setEditTarget(null)
+      doFetch()
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t('errorOccurred'))
     } finally {
@@ -192,8 +216,13 @@ export function MenuPage() {
             className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:border-brand-orange hover:text-brand-orange transition dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">
             <Utensils size={14} /> {t('categoryManagement')}
           </Link>
-          <button className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:border-brand-orange hover:text-brand-orange transition dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">
-            <Filter size={14} /> {t('filter')}
+          <button
+            onClick={() => setShowFilters((v) => !v)}
+            className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${showFilters || hasActiveFilters ? 'border-brand-orange bg-orange-50 text-brand-orange dark:bg-orange-900/20' : 'border-gray-200 bg-white text-gray-700 hover:border-brand-orange hover:text-brand-orange dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200'}`}
+          >
+            <Filter size={14} />
+            {t('filter')}
+            {hasActiveFilters && <span className="flex h-4 w-4 items-center justify-center rounded-full bg-brand-orange text-[9px] font-bold text-white">!</span>}
           </button>
           <button onClick={openCreate}
             className="flex items-center gap-2 rounded-xl bg-brand-orange px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition">
@@ -201,6 +230,74 @@ export function MenuPage() {
           </button>
         </div>
       </div>
+
+      {/* Filter panel */}
+      {showFilters && (
+        <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <div className="flex flex-wrap gap-3 items-end">
+            {/* Search by title */}
+            <div className="flex-1 min-w-[200px]">
+              <label className="block text-xs font-semibold text-gray-500 dark:text-slate-400 mb-1.5">{t('searchByTitle')}</label>
+              <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 focus-within:border-brand-orange focus-within:ring-2 focus-within:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800">
+                <Search size={14} className="shrink-0 text-gray-400" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  placeholder={t('itemName') + '...'}
+                  className="w-full bg-transparent text-sm text-gray-700 outline-none placeholder:text-gray-400 dark:text-slate-200 dark:placeholder:text-slate-500"
+                />
+                {search && (
+                  <button onClick={() => handleSearch('')} className="text-gray-400 hover:text-gray-600">
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Sort by */}
+            <div className="min-w-[150px]">
+              <label className="block text-xs font-semibold text-gray-500 dark:text-slate-400 mb-1.5">{t('sortBy')}</label>
+              <select
+                value={sortBy}
+                onChange={(e) => handleSortBy(e.target.value as SortBy)}
+                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-700 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+              >
+                <option value="title">{t('itemName')}</option>
+                <option value="price">{t('price')}</option>
+                <option value="availability">{t('availability')}</option>
+              </select>
+            </div>
+
+            {/* Sort direction */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 dark:text-slate-400 mb-1.5">{t('sortDir')}</label>
+              <div className="flex gap-2">
+                {(['asc', 'desc'] as const).map((dir) => (
+                  <button
+                    key={dir}
+                    onClick={() => handleSortDir(dir)}
+                    className={`flex items-center gap-1.5 rounded-xl border-2 px-3 py-2 text-sm font-semibold transition ${sortDir === dir ? 'border-brand-orange bg-orange-50 text-brand-orange dark:bg-orange-900/20' : 'border-gray-200 bg-white text-gray-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}
+                  >
+                    {dir === 'asc' ? <SortAsc size={14} /> : <SortDesc size={14} />}
+                    {dir === 'asc' ? t('ascending') : t('descending')}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Clear filters */}
+            {hasActiveFilters && (
+              <button
+                onClick={() => { setSearch(''); setSortBy('title'); setSortDir('asc'); resetPage() }}
+                className="flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-sm font-semibold text-red-500 hover:bg-red-100 transition dark:border-red-800 dark:bg-red-900/20 dark:text-red-400"
+              >
+                <X size={14} /> {t('clearFilters')}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Category tabs */}
       <div className="flex flex-wrap gap-2">
@@ -245,25 +342,28 @@ export function MenuPage() {
               <div className="p-3">
                 <div className="flex items-start justify-between gap-2 mb-0.5">
                   <p className="font-bold text-sm text-gray-900 dark:text-white leading-snug">{item.title}</p>
-                  <div className="text-start shrink-0">
-                    <span className="text-sm font-bold text-brand-orange">{item.price}</span>
+                  <div className="text-end shrink-0">
+                    <span className="text-sm font-bold text-brand-orange">{Number(item.price).toFixed(2)}</span>
                     <span className="block text-[10px] font-semibold text-brand-orange">EGP</span>
                   </div>
                 </div>
-                <p className="text-xs text-gray-400 mb-3">{item.category.title}</p>
+                <p className="text-xs text-gray-400 mb-3">
+                  {item.category?.title ?? categories.find((c) => c.id === item.menu_category_id)?.title ?? '—'}
+                </p>
 
                 {/* Footer */}
                 <div className="flex items-center justify-between">
                   {/* Availability toggle */}
-                  <button
-                    onClick={() => toggleAvailability(item.id, item.availability)}
-                    className={`flex items-center gap-2 text-xs font-semibold ${item.availability === 'available' ? 'text-green-600' : 'text-gray-400'}`}
-                  >
-                    <span className={`relative inline-flex h-5 w-9 items-center rounded-full transition ${item.availability === 'available' ? 'bg-brand-orange' : 'bg-gray-200 dark:bg-slate-600'}`}>
+                  <div className={`flex items-center gap-2 text-xs font-semibold ${item.availability === 'available' ? 'text-green-600' : 'text-gray-400'}`}>
+                    <button
+                      dir="ltr"
+                      onClick={() => toggleAvailability(item.id, item.availability)}
+                      className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${item.availability === 'available' ? 'bg-brand-orange' : 'bg-gray-200 dark:bg-slate-600'}`}
+                    >
                       <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform ${item.availability === 'available' ? 'translate-x-4' : 'translate-x-1'}`} />
-                    </span>
+                    </button>
                     {item.availability === 'available' ? t('available') : t('unavailable')}
-                  </button>
+                  </div>
 
                   {/* Action buttons */}
                   <div className="flex gap-1.5">

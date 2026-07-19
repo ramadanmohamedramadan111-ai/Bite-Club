@@ -1,12 +1,28 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Plus, Pencil, Trash2, Search, ArrowLeft, ArrowRight } from 'lucide-react'
+import { Plus, Pencil, Trash2, Search, ArrowLeft, ArrowRight, UtensilsCrossed, Pizza, Coffee, IceCream, Sandwich, Salad, Fish, Drumstick, Cookie, Soup, Apple, Carrot } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { DeleteModal } from '../../components/common/DeleteModal'
 import { FormModal } from '../../components/common/FormModal'
 import { useCategoryStore } from '../../store/categoryStore'
 import type { ApiCategory } from '../../store/menuTypes'
+
+// Icon picker options — value stored in DB, icon shown in UI
+const ICON_OPTIONS = [
+  { value: 'fa-hamburger',     Icon: UtensilsCrossed, label: 'Burger'    },
+  { value: 'fa-pizza-slice',   Icon: Pizza,           label: 'Pizza'     },
+  { value: 'fa-coffee',        Icon: Coffee,          label: 'Coffee'    },
+  { value: 'fa-ice-cream',     Icon: IceCream,        label: 'Ice Cream' },
+  { value: 'fa-sandwich',      Icon: Sandwich,        label: 'Sandwich'  },
+  { value: 'fa-leaf',          Icon: Salad,           label: 'Salad'     },
+  { value: 'fa-fish',          Icon: Fish,            label: 'Fish'      },
+  { value: 'fa-drumstick-bite',Icon: Drumstick,       label: 'Chicken'   },
+  { value: 'fa-cookie',        Icon: Cookie,          label: 'Dessert'   },
+  { value: 'fa-soup',          Icon: Soup,            label: 'Soup'      },
+  { value: 'fa-apple-alt',     Icon: Apple,           label: 'Fruit'     },
+  { value: 'fa-carrot',        Icon: Carrot,          label: 'Veggie'    },
+]
 
 type CategoryForm = {
   title: string
@@ -17,9 +33,15 @@ type CategoryForm = {
 
 const EMPTY_FORM: CategoryForm = {
   title: '',
-  icon_name: '',
+  icon_name: ICON_OPTIONS[0].value,
   short_description: '',
   visibility: 'visible',
+}
+
+function CategoryIcon({ iconName, size = 24 }: { iconName: string; size?: number }) {
+  const match = ICON_OPTIONS.find((o) => o.value === iconName)
+  const Icon = match?.Icon ?? UtensilsCrossed
+  return <Icon size={size} className="text-brand-orange" />
 }
 
 export function CategoriesPage() {
@@ -112,17 +134,27 @@ export function CategoriesPage() {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">
+        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
           {t('categoryIcon')}
-          <span className="ml-1 text-xs text-gray-400 normal-case font-normal">(FontAwesome class e.g. fa-hamburger)</span>
         </label>
-        <input
-          type="text"
-          value={form.icon_name}
-          onChange={(e) => setForm({ ...form, icon_name: e.target.value })}
-          placeholder="fa-hamburger"
-          className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500"
-        />
+        <div className="grid grid-cols-6 gap-2">
+          {ICON_OPTIONS.map(({ value, Icon, label }) => (
+            <button
+              key={value}
+              type="button"
+              title={label}
+              onClick={() => setForm({ ...form, icon_name: value })}
+              className={`flex flex-col items-center justify-center gap-1 rounded-xl border-2 p-2.5 transition ${
+                form.icon_name === value
+                  ? 'border-brand-orange bg-orange-50 text-brand-orange dark:bg-orange-900/20'
+                  : 'border-gray-200 bg-white text-gray-400 hover:border-brand-orange/50 hover:text-brand-orange dark:border-slate-600 dark:bg-slate-800 dark:text-slate-400'
+              }`}
+            >
+              <Icon size={18} />
+              <span className="text-[9px] font-medium leading-none">{label}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       <div>
@@ -213,7 +245,7 @@ export function CategoriesPage() {
               {/* Card header */}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-orange-100 dark:bg-orange-900/30">
-                  <i className={`fa ${cat.icon_name} text-2xl text-brand-orange`} />
+                  <CategoryIcon iconName={cat.icon_name} size={24} />
                 </div>
                 <div className="flex gap-1.5">
                   <button
@@ -240,9 +272,10 @@ export function CategoriesPage() {
                   <span className="text-xs text-gray-400">{t('visible')}</span>
                   <button
                     onClick={() => toggleVisibility(cat.id, cat.visibility)}
-                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition ${cat.visibility === 'visible' ? 'bg-brand-orange' : 'bg-gray-200 dark:bg-slate-600'}`}
+                    dir="ltr"
+                    className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${cat.visibility === 'visible' ? 'bg-brand-orange' : 'bg-gray-200 dark:bg-slate-600'}`}
                   >
-                    <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform ${cat.visibility === 'visible' ?  'translate-x-4' : 'translate-x-1'}`} />
+                    <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform ${cat.visibility === 'visible' ? 'translate-x-4' : 'translate-x-1'}`} />
                   </button>
                 </div>
               </div>

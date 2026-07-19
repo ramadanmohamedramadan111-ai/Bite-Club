@@ -55,9 +55,22 @@ export const menuCategoryService = {
 // ─── Menu Items ───────────────────────────────────────────────────────────────
 
 export const menuItemService = {
-  index: (params?: { menu_category_id?: number; page?: number }) =>
-    api.get<ItemListResponse>('/restaurant/menu-items', { params })
-      .then((r) => ({ items: r.data.data.items, meta: r.data.data.meta })),
+  index: (params?: {
+    menu_category_id?: number
+    title?: string
+    sort_by?: 'title' | 'price' | 'availability'
+    sort_dir?: 'asc' | 'desc'
+    page?: number
+  }) =>
+    api.get<ItemListResponse>('/restaurant/menu-items', {
+      params: {
+        ...(params?.menu_category_id ? { menu_category_id: params.menu_category_id } : {}),
+        ...(params?.title ? { title: params.title } : {}),
+        ...(params?.sort_by ? { sort_by: params.sort_by } : {}),
+        ...(params?.sort_dir ? { sort_dir: params.sort_dir } : {}),
+        ...(params?.page ? { page: params.page } : {}),
+      },
+    }).then((r) => ({ items: r.data.data.items, meta: r.data.data.meta })),
 
   store: (payload: {
     title: string
@@ -74,7 +87,9 @@ export const menuItemService = {
     form.append('menu_category_id', String(payload.menu_category_id))
     form.append('availability', payload.availability)
     form.append('image', payload.image)
-    return api.post<ItemResponse>('/restaurant/menu-items', form).then((r) => r.data.data)
+    return api.post<ItemResponse>('/restaurant/menu-items', form, {
+      headers: { 'Content-Type': undefined },
+    }).then((r) => r.data.data)
   },
 
   update: (id: number, payload: {
@@ -92,7 +107,9 @@ export const menuItemService = {
     form.append('menu_category_id', String(payload.menu_category_id))
     form.append('availability', payload.availability)
     if (payload.image) form.append('image', payload.image)
-    return api.post<ItemResponse>(`/restaurant/menu-items/${id}`, form).then((r) => r.data.data)
+    return api.post<ItemResponse>(`/restaurant/menu-items/${id}`, form, {
+      headers: { 'Content-Type': undefined },
+    }).then((r) => r.data.data)
   },
 
   updateAvailability: (id: number, availability: 'available' | 'unavailable') =>

@@ -21,5 +21,5 @@ export type ApiMenuItem = {
   category: {
     id: number
     title: string
-  }
+  } | null
 }
