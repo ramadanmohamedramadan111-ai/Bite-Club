@@ -6,6 +6,7 @@ use App\Repositories\Interfaces\CartRepositoryInterface;
 use App\Repositories\Interfaces\CartItemRepositoryInterface;
 use App\Repositories\Interfaces\MenuItemRepositoryInterface;
 use App\Enums\MenuItem\MenuItemAvailabilityEnum;
+use App\Models\Cart;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -30,6 +31,12 @@ class CartDomainService
             throw new Exception(trans('cart.item_not_in_restaurant'));
         }
 
+        // Enforce single cart per user: delete any cart belonging to a different restaurant
+        $existingCart = $this->cartRepository->getUserCart($userId);
+        if ($existingCart && $existingCart->restaurant_id !== $restaurantId) {
+            $this->cartRepository->delete($existingCart->id);
+        }
+
         $cart = $this->cartRepository->findOrCreateForUserAndRestaurant($userId, $restaurantId);
 
         $this->cartItemRepository->updateOrCreateItem($cart->id, [
@@ -40,9 +47,9 @@ class CartDomainService
             'notes'      => $notes,
         ]);
     }
-    public function listCarts(int $userId): Collection
+    public function getCart(int $userId): ?Cart
     {
-        return $this->cartRepository->getUserCarts($userId);
+        return $this->cartRepository->getUserCart($userId);
     }
 
     public function updateItemQuantity(int $userId, int $cartItemId, int $quantity): void

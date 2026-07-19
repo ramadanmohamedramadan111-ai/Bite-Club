@@ -21,10 +21,8 @@ class CartRepository extends BaseRepository implements CartRepositoryInterface
         ]);
     }
 
-    public function getUserCarts(int $userId): Collection
+    public function getUserCart(int $userId): ?Cart
     {
-        return $this->model->where('user_id', $userId)
-                           ->with(['restaurant', 'items'])
-                           ->get();
+        return $this->model->with(['restaurant', 'items'])->where('user_id', $userId)->first();
     }
 }

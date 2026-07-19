@@ -7,7 +7,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use App\Traits\ApiResponseTrait;
 
-class ListCartsRequest extends FormRequest
+class GetCartRequest extends FormRequest
 {
     use ApiResponseTrait;
 
