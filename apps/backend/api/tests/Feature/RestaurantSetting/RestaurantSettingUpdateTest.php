@@ -22,6 +22,7 @@ class RestaurantSettingUpdateTest extends RestaurantAuthTest
             'delivery_fee_per_km' => 12.00,
             'deposit_threshold'   => 300.00,
             'deposit_percentage'  => 40.00,
+            'min_price_order'     => 50.00,
         ];
 
         // Act
@@ -43,12 +44,14 @@ class RestaurantSettingUpdateTest extends RestaurantAuthTest
         $this->assertEquals(31.87654321, $response->json('data.longitude'));
         $this->assertEquals(15.5, $response->json('data.delivery_radius'));
         $this->assertEquals(40.00, $response->json('data.deposit_percentage'));
+        $this->assertEquals(50.00, $response->json('data.min_price_order'));
         
         // Verify in DB
         $this->assertDatabaseHas('restaurant_settings', [
             'restaurant_id' => $restaurant->id,
             'is_open' => false,
             'delivery_radius' => 15.50,
+            'min_price_order' => 50.00,
         ]);
     }
     

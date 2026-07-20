@@ -197,6 +197,7 @@ class FiveRestaurantsSeeder extends Seeder
                 'delivery_fee_per_km' => 5.00,
                 'deposit_threshold'   => 250.00,
                 'deposit_percentage'  => 50.00,
+                'min_price_order'     => 25.00,
             ]);
 
             if ($restaurant->openingHours()->count() === 0) {

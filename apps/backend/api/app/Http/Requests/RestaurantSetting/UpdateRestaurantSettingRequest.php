@@ -37,6 +37,7 @@ class UpdateRestaurantSettingRequest extends FormRequest
             'delivery_fee_per_km' => ['sometimes', 'numeric', 'min:0'],
             'deposit_threshold'   => ['sometimes', 'numeric', 'min:0'],
             'deposit_percentage'  => ['sometimes', 'numeric', 'min:0', 'max:100'],
+            'min_price_order'     => ['sometimes', 'numeric', 'min:0'],
         ];
     }
 
@@ -48,6 +49,8 @@ class UpdateRestaurantSettingRequest extends FormRequest
             'deposit_percentage.numeric'  => trans('validation.numeric', ['attribute' => 'deposit_percentage']),
             'deposit_percentage.min'      => trans('validation.min.numeric', ['attribute' => 'deposit_percentage', 'min' => 0]),
             'deposit_percentage.max'      => trans('validation.max.numeric', ['attribute' => 'deposit_percentage', 'max' => 100]),
+            'min_price_order.numeric'     => trans('validation.numeric', ['attribute' => 'min_price_order']),
+            'min_price_order.min'         => trans('validation.min.numeric', ['attribute' => 'min_price_order', 'min' => 0]),
         ];
     }
 

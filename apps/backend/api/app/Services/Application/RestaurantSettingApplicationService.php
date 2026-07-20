@@ -41,6 +41,7 @@ class RestaurantSettingApplicationService
             'delivery_fee_per_km' => $setting->delivery_fee_per_km,
             'deposit_threshold'   => $setting->deposit_threshold,
             'deposit_percentage'  => $setting->deposit_percentage,
+            'min_price_order'     => $setting->min_price_order,
             'updated_at'          => $setting->updated_at ? $setting->updated_at->toIso8601String() : null,
         ];
     }

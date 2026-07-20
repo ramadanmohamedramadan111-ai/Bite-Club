@@ -22,6 +22,7 @@ class RestaurantSettingFactory extends Factory
             'delivery_fee_per_km' => $this->faker->randomFloat(2, 2, 10),
             'deposit_threshold'   => $this->faker->randomFloat(2, 100, 500),
             'deposit_percentage'  => $this->faker->randomFloat(2, 10, 50),
+            'min_price_order'     => 25.00,
         ];
     }
 }
