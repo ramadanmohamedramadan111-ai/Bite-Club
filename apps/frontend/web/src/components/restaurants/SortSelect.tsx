@@ -12,8 +12,6 @@ import { useRestaurantSearchParams } from './useRestaurantSearchParams';
 const sortOptions = [
   { value: 'rating', label: 'Rating' },
   { value: 'name', label: 'Alphabetical' },
-  { value: 'deliveryTime', label: 'Delivery Time' },
-  { value: 'deliveryPrice', label: 'Delivery Price' },
 ] as const;
 
 type SortValue = (typeof sortOptions)[number]['value'];
@@ -28,7 +26,9 @@ export default function SortSelect({ value }: Props) {
   return (
     <Select
       value={value}
-      onValueChange={(next) => setParam('sort', next === 'rating' ? null : next)}>
+      onValueChange={(next) =>
+        setParam('sort', next === 'rating' ? null : next)
+      }>
       <SelectTrigger className="w-full sm:w-48">
         <SelectValue placeholder="Sort by" />
       </SelectTrigger>
@@ -42,3 +42,4 @@ export default function SortSelect({ value }: Props) {
     </Select>
   );
 }
+

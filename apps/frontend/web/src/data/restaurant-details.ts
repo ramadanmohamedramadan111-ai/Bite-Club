@@ -1,5 +1,5 @@
-import type { MenuItem } from '@/types/restaurant/restaurantItem';
-import type { RestaurantDetail, RestaurantReview } from '@/types/restaurant/restaurant';
+import type { MenuItem, RestaurantDetail, RestaurantReview } from '@/types/restaurant/restaurant';
+
 
 const tokyoKitchen: RestaurantDetail = {
   id: 4,

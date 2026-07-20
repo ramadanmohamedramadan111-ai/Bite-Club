@@ -1,5 +1,6 @@
 import { getMenuItemById } from '@/data/restaurant-details';
-import type { MenuItem } from '@/types/restaurant/restaurantItem';
+import type { MenuItem } from '@/types/restaurant/restaurant';
+
 
 export const favoriteMenuItemIds = [1, 3, 4, 6, 9];
 

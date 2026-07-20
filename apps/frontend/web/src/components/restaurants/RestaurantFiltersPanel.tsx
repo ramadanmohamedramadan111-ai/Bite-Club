@@ -1,13 +1,10 @@
-'use client';
-
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import AvailabilityFilter from './AvailabilityFilter';
 import CategoryFilter from './CategoryFilter';
 import RatingFilter from './RatingFilter';
 import RestaurantFilters from './RestaurantsFilter';
-import { useRestaurantSearchParams } from './useRestaurantSearchParams';
+import ClearFiltersButton from './ClearFiltersButton';
 
 type Props = {
   categories: string[];
@@ -16,33 +13,23 @@ type Props = {
     minRating: number;
     delivery: boolean;
     pickup: boolean;
-    creditCard: boolean;
-    favorite: boolean;
     availableOnly: boolean;
   };
 };
 
 export default function RestaurantFiltersPanel({ categories, values }: Props) {
-  const { clearFilters } = useRestaurantSearchParams();
-
   const hasActiveFilters =
     values.selectedCategories.length > 0 ||
     values.minRating > 0 ||
     values.delivery ||
     values.pickup ||
-    values.creditCard ||
-    values.favorite ||
     values.availableOnly;
 
   return (
     <Card className="">
       <CardHeader className="flex flex-row items-center justify-between gap-2">
         <CardTitle className="text-base">Filters</CardTitle>
-        {hasActiveFilters && (
-          <Button variant="ghost" size="sm" onClick={clearFilters}>
-            Clear all
-          </Button>
-        )}
+        {hasActiveFilters && <ClearFiltersButton />}
       </CardHeader>
       <CardContent className="space-y-6">
         <CategoryFilter
@@ -60,8 +47,6 @@ export default function RestaurantFiltersPanel({ categories, values }: Props) {
           values={{
             delivery: values.delivery,
             pickup: values.pickup,
-            creditCard: values.creditCard,
-            favorite: values.favorite,
           }}
         />
 

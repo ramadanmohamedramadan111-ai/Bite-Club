@@ -1,11 +1,16 @@
 import { Suspense } from 'react';
 import RestaurantCard from '@/components/restaurants/RestaurantCard';
 import RestaurantFiltersPanel from '@/components/restaurants/RestaurantFiltersPanel';
-import RestaurantsPagination from '@/components/restaurants/RestaurantPagination';
 import RestaurantSearch from '@/components/restaurants/RestaurantSearch';
 import SortSelect from '@/components/restaurants/SortSelect';
-import { mockRestaurants } from '@/data/mock-restaurants';
-import { restaurantCategories } from '@/data/restaurant-categories';
+import { serverFetch } from '@/utils/server-fetch';
+import { ApiResponse, PaginatedResponse } from '@/types/api/api-response';
+import {
+  RestaurantCategory,
+  RestaurantType,
+} from '@/types/restaurant/restaurant';
+import { buildQueryString } from '@/utils/api-helpers';
+import AppPagination from '@/components/shared/AppPagination';
 
 type PageProps = {
   searchParams: Promise<{
@@ -14,40 +19,11 @@ type PageProps = {
     minRating?: string;
     delivery?: string;
     pickup?: string;
-    creditCard?: string;
-    favorite?: string;
     availableOnly?: string;
     search?: string;
     sort?: string;
   }>;
 };
-
-const categories = [...restaurantCategories];
-
-const restaurants = mockRestaurants;
-
-const PAGE_SIZE = 8;
-
-type SortOption = 'rating' | 'name' | 'deliveryTime' | 'deliveryPrice';
-
-function sortRestaurants(
-  items: typeof restaurants,
-  sort: SortOption,
-): typeof restaurants {
-  const sorted = [...items];
-
-  switch (sort) {
-    case 'name':
-      return sorted.sort((a, b) => a.name.localeCompare(b.name));
-    case 'deliveryTime':
-      return sorted.sort((a, b) => a.minDeliveryTime - b.minDeliveryTime);
-    case 'deliveryPrice':
-      return sorted.sort((a, b) => a.minDeliveryPrice - b.minDeliveryPrice);
-    case 'rating':
-    default:
-      return sorted.sort((a, b) => b.rating - a.rating);
-  }
-}
 
 export default async function Page({ searchParams }: PageProps) {
   const {
@@ -56,63 +32,40 @@ export default async function Page({ searchParams }: PageProps) {
     minRating = '0',
     delivery,
     pickup,
-    creditCard,
-    favorite,
     availableOnly,
     search = '',
     sort = 'rating',
   } = await searchParams;
 
-  const minimumRating = Number(minRating);
-  const currentPage = Number(page);
-  const selectedCategories = category
-    ? category.split(',').filter(Boolean)
-    : [];
-  const sortOption = (sort as SortOption) || 'rating';
-  const normalizedSearch = search.trim().toLowerCase();
+  const categoriesData = await serverFetch<
+    ApiResponse<{ items: RestaurantCategory[] }>
+  >('/user/restaurant-categories');
+  const categories = categoriesData.data.items || [];
 
-  const filteredRestaurants = sortRestaurants(
-    restaurants.filter((restaurant) => {
-      const categoryMatch =
-        selectedCategories.length === 0 ||
-        selectedCategories.some((item) => restaurant.categories.includes(item));
+  const backendCategory = category ? category.split(',')[0] : undefined;
+  const minRatingNum = Number(minRating);
+  const backendMinRating = minRatingNum >= 1 ? minRatingNum : undefined;
 
-      const ratingMatch = restaurant.rating >= minimumRating;
+  const query = buildQueryString({
+    page,
+    per_page: '8',
+    category: backendCategory,
+    min_rating: backendMinRating,
+    delivery_enabled: delivery === 'true' ? true : undefined,
+    pickup_enabled: pickup === 'true' ? true : undefined,
+    accept_orders: availableOnly === 'true' ? true : undefined,
+    name: search || undefined,
+    sort_by: sort === 'name' ? 'alphabetical' : 'rating',
+  });
 
-      const deliveryMatch = delivery !== 'true' || restaurant.delivery;
-      const pickupMatch = pickup !== 'true' || restaurant.pickup;
-      const creditCardMatch = creditCard !== 'true' || restaurant.creditCard;
-      const favoriteMatch = favorite !== 'true' || restaurant.isFavorite;
-      const availableMatch = availableOnly !== 'true' || restaurant.isAvailable;
+  const responseData = await serverFetch<
+    ApiResponse<PaginatedResponse<RestaurantType>>
+  >(`/user/restaurants${query}`);
 
-      const searchMatch =
-        !normalizedSearch ||
-        restaurant.name.toLowerCase().includes(normalizedSearch);
+  const { meta } = responseData.data;
 
-      return (
-        categoryMatch &&
-        ratingMatch &&
-        deliveryMatch &&
-        pickupMatch &&
-        creditCardMatch &&
-        favoriteMatch &&
-        availableMatch &&
-        searchMatch
-      );
-    }),
-    sortOption,
-  );
-
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filteredRestaurants.length / PAGE_SIZE),
-  );
-  const safePage = Math.min(currentPage, totalPages);
-
-  const paginatedRestaurants = filteredRestaurants.slice(
-    (safePage - 1) * PAGE_SIZE,
-    safePage * PAGE_SIZE,
-  );
+  const restaurants = responseData.data.items || [];
+  const totalItems = responseData.data.meta?.total || 0;
 
   return (
     <div className="container mx-auto">
@@ -137,7 +90,7 @@ export default async function Page({ searchParams }: PageProps) {
                       <div className="h-8 w-48 animate-pulse rounded-lg bg-muted" />
                     }>
                     <div>Sort: </div>
-                    <SortSelect value={sortOption} />
+                    <SortSelect value={sort as 'rating' | 'name'} />
                   </Suspense>
                 </div>
               </div>
@@ -150,14 +103,14 @@ export default async function Page({ searchParams }: PageProps) {
               </Suspense>
 
               <RestaurantFiltersPanel
-                categories={categories}
+                categories={categories.map((c) => c.name)}
                 values={{
-                  selectedCategories,
-                  minRating: minimumRating,
+                  selectedCategories: category
+                    ? category.split(',').filter(Boolean)
+                    : [],
+                  minRating: minRatingNum,
                   delivery: delivery === 'true',
                   pickup: pickup === 'true',
-                  creditCard: creditCard === 'true',
-                  favorite: favorite === 'true',
                   availableOnly: availableOnly === 'true',
                 }}
               />
@@ -167,13 +120,13 @@ export default async function Page({ searchParams }: PageProps) {
 
         <div className="min-w-0 flex-1">
           <p className="text-sm text-muted-foreground mb-4">
-            {filteredRestaurants.length} restaurant
-            {filteredRestaurants.length === 1 ? '' : 's'}
+            {totalItems} restaurant
+            {totalItems === 1 ? '' : 's'}
           </p>
 
-          {paginatedRestaurants.length > 0 ? (
+          {restaurants.length > 0 ? (
             <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-              {paginatedRestaurants.map((restaurant) => (
+              {restaurants.map((restaurant) => (
                 <RestaurantCard key={restaurant.id} restaurant={restaurant} />
               ))}
             </div>
@@ -186,16 +139,10 @@ export default async function Page({ searchParams }: PageProps) {
             </div>
           )}
 
-          {filteredRestaurants.length > 0 && (
-            <div className="mt-10 flex justify-center">
-              <Suspense fallback={null}>
-                <RestaurantsPagination
-                  currentPage={safePage}
-                  totalPages={totalPages}
-                />
-              </Suspense>
-            </div>
-          )}
+          <AppPagination
+            currentPage={meta.current_page}
+            totalPages={meta.last_page}
+          />
         </div>
       </div>
     </div>

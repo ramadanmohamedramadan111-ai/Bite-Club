@@ -7,8 +7,6 @@ import { useRestaurantSearchParams } from './useRestaurantSearchParams';
 const filters = [
   { key: 'delivery', label: 'Delivery' },
   { key: 'pickup', label: 'Pickup' },
-  { key: 'creditCard', label: 'Credit Card' },
-  { key: 'favorite', label: 'Favorites only' },
 ] as const;
 
 type FilterKey = (typeof filters)[number]['key'];
@@ -46,3 +44,4 @@ export default function RestaurantFilters({ values }: Props) {
     </div>
   );
 }
+

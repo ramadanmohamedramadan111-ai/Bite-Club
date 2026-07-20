@@ -1,6 +1,7 @@
 import Hero from '@/components/home/Hero';
 import HomeCategories from '@/components/home/HomeCategories';
 import HomePageView from '@/components/home/HomePageView';
+import TopRestaurants from '@/components/home/TopRestaurants';
 import { Spinner } from '@/components/ui/spinner';
 import { Suspense } from 'react';
 
@@ -20,6 +21,10 @@ export default function HomePage() {
           <HomeCategories />
         </Suspense>
       </section>
+
+      <Suspense fallback={<Spinner />}>
+        <TopRestaurants />
+      </Suspense>
 
       {/* <HomePageView /> */}
     </>

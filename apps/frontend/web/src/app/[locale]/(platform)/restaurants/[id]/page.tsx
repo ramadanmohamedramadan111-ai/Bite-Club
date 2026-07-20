@@ -1,9 +1,8 @@
 import { notFound } from 'next/navigation';
-import {
-  getMenuItemsByRestaurantId,
-  getRestaurantById,
-} from '@/data/restaurant-details';
-import RestaurantMenuView from '@/components/restaurants/RestaurantMenuView';
+import RestaurantDetailMenu from '@/components/restaurants/RestaurantDetailMenu';
+import { serverFetch } from '@/utils/server-fetch';
+import { ApiResponse, PaginatedResponse } from '@/types/api/api-response';
+import { MenuItems, RestaurantType } from '@/types/restaurant/restaurant';
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -11,14 +10,24 @@ type PageProps = {
 
 export default async function RestaurantMenuPage({ params }: PageProps) {
   const { id } = await params;
-  const restaurantId = Number(id);
-  const restaurant = getRestaurantById(restaurantId);
+
+  const data = await serverFetch<ApiResponse<RestaurantType>>(
+    `/user/restaurants/${id}`,
+  );
+
+  const restaurant = data.data;
 
   if (!restaurant) {
     notFound();
   }
 
-  const items = getMenuItemsByRestaurantId(restaurantId);
+  const menuItemsData = await serverFetch<
+    ApiResponse<PaginatedResponse<MenuItems>>
+  >(`/user/restaurants/${id}/menu`);
 
-  return <RestaurantMenuView restaurant={restaurant} items={items} />;
+  const menuItems = menuItemsData.data.items || [];
+
+  return <RestaurantDetailMenu restaurant={restaurant} menuItems={menuItems} />;
 }
+
+

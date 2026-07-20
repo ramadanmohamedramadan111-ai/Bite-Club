@@ -1,9 +1,10 @@
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-import { getRestaurantById } from '@/data/restaurant-details';
 import RestaurantDetailHeader from '@/components/restaurants/RestaurantDetailHeader';
 import RestaurantDetailTabs from '@/components/restaurants/RestaurantDetailTabs';
-import RestaurantMenuView from '@/components/restaurants/RestaurantMenuView';
+import { serverFetch } from '@/utils/server-fetch';
+import { ApiResponse } from '@/types/api/api-response';
+import { RestaurantType } from '@/types/restaurant/restaurant';
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -15,8 +16,12 @@ export default async function RestaurantDetailLayout({
   params,
 }: LayoutProps) {
   const { id } = await params;
-  const restaurantId = Number(id);
-  const restaurant = getRestaurantById(restaurantId);
+
+  const data = await serverFetch<ApiResponse<RestaurantType>>(
+    `/user/restaurants/${id}`,
+  );
+
+  const restaurant = data.data;
 
   if (!restaurant) {
     notFound();
@@ -27,14 +32,10 @@ export default async function RestaurantDetailLayout({
       <RestaurantDetailHeader restaurant={restaurant} />
       <Suspense
         fallback={<div className="h-10 animate-pulse rounded-lg bg-muted" />}>
-        <RestaurantDetailTabs restaurantId={restaurantId} />
+        <RestaurantDetailTabs restaurantId={restaurant.id} />
       </Suspense>
       {children}
     </div>
   );
-}
-
-export async function generateStaticParams() {
-  return [{ id: '4' }];
 }
 

@@ -1,10 +1,11 @@
 import { notFound } from 'next/navigation';
-import { getRestaurantById } from '@/data/restaurant-details';
 import RestaurantLocationMap from '@/components/restaurants/RestaurantLocationMap';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { MapPin, Phone } from 'lucide-react';
-import { capitalize } from '@/utils/format';
+import { serverFetch } from '@/utils/server-fetch';
+import { ApiResponse } from '@/types/api/api-response';
+import { RestaurantType } from '@/types/restaurant/restaurant';
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -12,12 +13,26 @@ type PageProps = {
 
 export default async function RestaurantInfoPage({ params }: PageProps) {
   const { id } = await params;
-  const restaurantId = Number(id);
-  const restaurant = getRestaurantById(restaurantId);
+
+  const data = await serverFetch<ApiResponse<RestaurantType>>(
+    `/user/restaurants/${id}`,
+  );
+
+  const restaurant = data.data;
 
   if (!restaurant) {
     notFound();
   }
+
+  const days = [
+    { value: 0, label: 'Sunday' },
+    { value: 1, label: 'Monday' },
+    { value: 2, label: 'Tuesday' },
+    { value: 3, label: 'Wednesday' },
+    { value: 4, label: 'Thursday' },
+    { value: 5, label: 'Friday' },
+    { value: 6, label: 'Saturday' },
+  ];
 
   return (
     <div className="space-y-6">
@@ -43,11 +58,11 @@ export default async function RestaurantInfoPage({ params }: PageProps) {
             <div className="space-y-3 text-sm">
               <div className="flex items-start gap-2">
                 <MapPin className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                <span>{restaurant.location.address}</span>
+                <span>{restaurant.address}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="size-4 shrink-0 text-muted-foreground" />
-                <span>{restaurant.phoneNumber}</span>
+                <span>{restaurant.phone_number}</span>
               </div>
             </div>
           </CardContent>
@@ -59,14 +74,25 @@ export default async function RestaurantInfoPage({ params }: PageProps) {
           </CardHeader>
           <CardContent>
             <dl className="space-y-2">
-              {Object.entries(restaurant.openingHours).map(([day, hours]) => (
-                <div
-                  key={day}
-                  className="flex items-center justify-between gap-4 text-sm">
-                  <dt className="font-medium">{capitalize(day)}</dt>
-                  <dd className="text-muted-foreground">{hours}</dd>
-                </div>
-              ))}
+              {days.map((day) => {
+                const hours = restaurant.opening_hours?.find(
+                  (h) => h.day_of_week === day.value,
+                );
+
+                return (
+                  <div
+                    key={day.value}
+                    className="flex items-center justify-between gap-4 text-sm">
+                    <dt className="font-medium">{day.label}</dt>
+
+                    <dd className="text-muted-foreground">
+                      {!hours || hours.is_closed
+                        ? 'Closed'
+                        : `${hours.opens_at} - ${hours.closes_at}`}
+                    </dd>
+                  </div>
+                );
+              })}
             </dl>
           </CardContent>
         </Card>
@@ -77,12 +103,14 @@ export default async function RestaurantInfoPage({ params }: PageProps) {
           <CardTitle>Location</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <p className="text-sm text-muted-foreground">
-            {restaurant.location.address}
-          </p>
-          <RestaurantLocationMap location={restaurant.location} />
+          <p className="text-sm text-muted-foreground">{restaurant.address}</p>
+          <RestaurantLocationMap
+            lat={restaurant.latitude}
+            lng={restaurant.longitude}
+          />
         </CardContent>
       </Card>
     </div>
   );
 }
+

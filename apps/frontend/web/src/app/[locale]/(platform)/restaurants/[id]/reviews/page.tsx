@@ -6,50 +6,61 @@ import {
 } from '@/data/restaurant-details';
 import RestaurantReviewCard from '@/components/restaurants/RestaurantReviewCard';
 import RestaurantsPagination from '@/components/restaurants/RestaurantPagination';
+import { serverFetch } from '@/utils/server-fetch';
+import { ApiResponse, PaginatedResponse } from '@/types/api/api-response';
+import {
+  RestaurantReview,
+  RestaurantType,
+} from '@/types/restaurant/restaurant';
+import { buildQueryString } from '@/utils/api-helpers';
+import AppPagination from '@/components/shared/AppPagination';
 
 type PageProps = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; per_page?: string }>;
 };
-
-const PAGE_SIZE = 5;
 
 export default async function RestaurantReviewsPage({
   params,
   searchParams,
 }: PageProps) {
   const { id } = await params;
-  const { page = '1' } = await searchParams;
-  const restaurantId = Number(id);
-  const restaurant = getRestaurantById(restaurantId);
+  const { page = '1', per_page = '5' } = await searchParams;
+
+  const data = await serverFetch<ApiResponse<RestaurantType>>(
+    `/user/restaurants/${id}`,
+  );
+
+  const restaurant = data.data;
+
+  const query = buildQueryString({
+    page,
+    per_page,
+  });
+
+  const reviewsData = await serverFetch<
+    ApiResponse<PaginatedResponse<RestaurantReview>>
+  >(`/user/restaurants/${id}/reviews${query}`);
+
+  const { items: reviews, meta } = reviewsData.data;
 
   if (!restaurant) {
     notFound();
   }
-
-  const reviews = getReviewsByRestaurantId(restaurantId);
-  const currentPage = Number(page);
-  const totalPages = Math.max(1, Math.ceil(reviews.length / PAGE_SIZE));
-  const safePage = Math.min(currentPage, totalPages);
-
-  const paginatedReviews = reviews.slice(
-    (safePage - 1) * PAGE_SIZE,
-    safePage * PAGE_SIZE,
-  );
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold">Reviews</h2>
         <p className="text-sm text-muted-foreground">
-          {restaurant.reviewsCount} total reviews · Average rating{' '}
-          {restaurant.rating}
+          {restaurant.reviews_count} total reviews · Average rating{' '}
+          {restaurant.average_rating}
         </p>
       </div>
 
-      {paginatedReviews.length > 0 ? (
+      {reviews.length > 0 ? (
         <div className="space-y-4">
-          {paginatedReviews.map((review) => (
+          {reviews.map((review) => (
             <RestaurantReviewCard key={review.id} review={review} />
           ))}
         </div>
@@ -62,16 +73,11 @@ export default async function RestaurantReviewsPage({
         </div>
       )}
 
-      {reviews.length > PAGE_SIZE && (
-        <div className="flex justify-center pt-4">
-          <Suspense fallback={null}>
-            <RestaurantsPagination
-              currentPage={safePage}
-              totalPages={totalPages}
-            />
-          </Suspense>
-        </div>
-      )}
+      <AppPagination
+        currentPage={meta.current_page}
+        totalPages={meta.last_page}
+      />
     </div>
   );
 }
+

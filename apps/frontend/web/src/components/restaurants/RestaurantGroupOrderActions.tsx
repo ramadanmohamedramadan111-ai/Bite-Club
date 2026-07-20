@@ -5,12 +5,12 @@ import { ExternalLink, Users } from 'lucide-react';
 
 import { Link } from '@/i18n/navigation';
 import { useCartStore } from '@/stores/cart';
-import type { RestaurantDetail } from '@/types/restaurant/restaurant';
+import type { RestaurantType } from '@/types/restaurant/restaurant';
 import { Button } from '../ui/button';
 import CreateGroupOrderDialog from '../groups/CreateGroupOrderDialog';
 
 type Props = {
-  restaurant: RestaurantDetail;
+  restaurant: RestaurantType;
 };
 
 export default function RestaurantGroupOrderActions({ restaurant }: Props) {
@@ -52,3 +52,4 @@ export default function RestaurantGroupOrderActions({ restaurant }: Props) {
     </>
   );
 }
+

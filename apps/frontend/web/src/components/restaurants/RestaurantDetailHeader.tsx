@@ -1,42 +1,24 @@
 import Image from 'next/image';
-import {
-  Bike,
-  Clock,
-  CreditCard,
-  Heart,
-  MapPin,
-  ShoppingBag,
-  Star,
-} from 'lucide-react';
-import type { RestaurantDetail } from '@/types/restaurant/restaurant';
+import { Bike, Heart, MapPin, ShoppingBag, Star } from 'lucide-react';
+import type { RestaurantType } from '@/types/restaurant/restaurant';
 import RestaurantGroupOrderActions from './RestaurantGroupOrderActions';
 
 type Props = {
-  restaurant: RestaurantDetail;
+  restaurant: RestaurantType;
 };
-
-function formatDeliveryTime(min: number, max: number) {
-  return min === max ? `${min} min` : `${min}-${max} min`;
-}
-
-function formatDeliveryPrice(min: number, max: number) {
-  return min === max
-    ? `${min.toFixed(0)} EGP`
-    : `${min.toFixed(0)}-${max.toFixed(0)} EGP`;
-}
 
 export default function RestaurantDetailHeader({ restaurant }: Props) {
   return (
     <div className="overflow-hidden rounded-xl border bg-card">
       <div className="relative h-48 w-full sm:h-56">
         <Image
-          src={restaurant.coverImage}
+          src={restaurant.cover_image_url}
           alt={`${restaurant.name} cover`}
           fill
           className="object-cover"
           priority
         />
-        {!restaurant.isAvailable && (
+        {!restaurant.is_open_now && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/50">
             <span className="rounded-full bg-background px-4 py-2 text-sm font-medium">
               Currently Unavailable
@@ -48,7 +30,7 @@ export default function RestaurantDetailHeader({ restaurant }: Props) {
       <div className="relative px-4 pb-5 pt-14 sm:px-6">
         <div className="absolute -top-10 left-4 size-20 overflow-hidden rounded-xl border-4 border-card bg-card shadow-sm sm:left-6 sm:size-24">
           <Image
-            src={restaurant.logo}
+            src={restaurant.logo_url}
             alt={restaurant.name}
             fill
             className="object-cover"
@@ -61,9 +43,7 @@ export default function RestaurantDetailHeader({ restaurant }: Props) {
               <h1 className="text-2xl font-bold">{restaurant.name}</h1>
               <Heart
                 className={`size-6 shrink-0 ${
-                  restaurant.isFavorite
-                    ? 'fill-red-500 text-red-500'
-                    : 'text-muted-foreground'
+                  false ? 'fill-red-500 text-red-500' : 'text-muted-foreground'
                 }`}
               />
             </div>
@@ -72,25 +52,25 @@ export default function RestaurantDetailHeader({ restaurant }: Props) {
               <span className="inline-flex items-center gap-1">
                 <Star className="size-4 fill-yellow-400 text-yellow-400" />
                 <span className="font-medium text-foreground">
-                  {restaurant.rating}
+                  {restaurant.average_rating}
                 </span>
-                ({restaurant.reviewsCount} reviews)
+                ({restaurant.reviews_count} reviews)
               </span>
 
               <span className="inline-flex items-center gap-1">
                 <MapPin className="size-4" />
-                {restaurant.location.address}
+                {restaurant.address}
               </span>
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {restaurant.categories.map((category) => (
+              {restaurant.category && (
                 <span
-                  key={category}
+                  key={restaurant.category.id}
                   className="rounded-full bg-muted px-2.5 py-1 text-xs">
-                  {category}
+                  {restaurant.category.name}
                 </span>
-              ))}
+              )}
             </div>
           </div>
 
@@ -100,48 +80,30 @@ export default function RestaurantDetailHeader({ restaurant }: Props) {
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-          {restaurant.delivery && (
+          {restaurant.delivery_enabled && (
             <span className="inline-flex items-center gap-1.5">
               <Bike className="size-4" />
               Delivery
             </span>
           )}
-          {restaurant.pickup && (
+          {restaurant.pickup_enabled && (
             <span className="inline-flex items-center gap-1.5">
               <ShoppingBag className="size-4" />
               Pickup
             </span>
           )}
-          {restaurant.creditCard && (
+          {/* {restaurant.creditCard && (
             <span className="inline-flex items-center gap-1.5">
               <CreditCard className="size-4" />
               Credit Card
             </span>
-          )}
-          {restaurant.delivery && (
-            <span className="inline-flex items-center gap-1.5">
-              <Clock className="size-4" />
-              {formatDeliveryTime(
-                restaurant.minDeliveryTime,
-                restaurant.maxDeliveryTime,
-              )}
-            </span>
-          )}
-          {restaurant.delivery && (
-            <span>
-              {formatDeliveryPrice(
-                restaurant.minDeliveryPrice,
-                restaurant.maxDeliveryPrice,
-              )}{' '}
-              delivery
-            </span>
-          )}
+          )} */}
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-          {restaurant.minimumOrder && (
+          {restaurant.minimum_order && (
             <span className="inline-flex items-center gap-1.5">
-              Minimum Order: {restaurant.minimumOrder.toFixed(0)} EGP
+              Minimum Order: {restaurant.minimum_order.toFixed(0)} EGP
             </span>
           )}
         </div>

@@ -47,7 +47,10 @@ export default function HomeCategoriesScroll({ categories }: Props) {
       const { scrollLeft, clientWidth } = scrollRef.current;
       const scrollAmount = clientWidth * 0.75; // Scroll 75% of container width
       scrollRef.current.scrollTo({
-        left: direction === 'left' ? scrollLeft - scrollAmount : scrollLeft + scrollAmount,
+        left:
+          direction === 'left'
+            ? scrollLeft - scrollAmount
+            : scrollLeft + scrollAmount,
         behavior: 'smooth',
       });
     }
@@ -62,8 +65,7 @@ export default function HomeCategoriesScroll({ categories }: Props) {
           size="icon"
           className="absolute -left-4 top-10 z-10 size-10 -translate-y-1/2 rounded-full border-muted bg-background/80 shadow-md backdrop-blur-xs transition-all hover:bg-background hover:scale-105 active:scale-95"
           onClick={() => handleScroll('left')}
-          aria-label="Scroll left"
-        >
+          aria-label="Scroll left">
           <ChevronLeft className="size-5" />
         </Button>
       )}
@@ -75,8 +77,7 @@ export default function HomeCategoriesScroll({ categories }: Props) {
           size="icon"
           className="absolute -right-4 top-10 z-10 size-10 -translate-y-1/2 rounded-full border-muted bg-background/80 shadow-md backdrop-blur-xs transition-all hover:bg-background hover:scale-105 active:scale-95"
           onClick={() => handleScroll('right')}
-          aria-label="Scroll right"
-        >
+          aria-label="Scroll right">
           <ChevronRight className="size-5" />
         </Button>
       )}
@@ -84,18 +85,16 @@ export default function HomeCategoriesScroll({ categories }: Props) {
       {/* Scrollable container */}
       <div
         ref={scrollRef}
-        className="no-scrollbar flex gap-6 overflow-x-auto scroll-smooth pb-4"
-      >
+        className="no-scrollbar flex gap-6 overflow-x-auto scroll-smooth pb-4">
         {categories.map((category) => (
           <Link
             key={category.id}
             href={`/restaurants?category=${encodeURIComponent(category.slug)}`}
-            className="group flex w-24 shrink-0 flex-col items-center gap-2 text-center"
-          >
+            className="group flex w-24 shrink-0 flex-col items-center gap-2 text-center">
             <div className="flex size-20 items-center justify-center overflow-hidden rounded-full bg-primary/10 transition group-hover:bg-primary/20 group-hover:shadow-md group-hover:scale-105 duration-200">
               {category.image_url ? (
                 <Image
-                  src={category.image_url}
+                  src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${category.image_url}`}
                   alt={category.name}
                   width={80}
                   height={80}
@@ -115,3 +114,4 @@ export default function HomeCategoriesScroll({ categories }: Props) {
     </div>
   );
 }
+

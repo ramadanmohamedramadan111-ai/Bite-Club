@@ -14,39 +14,39 @@ export default async function HomeCategories() {
 
   const categories = data.data.items;
 
-  // return <HomeCategoriesScroll categories={categories} />;
-
   return (
-    <ScrollArea className="w-full">
-      <div className="flex w-max gap-6 pb-4">
-        {categories.map((category) => (
-          <Link
-            key={category.id}
-            href={`/restaurants?category=${encodeURIComponent(category.slug)}`}
-            className="group flex w-24 shrink-0 flex-col items-center text-center">
-            <div className="flex size-20 items-center justify-center overflow-hidden rounded-full bg-primary/10 transition group-hover:bg-primary/20 group-hover:shadow-md">
-              {category.image_url ? (
-                <Image
-                  src={category.image_url}
-                  alt={category.name}
-                  width={80}
-                  height={80}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <Utensils className="size-8 text-primary" />
-              )}
-            </div>
+    <div className="overflow-x-hidden w-[100%]">
+      <ScrollArea className="w-full">
+        <div className="flex flex-wrap w-full gap-6 pb-4">
+          {categories.map((category) => (
+            <Link
+              key={category.id}
+              href={`/restaurants?category=${category.id}`}
+              className="group flex w-24 shrink-0 flex-col items-center text-center">
+              <div className="flex size-20 items-center justify-center overflow-hidden rounded-full bg-primary/10 transition group-hover:bg-primary/20 group-hover:shadow-md">
+                {category.image_url ? (
+                  <Image
+                    src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${category.image_url}`}
+                    alt={category.name}
+                    width={80}
+                    height={80}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <Utensils className="size-8 text-primary" />
+                )}
+              </div>
 
-            <span className="mt-2 w-full break-words text-sm font-medium leading-tight">
-              {category.name}
-            </span>
-          </Link>
-        ))}
-      </div>
+              <span className="mt-2 w-full break-words text-sm font-medium leading-tight">
+                {category.name}
+              </span>
+            </Link>
+          ))}
+        </div>
 
-      <ScrollBar orientation="horizontal" />
-    </ScrollArea>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
+    </div>
   );
 }
 

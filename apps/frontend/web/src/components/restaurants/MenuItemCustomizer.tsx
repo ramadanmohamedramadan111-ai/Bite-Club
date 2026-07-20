@@ -17,8 +17,9 @@ import { useSessionStore } from '@/stores/session';
 import type {
   ItemOptionGroup,
   MenuItem,
-} from '@/types/restaurant/restaurantItem';
-import type { RestaurantDetail } from '@/types/restaurant/restaurant';
+  RestaurantType,
+} from '@/types/restaurant/restaurant';
+
 import { Field, FieldLabel } from '../ui/field';
 import { Input } from '../ui/input';
 
@@ -32,7 +33,7 @@ type Props = {
   onAddToCart?: () => void;
   cartType: 'individual' | 'group';
   orderingContext?: OrderingContext;
-  restaurant: RestaurantDetail;
+  restaurant: RestaurantType;
 };
 
 function getInitialSelections(options: ItemOptionGroup[]): Selections {
@@ -115,7 +116,9 @@ export default function MenuItemCustomizer({
 
   const cart = useCartStore((state) => state.cart);
   const setCart = useCartStore((state) => state.setCart);
-  const createIndividualCart = useCartStore((state) => state.createIndividualCart);
+  const createIndividualCart = useCartStore(
+    (state) => state.createIndividualCart,
+  );
   const addItem = useCartStore((state) => state.addItem);
   const name = useSessionStore((state) => state.name);
   const sessionId = useSessionStore((state) => state.sessionId);
@@ -164,7 +167,8 @@ export default function MenuItemCustomizer({
       selectedOptions: selectedOptions.map((option) => ({
         groupId: option.groupId,
         groupName:
-          item.options.find((group) => group.id === option.groupId)?.title || '',
+          item.options.find((group) => group.id === option.groupId)?.title ||
+          '',
         optionId: option.id,
         optionName: option.name,
         price: option.price,
@@ -185,8 +189,7 @@ export default function MenuItemCustomizer({
       createIndividualCart({
         restaurantId: String(item.restaurantId),
         restaurantName: restaurant.name,
-        restaurantImage: restaurant.logo,
-        restaurantDeliveryFee: restaurant.minDeliveryPrice,
+        restaurantImage: restaurant.logo_url,
         sessionId: sessionId ?? undefined,
       });
     } else if (!cart) {
@@ -196,8 +199,7 @@ export default function MenuItemCustomizer({
         status: 'active',
         restaurantId: String(item.restaurantId),
         restaurantName: restaurant.name,
-        restaurantImage: restaurant.logo,
-        restaurantDeliveryFee: restaurant.minDeliveryPrice,
+        restaurantImage: restaurant.logo_url,
         userId: undefined,
         sessionId: sessionId ?? undefined,
         members: [],
@@ -269,7 +271,13 @@ export default function MenuItemCustomizer({
             'relative overflow-hidden rounded-xl',
             variant === 'dialog' ? 'h-44' : 'h-56',
           )}>
-          <Image src={item.image} alt={item.name} fill className="object-cover" />
+          <Image
+            // src={item.image}
+            src={'/a'}
+            alt={item.name}
+            fill
+            className="object-cover"
+          />
           {!item.available && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/50">
               <span className="rounded-full bg-background px-4 py-2 text-sm font-medium">
@@ -283,7 +291,9 @@ export default function MenuItemCustomizer({
           <div className="flex items-start justify-between gap-4">
             <h2 className="text-xl font-semibold">{item.name}</h2>
             <div className="text-right">
-              <p className="text-lg font-semibold">{item.price.toFixed(2)} EGP</p>
+              <p className="text-lg font-semibold">
+                {item.price.toFixed(2)} EGP
+              </p>
               {item.originalPrice && (
                 <p className="text-sm text-muted-foreground line-through">
                   {item.originalPrice.toFixed(2)} EGP
@@ -318,7 +328,9 @@ export default function MenuItemCustomizer({
                       ? (selections[group.id] as string)
                       : undefined
                   }
-                  onValueChange={(value) => updateSingleSelection(group.id, value)}>
+                  onValueChange={(value) =>
+                    updateSingleSelection(group.id, value)
+                  }>
                   {group.options.map((option) => (
                     <div key={option.id} className="flex items-center gap-2">
                       <RadioGroupItem
@@ -374,7 +386,9 @@ export default function MenuItemCustomizer({
 
           <div>
             <Field>
-              <FieldLabel htmlFor="instructions">Special Instructions</FieldLabel>
+              <FieldLabel htmlFor="instructions">
+                Special Instructions
+              </FieldLabel>
               <Input
                 id="instructions"
                 type="text"
@@ -395,10 +409,14 @@ export default function MenuItemCustomizer({
               variant="ghost"
               size="icon-sm"
               disabled={quantity <= 1}
-              onClick={() => setQuantity((current) => Math.max(1, current - 1))}>
+              onClick={() =>
+                setQuantity((current) => Math.max(1, current - 1))
+              }>
               <Minus className="size-4" />
             </Button>
-            <span className="w-8 text-center text-sm font-medium">{quantity}</span>
+            <span className="w-8 text-center text-sm font-medium">
+              {quantity}
+            </span>
             <Button
               type="button"
               variant="ghost"
@@ -429,3 +447,4 @@ export default function MenuItemCustomizer({
     </>
   );
 }
+

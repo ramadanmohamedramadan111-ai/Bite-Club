@@ -32,13 +32,13 @@ import {
   createMockGroupOrderItems,
 } from '@/data/mock-group-order-items';
 import type { GroupOrderSessionType } from '@/types/groups/groups';
-import type { RestaurantDetail } from '@/types/restaurant/restaurant';
+import type { RestaurantType } from '@/types/restaurant/restaurant';
 import { generateGroupOrderCode } from '@/utils/group-order';
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  restaurant: RestaurantDetail;
+  restaurant: RestaurantType;
 };
 
 export default function CreateGroupOrderDialog({
@@ -75,7 +75,7 @@ export default function CreateGroupOrderDialog({
     createGroupCart({
       restaurantId: String(restaurant.id),
       restaurantName: restaurant.name,
-      restaurantImage: restaurant.logo,
+      restaurantImage: restaurant.logo_url,
       groupCart: {
         id: orderSessionId,
         type: sessionType === 'anonymous' ? 'temporary' : 'fixed',
@@ -99,7 +99,7 @@ export default function CreateGroupOrderDialog({
       id: orderSessionId,
       restaurantId: String(restaurant.id),
       restaurantName: restaurant.name,
-      restaurantImage: restaurant.logo,
+      restaurantImage: restaurant.logo_url,
       code,
       type: sessionType,
       groupId: sessionType === 'fixed' ? selectedGroupId : undefined,

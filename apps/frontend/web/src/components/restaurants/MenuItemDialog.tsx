@@ -1,6 +1,5 @@
 'use client';
 
-import type { MenuItem } from '@/types/restaurant/restaurantItem';
 import {
   Dialog,
   DialogContent,
@@ -11,13 +10,14 @@ import { useCartStore } from '@/stores/cart';
 import MenuItemCustomizer, {
   type OrderingContext,
 } from './MenuItemCustomizer';
-import type { RestaurantDetail } from '@/types/restaurant/restaurant';
+import type { MenuItem, RestaurantType } from '@/types/restaurant/restaurant';
+
 
 type Props = {
   item: MenuItem | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  restaurant: RestaurantDetail;
+  restaurant: RestaurantType;
   orderingContext?: OrderingContext;
 };
 

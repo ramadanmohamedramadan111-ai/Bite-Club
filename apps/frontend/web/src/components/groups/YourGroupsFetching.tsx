@@ -35,12 +35,12 @@ export default async function YourGroupsFetching({
               <GroupCard key={group.id} group={group} />
             ))}
           </div>
-          <AppPagination
-            currentPage={meta.current_page}
-            totalPages={meta.last_page}
-          />
         </>
       )}
+      <AppPagination
+        currentPage={meta.current_page}
+        totalPages={meta.last_page}
+      />
     </>
   );
 }
