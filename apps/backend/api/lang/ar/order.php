@@ -9,4 +9,5 @@ return [
     'pickup_not_available' => 'خدمة الاستلام من الفرع غير متاحة لهذا المطعم.',
     'invalid_payment_option' => 'خيار الدفع غير صالح.',
     'placed_successfully' => 'تم الطلب بنجاح.',
+    'retrieved_successfully' => 'تم استرجاع الطلبات بنجاح.',
 ];

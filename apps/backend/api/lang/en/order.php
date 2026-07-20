@@ -9,4 +9,5 @@ return [
     'pickup_not_available' => 'Pickup is not available for this restaurant.',
     'invalid_payment_option' => 'Invalid payment option.',
     'placed_successfully' => 'Order placed successfully.',
+    'retrieved_successfully' => 'Orders retrieved successfully.',
 ];
