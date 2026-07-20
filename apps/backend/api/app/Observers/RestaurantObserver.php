@@ -30,6 +30,7 @@ class RestaurantObserver
             'delivery_fee_per_km' => 5.00,
             'deposit_threshold'   => 250.00,
             'deposit_percentage'  => 50.00,
+            'min_price_order'     => 25.00,
         ]);
 
         for ($day = 0; $day <= 6; $day++) {

@@ -26,6 +26,7 @@ class RestaurantSetting extends Model
         'delivery_fee_per_km',
         'deposit_threshold',
         'deposit_percentage',
+        'min_price_order',
         'created_at',
         'updated_at',
     ];
@@ -44,6 +45,7 @@ class RestaurantSetting extends Model
             'delivery_fee_per_km' => 'decimal:2',
             'deposit_threshold'   => 'decimal:2',
             'deposit_percentage'  => 'decimal:2',
+            'min_price_order'     => 'decimal:2',
             'created_at'          => 'datetime',
             'updated_at'          => 'datetime',
         ];

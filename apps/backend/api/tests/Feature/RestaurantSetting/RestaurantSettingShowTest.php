@@ -34,6 +34,7 @@ class RestaurantSettingShowTest extends RestaurantAuthTest
                 'delivery_fee_per_km',
                 'deposit_threshold',
                 'deposit_percentage',
+                'min_price_order',
                 'updated_at'
             ]
         ]);
@@ -42,5 +43,6 @@ class RestaurantSettingShowTest extends RestaurantAuthTest
         $response->assertJsonPath('data.restaurant_id', $restaurant->id);
         $response->assertJsonPath('data.is_open', true);
         $response->assertJsonPath('data.deposit_percentage', "50.00");
+        $response->assertJsonPath('data.min_price_order', "25.00");
     }
 }

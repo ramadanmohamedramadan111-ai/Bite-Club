@@ -32,6 +32,7 @@ class RestaurantDetailResource extends JsonResource
             'opening_hours'       => RestaurantOpeningHourResource::collection($this->openingHours),
             'latitude'            => $this->setting ? (float) $this->setting->latitude : null,
             'longitude'           => $this->setting ? (float) $this->setting->longitude : null,
+            'min_price_order'     => $this->setting ? (float) $this->setting->min_price_order : null,
         ];
     }
 }
