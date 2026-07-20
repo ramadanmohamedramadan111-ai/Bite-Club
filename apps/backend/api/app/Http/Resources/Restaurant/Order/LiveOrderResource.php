@@ -20,7 +20,7 @@ class LiveOrderResource extends JsonResource
             'status' => $this->status,
             'customer' => [
                 'id' => $this->user->id ?? null,
-                'name' => $this->user->name ?? null,
+                'name' => $this->user ? trim($this->user->first_name . ' ' . $this->user->last_name) : null,
                 'phone_number' => $this->user->phone_number ?? null,
             ],
             'financials' => [
