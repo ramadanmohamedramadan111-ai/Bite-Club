@@ -29,8 +29,7 @@ class OrderApplicationService
             $dto->getOrderType(),
             $dto->getPaymentOptionId(),
             $dto->getLat(),
-            $dto->getLong(),
-            $dto->getNotes()
+            $dto->getLong()
         );
     }
 }

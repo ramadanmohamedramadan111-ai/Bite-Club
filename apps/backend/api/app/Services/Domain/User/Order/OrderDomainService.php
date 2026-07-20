@@ -10,9 +10,12 @@ use App\Services\Infrastructure\Payment\PaymentGatewayInterface;
 use App\Models\GeneralSetting;
 use App\Enums\Order\OrderTypeEnum;
 use App\Enums\Order\OrderStatusEnum;
+use App\Enums\Payment\PaymentTypeEnum;
+use App\Enums\Payment\PaymentMethodEnum;
 use App\Enums\Payment\PaymentStatusEnum;
 use App\Enums\Payment\PaymentOptionEnum;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Exception;
 
 use App\Services\Domain\User\Order\Calculators\OrderCalculationContext;
@@ -108,9 +111,14 @@ class OrderDomainService
                 'title' => 'Pay Deposit Online, Remaining Cash',
                 'description' => "Pay {$depositAmount} now to confirm your order, and the rest upon delivery.",
                 'required_now' => [
-                    'type' => 'deposit',
-                    'method' => 'online',
+                    'type' => PaymentTypeEnum::DEPOSIT->value,
+                    'method' => PaymentMethodEnum::ONLINE->value,
                     'amount' => $depositAmount,
+                ],
+                'remaining_upon_delivery' => [
+                    'type' => PaymentTypeEnum::REMAINING->value,
+                    'method' => PaymentMethodEnum::CASH->value,
+                    'amount' => round($context->remainingAmount, 2),
                 ]
             ];
             $availablePaymentOptions[] = [
@@ -118,8 +126,8 @@ class OrderDomainService
                 'title' => 'Pay Full Amount Online',
                 'description' => "Pay the total {$totalAmount} now.",
                 'required_now' => [
-                    'type' => 'full',
-                    'method' => 'online',
+                    'type' => PaymentTypeEnum::FULL->value,
+                    'method' => PaymentMethodEnum::ONLINE->value,
                     'amount' => $totalAmount,
                 ]
             ];
@@ -129,8 +137,8 @@ class OrderDomainService
                 'title' => 'Pay Cash on Delivery',
                 'description' => "Pay the total {$totalAmount} upon delivery.",
                 'required_now' => [
-                    'type' => 'full',
-                    'method' => 'cash',
+                    'type' => PaymentTypeEnum::FULL->value,
+                    'method' => PaymentMethodEnum::CASH->value,
                     'amount' => $totalAmount,
                 ]
             ];
@@ -139,8 +147,8 @@ class OrderDomainService
                 'title' => 'Pay Full Amount Online',
                 'description' => "Pay the total {$totalAmount} now.",
                 'required_now' => [
-                    'type' => 'full',
-                    'method' => 'online',
+                    'type' => PaymentTypeEnum::FULL->value,
+                    'method' => PaymentMethodEnum::ONLINE->value,
                     'amount' => $totalAmount,
                 ]
             ];
@@ -169,7 +177,7 @@ class OrderDomainService
         ];
     }
 
-    public function placeOrder(int $userId, string $orderType, string $paymentOptionId, ?float $lat, ?float $long, ?string $notes): array
+    public function placeOrder(int $userId, string $orderType, string $paymentOptionId, ?float $lat, ?float $long): array
     {
         $preview = $this->previewCheckout($userId, $orderType, $lat, $long);
         
@@ -185,14 +193,18 @@ class OrderDomainService
             throw new Exception(trans('order.invalid_payment_option'));
         }
 
-        $order = DB::transaction(function () use ($userId, $preview, $selectedOption, $notes) {
+        $order = DB::transaction(function () use ($userId, $preview, $selectedOption) {
             $cart = $this->cartRepository->getUserCart($userId);
+
+            $orderStatus = $selectedOption['required_now']['method'] === PaymentMethodEnum::ONLINE->value 
+                ? OrderStatusEnum::AWAITING_PAYMENT->value 
+                : OrderStatusEnum::PENDING->value;
 
             $order = $this->orderRepository->create([
                 'user_id' => $userId,
                 'restaurant_id' => $cart->restaurant_id,
                 'order_type' => $preview['order_type'],
-                'status' => OrderStatusEnum::PENDING->value,
+                'status' => $orderStatus,
                 'subtotal' => $preview['financials']['subtotal'],
                 'delivery_fee' => $preview['financials']['delivery_fee'],
                 'service_fee' => $preview['financials']['service_fee'],
@@ -218,13 +230,23 @@ class OrderDomainService
                 'status' => PaymentStatusEnum::PENDING->value,
             ]);
 
+            if (isset($selectedOption['remaining_upon_delivery'])) {
+                $this->orderPaymentRepository->create([
+                    'order_id' => $order->id,
+                    'payment_type' => $selectedOption['remaining_upon_delivery']['type'],
+                    'payment_method' => $selectedOption['remaining_upon_delivery']['method'],
+                    'amount' => $selectedOption['remaining_upon_delivery']['amount'],
+                    'status' => PaymentStatusEnum::PENDING->value,
+                ]);
+            }
+
             $this->cartRepository->delete($cart->id);
 
             return $order;
         });
 
         $paymentUrl = null;
-        if ($selectedOption['required_now']['method'] === 'online') {
+        if ($selectedOption['required_now']['method'] === PaymentMethodEnum::ONLINE->value) {
             $paymentUrl = $this->paymentGateway->createPaymentSession($order, $selectedOption['required_now']['amount']);
         }
 
@@ -234,5 +256,49 @@ class OrderDomainService
             'payment_url' => $paymentUrl,
             'message' => trans('order.placed_successfully'),
         ];
+    }
+
+    public function handlePaymentWebhook(string $orderId, string $status, ?string $transactionId = null): void
+    {
+        try {
+            DB::beginTransaction();
+
+            $order = $this->orderRepository->find((int) $orderId);
+            if (!$order) {
+                Log::warning("Kashier Webhook: Order not found: {$orderId}");
+                DB::rollBack();
+                return;
+            }
+
+            $payment = $this->orderPaymentRepository->findPendingOnlinePaymentByOrderId($order->id);
+
+            if (!$payment) {
+                Log::warning("Kashier Webhook: No pending online payment found for Order: {$orderId}");
+                DB::rollBack();
+                return;
+            }
+
+            if ($status === 'SUCCESS') {
+                $this->orderPaymentRepository->update($payment->id, [
+                    'status' => PaymentStatusEnum::PAID->value,
+                    'transaction_id' => $transactionId,
+                ]);
+
+                // Close the cycle: Move order to PENDING so restaurant can accept it
+                $this->orderRepository->update($order->id, [
+                    'status' => OrderStatusEnum::PENDING->value,
+                ]);
+            } else {
+                $this->orderPaymentRepository->update($payment->id, [
+                    'status' => PaymentStatusEnum::FAILED->value,
+                    'transaction_id' => $transactionId,
+                ]);
+            }
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Kashier Webhook Error processing payment: " . $e->getMessage());
+        }
     }
 }

@@ -10,9 +10,8 @@ class PlaceOrderDto
         private readonly int $userId,
         private readonly string $orderType,
         private readonly string $paymentOptionId,
-        private readonly ?float $lat,
-        private readonly ?float $long,
-        private readonly ?string $notes
+        private readonly ?float $lat = null,
+        private readonly ?float $long = null
     ) {}
 
     public static function fromValidatedRequest(PlaceOrderRequest $request): self
@@ -24,8 +23,7 @@ class PlaceOrderDto
             $validated['order_type'],
             $validated['payment_option_id'],
             $validated['lat'] ?? null,
-            $validated['long'] ?? null,
-            $validated['notes'] ?? null
+            $validated['long'] ?? null
         );
     }
 
@@ -52,10 +50,5 @@ class PlaceOrderDto
     public function getLong(): ?float
     {
         return $this->long;
-    }
-
-    public function getNotes(): ?string
-    {
-        return $this->notes;
     }
 }

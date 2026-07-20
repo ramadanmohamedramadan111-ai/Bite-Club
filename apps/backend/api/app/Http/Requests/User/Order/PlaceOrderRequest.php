@@ -36,7 +36,6 @@ class PlaceOrderRequest extends FormRequest
             'payment_option_id' => 'required|string|in:' . implode(',', PaymentOptionEnum::values()),
             'lat' => 'required_if:order_type,' . OrderTypeEnum::DELIVERY->value . '|numeric|between:-90,90',
             'long' => 'required_if:order_type,' . OrderTypeEnum::DELIVERY->value . '|numeric|between:-180,180',
-            'notes' => 'nullable|string|max:500',
         ];
     }
 

@@ -23,7 +23,6 @@ class KashierPaymentGateway implements PaymentGatewayInterface
 
         try {
 
-            // According to Kashier v3 docs
             $response = Http::withHeaders([
                 'Authorization' => $webhookSecret,
                 'api-key' => $apiKey,
@@ -41,6 +40,7 @@ class KashierPaymentGateway implements PaymentGatewayInterface
                 'expireAt' => now()->addHours(24)->toIso8601ZuluString(),
                 'maxFailureAttempts' => 3,
                 'display' => app()->getLocale() === 'ar' ? 'ar' : 'en',
+                'serverWebhook' => rtrim(config('app.url'), '/') . '/api/user/webhooks/kashier',
                 'customer' => [
                     'email' => $order->user->email ?? 'customer@example.com',
                     'reference' => (string) ($order->user_id ?? uniqid()),
@@ -60,5 +60,32 @@ class KashierPaymentGateway implements PaymentGatewayInterface
 
             return null;
         }
+    }
+
+    public function validateWebhookSignature(array $payload, ?string $signature): bool
+    {
+        if (!$signature) {
+            return false;
+        }
+
+        $paymentApiKey = config('payment.kashier.api_key');
+        $dataObj = $payload['data'] ?? [];
+
+        if (!isset($dataObj['signatureKeys']) || !is_array($dataObj['signatureKeys'])) {
+            return false;
+        }
+
+        $signatureKeys = $dataObj['signatureKeys'];
+        sort($signatureKeys);
+
+        $data = [];
+        foreach ($signatureKeys as $key) {
+            $data[$key] = $dataObj[$key] ?? '';
+        }
+
+        $queryString = http_build_query($data, "", '&', PHP_QUERY_RFC3986);
+        $hashedSignature = hash_hmac('sha256', $queryString, $paymentApiKey, false);
+
+        return hash_equals($hashedSignature, $signature);
     }
 }
