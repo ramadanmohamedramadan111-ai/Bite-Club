@@ -1,6 +1,7 @@
 import { Bell, Globe, Menu, Moon, Search, SunMedium } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { type ShellProps } from '../../App'
+import Logo from '../../assets/images/logo.svg'
 
 type HeaderProps = ShellProps & { onMenuToggle: () => void }
 
@@ -9,7 +10,6 @@ export function Header({ theme, toggleTheme, language, toggleLanguage, onMenuTog
 
   return (
     <header className="flex items-center gap-3 border-b border-gray-100 bg-white px-4 py-3 sm:px-6 sm:py-4 dark:border-slate-700 dark:bg-slate-900">
-
       {/* Hamburger — mobile only */}
       <button
         onClick={onMenuToggle}
@@ -20,7 +20,7 @@ export function Header({ theme, toggleTheme, language, toggleLanguage, onMenuTog
       </button>
 
       {/* Search */}
-      <div className="flex flex-1 items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 dark:border-slate-700 dark:bg-slate-800">
+      <div className="hidden sm:flex flex-1 items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 dark:border-slate-700 dark:bg-slate-800">
         <Search size={16} className="shrink-0 text-gray-400" />
         <input
           className="w-full bg-transparent text-sm text-gray-700 outline-none placeholder:text-gray-400 dark:text-slate-200 dark:placeholder:text-slate-500"
@@ -41,7 +41,7 @@ export function Header({ theme, toggleTheme, language, toggleLanguage, onMenuTog
         <button
           onClick={toggleLanguage}
           title={t('language')}
-          className="hidden sm:flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 transition hover:border-brand-orange hover:text-brand-orange dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 transition hover:border-brand-orange hover:text-brand-orange dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
         >
           <Globe size={16} />
         </button>
@@ -49,14 +49,14 @@ export function Header({ theme, toggleTheme, language, toggleLanguage, onMenuTog
         <button
           onClick={toggleTheme}
           title={t('toggleTheme')}
-          className="hidden sm:flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 transition hover:border-brand-orange hover:text-brand-orange dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 transition hover:border-brand-orange hover:text-brand-orange dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
         >
           {theme === 'dark' ? <SunMedium size={16} /> : <Moon size={16} />}
         </button>
 
         {/* Profile */}
         <div className="flex items-center gap-2 rounded-xl bg-white px-2 py-1.5 sm:px-3 dark:border-slate-700 dark:bg-slate-800">
-          <div className="hidden text-left md:block">
+          <div className="hidden text-start md:block">
             <p className="text-xs font-semibold leading-none text-gray-800 dark:text-white">{t('profile')}</p>
             <p className="mt-0.5 text-[10px] text-gray-400 dark:text-slate-400">{t('manager')}</p>
           </div>
@@ -64,6 +64,8 @@ export function Header({ theme, toggleTheme, language, toggleLanguage, onMenuTog
             P
           </div>
         </div>
+
+        
 
       </div>
     </header>
