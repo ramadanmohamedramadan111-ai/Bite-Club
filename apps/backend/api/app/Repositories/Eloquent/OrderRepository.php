@@ -33,7 +33,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                     OrderStatusEnum::CANCELLED->value
                 ])->orWhereDate('updated_at', Carbon::today());
             })
-            ->with(['items', 'user:id,name,email,phone_number', 'payments'])
+            ->with(['items', 'user:id,first_name,email,phone_number', 'payments'])
             ->orderByRaw("FIELD(status, 'pending', 'preparing', 'ready', 'out_for_delivery', 'completed', 'cancelled')")
             ->orderBy('created_at', 'asc')
             ->get();

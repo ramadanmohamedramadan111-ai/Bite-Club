@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Restaurant;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Restaurant\Order\LiveOrdersRequest;
+use App\Http\Resources\Restaurant\Order\LiveOrderResource;
 use App\DTOs\Restaurant\Order\LiveOrdersDto;
 use App\Services\Application\Restaurant\Order\RestaurantOrderApplicationService;
 use App\Traits\ApiResponseTrait;
@@ -25,7 +26,7 @@ class OrderController extends Controller
 
         return $this->successResponse(
             trans('order.retrieved_successfully') ?? 'Live orders retrieved successfully',
-            $orders
+            LiveOrderResource::collection($orders)
         );
     }
 }
