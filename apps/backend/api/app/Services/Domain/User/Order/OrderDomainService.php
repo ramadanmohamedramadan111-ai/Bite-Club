@@ -6,6 +6,7 @@ use App\Repositories\Interfaces\CartRepositoryInterface;
 use App\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Repositories\Interfaces\OrderItemRepositoryInterface;
 use App\Repositories\Interfaces\OrderPaymentRepositoryInterface;
+use App\Services\Infrastructure\Payment\PaymentGatewayInterface;
 use App\Models\GeneralSetting;
 use App\Enums\Order\OrderTypeEnum;
 use App\Enums\Order\OrderStatusEnum;
@@ -29,7 +30,8 @@ class OrderDomainService
         private readonly CartRepositoryInterface $cartRepository,
         private readonly OrderRepositoryInterface $orderRepository,
         private readonly OrderItemRepositoryInterface $orderItemRepository,
-        private readonly OrderPaymentRepositoryInterface $orderPaymentRepository
+        private readonly OrderPaymentRepositoryInterface $orderPaymentRepository,
+        private readonly PaymentGatewayInterface $paymentGateway
     ) {
         $this->calculators = [
             new SubtotalCalculator(),
@@ -223,8 +225,7 @@ class OrderDomainService
 
         $paymentUrl = null;
         if ($selectedOption['required_now']['method'] === 'online') {
-            // TODO: Integrate with real payment gateway
-            $paymentUrl = 'https://mock-payment-gateway.com/pay/' . uniqid();
+            $paymentUrl = $this->paymentGateway->createPaymentSession($order, $selectedOption['required_now']['amount']);
         }
 
         return [

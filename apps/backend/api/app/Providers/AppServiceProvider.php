@@ -46,6 +46,8 @@ use App\Repositories\Interfaces\OrderItemRepositoryInterface;
 use App\Repositories\Eloquent\OrderItemRepository;
 use App\Repositories\Interfaces\OrderPaymentRepositoryInterface;
 use App\Repositories\Eloquent\OrderPaymentRepository;
+use App\Services\Infrastructure\Payment\PaymentGatewayInterface;
+use App\Services\Infrastructure\Payment\KashierPaymentGateway;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -129,6 +131,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(OrderRepositoryInterface::class, OrderRepository::class);
         $this->app->bind(OrderItemRepositoryInterface::class, OrderItemRepository::class);
         $this->app->bind(OrderPaymentRepositoryInterface::class, OrderPaymentRepository::class);
+        $this->app->bind(PaymentGatewayInterface::class, KashierPaymentGateway::class);
     }
 
     public function boot(): void
