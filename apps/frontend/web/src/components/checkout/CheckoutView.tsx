@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Bike, CreditCard, ShoppingBag, Wallet, AlertCircle } from 'lucide-react';
+import { Bike, CreditCard, ShoppingBag, Wallet, AlertCircle, Coins } from 'lucide-react';
 
 import { useRouter } from '@/i18n/navigation';
 import { useCartStore } from '@/stores/cart';
@@ -19,6 +19,7 @@ import { useAction } from 'next-safe-action/hooks';
 import {
   checkoutPreviewDeliveryAction,
   checkoutPreviewPickupAction,
+  checkoutPayAction,
 } from '@/actions/checkout';
 import { clearIndividualCartAction } from '@/actions/cart';
 import { toast } from 'sonner';
@@ -29,7 +30,7 @@ import { useQuery } from '@tanstack/react-query';
 import { clientFetch } from '@/utils/client-fetch';
 
 type FulfillmentType = 'delivery' | 'pickup';
-type PaymentMethod = 'cod' | 'visa';
+type PaymentMethod = 'full_online' | 'full_cash' | 'split_payment';
 
 type Props = {
   initialLocation: SavedLocation | null;
@@ -55,7 +56,7 @@ export default function CheckoutView({ initialLocation }: Props) {
   );
   const [fulfillmentType, setFulfillmentType] =
     useState<FulfillmentType>('delivery');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cod');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('full_cash');
   const [error, setError] = useState<string | null>(null);
   const [orderNotes, setOrderNotes] = useState('');
 
@@ -122,6 +123,28 @@ export default function CheckoutView({ initialLocation }: Props) {
     },
   );
 
+  const { execute: placeOrderExecute, isExecuting: isPlacingOrder } = useAction(
+    checkoutPayAction,
+    {
+      onSuccess: ({ data }) => {
+        if (data?.success && data.data) {
+          clearCart();
+          toast.success(data.message || 'Order placed successfully!');
+          if (data.data.payment_url) {
+            window.location.href = data.data.payment_url;
+          } else {
+            router.push('/restaurants');
+          }
+        } else {
+          setError(data?.message || 'Failed to place order.');
+        }
+      },
+      onError: ({ error }) => {
+        setError(error.serverError?.message || 'Failed to place order.');
+      },
+    },
+  );
+
   useEffect(() => {
     if (!restaurant) return;
     setFulfillmentType(
@@ -157,7 +180,6 @@ export default function CheckoutView({ initialLocation }: Props) {
     previewPickupExecute,
   ]);
 
-
   const summary = useMemo(() => {
     if (checkoutPreview) {
       return {
@@ -180,6 +202,18 @@ export default function CheckoutView({ initialLocation }: Props) {
       remainingAmount: 0,
     };
   }, [cart, checkoutPreview]);
+
+  useEffect(() => {
+    if (summary.requiresDeposit) {
+      if (paymentMethod === 'full_cash') {
+        setPaymentMethod('split_payment');
+      }
+    } else {
+      if (paymentMethod === 'split_payment') {
+        setPaymentMethod('full_cash');
+      }
+    }
+  }, [summary.requiresDeposit, paymentMethod]);
 
   if (!cart || cart.items.length === 0) {
     return (
@@ -246,6 +280,7 @@ export default function CheckoutView({ initialLocation }: Props) {
     isPreviewingPickup ||
     isClearingCart ||
     isLoadingRestaurant ||
+    isPlacingOrder ||
     !!error;
 
 
@@ -253,23 +288,25 @@ export default function CheckoutView({ initialLocation }: Props) {
   const handlePlaceOrder = () => {
     setError(null);
 
-    if (fulfillmentType === 'delivery' && !location) {
-      setError('Please select a delivery address before placing your order.');
-      return;
-    }
-
-    if (isAuthenticated) {
-      clearCartExecute();
+    if (fulfillmentType === 'delivery') {
+      if (!location) {
+        setError('Please select a delivery address before placing your order.');
+        return;
+      }
+      placeOrderExecute({
+        order_type: 'delivery',
+        lat: Number(location.lat),
+        long: Number(location.lng),
+        payment_option_id: paymentMethod,
+        notes: orderNotes || undefined,
+      });
     } else {
-      clearCart();
+      placeOrderExecute({
+        order_type: 'pickup',
+        payment_option_id: paymentMethod,
+        notes: orderNotes || undefined,
+      });
     }
-
-    if (paymentMethod === 'visa') {
-      router.push('/visa');
-      return;
-    }
-
-    router.push('/restaurants');
   };
 
   return (
@@ -365,7 +402,6 @@ export default function CheckoutView({ initialLocation }: Props) {
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Payment Method</CardTitle>
-
             </CardHeader>
             <CardContent>
               <RadioGroup
@@ -374,38 +410,99 @@ export default function CheckoutView({ initialLocation }: Props) {
                   setPaymentMethod(value as PaymentMethod)
                 }
                 className="space-y-3">
-                <div className="flex items-center gap-3 rounded-lg border p-4">
-                  <RadioGroupItem value="cod" id="payment-cod" />
+                
+                {/* Full Cash Payment */}
+                <div
+                  className={cn(
+                    'flex items-center gap-3 rounded-lg border p-4 transition-all duration-200',
+                    summary.requiresDeposit
+                      ? 'opacity-60 bg-muted/30'
+                      : paymentMethod === 'full_cash'
+                      ? 'border-primary bg-primary/5 shadow-sm'
+                      : 'hover:bg-muted/50'
+                  )}>
+                  <RadioGroupItem
+                    value="full_cash"
+                    id="payment-full-cash"
+                    disabled={summary.requiresDeposit}
+                  />
                   <Label
-                    htmlFor="payment-cod"
-                    className="flex flex-1 cursor-pointer items-center gap-3 font-normal">
+                    htmlFor="payment-full-cash"
+                    className={cn(
+                      'flex flex-1 items-center gap-3 font-normal',
+                      summary.requiresDeposit ? 'cursor-not-allowed' : 'cursor-pointer'
+                    )}>
                     <Wallet className="size-5 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">
-                        On{' '}
-                        {fulfillmentType === 'delivery' ? 'Delivery' : 'Pickup'}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Pay with cash when you receive your order
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <p className="font-medium text-foreground">
+                          Full Cash on {fulfillmentType === 'delivery' ? 'Delivery' : 'Pickup'}
+                        </p>
+                        {summary.requiresDeposit && (
+                          <span className="rounded bg-destructive/10 px-2 py-0.5 text-xs font-semibold text-destructive">
+                            Unavailable
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-0.5">
+                        {summary.requiresDeposit
+                          ? 'Not available because this restaurant requires a deposit'
+                          : 'Pay the full amount in cash when you receive your order'}
                       </p>
                     </div>
                   </Label>
                 </div>
 
-                <div className="flex items-center gap-3 rounded-lg border p-4">
-                  <RadioGroupItem value="visa" id="payment-visa" />
+                {/* Full Online Payment */}
+                <div
+                  className={cn(
+                    'flex items-center gap-3 rounded-lg border p-4 transition-all duration-200',
+                    paymentMethod === 'full_online'
+                      ? 'border-primary bg-primary/5 shadow-sm'
+                      : 'hover:bg-muted/50'
+                  )}>
+                  <RadioGroupItem value="full_online" id="payment-full-online" />
                   <Label
-                    htmlFor="payment-visa"
+                    htmlFor="payment-full-online"
                     className="flex flex-1 cursor-pointer items-center gap-3 font-normal">
                     <CreditCard className="size-5 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">Visa</p>
-                      <p className="text-sm text-muted-foreground">
-                        Pay securely with your card
+                    <div className="flex-1">
+                      <p className="font-medium text-foreground">Pay Full Online</p>
+                      <p className="text-sm text-muted-foreground mt-0.5">
+                        Pay the entire amount ({summary.total.toFixed(2)} EGP) securely online now
                       </p>
                     </div>
                   </Label>
                 </div>
+
+                {/* Split Payment */}
+                {summary.requiresDeposit && (
+                  <div
+                    className={cn(
+                      'flex items-center gap-3 rounded-lg border p-4 transition-all duration-200',
+                      paymentMethod === 'split_payment'
+                        ? 'border-primary bg-primary/5 shadow-sm'
+                        : 'hover:bg-muted/50'
+                    )}>
+                    <RadioGroupItem value="split_payment" id="payment-split-payment" />
+                    <Label
+                      htmlFor="payment-split-payment"
+                      className="flex flex-1 cursor-pointer items-center gap-3 font-normal">
+                      <Coins className="size-5 text-muted-foreground" />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <p className="font-medium text-foreground">Split Payment</p>
+                          <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+                            Recommended
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-0.5">
+                          Pay deposit ({summary.depositAmount.toFixed(2)} EGP) online now, and the remaining ({summary.remainingAmount.toFixed(2)} EGP) in cash upon receipt
+                        </p>
+                      </div>
+                    </Label>
+                  </div>
+                )}
               </RadioGroup>
             </CardContent>
           </Card>
@@ -418,11 +515,17 @@ export default function CheckoutView({ initialLocation }: Props) {
             className="w-full sm:w-auto"
             onClick={handlePlaceOrder}
             disabled={disabledCondition}>
-            Place order ·{' '}
-            {summary.requiresDeposit
-              ? summary.depositAmount.toFixed(2)
-              : summary.total.toFixed(2)}{' '}
-            EGP
+            {isPlacingOrder ? (
+              'Placing order...'
+            ) : (
+              <>
+                {paymentMethod === 'split_payment'
+                  ? `Pay Deposit · ${summary.depositAmount.toFixed(2)} EGP`
+                  : paymentMethod === 'full_online'
+                    ? `Pay Now · ${summary.total.toFixed(2)} EGP`
+                    : `Place Order · ${summary.total.toFixed(2)} EGP`}
+              </>
+            )}
           </Button>
         </div>
 
