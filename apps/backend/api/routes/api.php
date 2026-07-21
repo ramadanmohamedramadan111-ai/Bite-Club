@@ -13,6 +13,8 @@ use App\Http\Controllers\Api\User\RestaurantMenuController as UserRestaurantMenu
 use App\Http\Controllers\Api\User\RestaurantReviewController as UserRestaurantReviewController;
 use App\Http\Controllers\Api\User\CartController as UserCartController;
 use App\Http\Controllers\Api\User\OrderController as UserOrderController;
+use App\Http\Controllers\Api\User\PostController;
+use App\Http\Controllers\Api\User\LeaderboardController;
 
 Route::prefix('admin')->name('admin.')->group(function () {
 
@@ -123,4 +125,21 @@ Route::middleware('auth.user')->prefix('groups')->name('groups.')->group(functio
     Route::patch('/{group}/join-settings', [GroupController::class, 'updateJoinSettings'])->name('join-settings');
     Route::post('/{group}/regenerate-link', [GroupController::class, 'regenerateInviteToken'])->name('regenerate-link');
 });
+
+// Social Feed module
+Route::middleware('auth.user')->prefix('posts')->name('posts.')->group(function () {
+    Route::get('/', [PostController::class, 'index'])->name('index');
+    Route::post('/', [PostController::class, 'store'])->name('store');
+    Route::get('/{postId}', [PostController::class, 'show'])->name('show');
+    Route::post('/{postId}/like', [PostController::class, 'like'])->name('like');
+    Route::delete('/{postId}/like', [PostController::class, 'unlike'])->name('unlike');
+    Route::post('/{postId}/copy', [PostController::class, 'copyOrder'])->name('copy');
+    Route::post('/copies/{copiedOrderId}/complete', [PostController::class, 'completeCopiedOrder'])->name('copies.complete');
+});
+
+// Leaderboard module
+Route::middleware('auth.user')->prefix('leaderboards')->name('leaderboards.')->group(function () {
+    Route::get('/', [LeaderboardController::class, 'index'])->name('index');
+});
+
 
