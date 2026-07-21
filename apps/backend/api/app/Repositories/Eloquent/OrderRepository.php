@@ -5,8 +5,6 @@ namespace App\Repositories\Eloquent;
 use App\Models\Order;
 use App\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Enums\Order\OrderStatusEnum;
-use App\Enums\Order\OrderTypeEnum;
-use App\Enums\Payment\PaymentMethodEnum;
 use Carbon\Carbon;
 
 class OrderRepository extends BaseRepository implements OrderRepositoryInterface
@@ -81,5 +79,17 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         $query->orderBy('created_at', 'desc');
 
         return $query->paginate($perPage, ['*'], 'page', $page);
+    }
+
+    public function getActiveOrdersForUser(int $userId)
+    {
+        return $this->model->where('user_id', $userId)
+            ->whereNotIn('status', [
+                OrderStatusEnum::COMPLETED->value,
+                OrderStatusEnum::CANCELLED->value
+            ])
+            ->with(['restaurant', 'items', 'payments'])
+            ->orderBy('created_at', 'desc')
+            ->get();
     }
 }

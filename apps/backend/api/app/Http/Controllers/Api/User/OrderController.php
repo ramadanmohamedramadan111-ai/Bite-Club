@@ -8,8 +8,11 @@ use App\Http\Requests\User\Order\CheckoutPreviewRequest;
 use App\DTOs\User\Order\CheckoutPreviewDto;
 use App\Http\Requests\User\Order\PlaceOrderRequest;
 use App\DTOs\User\Order\PlaceOrderDto;
+use App\Http\Requests\User\Order\ActiveOrdersRequest;
+use App\DTOs\User\Order\ActiveOrdersDto;
 use App\Services\Application\User\Order\OrderApplicationService;
 use App\Http\Resources\User\Order\CheckoutPreviewResource;
+use App\Http\Resources\User\Order\UserOrderResource;
 use Exception;
 use Illuminate\Support\Facades\Log;
 
@@ -47,6 +50,22 @@ class OrderController extends Controller
             );
         } catch (Exception $e) {
             Log::error('Failed to place order: ' . $e->getMessage());
+            return $this->errorResponse($e->getMessage(), [], 400);
+        }
+    }
+
+    public function activeOrders(ActiveOrdersRequest $request): JsonResponse
+    {
+        try {
+            $dto = ActiveOrdersDto::fromValidatedRequest($request);
+            $orders = $this->orderApplicationService->getActiveOrders($dto);
+
+            return $this->successResponse(
+                trans('order.retrieved_successfully') ?? 'Orders retrieved successfully.',
+                UserOrderResource::collection($orders)
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to retrieve active orders: ' . $e->getMessage());
             return $this->errorResponse($e->getMessage(), [], 400);
         }
     }

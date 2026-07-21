@@ -4,7 +4,9 @@ namespace App\Services\Application\User\Order;
 
 use App\DTOs\User\Order\CheckoutPreviewDto;
 use App\DTOs\User\Order\PlaceOrderDto;
+use App\DTOs\User\Order\ActiveOrdersDto;
 use App\Services\Domain\User\Order\OrderDomainService;
+use Illuminate\Database\Eloquent\Collection;
 
 class OrderApplicationService
 {
@@ -31,5 +33,10 @@ class OrderApplicationService
             $dto->getLat(),
             $dto->getLong()
         );
+    }
+
+    public function getActiveOrders(ActiveOrdersDto $dto): Collection
+    {
+        return $this->orderDomainService->getActiveOrders($dto->getUserId());
     }
 }
