@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ChevronLeft, ChevronRight, Copy, Filter, Pencil, Plus, Search, SortAsc, SortDesc, Trash2, Utensils, X } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { useDebounce } from 'use-debounce'
 import { DeleteModal } from '../../components/common/DeleteModal'
@@ -33,12 +33,13 @@ const EMPTY_FORM: ItemForm = {
 
 export function MenuPage() {
   const { t } = useTranslation()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { items, meta, isLoading, fetchItems, addItem, updateItem, deleteItem, toggleAvailability } = useMenuStore()
   const { categories, fetchCategories } = useCategoryStore()
 
   // ── Filter state ──────────────────────────────────────────────────────
   const [activeCatId, setActiveCatId] = useState<'all' | number>('all')
-  const [search, setSearch]           = useState('')
+  const search = searchParams.get('q') || ''
   const [sortBy, setSortBy]           = useState<SortBy>('title')
   const [sortDir, setSortDir]         = useState<SortDir>('asc')
   const [showFilters, setShowFilters] = useState(false)
@@ -72,7 +73,16 @@ export function MenuPage() {
   const handleTabChange = (id: 'all' | number) => { setActiveCatId(id); resetPage() }
   const handleSortBy    = (v: SortBy)           => { setSortBy(v);       resetPage() }
   const handleSortDir   = (v: SortDir)          => { setSortDir(v);      resetPage() }
-  const handleSearch    = (v: string)           => { setSearch(v);       resetPage() }
+  
+  const handleSearch = (val: string) => {
+    if (val) {
+      searchParams.set('q', val)
+    } else {
+      searchParams.delete('q')
+    }
+    setSearchParams(searchParams)
+    resetPage()
+  }
 
   const hasActiveFilters = search !== '' || sortBy !== 'title' || sortDir !== 'asc'
 
@@ -231,71 +241,81 @@ export function MenuPage() {
         </div>
       </div>
 
-      {/* Filter panel */}
+      {/* ── Filter Panel ──────────────────────────────────────────────────── */}
       {showFilters && (
-        <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <div className="flex flex-wrap gap-3 items-end">
-            {/* Search by title */}
-            <div className="flex-1 min-w-[200px]">
-              <label className="block text-xs font-semibold text-gray-500 dark:text-slate-400 mb-1.5">{t('searchByTitle')}</label>
-              <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 focus-within:border-brand-orange focus-within:ring-2 focus-within:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800">
-                <Search size={14} className="shrink-0 text-gray-400" />
-                <input
-                  type="text"
-                  value={search}
-                  onChange={(e) => handleSearch(e.target.value)}
-                  placeholder={t('itemName') + '...'}
-                  className="w-full bg-transparent text-sm text-gray-700 outline-none placeholder:text-gray-400 dark:text-slate-200 dark:placeholder:text-slate-500"
-                />
-                {search && (
-                  <button onClick={() => handleSearch('')} className="text-gray-400 hover:text-gray-600">
-                    <X size={14} />
-                  </button>
-                )}
-              </div>
-            </div>
-
+        <div className="flex flex-col gap-4 py-2 mt-[-8px]">
+          {/* Controls grid */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:w-1/2">
             {/* Sort by */}
-            <div className="min-w-[150px]">
-              <label className="block text-xs font-semibold text-gray-500 dark:text-slate-400 mb-1.5">{t('sortBy')}</label>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-gray-500 dark:text-slate-400">
+                {t('sortBy', 'Sort By')}
+              </label>
               <select
                 value={sortBy}
                 onChange={(e) => handleSortBy(e.target.value as SortBy)}
-                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-700 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+                className="w-full appearance-none rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none focus:border-brand-orange focus:ring-2 focus:ring-brand-orange/15 transition dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
               >
-                <option value="title">{t('itemName')}</option>
-                <option value="price">{t('price')}</option>
-                <option value="availability">{t('availability')}</option>
+                <option value="title">{t('itemName', 'Item Name')}</option>
+                <option value="price">{t('price', 'Price')}</option>
               </select>
             </div>
 
             {/* Sort direction */}
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 dark:text-slate-400 mb-1.5">{t('sortDir')}</label>
-              <div className="flex gap-2">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-gray-500 dark:text-slate-400">
+                {t('sortDir', 'Direction')}
+              </label>
+              <div className="grid grid-cols-2 gap-2">
                 {(['asc', 'desc'] as const).map((dir) => (
                   <button
                     key={dir}
                     onClick={() => handleSortDir(dir)}
-                    className={`flex items-center gap-1.5 rounded-xl border-2 px-3 py-2 text-sm font-semibold transition ${sortDir === dir ? 'border-brand-orange bg-orange-50 text-brand-orange dark:bg-orange-900/20' : 'border-gray-200 bg-white text-gray-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}
+                    className={`flex items-center justify-center gap-1.5 rounded-xl border-2 py-2.5 text-sm font-semibold transition ${
+                      sortDir === dir
+                        ? 'border-brand-orange bg-orange-50 text-brand-orange dark:bg-orange-900/20 dark:border-brand-orange/50'
+                        : 'border-gray-200 bg-white text-gray-500 hover:border-brand-orange/40 hover:text-brand-orange dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400'
+                    }`}
                   >
                     {dir === 'asc' ? <SortAsc size={14} /> : <SortDesc size={14} />}
-                    {dir === 'asc' ? t('ascending') : t('descending')}
+                    {dir === 'asc' ? t('ascending', 'Asc') : t('descending', 'Desc')}
                   </button>
                 ))}
               </div>
             </div>
-
-            {/* Clear filters */}
-            {hasActiveFilters && (
-              <button
-                onClick={() => { setSearch(''); setSortBy('title'); setSortDir('asc'); resetPage() }}
-                className="flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-sm font-semibold text-red-500 hover:bg-red-100 transition dark:border-red-800 dark:bg-red-900/20 dark:text-red-400"
-              >
-                <X size={14} /> {t('clearFilters')}
-              </button>
-            )}
           </div>
+
+          {/* Active chips + clear button */}
+          {hasActiveFilters && (
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className="text-xs text-gray-400 dark:text-slate-500 font-semibold">{t('activeFilters', 'Active Filters:')}</span>
+              {search && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300">
+                  <Search size={12} /> "{search}"
+                  <button onClick={() => handleSearch('')} className="ml-1 hover:text-red-500"><X size={12} /></button>
+                </span>
+              )}
+              {sortBy !== 'title' && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300">
+                  <SortAsc size={12} /> {sortBy}
+                  <button onClick={() => handleSortBy('title')} className="ml-1 hover:text-red-500"><X size={12} /></button>
+                </span>
+              )}
+              {sortDir !== 'asc' && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300">
+                  <SortDesc size={12} /> {t('descending', 'Desc')}
+                  <button onClick={() => handleSortDir('asc')} className="ml-1 hover:text-red-500"><X size={12} /></button>
+                </span>
+              )}
+              
+              <button
+                onClick={() => { handleSearch(''); setSortBy('title'); setSortDir('asc'); resetPage() }}
+                className="text-xs font-bold text-red-500 hover:underline ml-1"
+              >
+                {t('clearFilters', 'Clear All')}
+              </button>
+            </div>
+          )}
         </div>
       )}
 

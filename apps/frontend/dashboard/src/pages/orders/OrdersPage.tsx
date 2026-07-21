@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Bell, CheckCircle, XCircle } from 'lucide-react'
 import { Table } from '../../components/common/Table'
 import type { Column } from '../../components/common/Table'
 import { Pagination } from '../../components/common/Pagination'
 
-const orders = [
+const mockOrders = [
   { id: '#BC-1024', customer: 'Sarah Chen',  phone: '+20 100 293 8472', branch: 'Zamalek',   status: 'Preparing', payment: 'Paid',     total: 450,  time: '11:45 AM' },
   { id: '#BC-1025', customer: 'Ahmed Hassan', phone: '+20 112 443 1290', branch: 'Maadi',     status: 'Ready',     payment: 'Unpaid',   total: 1250, time: '12:05 PM' },
   { id: '#BC-1026', customer: 'Mona Zayed',   phone: '+20 105 882 1104', branch: 'New Cairo', status: 'Completed', payment: 'Paid',     total: 320,  time: '12:15 PM' },
@@ -35,7 +35,15 @@ function paymentColor(p: string) {
 export function OrdersPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [currentPage, setCurrentPage] = useState(1)
+
+  const query = (searchParams.get('q') || '').toLowerCase()
+  const orders = mockOrders.filter(o => 
+    o.customer.toLowerCase().includes(query) || 
+    o.id.toLowerCase().includes(query) ||
+    o.phone.includes(query)
+  )
 
   const columns: Column<typeof orders[0]>[] = [
     {
