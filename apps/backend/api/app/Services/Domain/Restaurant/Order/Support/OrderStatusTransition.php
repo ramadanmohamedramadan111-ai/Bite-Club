@@ -55,9 +55,13 @@ class OrderStatusTransition
             }
         }
 
-        // Remove OUT_FOR_DELIVERY if order is pickup
-        if ($order->order_type === OrderTypeEnum::PICKUP) {
-            $transitions = array_values(array_filter($transitions, fn($t) => $t !== OrderStatusEnum::OUT_FOR_DELIVERY->value));
+        // Remove OUT_FOR_DELIVERY if order is pickup, and remove COMPLETED if order is delivery (from READY status)
+        if ($status === OrderStatusEnum::READY) {
+            if ($order->order_type === OrderTypeEnum::PICKUP) {
+                $transitions = array_values(array_filter($transitions, fn($t) => $t !== OrderStatusEnum::OUT_FOR_DELIVERY->value));
+            } elseif ($order->order_type === OrderTypeEnum::DELIVERY) {
+                $transitions = array_values(array_filter($transitions, fn($t) => $t !== OrderStatusEnum::COMPLETED->value));
+            }
         }
 
         return $transitions;

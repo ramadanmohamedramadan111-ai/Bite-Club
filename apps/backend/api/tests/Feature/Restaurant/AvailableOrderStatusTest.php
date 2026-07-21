@@ -152,8 +152,9 @@ class AvailableOrderStatusTest extends TestCase
         $response->assertStatus(200);
 
         $data = $response->json('data');
-        $this->assertCount(2, $data);
+        // READY for delivery usually goes to OUT_FOR_DELIVERY only, COMPLETED is hidden.
+        $this->assertCount(1, $data);
         $this->assertContains(OrderStatusEnum::OUT_FOR_DELIVERY->value, $data);
-        $this->assertContains(OrderStatusEnum::COMPLETED->value, $data);
+        $this->assertNotContains(OrderStatusEnum::COMPLETED->value, $data);
     }
 }
