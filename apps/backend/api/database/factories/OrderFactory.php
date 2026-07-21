@@ -3,10 +3,10 @@
 namespace Database\Factories;
 
 use App\Models\Order;
-use App\Models\Restaurant;
 use App\Models\User;
-use App\Enums\Order\OrderStatusEnum;
+use App\Models\Restaurant;
 use App\Enums\Order\OrderTypeEnum;
+use App\Enums\Order\OrderStatusEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class OrderFactory extends Factory
 {
     protected $model = Order::class;
+
 
     /**
      * Define the model's default state.

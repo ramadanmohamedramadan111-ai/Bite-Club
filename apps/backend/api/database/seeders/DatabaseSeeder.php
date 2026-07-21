@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
             RestaurantSeeder::class,
             RestaurantMenuSeeder::class,
             FiveRestaurantsSeeder::class,
-            
+            OrderSeeder::class,
         ]);
 
         User::factory()->create([
