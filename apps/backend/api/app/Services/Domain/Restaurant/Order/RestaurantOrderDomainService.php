@@ -9,6 +9,7 @@ use App\Repositories\Interfaces\OrderPaymentRepositoryInterface;
 use App\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Services\Domain\Restaurant\Order\Support\OrderStatusTransition;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class RestaurantOrderDomainService
@@ -52,15 +53,17 @@ class RestaurantOrderDomainService
         // Validate the transition
         $this->statusTransition->assert($order, $statusEnum);
 
-        // Perform the update
-        $this->orderRepository->update($order->id, ['status' => $statusEnum->value]);
+        DB::transaction(function () use ($order, $statusEnum) {
+            // Perform the update
+            $this->orderRepository->update($order->id, ['status' => $statusEnum->value]);
 
-        // Handle payments logic based on status
-        if ($statusEnum === OrderStatusEnum::COMPLETED) {
-            $this->paymentRepository->updatePendingPaymentsStatus($order->id, PaymentStatusEnum::PAID->value);
-        } elseif ($statusEnum === OrderStatusEnum::CANCELLED) {
-            $this->paymentRepository->updatePendingPaymentsStatus($order->id, PaymentStatusEnum::FAILED->value);
-        }
+            // Handle payments logic based on status
+            if ($statusEnum === OrderStatusEnum::COMPLETED) {
+                $this->paymentRepository->updatePendingPaymentsStatus($order->id, PaymentStatusEnum::PAID->value);
+            } elseif ($statusEnum === OrderStatusEnum::CANCELLED) {
+                $this->paymentRepository->updatePendingPaymentsStatus($order->id, PaymentStatusEnum::FAILED->value);
+            }
+        });
 
         // Refresh the order to return updated data
         return $this->orderRepository->findOrderForRestaurant($orderId, $restaurantId);
