@@ -5,6 +5,8 @@ namespace App\Repositories\Eloquent;
 use App\Models\Order;
 use App\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Enums\Order\OrderStatusEnum;
+use App\Enums\Order\OrderTypeEnum;
+use App\Enums\Payment\PaymentMethodEnum;
 use Carbon\Carbon;
 
 class OrderRepository extends BaseRepository implements OrderRepositoryInterface
@@ -34,15 +36,23 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                 ])->orWhereDate('updated_at', Carbon::today());
             })
             ->with(['items', 'user:id,first_name,last_name,email,phone_number', 'payments'])
-            ->orderByRaw("CASE status 
-                WHEN 'pending' THEN 1 
-                WHEN 'preparing' THEN 2 
-                WHEN 'ready' THEN 3 
-                WHEN 'out_for_delivery' THEN 4 
-                WHEN 'completed' THEN 5 
-                WHEN 'cancelled' THEN 6 
+            ->orderByRaw("CASE status
+                WHEN 'pending' THEN 1
+                WHEN 'preparing' THEN 2
+                WHEN 'ready' THEN 3
+                WHEN 'out_for_delivery' THEN 4
+                WHEN 'completed' THEN 5
+                WHEN 'cancelled' THEN 6
                 ELSE 7 END")
             ->orderBy('created_at', 'asc')
             ->get();
+    }
+
+    public function findOrderForRestaurant(int $orderId, int $restaurantId)
+    {
+        return $this->model->where('id', $orderId)
+            ->where('restaurant_id', $restaurantId)
+            ->with(['payments'])
+            ->first();
     }
 }

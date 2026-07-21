@@ -10,4 +10,5 @@ return [
     'invalid_payment_option' => 'خيار الدفع غير صالح.',
     'placed_successfully' => 'تم الطلب بنجاح.',
     'retrieved_successfully' => 'تم استرجاع الطلبات بنجاح.',
+    'statuses_retrieved_successfully' => 'تم استرجاع الحالات المتاحة بنجاح.',
 ];

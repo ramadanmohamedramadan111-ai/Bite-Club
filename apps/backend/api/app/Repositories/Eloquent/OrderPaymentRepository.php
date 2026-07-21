@@ -21,4 +21,11 @@ class OrderPaymentRepository extends BaseRepository implements OrderPaymentRepos
             ->where('status', PaymentStatusEnum::PENDING->value)
             ->first();
     }
+
+    public function hasOnlinePayment(int $orderId): bool
+    {
+        return $this->model->where('order_id', $orderId)
+            ->where('payment_method', PaymentMethodEnum::ONLINE->value)
+            ->exists();
+    }
 }

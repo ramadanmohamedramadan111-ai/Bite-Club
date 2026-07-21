@@ -10,4 +10,5 @@ return [
     'invalid_payment_option' => 'Invalid payment option.',
     'placed_successfully' => 'Order placed successfully.',
     'retrieved_successfully' => 'Orders retrieved successfully.',
+    'statuses_retrieved_successfully' => 'Available statuses retrieved successfully.',
 ];
