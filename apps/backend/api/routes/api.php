@@ -1,20 +1,22 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\AdminAuthController;
 use App\Http\Controllers\Api\Auth\UserAuthController;
 use App\Http\Controllers\Api\RestaurantCategoryController;
+use App\Http\Controllers\Api\User\CartController as UserCartController;
 use App\Http\Controllers\Api\User\FriendController;
-use App\Http\Controllers\Api\User\UserSearchController;
 use App\Http\Controllers\Api\User\GroupController;
+use App\Http\Controllers\Api\User\OrderController as UserOrderController;
 use App\Http\Controllers\Api\User\RestaurantCategoryController as UserRestaurantCategoryController;
 use App\Http\Controllers\Api\User\RestaurantController as UserRestaurantController;
 use App\Http\Controllers\Api\User\RestaurantMenuController as UserRestaurantMenuController;
 use App\Http\Controllers\Api\User\RestaurantReviewController as UserRestaurantReviewController;
-use App\Http\Controllers\Api\User\CartController as UserCartController;
-use App\Http\Controllers\Api\User\OrderController as UserOrderController;
 use App\Http\Controllers\Api\User\PostController;
 use App\Http\Controllers\Api\User\LeaderboardController;
+use App\Http\Controllers\Api\User\UserSearchController;
+use App\Http\Controllers\Api\Webhook\KashierWebhookController;
+use Illuminate\Support\Facades\Route;
+
 
 Route::prefix('admin')->name('admin.')->group(function () {
 
@@ -53,14 +55,14 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::get('/me', [UserAuthController::class, 'me'])->name('me');
 
         Route::get('/restaurant-categories', [UserRestaurantCategoryController::class, 'index'])->name('restaurant-categories.index');
-        
+
         // Restaurants (User)
         Route::prefix('restaurants')->group(function () {
             Route::get('/', [UserRestaurantController::class, 'index'])->name('restaurants.index');
             Route::get('nearest', [UserRestaurantController::class, 'nearest'])->name('restaurants.nearest');
             Route::get('/{restaurantId}', [UserRestaurantController::class, 'show'])->name('restaurants.show');
             Route::get('/{restaurantId}/menu', [UserRestaurantMenuController::class, 'index'])->name('restaurants.menu');
-            
+
             // Reviews
             Route::prefix('{restaurantId}/reviews')->group(function () {
                 Route::get('/', [UserRestaurantReviewController::class, 'index']);
@@ -75,7 +77,7 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::prefix('cart')->group(function () {
             Route::get('/', [UserCartController::class, 'show'])->name('cart.show');
         });
-        
+
         Route::prefix('cart')->group(function () {
             Route::post('items', [UserCartController::class, 'addItem'])->name('cart.items.add');
             Route::put('items/{itemId}', [UserCartController::class, 'updateItemQuantity'])->name('cart.items.update');
@@ -85,8 +87,13 @@ Route::prefix('user')->name('user.')->group(function () {
         // Order
         Route::prefix('checkout')->group(function () {
             Route::post('preview', [UserOrderController::class, 'previewCheckout'])->name('checkout.preview');
+            Route::post('place', [UserOrderController::class, 'placeOrder'])->name('checkout.place');
         });
+
     });
+
+    // Webhooks (No auth required)
+    Route::post('webhooks/kashier', [\App\Http\Controllers\Api\Webhook\KashierWebhookController::class, 'handle']);
 });
 
 // User Friends module

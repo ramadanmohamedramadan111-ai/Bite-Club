@@ -9,21 +9,30 @@ use App\Enums\Order\OrderTypeEnum;
 use App\Enums\Order\OrderStatusEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Order>
+ */
 class OrderFactory extends Factory
 {
     protected $model = Order::class;
 
+
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
     public function definition(): array
     {
         return [
-            'user_id'       => User::factory(),
             'restaurant_id' => Restaurant::factory(),
-            'order_type'    => OrderTypeEnum::DELIVERY->value,
-            'status'        => OrderStatusEnum::COMPLETED->value,
-            'subtotal'      => 50.00,
-            'delivery_fee'  => 5.00,
-            'service_fee'   => 2.00,
-            'total'         => 57.00,
+            'user_id' => User::factory(),
+            'order_type' => $this->faker->randomElement(OrderTypeEnum::values()),
+            'status' => OrderStatusEnum::PENDING->value,
+            'subtotal' => 100.00,
+            'delivery_fee' => 10.00,
+            'service_fee' => 5.00,
+            'total' => 115.00,
         ];
     }
 }
