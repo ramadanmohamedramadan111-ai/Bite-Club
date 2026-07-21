@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use App\Models\Order;
 use Exception;
 
 use App\Services\Domain\User\Order\Calculators\OrderCalculationContext;
@@ -313,5 +314,16 @@ class OrderDomainService
     public function getPastOrders(int $userId, int $page, int $perPage): LengthAwarePaginator
     {
         return $this->orderRepository->getPaginatedPastOrdersForUser($userId, $page, $perPage);
+    }
+
+    public function getOrderDetails(int $orderId, int $userId): Order
+    {
+        $order = $this->orderRepository->findOrderForUser($orderId, $userId);
+
+        if (!$order) {
+            throw new NotFoundHttpException(trans('order.not_found') ?? 'Order not found.');
+        }
+
+        return $order;
     }
 }

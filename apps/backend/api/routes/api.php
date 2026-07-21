@@ -91,6 +91,7 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::prefix('orders')->name('orders.')->group(function () {
             Route::get('active', [UserOrderController::class, 'activeOrders'])->name('active');
             Route::get('past', [UserOrderController::class, 'pastOrders'])->name('past');
+            Route::get('{orderId}', [UserOrderController::class, 'show'])->name('show');
         });
 
     });

@@ -105,4 +105,12 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
         return $query->paginate($perPage, ['*'], 'page', $page);
     }
+
+    public function findOrderForUser(int $orderId, int $userId)
+    {
+        return $this->model->where('id', $orderId)
+            ->where('user_id', $userId)
+            ->with(['restaurant', 'items', 'payments'])
+            ->first();
+    }
 }

@@ -2,20 +2,24 @@
 
 namespace App\Http\Controllers\Api\User;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\JsonResponse;
-use App\Http\Requests\User\Order\CheckoutPreviewRequest;
-use App\DTOs\User\Order\CheckoutPreviewDto;
-use App\Http\Requests\User\Order\PlaceOrderRequest;
-use App\DTOs\User\Order\PlaceOrderDto;
-use App\Http\Requests\User\Order\ActiveOrdersRequest;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use App\DTOs\User\Order\ActiveOrdersDto;
-use App\Http\Requests\User\Order\PastOrdersRequest;
+use App\DTOs\User\Order\CheckoutPreviewDto;
+use App\DTOs\User\Order\OrderDetailsDto;
 use App\DTOs\User\Order\PastOrdersDto;
-use App\Services\Application\User\Order\OrderApplicationService;
+use App\DTOs\User\Order\PlaceOrderDto;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\User\Order\ActiveOrdersRequest;
+use App\Http\Requests\User\Order\CheckoutPreviewRequest;
+use App\Http\Requests\User\Order\OrderDetailsRequest;
+use App\Http\Requests\User\Order\PastOrdersRequest;
+use App\Http\Requests\User\Order\PlaceOrderRequest;
 use App\Http\Resources\User\Order\CheckoutPreviewResource;
+use App\Http\Resources\User\Order\UserOrderDetailsResource;
 use App\Http\Resources\User\Order\UserOrderResource;
+use App\Services\Application\User\Order\OrderApplicationService;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
@@ -78,7 +82,7 @@ class OrderController extends Controller
             $dto = PastOrdersDto::fromValidatedRequest($request);
             $orders = $this->orderApplicationService->getPastOrders($dto);
 
-            
+
             $orders->withPath(config('app.url') . $request->getPathInfo());
 
             $paginatedData = UserOrderResource::collection($orders)->response()->getData(true);
@@ -90,6 +94,27 @@ class OrderController extends Controller
 
         } catch (Exception $e) {
             Log::error('Failed to retrieve past orders: ' . $e->getMessage());
+            return $this->errorResponse($e->getMessage(), [], 400);
+        }
+    }
+
+    public function show(OrderDetailsRequest $request): JsonResponse
+    {
+        try {
+            $dto = OrderDetailsDto::fromValidatedRequest($request);
+            $order = $this->orderApplicationService->getOrderDetails($dto);
+
+            return $this->successResponse(
+                trans('order.retrieved_successfully') ?? 'Order retrieved successfully.',
+                new UserOrderDetailsResource($order)
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to retrieve order details: ' . $e->getMessage());
+
+            if ($e instanceof NotFoundHttpException) {
+                return $this->errorResponse($e->getMessage(), [], 404);
+            }
+
             return $this->errorResponse($e->getMessage(), [], 400);
         }
     }
