@@ -85,6 +85,9 @@ class CheckoutPreviewTest extends TestCase
         $response->assertJsonPath('data.deposit_rules.deposit_percentage', 50);
         $response->assertJsonPath('data.deposit_rules.deposit_amount', 102.5);
         $response->assertJsonPath('data.deposit_rules.remaining_amount', 102.5);
+        $response->assertJsonCount(1, 'data.items');
+        $response->assertJsonPath('data.items.0.item_id', $menuItem->id);
+        $response->assertJsonCount(2, 'data.available_payment_options');
         
         // system_commission: 10% of 200 = 20
         $response->assertJsonPath('data.internal_data.system_commission', 20);

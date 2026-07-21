@@ -17,6 +17,7 @@ class CheckoutPreviewResource extends JsonResource
         return [
             'cart_id' => $this['cart_id'],
             'order_type' => $this['order_type'],
+            'items' => $this['items'],
             'financials' => [
                 'subtotal' => $this['financials']['subtotal'],
                 'delivery_fee' => $this['financials']['delivery_fee'],
@@ -29,6 +30,7 @@ class CheckoutPreviewResource extends JsonResource
                 'deposit_amount' => $this['deposit_rules']['deposit_amount'],
                 'remaining_amount' => $this['deposit_rules']['remaining_amount'],
             ],
+            'available_payment_options' => $this['available_payment_options'],
             'internal_data' => [
                 'system_commission' => $this['internal_data']['system_commission'],
             ],

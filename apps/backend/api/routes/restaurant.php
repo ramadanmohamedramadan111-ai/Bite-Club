@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Auth\RestaurantPasswordResetController;
 use App\Http\Controllers\Api\RestaurantCategoryController;
 use App\Http\Controllers\Api\MenuCategoryController;
 use App\Http\Controllers\Api\MenuItemController;
+use App\Http\Controllers\Api\Restaurant\OrderController;
 
 Route::post('/register', [RestaurantAuthController::class, 'register'])->name('register');
 Route::post('/login',    [RestaurantAuthController::class, 'login'])->name('login');
@@ -47,5 +48,11 @@ Route::middleware('auth.restaurant')->group(function () {
         Route::post('/{id}', [MenuItemController::class, 'update'])->name('update'); // POST due to multipart/form-data
         Route::put('/{id}/availability', [MenuItemController::class, 'updateAvailability'])->name('update-availability');
         Route::delete('/{id}', [MenuItemController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('orders')->name('orders.')->group(function () {
+        Route::get('/live', [OrderController::class, 'liveOrders'])->name('live');
+        Route::get('/{orderId}/available-statuses', [OrderController::class, 'availableStatuses'])->name('available-statuses');
+        Route::patch('/{orderId}/status', [OrderController::class, 'updateStatus'])->name('update-status');
     });
 });
