@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Exception;
 
 use App\Services\Domain\User\Order\Calculators\OrderCalculationContext;
@@ -307,5 +308,10 @@ class OrderDomainService
     public function getActiveOrders(int $userId): Collection
     {
         return $this->orderRepository->getActiveOrdersForUser($userId);
+    }
+
+    public function getPastOrders(int $userId, int $page, int $perPage): LengthAwarePaginator
+    {
+        return $this->orderRepository->getPaginatedPastOrdersForUser($userId, $page, $perPage);
     }
 }

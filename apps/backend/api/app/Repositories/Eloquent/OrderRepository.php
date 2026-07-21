@@ -92,4 +92,17 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             ->orderBy('created_at', 'desc')
             ->get();
     }
+
+    public function getPaginatedPastOrdersForUser(int $userId, int $page, int $perPage)
+    {
+        $query = $this->model->where('user_id', $userId)
+            ->whereIn('status', [
+               OrderStatusEnum::COMPLETED->value,
+               OrderStatusEnum::CANCELLED->value
+            ])
+            ->with(['restaurant', 'items', 'payments'])
+            ->orderBy('created_at', 'desc');
+
+        return $query->paginate($perPage, ['*'], 'page', $page);
+    }
 }
