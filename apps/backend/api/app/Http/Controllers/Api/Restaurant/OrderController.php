@@ -29,7 +29,7 @@ class OrderController extends Controller
     public function liveOrders(LiveOrdersRequest $request): JsonResponse
     {
         $dto = LiveOrdersDto::fromValidatedRequest($request);
-        
+
         $orders = $this->applicationService->getLiveOrders($dto);
 
         return $this->successResponse(
@@ -71,6 +71,9 @@ class OrderController extends Controller
         $dto = OrderHistoryDto::fromValidatedRequest($request);
 
         $orders = $this->applicationService->getOrderHistory($dto);
+
+        
+        $orders->withPath(config('app.url') . $request->getPathInfo());
 
         $paginatedData = OrderHistoryResource::collection($orders)->response()->getData(true);
 
