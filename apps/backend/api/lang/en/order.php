@@ -11,4 +11,5 @@ return [
     'placed_successfully' => 'Order placed successfully.',
     'retrieved_successfully' => 'Orders retrieved successfully.',
     'statuses_retrieved_successfully' => 'Available statuses retrieved successfully.',
+    'status_updated_successfully' => 'Order status updated successfully.',
 ];

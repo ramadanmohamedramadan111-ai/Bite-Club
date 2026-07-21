@@ -11,4 +11,5 @@ return [
     'placed_successfully' => 'تم الطلب بنجاح.',
     'retrieved_successfully' => 'تم استرجاع الطلبات بنجاح.',
     'statuses_retrieved_successfully' => 'تم استرجاع الحالات المتاحة بنجاح.',
+    'status_updated_successfully' => 'تم تحديث حالة الطلب بنجاح.',
 ];
