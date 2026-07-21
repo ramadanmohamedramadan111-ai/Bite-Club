@@ -1,8 +1,9 @@
 import { notFound } from 'next/navigation';
-import RestaurantDetailMenu from '@/components/restaurants/RestaurantDetailMenu';
 import { serverFetch } from '@/utils/server-fetch';
 import { ApiResponse, PaginatedResponse } from '@/types/api/api-response';
 import { MenuItems, RestaurantType } from '@/types/restaurant/restaurant';
+import RestaurantDetailMenuClient from '@/components/restaurants/RestaurantDetailMenuClient';
+import { getUserId } from '@/utils/api-helpers';
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -27,7 +28,17 @@ export default async function RestaurantMenuPage({ params }: PageProps) {
 
   const menuItems = menuItemsData.data.items || [];
 
-  return <RestaurantDetailMenu restaurant={restaurant} menuItems={menuItems} />;
-}
+  const userId = await getUserId();
 
+  return (
+    <div className="space-y-6">
+      <RestaurantDetailMenuClient
+        restaurant={restaurant}
+        menuItems={menuItems}
+        orderingContext={'restaurant'}
+        isAuthenticated={!!userId}
+      />
+    </div>
+  );
+}
 

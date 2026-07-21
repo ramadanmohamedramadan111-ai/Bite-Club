@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import ConfirmDialog from '@/components/shared/ConfirmationDialog';
-import { useCartStore } from '@/stores/cart';
+import { useCartStore } from '@/stores/_cart';
 import type { Order } from '@/types/orders/order';
 import type { Post } from '@/types/social/posts';
 import {
@@ -15,7 +15,7 @@ import {
   type CartAddConflict,
   type RestaurantCartTarget,
 } from '@/utils/add-to-individual-cart';
-import type { CartItem } from '@/types/cart/cart';
+import type { CartItem } from '@/types/cart/_cart';
 
 const conflictCopy: Record<
   Exclude<CartAddConflict, null>,
@@ -128,3 +128,4 @@ export function useAddToIndividualCart() {
     dialog,
   };
 }
+

@@ -29,6 +29,7 @@ import {
 import { useLocale, useTranslations } from 'next-intl';
 import { getLangDir } from 'rtl-detect';
 import { useCartStore } from '@/stores/cart';
+
 import { useUnreadNotificationCount } from '@/stores/notifications';
 
 export function AppSidebar({

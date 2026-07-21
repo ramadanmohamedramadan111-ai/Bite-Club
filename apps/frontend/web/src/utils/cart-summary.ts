@@ -1,5 +1,5 @@
 import { getRewardOfferById } from '@/data/mock-rewards';
-import type { Cart, CartSummary } from '@/types/cart/cart';
+import type { Cart, CartSummary } from '@/types/cart/_cart';
 import type { Redemption, RewardOffer } from '@/types/points/points';
 
 type SummaryOptions = {
@@ -76,3 +76,4 @@ export function buildCartSummary(
     appliedRedemptionTitle,
   };
 }
+

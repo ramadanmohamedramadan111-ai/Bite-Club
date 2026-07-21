@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useRouter } from '@/i18n/navigation';
-import { useCartStore } from '@/stores/cart';
+import { useCartStore } from '@/stores/_cart';
 import { useGroupSessionsStore } from '@/stores/group-sessions';
 import { useGroupsStore } from '@/stores/groups';
 import { useSessionStore } from '@/stores/session';

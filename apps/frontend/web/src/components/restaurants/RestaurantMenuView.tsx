@@ -1,52 +1,33 @@
 import Image from 'next/image';
 import { ExternalLink } from 'lucide-react';
-import type { MenuItem as ClientMenuItem, BackendMenuItem, MenuItems as BackendMenuItems, RestaurantType } from '@/types/restaurant/restaurant';
+import type {
+  MenuItem,
+  RestaurantType,
+  MenuItems,
+} from '@/types/restaurant/restaurant';
 
 import RestaurantMenuClientView from './RestaurantMenuClientView';
 import type { OrderingContext } from './MenuItemCustomizer';
 
 type Props = {
   restaurant: RestaurantType;
-  items: any[];
+  items: MenuItems[];
   showScannedMenu?: boolean;
   orderingContext?: OrderingContext;
 };
 
-function normalizeMenuItems(
-  inputItems: any[],
-  restaurantId: number
-): ClientMenuItem[] {
-  if (!inputItems || inputItems.length === 0) return [];
-
-  // Check if the first item has an 'items' array (meaning it is a grouped MenuItems from the backend)
-  if ('items' in inputItems[0]) {
-    const grouped = inputItems as BackendMenuItems[];
-    const flat: ClientMenuItem[] = [];
-
-    grouped.forEach((group) => {
-      const categoryTitle = group.title;
-      group.items.forEach((item) => {
-        flat.push({
-          id: item.id,
-          name: item.title,
-          description: item.description || '',
-          price: Number(item.price),
-          categories: [categoryTitle],
-          likesCount: 0,
-          preparationTime: 15,
-          available: item.is_available,
-          image: item.image_url || '/storage/restaurants/restaurant.jpeg',
-          options: [], // Options will be customized in client dialog
-          restaurantId: restaurantId,
-        });
-      });
-    });
-
-    return flat;
-  }
-
-  // Otherwise, it's already a flat ClientMenuItem[] (or mock data)
-  return inputItems as ClientMenuItem[];
+function normalizeMenuItems(inputItems: MenuItems[]): MenuItem[] {
+  return inputItems.flatMap((group) =>
+    group.items.map((item) => ({
+      id: item.id,
+      title: item.title,
+      description: item.description ?? '',
+      price: Number(item.price),
+      is_available: item.is_available,
+      image_url: item.image_url ?? '/storage/restaurants/restaurant.jpeg',
+      options: [],
+    })),
+  );
 }
 
 export default function RestaurantMenuView({
@@ -55,8 +36,8 @@ export default function RestaurantMenuView({
   showScannedMenu = true,
   orderingContext = 'restaurant',
 }: Props) {
-  const normalizedItems = normalizeMenuItems(items, restaurant.id);
-  const scannedMenu = (restaurant as any).scannedMenu || (restaurant as any).scanned_menu_url || null;
+  const normalizedItems = normalizeMenuItems(items);
+  const scannedMenu = restaurant.scanned_menu || null;
 
   return (
     <div className="space-y-6">
@@ -103,5 +84,4 @@ export default function RestaurantMenuView({
     </div>
   );
 }
-
 

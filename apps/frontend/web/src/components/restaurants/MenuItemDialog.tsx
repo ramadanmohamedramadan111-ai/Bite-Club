@@ -6,19 +6,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { useCartStore } from '@/stores/cart';
-import MenuItemCustomizer, {
-  type OrderingContext,
-} from './MenuItemCustomizer';
-import type { MenuItem, RestaurantType } from '@/types/restaurant/restaurant';
-
+import { useCartStore } from '@/stores/_cart';
+import MenuItemCustomizer, { type OrderingContext } from './MenuItemCustomizer';
+import type {
+  ClientMenuItem,
+  RestaurantType,
+} from '@/types/restaurant/restaurant';
 
 type Props = {
-  item: MenuItem | null;
+  item: ClientMenuItem | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   restaurant: RestaurantType;
   orderingContext?: OrderingContext;
+  isAuthenticated: boolean;
 };
 
 export default function MenuItemDialog({
@@ -27,6 +28,7 @@ export default function MenuItemDialog({
   open,
   onOpenChange,
   orderingContext = 'restaurant',
+  isAuthenticated,
 }: Props) {
   const cart = useCartStore((state) => state.cart);
   const cartType =
@@ -54,6 +56,7 @@ export default function MenuItemDialog({
           cartType={cartType}
           orderingContext={orderingContext}
           onAddToCart={() => onOpenChange(false)}
+          isAuthenticated={isAuthenticated}
         />
       </DialogContent>
     </Dialog>

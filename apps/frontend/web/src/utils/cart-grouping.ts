@@ -1,4 +1,4 @@
-import type { CartItem, CartMemberReference } from '@/types/cart/cart';
+import type { CartItem, CartMemberReference } from '@/types/cart/_cart';
 
 export type UserCartGroup = {
   key: string;
@@ -49,3 +49,4 @@ export function isSameItemOwner(
 ): boolean {
   return getItemOwnerKey(a) === getItemOwnerKey(b);
 }
+

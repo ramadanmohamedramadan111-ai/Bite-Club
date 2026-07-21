@@ -18,6 +18,11 @@ import {
 import LocationButtonServer from '@/components/location/location-button-server';
 import CartDrawerHost from '@/components/cart/CartDrawerHost';
 import { serverFetch } from '@/utils/server-fetch';
+import { getUserId } from '@/utils/api-helpers';
+import { ApiResponse } from '@/types/api/api-response';
+import { Cart, IndividualCartResponse } from '@/types/cart/cart';
+import { CartInitializer } from '@/providers/CartInitilaizer';
+import AuthInitializer from '@/providers/AuthInitializer';
 
 interface UserMeResponse {
   success: boolean;
@@ -43,6 +48,7 @@ export default async function Layout({
   children: React.ReactNode;
 }) {
   let user = null;
+  let cart = null;
   try {
     const res = await serverFetch<UserMeResponse>('/user/me', 'GET', {
       skipRefresh: true,
@@ -53,9 +59,26 @@ export default async function Layout({
     console.log('Failed to fetch user in layout:', error);
   }
 
+  const userId = await getUserId();
+
+  if (userId) {
+    try {
+      const res = await serverFetch<ApiResponse<Cart>>('/user/cart', 'GET', {
+        next: {
+          tags: ['cart', `cart-${userId}`],
+        },
+      });
+      cart = res.data;
+    } catch (error) {
+      console.log('Failed to fetch cart in layout:', error);
+    }
+  }
+
   return (
     <SidebarProvider>
       <AppSidebar user={user} />
+      <CartInitializer cart={cart} />
+      <AuthInitializer isAuthenticated={!!userId} />
 
       <SidebarInset>
         <header className="sticky top-0 z-40 flex h-16 items-center border-b bg-background/95 backdrop-blur px-4">

@@ -48,6 +48,7 @@ export interface RestaurantType {
   latitude: number;
   longitude: number;
   minimum_order: number;
+  scanned_menu?: string;
 }
 
 export type RestaurantSettings = {
@@ -70,10 +71,10 @@ export type MenuItems = {
   id: number;
   title: string;
   items_count: number;
-  items: BackendMenuItem[];
+  items: MenuItem[];
 };
 
-export type BackendMenuItem = {
+export type MenuItem = {
   id: number;
   title: string;
   description: string;
@@ -99,7 +100,7 @@ export type ItemOptionGroup = {
   options: ItemOption[];
 };
 
-export type MenuItem = {
+export type ClientMenuItem = {
   id: number;
   name: string;
   description: string;
@@ -119,40 +120,5 @@ export type RestaurantLocation = {
   address: string;
   latitude: number;
   longitude: number;
-};
-
-export type RestaurantDetail = {
-  id: number;
-  email: string;
-  phone_number: string;
-  category_id: number;
-  category: RestaurantCategory;
-  logo_url: string;
-  cover_image_uri: string;
-  address: string;
-  status: string;
-  average_rating: string;
-  total_orders_count: number;
-  logo: string;
-  coverImage: string;
-  isFavorite: boolean;
-  rating: number;
-  reviewsCount: number;
-  name: string;
-  categories: string[];
-  delivery: boolean;
-  pickup: boolean;
-  creditCard: boolean;
-  isAvailable: boolean;
-  minDeliveryTime: number;
-  maxDeliveryTime: number;
-  minDeliveryPrice: number;
-  maxDeliveryPrice: number;
-  scannedMenu: string;
-  minimumOrder: number;
-  location: RestaurantLocation;
-  openingHours: Record<string, string>;
-  phoneNumber: string;
-  description: string;
 };
 

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { ExternalLink, Users } from 'lucide-react';
 
 import { Link } from '@/i18n/navigation';
-import { useCartStore } from '@/stores/cart';
+import { useCartStore } from '@/stores/_cart';
 import type { RestaurantType } from '@/types/restaurant/restaurant';
 import { Button } from '../ui/button';
 import CreateGroupOrderDialog from '../groups/CreateGroupOrderDialog';

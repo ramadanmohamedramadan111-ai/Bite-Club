@@ -1,4 +1,4 @@
-import type { CartItem, CartMemberReference } from '@/types/cart/cart';
+import type { CartItem, CartMemberReference } from '@/types/cart/_cart';
 
 export const MOCK_GROUP_MEMBER_SESSION_ID = 'mock-member-alex';
 
@@ -69,3 +69,4 @@ export function createMockGroupMember() {
     isReady: true,
   };
 }
+

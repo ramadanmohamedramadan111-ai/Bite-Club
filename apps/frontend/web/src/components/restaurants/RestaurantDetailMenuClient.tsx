@@ -2,12 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
-import { Clock, Heart, Search } from 'lucide-react';
+import { Clock, Search } from 'lucide-react';
 import type {
-  BackendMenuItem,
+  ClientMenuItem,
+  MenuItem,
   MenuItems,
   RestaurantType,
-  MenuItem as ClientMenuItem,
 } from '@/types/restaurant/restaurant';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -18,12 +18,14 @@ type Props = {
   restaurant: RestaurantType;
   menuItems: MenuItems[];
   orderingContext?: OrderingContext;
+  isAuthenticated: boolean;
 };
 
 export default function RestaurantDetailMenuClient({
   restaurant,
   menuItems,
   orderingContext = 'restaurant',
+  isAuthenticated,
 }: Props) {
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -78,7 +80,7 @@ export default function RestaurantDetailMenuClient({
     });
   };
 
-  const handleOpenItem = (item: BackendMenuItem, categoryTitle: string) => {
+  const handleOpenItem = (item: MenuItem, categoryTitle: string) => {
     // Map backend MenuItem to ClientMenuItem interface for customizer dialog compatibility
     const clientItem: ClientMenuItem = {
       id: item.id,
@@ -218,6 +220,7 @@ export default function RestaurantDetailMenuClient({
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         orderingContext={orderingContext}
+        isAuthenticated={isAuthenticated}
       />
     </div>
   );

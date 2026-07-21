@@ -1,16 +1,15 @@
-import Image from 'next/image';
 import type { Cart } from '@/types/cart/cart';
-import { groupCartItemsByUser } from '@/utils/cart-grouping';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 
 type Summary = {
   subtotal: number;
   deliveryFee: number;
-  tax: number;
-  discount: number;
+  serviceFee: number;
   total: number;
-  appliedRedemptionTitle?: string;
+  requiresDeposit: boolean;
+  depositAmount: number;
+  remainingAmount: number;
 };
 
 type Props = {
@@ -24,9 +23,6 @@ export default function OrderSummary({
   summary,
   fulfillmentType,
 }: Props) {
-  const isGroupCart = cart.type === 'group';
-  const userGroups = isGroupCart ? groupCartItemsByUser(cart.items) : [];
-
   return (
     <Card className="sticky top-20">
       <CardHeader>
@@ -34,20 +30,9 @@ export default function OrderSummary({
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center gap-3">
-          {cart.restaurantImage && (
-            <div className="relative size-12 overflow-hidden rounded-lg">
-              <Image
-                src={cart.restaurantImage}
-                alt={cart.restaurantName}
-                fill
-                className="object-cover"
-              />
-            </div>
-          )}
           <div>
-            <p className="font-medium">{cart.restaurantName}</p>
+            <p className="font-semibold text-base">{cart.restaurant?.name || 'Restaurant'}</p>
             <p className="text-xs text-muted-foreground capitalize">
-              {isGroupCart ? 'Group order · ' : ''}
               {fulfillmentType}
             </p>
           </div>
@@ -55,116 +40,69 @@ export default function OrderSummary({
 
         <Separator />
 
-        {isGroupCart ? (
-          <div className="max-h-64 space-y-4 overflow-y-auto">
-            {userGroups.map((group) => (
-              <div key={group.key} className="space-y-2">
-                <div className="flex items-center justify-between text-sm font-medium">
-                  <span>{group.name}</span>
-                  <span>{group.subtotal.toFixed(2)} EGP</span>
-                </div>
-                <div className="space-y-2 pl-2">
-                  {group.items.map((item) => (
-                    <div key={item.cartItemId} className="space-y-1 text-sm">
-                      <div className="flex justify-between gap-3">
-                        <span>
-                          {item.quantity}x {item.name}
-                        </span>
-                        <span className="shrink-0 font-medium">
-                          {item.totalPrice.toFixed(2)} EGP
-                        </span>
-                      </div>
-                      {item.selectedOptions.length > 0 && (
-                        <ul className="text-xs text-muted-foreground">
-                          {item.selectedOptions.map((option) => (
-                            <li key={option.optionId}>
-                              {option.groupName}: {option.optionName}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  ))}
-                </div>
+        <div className="max-h-64 space-y-3 overflow-y-auto">
+          {cart.items.map((item) => (
+            <div key={item.id} className="space-y-1 text-sm">
+              <div className="flex justify-between gap-3">
+                <span className="font-medium text-foreground/90">
+                  {item.quantity}x {item.item_name}
+                </span>
+                <span className="shrink-0 font-semibold text-foreground/90">
+                  {item.total_price.toFixed(2)} EGP
+                </span>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="max-h-64 space-y-3 overflow-y-auto">
-            {cart.items.map((item) => (
-              <div key={item.cartItemId} className="space-y-1 text-sm">
-                <div className="flex justify-between gap-3">
-                  <span>
-                    {item.quantity}x {item.name}
-                  </span>
-                  <span className="shrink-0 font-medium">
-                    {item.totalPrice.toFixed(2)} EGP
-                  </span>
-                </div>
-                {item.selectedOptions.length > 0 && (
-                  <ul className="text-xs text-muted-foreground">
-                    {item.selectedOptions.map((option) => (
-                      <li key={option.optionId}>
-                        {option.groupName}: {option.optionName}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+              {item.notes && (
+                <p className="text-xs text-muted-foreground italic">
+                  Note: {item.notes}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
 
         <Separator />
 
-        {isGroupCart && (
-          <>
-            <dl className="space-y-2 text-sm">
-              <p className="font-medium">By member</p>
-              {userGroups.map((group) => (
-                <div key={group.key} className="flex justify-between">
-                  <dt className="text-muted-foreground">{group.name}</dt>
-                  <dd>{group.subtotal.toFixed(2)} EGP</dd>
-                </div>
-              ))}
-            </dl>
-            <Separator />
-          </>
-        )}
-
-        <dl className="space-y-2 text-sm">
+        <dl className="space-y-2.5 text-sm">
           <div className="flex justify-between">
             <dt className="text-muted-foreground">Subtotal</dt>
-            <dd>{summary.subtotal.toFixed(2)} EGP</dd>
+            <dd className="font-medium text-foreground">{summary.subtotal.toFixed(2)} EGP</dd>
           </div>
-          <div className="flex justify-between">
-            <dt className="text-muted-foreground">Delivery fee</dt>
-            <dd>{summary.deliveryFee.toFixed(2)} EGP</dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-muted-foreground">Tax</dt>
-            <dd>{summary.tax.toFixed(2)} EGP</dd>
-          </div>
-          {summary.discount > 0 && (
+          {fulfillmentType === 'delivery' && (
             <div className="flex justify-between">
-              <dt className="text-muted-foreground">
-                Discount
-                {summary.appliedRedemptionTitle
-                  ? ` (${summary.appliedRedemptionTitle})`
-                  : ''}
-              </dt>
-              <dd>-{summary.discount.toFixed(2)} EGP</dd>
+              <dt className="text-muted-foreground">Delivery fee</dt>
+              <dd className="font-medium text-foreground">{summary.deliveryFee.toFixed(2)} EGP</dd>
+            </div>
+          )}
+          {summary.serviceFee > 0 && (
+            <div className="flex justify-between">
+              <dt className="text-muted-foreground">Service fee</dt>
+              <dd className="font-medium text-foreground">{summary.serviceFee.toFixed(2)} EGP</dd>
             </div>
           )}
         </dl>
 
         <Separator />
 
-        <div className="flex justify-between text-base font-semibold">
-          <span>Total</span>
-          <span>{summary.total.toFixed(2)} EGP</span>
-        </div>
+        {summary.requiresDeposit ? (
+          <dl className="space-y-2.5 text-sm">
+            <div className="flex justify-between text-base font-bold text-primary">
+              <span>Required Deposit</span>
+              <span>{summary.depositAmount.toFixed(2)} EGP</span>
+            </div>
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>Remaining on delivery</span>
+              <span>{summary.remainingAmount.toFixed(2)} EGP</span>
+            </div>
+          </dl>
+        ) : (
+          <div className="flex justify-between text-base font-bold">
+            <span>Total</span>
+            <span>{summary.total.toFixed(2)} EGP</span>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
 }
+
+

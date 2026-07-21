@@ -1,7 +1,7 @@
 'use client';
 
 import { ShoppingCart } from 'lucide-react';
-import { useCartStore } from '@/stores/cart';
+import { useCartStore } from '@/stores/_cart';
 import { useCartDrawerStore } from '@/stores/cart-drawer';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -11,10 +11,10 @@ type Props = {
 };
 
 export default function CartButton({ className }: Props) {
-  const cart = useCartStore((state) => state.cart);
-
-  const items = cart?.items;
-  const itemsCount = items?.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
+  const itemCount = useCartStore(
+    (state) =>
+      state.cart?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0,
+  );
   const openDrawer = useCartDrawerStore((state) => state.openDrawer);
   const closeDrawer = useCartDrawerStore((state) => state.closeDrawer);
   const open = useCartDrawerStore((state) => state.open);
@@ -32,11 +32,11 @@ export default function CartButton({ className }: Props) {
           openDrawer();
         }
       }}
-      aria-label={`Cart with ${itemsCount} items`}>
+      aria-label={`Cart with ${itemCount} items`}>
       <ShoppingCart className="size-5" />
-      {itemsCount > 0 && (
+      {itemCount > 0 && (
         <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
-          {itemsCount > 99 ? '99+' : itemsCount}
+          {itemCount > 99 ? '99+' : itemCount}
         </span>
       )}
     </Button>

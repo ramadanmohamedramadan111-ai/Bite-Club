@@ -18,10 +18,10 @@ import {
   getRestaurantById,
 } from '@/data/restaurant-details';
 import { Link, useRouter } from '@/i18n/navigation';
-import { useCartStore } from '@/stores/cart';
+import { useCartStore } from '@/stores/_cart';
 import { useGroupSessionsStore } from '@/stores/group-sessions';
 import { useSessionStore } from '@/stores/session';
-import type { CartMember } from '@/types/cart/cart';
+import type { CartMember } from '@/types/cart/_cart';
 
 type Props = {
   sessionId: string;
@@ -126,7 +126,8 @@ export default function GroupOrderPageView({ sessionId }: Props) {
     }
 
     const displayName = guestName ?? 'Guest';
-    const hostSessionId = session.ownerSessionId ?? guestSessionId ?? crypto.randomUUID();
+    const hostSessionId =
+      session.ownerSessionId ?? guestSessionId ?? crypto.randomUUID();
     const isOwner = hostSessionId === guestSessionId;
 
     if (isOwner) {
@@ -353,3 +354,4 @@ export default function GroupOrderPageView({ sessionId }: Props) {
     </>
   );
 }
+

@@ -1,7 +1,7 @@
-import type { Cart, CartItem } from '@/types/cart/cart';
+import type { Cart, CartItem } from '@/types/cart/_cart';
 import type { Order, OrderItem } from '@/types/orders/order';
 import type { PostItem } from '@/types/social/posts';
-import { useCartStore } from '@/stores/cart';
+import { useCartStore } from '@/stores/_cart';
 
 export type CartAddConflict =
   | 'different_restaurant'
@@ -127,3 +127,4 @@ export function getReorderConflict(
 ): ReorderConflict {
   return getCartAddConflict(cart, orderToCartTarget(order));
 }
+
