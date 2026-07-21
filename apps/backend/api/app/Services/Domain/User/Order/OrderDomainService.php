@@ -262,6 +262,12 @@ class OrderDomainService
         ];
     }
 
+    public function getKashierApiKeyForOrder(int $orderId): ?string
+    {
+        $order = $this->orderRepository->find($orderId);
+        return $order?->restaurant?->setting?->kashier_api_key;
+    }
+
     public function handlePaymentWebhook(string $orderId, string $status, ?string $transactionId = null): void
     {
         try {

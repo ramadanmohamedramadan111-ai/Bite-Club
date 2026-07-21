@@ -18,6 +18,9 @@ class UpdateRestaurantSettingDto
     private ?float $depositThreshold;
     private ?float $depositPercentage;
     private ?float $minPriceOrder;
+    private ?string $kashierApiKey;
+    private ?string $kashierMerchantId;
+    private ?string $kashierWebhookSecret;
 
     public function __construct(
         int $restaurantId,
@@ -31,7 +34,10 @@ class UpdateRestaurantSettingDto
         ?float $deliveryFeePerKm = null,
         ?float $depositThreshold = null,
         ?float $depositPercentage = null,
-        ?float $minPriceOrder = null
+        ?float $minPriceOrder = null,
+        ?string $kashierApiKey = null,
+        ?string $kashierMerchantId = null,
+        ?string $kashierWebhookSecret = null
     ) {
         $this->restaurantId = $restaurantId;
         $this->isOpen = $isOpen;
@@ -45,6 +51,9 @@ class UpdateRestaurantSettingDto
         $this->depositThreshold = $depositThreshold;
         $this->depositPercentage = $depositPercentage;
         $this->minPriceOrder = $minPriceOrder;
+        $this->kashierApiKey = $kashierApiKey;
+        $this->kashierMerchantId = $kashierMerchantId;
+        $this->kashierWebhookSecret = $kashierWebhookSecret;
     }
 
     public static function fromValidatedRequest(UpdateRestaurantSettingRequest $request): self
@@ -62,7 +71,10 @@ class UpdateRestaurantSettingDto
             isset($data['delivery_fee_per_km']) ? (float) $data['delivery_fee_per_km'] : null,
             isset($data['deposit_threshold']) ? (float) $data['deposit_threshold'] : null,
             isset($data['deposit_percentage']) ? (float) $data['deposit_percentage'] : null,
-            isset($data['min_price_order']) ? (float) $data['min_price_order'] : null
+            isset($data['min_price_order']) ? (float) $data['min_price_order'] : null,
+            $data['kashier_api_key'] ?? null,
+            $data['kashier_merchant_id'] ?? null,
+            $data['kashier_webhook_secret'] ?? null
         );
     }
 
@@ -85,6 +97,9 @@ class UpdateRestaurantSettingDto
         if (!is_null($this->depositThreshold)) $data['deposit_threshold'] = $this->depositThreshold;
         if (!is_null($this->depositPercentage)) $data['deposit_percentage'] = $this->depositPercentage;
         if (!is_null($this->minPriceOrder)) $data['min_price_order'] = $this->minPriceOrder;
+        if (!is_null($this->kashierApiKey)) $data['kashier_api_key'] = $this->kashierApiKey;
+        if (!is_null($this->kashierMerchantId)) $data['kashier_merchant_id'] = $this->kashierMerchantId;
+        if (!is_null($this->kashierWebhookSecret)) $data['kashier_webhook_secret'] = $this->kashierWebhookSecret;
         return $data;
     }
 }
