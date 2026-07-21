@@ -6,10 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Restaurant\Order\LiveOrdersRequest;
 use App\Http\Requests\Restaurant\Order\AvailableOrderStatusRequest;
 use App\Http\Requests\Restaurant\Order\UpdateOrderStatusRequest;
+use App\Http\Requests\Restaurant\Order\OrderHistoryRequest;
 use App\Http\Resources\Restaurant\Order\LiveOrderResource;
+use App\Http\Resources\Restaurant\Order\OrderHistoryResource;
 use App\DTOs\Restaurant\Order\LiveOrdersDto;
 use App\DTOs\Restaurant\Order\AvailableOrderStatusDto;
 use App\DTOs\Restaurant\Order\UpdateOrderStatusDto;
+use App\DTOs\Restaurant\Order\OrderHistoryDto;
 use App\Services\Application\Restaurant\Order\RestaurantOrderApplicationService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
@@ -26,7 +29,7 @@ class OrderController extends Controller
     public function liveOrders(LiveOrdersRequest $request): JsonResponse
     {
         $dto = LiveOrdersDto::fromValidatedRequest($request);
-        
+
         $orders = $this->applicationService->getLiveOrders($dto);
 
         return $this->successResponse(
@@ -61,5 +64,22 @@ class OrderController extends Controller
         } catch (DomainException $e) {
             return $this->errorResponse($e->getMessage(), null, 400);
         }
+    }
+
+    public function history(OrderHistoryRequest $request): JsonResponse
+    {
+        $dto = OrderHistoryDto::fromValidatedRequest($request);
+
+        $orders = $this->applicationService->getOrderHistory($dto);
+
+        
+        $orders->withPath(config('app.url') . $request->getPathInfo());
+
+        $paginatedData = OrderHistoryResource::collection($orders)->response()->getData(true);
+
+        return response()->json(array_merge([
+            'success' => true,
+            'message' => trans('order.history_retrieved_successfully') ?? 'Order history retrieved successfully',
+        ], $paginatedData), 200);
     }
 }

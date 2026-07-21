@@ -5,8 +5,6 @@ namespace App\Repositories\Eloquent;
 use App\Models\Order;
 use App\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Enums\Order\OrderStatusEnum;
-use App\Enums\Order\OrderTypeEnum;
-use App\Enums\Payment\PaymentMethodEnum;
 use Carbon\Carbon;
 
 class OrderRepository extends BaseRepository implements OrderRepositoryInterface
@@ -53,6 +51,66 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         return $this->model->where('id', $orderId)
             ->where('restaurant_id', $restaurantId)
             ->with(['payments'])
+            ->first();
+    }
+
+    public function getPaginatedOrderHistory(int $restaurantId, array $filters, int $page, int $perPage)
+    {
+        $query = $this->model->where('restaurant_id', $restaurantId)
+            ->with(['user', 'payments', 'items']);
+
+        if (isset($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (isset($filters['order_type'])) {
+            $query->where('order_type', $filters['order_type']);
+        }
+
+        if (isset($filters['from_date'])) {
+            $query->whereDate('created_at', '>=', $filters['from_date']);
+        }
+
+        if (isset($filters['to_date'])) {
+            $query->whereDate('created_at', '<=', $filters['to_date']);
+        }
+
+        // Order history is usually sorted by latest first
+        $query->orderBy('created_at', 'desc');
+
+        return $query->paginate($perPage, ['*'], 'page', $page);
+    }
+
+    public function getActiveOrdersForUser(int $userId)
+    {
+        return $this->model->where('user_id', $userId)
+            ->whereNotIn('status', [
+                OrderStatusEnum::COMPLETED->value,
+                OrderStatusEnum::CANCELLED->value
+            ])
+            ->with(['restaurant', 'items', 'payments'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+    public function getPaginatedPastOrdersForUser(int $userId, int $page, int $perPage)
+    {
+        $query = $this->model->where('user_id', $userId)
+            ->whereIn('status', [
+               OrderStatusEnum::COMPLETED->value,
+               OrderStatusEnum::CANCELLED->value
+            ])
+            ->with(['restaurant', 'items', 'payments'])
+            ->orderBy('created_at', 'desc');
+
+        return $query->paginate($perPage, ['*'], 'page', $page);
+    }
+
+    public function findOrderForUser(int $orderId, int $userId)
+    {
+        return $this->model->where('id', $orderId)
+            ->where('user_id', $userId)
+            ->with(['restaurant', 'items', 'payments'])
             ->first();
     }
 }

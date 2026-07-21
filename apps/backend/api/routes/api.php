@@ -91,6 +91,12 @@ Route::prefix('user')->name('user.')->group(function () {
         });
 
         Route::get('orders', [UserOrderController::class, 'index'])->name('orders.index');
+        Route::prefix('orders')->name('orders.')->group(function () {
+            Route::get('active', [UserOrderController::class, 'activeOrders'])->name('active');
+            Route::get('past', [UserOrderController::class, 'pastOrders'])->name('past');
+            Route::get('{orderId}', [UserOrderController::class, 'show'])->name('show');
+        });
+
     });
 
     // Webhooks (No auth required)
