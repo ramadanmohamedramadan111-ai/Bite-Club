@@ -27,7 +27,11 @@ const nextConfig: NextConfig = {
         hostname: 'localhost',
         pathname: '/**',
       },
-
+      {
+        protocol: 'http',
+        hostname: 'api',
+        pathname: '/**',
+      },
       {
         protocol: 'http',
         hostname: 'dashboard.localhost',

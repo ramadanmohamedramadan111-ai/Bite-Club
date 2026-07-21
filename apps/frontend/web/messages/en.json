@@ -363,6 +363,28 @@
       },
       "cancel": "Cancel",
       "reset": "Reset"
+    },
+    "createPost": {
+      "fields": {
+        "caption": {
+          "label": "Caption",
+          "placeholder": "Enter a caption",
+          "errors": {
+            "maxLength": "Caption must be at most 1000 characters",
+            "minLength": "Caption must be at least 2 characters"
+          }
+        },
+        "image": {
+          "label": "Images",
+          "errors": {
+            "invalid": "File is not a valid image",
+            "invalidType": "Image type is not valid",
+            "maxSize": "Image must be at max 5mb",
+            "minLength": "There must be at least one image",
+            "maxLength": "Images must be at most 10 images"
+          }
+        }
+      }
     }
   },
   "sidebar": {

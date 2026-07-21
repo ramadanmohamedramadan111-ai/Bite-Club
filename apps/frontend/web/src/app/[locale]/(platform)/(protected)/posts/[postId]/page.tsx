@@ -1,10 +1,16 @@
 'use client';
 
 import { PostDetailPage } from '@/components/social/posts/PostDetailPage';
-import { useAddToIndividualCart } from '@/hooks/use-add-to-individual-cart';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 import { Loader2 } from 'lucide-react';
-import { useSocialStore } from '@/stores/social';
+import { useQuery } from '@tanstack/react-query';
+import { clientFetch } from '@/utils/client-fetch';
+import { PostType } from '@/types/social/posts';
+import { ApiResponse } from '@/types/api/api-response';
+import { useAction } from 'next-safe-action/hooks';
+import { copyOrderAction } from '@/actions/feed';
+import { toast } from 'sonner';
+import { useRouter } from '@/i18n/navigation';
 
 interface PostPageProps {
   params: Promise<{
@@ -13,46 +19,52 @@ interface PostPageProps {
 }
 
 export default function PostPage({ params }: PostPageProps) {
-  const getPostById = useSocialStore((state) => state.getPostById);
-  const { addFromPost, dialog } = useAddToIndividualCart();
-  const [postId, setPostId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const resolvedParams = use(params);
+  const postId = resolvedParams.postId;
 
-  useEffect(() => {
-    params.then((p) => setPostId(p.postId));
-  }, [params]);
+  const { data: postResponse, isLoading, error } = useQuery<ApiResponse<PostType>>({
+    queryKey: ['post', postId],
+    queryFn: () => clientFetch<ApiResponse<PostType>>(`/api/posts/${postId}`),
+    enabled: !!postId,
+  });
 
-  useEffect(() => {
-    if (!postId) return;
-    const timer = setTimeout(() => setLoading(false), 200);
-    return () => clearTimeout(timer);
-  }, [postId]);
+  const post = postResponse?.data;
 
-  const post = postId ? getPostById(postId) : undefined;
+  const { execute: copyOrder, isExecuting: isCopying } = useAction(copyOrderAction, {
+    onSuccess: ({ data }) => {
+      if (data?.success) {
+        toast.success(data.message || 'Order copied to your cart successfully!');
+        router.push('/cart');
+      } else {
+        toast.error(data?.message || 'Failed to copy order.');
+      }
+    },
+    onError: ({ error }) => {
+      toast.error(error.serverError?.message || 'Failed to copy order.');
+    },
+  });
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="container mx-auto flex items-center justify-center py-12">
-        <Loader2 className="animate-spin" />
+      <div className="container mx-auto flex items-center justify-center py-20">
+        <Loader2 className="animate-spin text-primary h-10 w-10" />
       </div>
     );
   }
 
-  if (!post) {
+  if (error || !post) {
     return (
-      <div className="container mx-auto flex items-center justify-center py-12">
+      <div className="container mx-auto flex items-center justify-center py-20">
         <p className="text-muted-foreground">Post not found</p>
       </div>
     );
   }
 
   return (
-    <>
-      <PostDetailPage
-        post={post}
-        onAddToCart={(value) => addFromPost(value, { redirect: true })}
-      />
-      {dialog}
-    </>
+    <PostDetailPage
+      post={post}
+      onAddToCart={() => copyOrder(Number(post.id))}
+    />
   );
 }

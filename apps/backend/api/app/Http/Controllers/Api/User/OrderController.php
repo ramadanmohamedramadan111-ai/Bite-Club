@@ -49,5 +49,25 @@ class OrderController extends Controller
             Log::error('Failed to place order: ' . $e->getMessage());
             return $this->errorResponse($e->getMessage(), [], 400);
         }
+     }
+
+    public function index(): JsonResponse
+    {
+        try {
+            $userId = auth('user')->id();
+            $orders = \App\Models\Order::with(['restaurant', 'items'])
+                ->where('user_id', $userId)
+                ->where('status', \App\Enums\Order\OrderStatusEnum::COMPLETED->value)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            return $this->successResponse(
+                'Orders retrieved successfully.',
+                $orders
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to retrieve user orders: ' . $e->getMessage());
+            return $this->errorResponse($e->getMessage(), [], 400);
+        }
     }
 }
