@@ -5,6 +5,10 @@ namespace App\Providers;
 use App\Repositories\Eloquent\AdminRepository;
 use App\Repositories\Eloquent\UserRepository;
 use App\Repositories\Interfaces\UserRepositoryInterface;
+
+use App\Repositories\Eloquent\UserBanRepository;
+use App\Repositories\Interfaces\UserBanRepositoryInterface;
+
 use App\Repositories\Eloquent\RestaurantCategoryRepository;
 use App\Repositories\Eloquent\RestaurantRepository;
 use App\Repositories\Eloquent\PasswordResetOtpRepository;
@@ -64,6 +68,15 @@ class AppServiceProvider extends ServiceProvider
             UserRepositoryInterface::class,
             UserRepository::class
         );
+
+
+
+        $this->app->bind(
+            UserBanRepositoryInterface::class,
+            UserBanRepository::class
+        );
+
+
 
         $this->app->bind(
             RestaurantCategoryRepositoryInterface::class,
