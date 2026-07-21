@@ -24,6 +24,12 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'http',
+        hostname: 'localhost',
+        pathname: '/**',
+      },
+
+      {
+        protocol: 'http',
         hostname: 'dashboard.localhost',
         port: '8080',
         pathname: '/**',
