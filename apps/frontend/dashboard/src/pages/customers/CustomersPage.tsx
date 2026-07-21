@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Download, UserPlus, TrendingUp, TrendingDown, Pencil, Trash2 } from 'lucide-react'
 import { Table } from '../../components/common/Table'
 import type { Column } from '../../components/common/Table'
@@ -19,10 +20,18 @@ const initials = (name: string) => name.split(' ').map((n) => n[0]).join('').sli
 
 export function CustomersPage() {
   const { t } = useTranslation()
-  const { customers, addCustomer, updateCustomer, deleteCustomer } = useCustomerStore()
+  const { customers: rawCustomers, addCustomer, updateCustomer, deleteCustomer } = useCustomerStore()
+  const [searchParams] = useSearchParams()
   const [currentPage, setCurrentPage] = useState(1)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState<Customer | null>(null)
+
+  const query = (searchParams.get('q') || '').toLowerCase()
+  const customers = rawCustomers.filter(c => 
+    c.name.toLowerCase().includes(query) || 
+    c.email.toLowerCase().includes(query) ||
+    c.phone.includes(query)
+  )
   const [showDeleteModal, setShowDeleteModal] = useState<Customer | null>(null)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
   const [newCustomer, setNewCustomer] = useState({ name: '', email: '', phone: '', segment: 'NEW' as 'VIP' | 'FREQUENT' | 'NEW' })
