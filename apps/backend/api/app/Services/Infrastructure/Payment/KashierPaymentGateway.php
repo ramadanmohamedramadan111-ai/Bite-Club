@@ -10,16 +10,18 @@ class KashierPaymentGateway implements PaymentGatewayInterface
 {
     public function createPaymentSession(Order $order, float $amount): ?string
     {
-        $baseUrl = config('payment.kashier.base_url');
-        $apiKey = config('payment.kashier.api_key');
-        $merchantId = config('payment.kashier.merchant_id');
-        $webhookSecret = config('payment.kashier.webhook_secret');
-        $currency = config('payment.kashier.currency', 'EGP');
+        $settings = $order->restaurant->setting ?? null;
 
-        if (!$apiKey || !$merchantId || !$webhookSecret) {
-            Log::error('Kashier configuration missing');
+        if (!$settings || !$settings->kashier_api_key || !$settings->kashier_merchant_id || !$settings->kashier_webhook_secret) {
+            Log::error('Kashier configuration missing for restaurant: ' . $order->restaurant_id);
             return null;
         }
+
+        $baseUrl = config('payment.kashier.base_url');
+        $apiKey = $settings->kashier_api_key;
+        $merchantId = $settings->kashier_merchant_id;
+        $webhookSecret = $settings->kashier_webhook_secret;
+        $currency = config('payment.kashier.currency', 'EGP');
 
         try {
 
@@ -62,13 +64,12 @@ class KashierPaymentGateway implements PaymentGatewayInterface
         }
     }
 
-    public function validateWebhookSignature(array $payload, ?string $signature): bool
+    public function validateWebhookSignature(array $payload, ?string $signature, string $paymentApiKey): bool
     {
         if (!$signature) {
             return false;
         }
 
-        $paymentApiKey = config('payment.kashier.api_key');
         $dataObj = $payload['data'] ?? [];
 
         if (!isset($dataObj['signatureKeys']) || !is_array($dataObj['signatureKeys'])) {

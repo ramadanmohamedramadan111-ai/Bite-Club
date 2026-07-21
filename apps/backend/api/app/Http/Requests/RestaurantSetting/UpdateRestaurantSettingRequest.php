@@ -37,6 +37,9 @@ class UpdateRestaurantSettingRequest extends FormRequest
             'delivery_fee_per_km' => ['sometimes', 'numeric', 'min:0'],
             'deposit_threshold'   => ['sometimes', 'numeric', 'min:0'],
             'deposit_percentage'  => ['sometimes', 'numeric', 'min:0', 'max:100'],
+            'kashier_api_key'     => ['sometimes', 'nullable', 'string', 'max:255'],
+            'kashier_merchant_id' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'kashier_webhook_secret' => ['sometimes', 'nullable', 'string', 'max:255'],
         ];
     }
 

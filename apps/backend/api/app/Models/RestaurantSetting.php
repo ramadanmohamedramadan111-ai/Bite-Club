@@ -26,6 +26,9 @@ class RestaurantSetting extends Model
         'delivery_fee_per_km',
         'deposit_threshold',
         'deposit_percentage',
+        'kashier_api_key',
+        'kashier_merchant_id',
+        'kashier_webhook_secret',
         'created_at',
         'updated_at',
     ];
