@@ -9,6 +9,7 @@ use App\Repositories\Interfaces\OrderPaymentRepositoryInterface;
 use App\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Services\Domain\Restaurant\Order\Support\OrderStatusTransition;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -67,5 +68,10 @@ class RestaurantOrderDomainService
 
         // Refresh the order to return updated data
         return $this->orderRepository->findOrderForRestaurant($orderId, $restaurantId);
+    }
+
+    public function getOrderHistory(int $restaurantId, array $filters, int $page, int $perPage): LengthAwarePaginator
+    {
+        return $this->orderRepository->getPaginatedOrderHistory($restaurantId, $filters, $page, $perPage);
     }
 }

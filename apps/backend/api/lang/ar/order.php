@@ -12,4 +12,5 @@ return [
     'retrieved_successfully' => 'تم استرجاع الطلبات بنجاح.',
     'statuses_retrieved_successfully' => 'تم استرجاع الحالات المتاحة بنجاح.',
     'status_updated_successfully' => 'تم تحديث حالة الطلب بنجاح.',
+    'history_retrieved_successfully' => 'تم استرجاع سجل الطلبات بنجاح.',
 ];

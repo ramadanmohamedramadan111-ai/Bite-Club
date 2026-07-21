@@ -55,4 +55,31 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             ->with(['payments'])
             ->first();
     }
+
+    public function getPaginatedOrderHistory(int $restaurantId, array $filters, int $page, int $perPage)
+    {
+        $query = $this->model->where('restaurant_id', $restaurantId)
+            ->with(['user', 'payments', 'items']);
+
+        if (isset($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (isset($filters['order_type'])) {
+            $query->where('order_type', $filters['order_type']);
+        }
+
+        if (isset($filters['from_date'])) {
+            $query->whereDate('created_at', '>=', $filters['from_date']);
+        }
+
+        if (isset($filters['to_date'])) {
+            $query->whereDate('created_at', '<=', $filters['to_date']);
+        }
+
+        // Order history is usually sorted by latest first
+        $query->orderBy('created_at', 'desc');
+
+        return $query->paginate($perPage, ['*'], 'page', $page);
+    }
 }
