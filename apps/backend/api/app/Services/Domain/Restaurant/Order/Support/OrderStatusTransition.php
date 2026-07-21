@@ -56,7 +56,7 @@ class OrderStatusTransition
         }
 
         // Remove OUT_FOR_DELIVERY if order is pickup
-        if ($order->order_type === OrderTypeEnum::PICKUP->value) {
+        if ($order->order_type === OrderTypeEnum::PICKUP) {
             $transitions = array_values(array_filter($transitions, fn($t) => $t !== OrderStatusEnum::OUT_FOR_DELIVERY->value));
         }
 
