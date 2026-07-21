@@ -1,7 +1,14 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Bike, CreditCard, ShoppingBag, Wallet, AlertCircle, Coins } from 'lucide-react';
+import {
+  Bike,
+  CreditCard,
+  ShoppingBag,
+  Wallet,
+  AlertCircle,
+  Coins,
+} from 'lucide-react';
 
 import { useRouter } from '@/i18n/navigation';
 import { useCartStore } from '@/stores/cart';
@@ -56,20 +63,21 @@ export default function CheckoutView({ initialLocation }: Props) {
   );
   const [fulfillmentType, setFulfillmentType] =
     useState<FulfillmentType>('delivery');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('full_cash');
+  const [paymentMethod, setPaymentMethod] =
+    useState<PaymentMethod>('full_cash');
   const [error, setError] = useState<string | null>(null);
   const [orderNotes, setOrderNotes] = useState('');
 
-
-  const { data: restaurantResponse, isPending: isLoadingRestaurant } = useQuery({
-    queryKey: ['restaurant-details', cart?.restaurant?.id],
-    enabled: !!cart?.restaurant?.id,
-    queryFn: () =>
-      clientFetch<ApiResponse<RestaurantType>>(
-        `/api/restaurants/${cart?.restaurant?.id}`,
-      ),
-  });
-
+  const { data: restaurantResponse, isPending: isLoadingRestaurant } = useQuery(
+    {
+      queryKey: ['restaurant-details', cart?.restaurant?.id],
+      enabled: !!cart?.restaurant?.id,
+      queryFn: () =>
+        clientFetch<ApiResponse<RestaurantType>>(
+          `/api/restaurants/${cart?.restaurant?.id}`,
+        ),
+    },
+  );
 
   const restaurant = restaurantResponse?.data || null;
 
@@ -84,13 +92,16 @@ export default function CheckoutView({ initialLocation }: Props) {
           setError(null);
         } else {
           setCheckoutPreview(null);
-          setError(data?.message || 'Selected location is out of the delivery zone.');
+          setError(
+            data?.message || 'Selected location is out of the delivery zone.',
+          );
         }
       },
       onError: ({ error }) => {
         setCheckoutPreview(null);
         setError(
-          error.serverError?.message || 'Selected location is out of the delivery zone.',
+          error.serverError?.message ||
+            'Selected location is out of the delivery zone.',
         );
       },
     });
@@ -128,12 +139,13 @@ export default function CheckoutView({ initialLocation }: Props) {
     {
       onSuccess: ({ data }) => {
         if (data?.success && data.data) {
+          console.log(`DATA DATA: `, data);
           clearCart();
           toast.success(data.message || 'Order placed successfully!');
           if (data.data.payment_url) {
             window.location.href = data.data.payment_url;
           } else {
-            router.push('/restaurants');
+            router.push(`/orders/${data.data.order_id}`);
           }
         } else {
           setError(data?.message || 'Failed to place order.');
@@ -173,12 +185,7 @@ export default function CheckoutView({ initialLocation }: Props) {
         order_type: 'pickup',
       });
     }
-  }, [
-    fulfillmentType,
-    location,
-    previewDeliveryExecute,
-    previewPickupExecute,
-  ]);
+  }, [fulfillmentType, location, previewDeliveryExecute, previewPickupExecute]);
 
   const summary = useMemo(() => {
     if (checkoutPreview) {
@@ -283,8 +290,6 @@ export default function CheckoutView({ initialLocation }: Props) {
     isPlacingOrder ||
     !!error;
 
-
-
   const handlePlaceOrder = () => {
     setError(null);
 
@@ -362,12 +367,13 @@ export default function CheckoutView({ initialLocation }: Props) {
             <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-4 text-destructive flex items-start gap-3 animate-in fade-in slide-in-from-top-1 duration-200">
               <AlertCircle className="size-5 shrink-0 mt-0.5" />
               <div>
-                <h4 className="font-semibold text-sm">Delivery Area Restriction</h4>
+                <h4 className="font-semibold text-sm">
+                  Delivery Area Restriction
+                </h4>
                 <p className="text-sm mt-1 opacity-90">{error}</p>
               </div>
             </div>
           )}
-
 
           {fulfillmentType === 'pickup' && (
             <Card>
@@ -410,7 +416,6 @@ export default function CheckoutView({ initialLocation }: Props) {
                   setPaymentMethod(value as PaymentMethod)
                 }
                 className="space-y-3">
-                
                 {/* Full Cash Payment */}
                 <div
                   className={cn(
@@ -418,8 +423,8 @@ export default function CheckoutView({ initialLocation }: Props) {
                     summary.requiresDeposit
                       ? 'opacity-60 bg-muted/30'
                       : paymentMethod === 'full_cash'
-                      ? 'border-primary bg-primary/5 shadow-sm'
-                      : 'hover:bg-muted/50'
+                        ? 'border-primary bg-primary/5 shadow-sm'
+                        : 'hover:bg-muted/50',
                   )}>
                   <RadioGroupItem
                     value="full_cash"
@@ -430,13 +435,18 @@ export default function CheckoutView({ initialLocation }: Props) {
                     htmlFor="payment-full-cash"
                     className={cn(
                       'flex flex-1 items-center gap-3 font-normal',
-                      summary.requiresDeposit ? 'cursor-not-allowed' : 'cursor-pointer'
+                      summary.requiresDeposit
+                        ? 'cursor-not-allowed'
+                        : 'cursor-pointer',
                     )}>
                     <Wallet className="size-5 text-muted-foreground" />
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <p className="font-medium text-foreground">
-                          Full Cash on {fulfillmentType === 'delivery' ? 'Delivery' : 'Pickup'}
+                          Full Cash on{' '}
+                          {fulfillmentType === 'delivery'
+                            ? 'Delivery'
+                            : 'Pickup'}
                         </p>
                         {summary.requiresDeposit && (
                           <span className="rounded bg-destructive/10 px-2 py-0.5 text-xs font-semibold text-destructive">
@@ -459,17 +469,23 @@ export default function CheckoutView({ initialLocation }: Props) {
                     'flex items-center gap-3 rounded-lg border p-4 transition-all duration-200',
                     paymentMethod === 'full_online'
                       ? 'border-primary bg-primary/5 shadow-sm'
-                      : 'hover:bg-muted/50'
+                      : 'hover:bg-muted/50',
                   )}>
-                  <RadioGroupItem value="full_online" id="payment-full-online" />
+                  <RadioGroupItem
+                    value="full_online"
+                    id="payment-full-online"
+                  />
                   <Label
                     htmlFor="payment-full-online"
                     className="flex flex-1 cursor-pointer items-center gap-3 font-normal">
                     <CreditCard className="size-5 text-muted-foreground" />
                     <div className="flex-1">
-                      <p className="font-medium text-foreground">Pay Full Online</p>
+                      <p className="font-medium text-foreground">
+                        Pay Full Online
+                      </p>
                       <p className="text-sm text-muted-foreground mt-0.5">
-                        Pay the entire amount ({summary.total.toFixed(2)} EGP) securely online now
+                        Pay the entire amount ({summary.total.toFixed(2)} EGP)
+                        securely online now
                       </p>
                     </div>
                   </Label>
@@ -482,22 +498,30 @@ export default function CheckoutView({ initialLocation }: Props) {
                       'flex items-center gap-3 rounded-lg border p-4 transition-all duration-200',
                       paymentMethod === 'split_payment'
                         ? 'border-primary bg-primary/5 shadow-sm'
-                        : 'hover:bg-muted/50'
+                        : 'hover:bg-muted/50',
                     )}>
-                    <RadioGroupItem value="split_payment" id="payment-split-payment" />
+                    <RadioGroupItem
+                      value="split_payment"
+                      id="payment-split-payment"
+                    />
                     <Label
                       htmlFor="payment-split-payment"
                       className="flex flex-1 cursor-pointer items-center gap-3 font-normal">
                       <Coins className="size-5 text-muted-foreground" />
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
-                          <p className="font-medium text-foreground">Split Payment</p>
+                          <p className="font-medium text-foreground">
+                            Split Payment
+                          </p>
                           <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
                             Recommended
                           </span>
                         </div>
                         <p className="text-sm text-muted-foreground mt-0.5">
-                          Pay deposit ({summary.depositAmount.toFixed(2)} EGP) online now, and the remaining ({summary.remainingAmount.toFixed(2)} EGP) in cash upon receipt
+                          Pay deposit ({summary.depositAmount.toFixed(2)} EGP)
+                          online now, and the remaining (
+                          {summary.remainingAmount.toFixed(2)} EGP) in cash upon
+                          receipt
                         </p>
                       </div>
                     </Label>
@@ -538,3 +562,4 @@ export default function CheckoutView({ initialLocation }: Props) {
     </div>
   );
 }
+

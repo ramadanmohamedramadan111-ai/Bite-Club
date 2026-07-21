@@ -1,9 +1,4 @@
-export const anonymousRoutes = [
-  '/login',
-  '/register',
-  '/forgot-password',
-  '/reset-password',
-];
+export const anonymousRoutes = [];
 
 export const publicRoutes = [
   '/public',
@@ -19,6 +14,10 @@ export const publicRoutes = [
   '/social/profile',
   '/social/profile/edit',
   '/social/feed',
+  '/login',
+  '/register',
+  '/forgot-password',
+  '/reset-password',
 ];
 
 export const protectedRoutes = [];
