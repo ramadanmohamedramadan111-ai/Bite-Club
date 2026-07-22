@@ -143,4 +143,12 @@ class PostDomainService
 
         return $post->fresh(['user', 'restaurant', 'images', 'order']);
     }
+
+    public function getUserPosts(int $userId, int $perPage = 15): LengthAwarePaginator
+    {
+        return Post::with(['user', 'restaurant', 'images', 'order.items'])
+            ->where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+    }
 }

@@ -3,7 +3,9 @@
 namespace App\Services\Application\User;
 
 use App\DTOs\User\SearchQueryDto;
+use App\DTOs\User\UpdateProfileDto;
 use App\Services\Domain\User\UserDomainService;
+use App\Models\User;
 
 class UserApplicationService
 {
@@ -23,5 +25,10 @@ class UserApplicationService
                 'total'        => $paginator->total(),
             ]
         ];
+    }
+
+    public function updateProfile(User $user, UpdateProfileDto $dto): User
+    {
+        return $this->userDomainService->updateProfile($user, $dto);
     }
 }
