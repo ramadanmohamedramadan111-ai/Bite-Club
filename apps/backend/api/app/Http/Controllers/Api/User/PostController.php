@@ -158,4 +158,57 @@ class PostController extends Controller
             return $this->errorResponse($e->getMessage(), [], 400);
         }
     }
+
+    public function myPosts(\Illuminate\Http\Request $request): JsonResponse
+    {
+        try {
+            $userId = auth('user')->id();
+            $perPage = (int) $request->query('per_page', 15);
+            $posts = $this->postApplicationService->getUserPosts($userId, $perPage);
+
+            return $this->successResponse(
+                'My posts retrieved successfully.',
+                [
+                    'items' => PostResource::collection($posts->items()),
+                    'meta'  => [
+                        'current_page' => $posts->currentPage(),
+                        'per_page'     => $posts->perPage(),
+                        'total'        => $posts->total(),
+                        'last_page'    => $posts->lastPage(),
+                    ],
+                ]
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to retrieve my posts: ' . $e->getMessage());
+            return $this->errorResponse($e->getMessage(), [], 400);
+        }
+    }
+
+    public function shareableOrders(): JsonResponse
+    {
+        try {
+            $userId = auth('user')->id();
+
+            // Get IDs of orders that have already been posted by the user
+            $postedOrderIds = \App\Models\Post::where('user_id', $userId)
+                ->pluck('order_id')
+                ->toArray();
+
+            // Fetch completed orders not in the posted list
+            $orders = \App\Models\Order::with(['restaurant', 'items', 'payments'])
+                ->where('user_id', $userId)
+                ->where('status', \App\Enums\Order\OrderStatusEnum::COMPLETED->value)
+                ->whereNotIn('id', $postedOrderIds)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            return $this->successResponse(
+                'Shareable orders retrieved successfully.',
+                \App\Http\Resources\User\Order\UserOrderResource::collection($orders)
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to retrieve shareable user orders: ' . $e->getMessage());
+            return $this->errorResponse($e->getMessage(), [], 400);
+        }
+    }
 }

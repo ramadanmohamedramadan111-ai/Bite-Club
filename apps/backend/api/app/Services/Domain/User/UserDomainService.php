@@ -3,12 +3,16 @@
 namespace App\Services\Domain\User;
 
 use App\Models\User;
+use App\Traits\FileUploadTrait;
+use App\DTOs\User\UpdateProfileDto;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class UserDomainService
 {
+    use FileUploadTrait;
+
     public function searchUsers(?string $search = null, int $perPage = 15): LengthAwarePaginator
     {
         $query = User::query();
@@ -29,5 +33,32 @@ class UserDomainService
         }
 
         return $query->paginate($perPage);
+    }
+
+    public function updateProfile(User $user, UpdateProfileDto $dto): User
+    {
+        $updateData = $dto->toArray();
+
+        if ($dto->getProfileImage()) {
+            if ($user->profile_image_url) {
+                $this->deleteFile($user->profile_image_url);
+            }
+
+            $url = $this->uploadFile($dto->getProfileImage(), 'profile_images');
+            $parsedUrl = parse_url($url);
+            if (isset($parsedUrl['path'])) {
+                $host = request()->header('host') ?: request()->getHttpHost();
+                if (($host === 'api.localhost' || $host === 'localhost') && !str_contains($host, ':')) {
+                    $host .= ':8080';
+                }
+                $url = request()->getScheme() . '://' . $host . '/' . ltrim($parsedUrl['path'], '/');
+            }
+
+            $updateData['profile_image_url'] = $url;
+        }
+
+        $user->update($updateData);
+
+        return $user->fresh();
     }
 }

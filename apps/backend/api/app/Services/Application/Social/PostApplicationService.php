@@ -68,4 +68,9 @@ class PostApplicationService
     {
         return $this->orderCopyDomainService->completeCopiedOrder($copiedOrderId);
     }
+
+    public function getUserPosts(int $userId, int $perPage = 15): LengthAwarePaginator
+    {
+        return $this->postDomainService->getUserPosts($userId, $perPage);
+    }
 }
