@@ -103,14 +103,20 @@ class OrderController extends Controller
             $orders = $this->orderApplicationService->getPastOrders($dto);
 
 
-            $orders->withPath(config('app.url') . $request->getPathInfo());
+            $items = UserOrderResource::collection($orders->items());
 
-            $paginatedData = UserOrderResource::collection($orders)->response()->getData(true);
-
-            return response()->json(array_merge([
-                'success' => true,
-                'message' => trans('order.retrieved_successfully') ?? 'Orders retrieved successfully.',
-            ], $paginatedData), 200);
+            return $this->successResponse(
+                trans('order.retrieved_successfully') ?? 'Orders retrieved successfully.',
+                [
+                    'items' => $items,
+                    'meta'  => [
+                        'current_page' => $orders->currentPage(),
+                        'last_page'    => $orders->lastPage(),
+                        'per_page'     => $orders->perPage(),
+                        'total'        => $orders->total(),
+                    ],
+                ]
+            );
 
         } catch (Exception $e) {
             Log::error('Failed to retrieve past orders: ' . $e->getMessage());

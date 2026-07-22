@@ -77,15 +77,16 @@ class PastOrdersTest extends TestCase
             'success',
             'message',
             'data' => [
-                '*' => ['id', 'status', 'order_type', 'restaurant']
-            ],
-            'links',
-            'meta' => ['current_page', 'last_page', 'per_page', 'total']
+                'items' => [
+                    '*' => ['id', 'status', 'order_type', 'restaurant']
+                ],
+                'meta' => ['current_page', 'last_page', 'total']
+            ]
         ]);
 
-        $this->assertEquals(2, $response->json('meta.total'));
+        $this->assertEquals(2, $response->json('data.meta.total'));
         
-        $statuses = collect($response->json('data'))->pluck('status')->toArray();
+        $statuses = collect($response->json('data.items'))->pluck('status')->toArray();
         $this->assertContains(OrderStatusEnum::COMPLETED->value, $statuses);
         $this->assertContains(OrderStatusEnum::CANCELLED->value, $statuses);
         $this->assertNotContains(OrderStatusEnum::PREPARING->value, $statuses);
