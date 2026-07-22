@@ -11,6 +11,7 @@ import GroupCartActionButton from '@/components/cart/GroupCartActionButton';
 import GroupCartItemsList from '@/components/cart/GroupCartItemsList';
 import GroupCartTotals from '@/components/cart/GroupCartTotals';
 import RestaurantMenuView from '@/components/restaurants/RestaurantMenuView';
+import RestaurantMenuClientView from '@/components/restaurants/RestaurantMenuClientView';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,10 +23,21 @@ import { Link, useRouter } from '@/i18n/navigation';
 import { useCartStore } from '@/lib/const-data';
 import { useGroupSessionsStore } from '@/lib/const-data';
 import { useSessionStore } from '@/stores/session';
-import type { CartMember } from '@/lib/const-data';
+import type { CartMember, Cart } from '@/lib/const-data';
+import type { ActiveGroupSession } from '@/types/groups/groups';
+import type { RestaurantType } from '@/types/restaurant/restaurant';
+import type { MenuItem as RestaurantMenuItem } from '@/types/restaurant/restaurantItem';
+
+type MockData = {
+  session: ActiveGroupSession;
+  restaurant: RestaurantType;
+  menuItems: RestaurantMenuItem[];
+  cart: Cart;
+};
 
 type Props = {
   sessionId: string;
+  mock?: MockData;
 };
 
 function findCurrentMember(
@@ -35,43 +47,53 @@ function findCurrentMember(
   return members.find((member) => member.sessionId === guestSessionId);
 }
 
-export default function GroupOrderPageView({ sessionId }: Props) {
+export default function GroupOrderPageView({ sessionId, mock }: Props) {
   const t = useTranslations('groups');
   const tRestaurants = useTranslations('common');
   const router = useRouter();
-  const session = useGroupSessionsStore((state) =>
+  const session = mock?.session ?? useGroupSessionsStore((state) =>
     state.sessions.find((entry) => entry.id === sessionId),
   );
-  const cart = useCartStore((state) => state.cart);
+  const storeCart = useCartStore((state) => state.cart);
   const createGroupCart = useCartStore((state) => state.createGroupCart);
-  const addMember = useCartStore((state) => state.addMember);
+  const storeAddMember = useCartStore((state) => state.addMember);
   const removeItem = useCartStore((state) => state.removeItem);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
-  const getSummary = useCartStore((state) => state.getSummary);
+  const storeGetSummary = useCartStore((state) => state.getSummary);
   const guestSessionId = useSessionStore((state) => state.sessionId);
   const guestName = useSessionStore((state) => state.name);
+
+  const cart = mock?.cart ?? storeCart;
+  const mockSummary = mock?.cart?.items
+    ? (() => {
+        const subtotal = mock.cart.items.reduce((s, i) => s + i.totalPrice, 0);
+        const deliveryFee = 25;
+        const tax = Math.round(subtotal * 0.14 * 100) / 100;
+        return { subtotal, deliveryFee, tax, discount: 0, total: subtotal + deliveryFee + tax };
+      })()
+    : undefined;
+  const getSummary = mock ? () => mockSummary : storeGetSummary;
+  const addMember = mock ? () => {} : storeAddMember;
 
   const [conflictOpen, setConflictOpen] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
-  const restaurant = session
+  const restaurant = mock?.restaurant ?? (session
     ? getRestaurantById(Number(session.restaurantId))
-    : undefined;
-  const menuItems = session
+    : undefined);
+  const menuItems = mock?.menuItems ?? (session
     ? getMenuItemsByRestaurantId(Number(session.restaurantId))
-    : [];
+    : []);
 
   const isCurrentSessionCart =
-    cart?.type === 'group' && cart.groupSession.id === sessionId;
+    cart?.type === 'group' && cart.groupSession?.id === sessionId;
 
-  const hasConflictingCart =
-    cart !== null &&
-    (cart.type !== 'group' || cart.groupSession.id !== sessionId);
+  const hasConflictingCart = !mock && cart !== null &&
+    (cart.type !== 'group' || cart.groupSession?.id !== sessionId);
 
   const isSessionOwner = useMemo(() => {
-    if (!session) {
-      return false;
-    }
+    if (mock) return false;
+    if (!session) return false;
 
     if (session.ownerSessionId) {
       return session.ownerSessionId === guestSessionId;
@@ -82,7 +104,7 @@ export default function GroupOrderPageView({ sessionId }: Props) {
     }
 
     return false;
-  }, [session, guestSessionId, isCurrentSessionCart, cart]);
+  }, [session, guestSessionId, isCurrentSessionCart, cart, mock]);
 
   useEffect(() => {
     if (!session || initialized) {
@@ -313,12 +335,20 @@ export default function GroupOrderPageView({ sessionId }: Props) {
 
         <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
           <div className="min-w-0">
-            <RestaurantMenuView
-              restaurant={restaurant}
-              items={menuItems}
-              showScannedMenu={false}
-              orderingContext="group-order"
-            />
+            {mock ? (
+              <RestaurantMenuClientView
+                restaurant={restaurant!}
+                items={menuItems as any}
+                orderingContext="group-order"
+              />
+            ) : (
+              <RestaurantMenuView
+                restaurant={restaurant!}
+                items={menuItems as any}
+                showScannedMenu={false}
+                orderingContext="group-order"
+              />
+            )}
           </div>
 
           <Card className="h-fit xl:sticky xl:top-20">
