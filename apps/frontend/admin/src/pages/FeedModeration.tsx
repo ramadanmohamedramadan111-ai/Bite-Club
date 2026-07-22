@@ -26,7 +26,6 @@ interface FeedItem {
   id: string
   author: string
   content: string
-  type: string
   status: string
   submittedAt: string
   reviewedBy: string
@@ -49,7 +48,6 @@ export function FeedModerationPage() {
   const { t } = useLocale()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
-  const [typeFilter, setTypeFilter] = useState('')
   const [page, setPage] = useState(1)
   const [showDetails, setShowDetails] = useState<FeedItem | null>(null)
   
@@ -86,7 +84,7 @@ export function FeedModerationPage() {
     }
   }
 
-  // Fetch posts from backend api
+  // Fetch posts from backend api using Axios
   const fetchPosts = async () => {
     setLoading(true)
     setError('')
@@ -109,7 +107,6 @@ export function FeedModerationPage() {
         authorEmail: item.user?.email,
         authorUsername: item.user?.username,
         content: item.caption || (item.restaurant?.name ? `Shared order from ${item.restaurant.name}` : 'No content'),
-        type: item.images && item.images.length > 0 ? 'photo' : 'post',
         status: item.status,
         submittedAt: item.created_at ? new Date(item.created_at).toLocaleString() : '—',
         reviewedBy: item.reviewed_by?.name || '—',
@@ -182,7 +179,7 @@ export function FeedModerationPage() {
     }
   }
 
-  // Client-side search and type filter of the retrieved posts list
+  // Client-side search filtering of the retrieved posts list
   let displayedPosts = posts
   if (search) {
     const q = search.toLowerCase()
@@ -190,14 +187,10 @@ export function FeedModerationPage() {
       (f) => f.author.toLowerCase().includes(q) || f.content.toLowerCase().includes(q)
     )
   }
-  if (typeFilter) {
-    displayedPosts = displayedPosts.filter((f) => f.type === typeFilter)
-  }
 
   const columns: Column<FeedItem>[] = [
     { key: 'author', label: t('feed.fields.author'), sortable: true },
     { key: 'content', label: t('feed.fields.content'), render: (f) => <span className="text-truncate" style={{ maxWidth: '250px', display: 'inline-block' }}>{f.content}</span> },
-    { key: 'type', label: t('feed.fields.type'), sortable: true, render: (f) => <StatusBadge status={f.type} label={t(`feed.types.${f.type}` as any) || f.type} /> },
     { key: 'status', label: t('common.status'), sortable: true, render: (f) => <StatusBadge status={f.status} /> },
     { key: 'submittedAt', label: t('feed.fields.submittedAt'), sortable: true },
     { key: 'id', label: t('common.actions'), render: (f) => (
@@ -240,12 +233,8 @@ export function FeedModerationPage() {
                   { label: t('common.approved'), value: 'approved' },
                   { label: t('common.rejected'), value: 'rejected' },
                 ], onChange: (v) => { setStatusFilter(v); setPage(1) } },
-                { label: t('feed.fields.type'), value: typeFilter, options: [
-                  { label: t('feed.types.photo'), value: 'photo' },
-                  { label: t('feed.types.post'), value: 'post' },
-                ], onChange: (v) => { setTypeFilter(v); setPage(1) } },
               ]}
-              onClear={() => { setStatusFilter(''); setTypeFilter(''); setPage(1) }}
+              onClear={() => { setStatusFilter(''); setPage(1) }}
             />
           </div>
         </div>
@@ -272,7 +261,6 @@ export function FeedModerationPage() {
             {showDetails.authorUsername && (
               <div className="details-field"><span className="details-label">Username</span><span>@{showDetails.authorUsername}</span></div>
             )}
-            <div className="details-field"><span className="details-label">{t('feed.fields.type')}</span><span><StatusBadge status={showDetails.type} label={t(`feed.types.${showDetails.type}` as any) || showDetails.type} /></span></div>
             <div className="details-field" style={{ gridColumn: 'span 2' }}><span className="details-label">{t('feed.fields.content')}</span><span style={{ whiteSpace: 'pre-wrap' }}>{showDetails.content}</span></div>
             <div className="details-field"><span className="details-label">{t('common.status')}</span><span><StatusBadge status={showDetails.status} /></span></div>
             <div className="details-field"><span className="details-label">{t('feed.fields.submittedAt')}</span><span>{showDetails.submittedAt}</span></div>
@@ -300,9 +288,9 @@ export function FeedModerationPage() {
               </div>
             )}
 
-            {showDetails.images && showDetails.images.length > 0 && (
-              <div className="details-field" style={{ gridColumn: 'span 2' }}>
-                <span className="details-label">Images</span>
+            <div className="details-field" style={{ gridColumn: 'span 2' }}>
+              <span className="details-label">Images</span>
+              {showDetails.images && showDetails.images.length > 0 ? (
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
                   {showDetails.images.map((img: any) => (
                     <a key={img.id} href={img.image_url} target="_blank" rel="noopener noreferrer">
@@ -314,8 +302,10 @@ export function FeedModerationPage() {
                     </a>
                   ))}
                 </div>
-              </div>
-            )}
+              ) : (
+                <span style={{ color: 'var(--text-muted)', marginTop: '4px', display: 'inline-block' }}>No images</span>
+              )}
+            </div>
 
             {showDetails.rejectionReason && (
               <div className="details-field" style={{ gridColumn: 'span 2' }}>
