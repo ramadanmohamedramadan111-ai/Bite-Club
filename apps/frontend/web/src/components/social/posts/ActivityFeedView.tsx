@@ -5,6 +5,7 @@ import { useInfinitePosts } from '@/hooks/use-infinite-posts';
 import { PostCard } from './PostCard';
 import { Post } from '@/types/social/posts';
 import { Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface PostsResponse {
   posts: Post[];
@@ -16,6 +17,7 @@ interface ActivityFeedViewProps {
 }
 
 export function ActivityFeedView({ onAddToCart }: ActivityFeedViewProps) {
+  const tc = useTranslations('common');
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfinitePosts('/posts');
 
@@ -63,7 +65,7 @@ export function ActivityFeedView({ onAddToCart }: ActivityFeedViewProps) {
 
       {!hasNextPage && posts.length > 0 && (
         <p className="py-8 text-center text-muted-foreground">
-          No more posts to load
+          {tc('noMore')}
         </p>
       )}
     </div>

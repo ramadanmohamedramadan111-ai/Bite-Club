@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Slider } from '@/components/ui/slider';
 import { useState } from 'react';
 import { useRestaurantSearchParams } from './useRestaurantSearchParams';
@@ -9,6 +10,7 @@ type Props = {
 };
 
 export default function RatingFilter({ value }: Props) {
+  const t = useTranslations('restaurants');
   const { setParam } = useRestaurantSearchParams();
   const [rating, setRating] = useState(value);
 
@@ -19,7 +21,7 @@ export default function RatingFilter({ value }: Props) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-medium">Minimum Rating</p>
+        <p className="text-sm font-medium">{t('minimumRating')}</p>
         <span className="text-sm text-muted-foreground">{rating}+</span>
       </div>
       <Slider

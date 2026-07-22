@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { ArrowLeft, CreditCard, MapPin, ShoppingBag, Wallet } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
@@ -19,12 +20,15 @@ function formatOrderDate(date: string) {
   }).format(new Date(date));
 }
 
-function paymentLabel(method: string) {
-  if (method === 'visa') return 'Visa / Card';
-  return 'Cash on delivery';
-}
-
 export default function OrderDetailPageView({ order }: { order: OrderDetails }) {
+  const t = useTranslations('orderDetail');
+  const tc = useTranslations('common');
+
+  function paymentLabel(method: string) {
+    if (method === 'visa') return tc('visaCard');
+    return tc('cashOnDelivery');
+  }
+
   return (
     <div className="container mx-auto space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -35,7 +39,7 @@ export default function OrderDetailPageView({ order }: { order: OrderDetails }) 
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold">Order #{order.id}</h1>
+            <h1 className="text-3xl font-bold">{t('orderNumber', { id: order.id })}</h1>
             <p className="mt-1 text-muted-foreground">
               {formatOrderDate(order.created_at)}
             </p>
@@ -50,7 +54,7 @@ export default function OrderDetailPageView({ order }: { order: OrderDetails }) 
       <div className="mx-auto grid max-w-4xl gap-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Order summary</CardTitle>
+            <CardTitle className="text-base">{t('orderSummary')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
@@ -74,19 +78,19 @@ export default function OrderDetailPageView({ order }: { order: OrderDetails }) 
 
             <div className="space-y-1 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Subtotal</span>
+                <span className="text-muted-foreground">{tc('subtotal')}</span>
                 <span>{order.financials.subtotal} EGP</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Delivery fee</span>
+                <span className="text-muted-foreground">{tc('deliveryFee')}</span>
                 <span>{order.financials.delivery_fee} EGP</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Service fee</span>
+                <span className="text-muted-foreground">{tc('serviceFee')}</span>
                 <span>{order.financials.service_fee} EGP</span>
               </div>
               <div className="flex justify-between pt-1 text-base font-semibold">
-                <span>Total</span>
+                <span>{tc('total')}</span>
                 <span>{order.financials.total} EGP</span>
               </div>
             </div>
@@ -95,7 +99,7 @@ export default function OrderDetailPageView({ order }: { order: OrderDetails }) 
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Restaurant</CardTitle>
+            <CardTitle className="text-base">{t('restaurant')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div>
@@ -106,7 +110,7 @@ export default function OrderDetailPageView({ order }: { order: OrderDetails }) 
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Payment</CardTitle>
+            <CardTitle className="text-base">{t('payment')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2 text-sm">
@@ -125,7 +129,7 @@ export default function OrderDetailPageView({ order }: { order: OrderDetails }) 
         {order.tracking && (
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Tracking</CardTitle>
+              <CardTitle className="text-base">{t('tracking')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">

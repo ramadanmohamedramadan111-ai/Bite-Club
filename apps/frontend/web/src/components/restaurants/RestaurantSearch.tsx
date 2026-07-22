@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { SearchIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -10,6 +11,7 @@ type Props = {
 };
 
 export default function RestaurantSearch({ value }: Props) {
+  const t = useTranslations('restaurants');
   const [query, setQuery] = useState(value);
   const lastCommittedQuery = useRef(value);
   const { setParam } = useRestaurantSearchParams();
@@ -37,7 +39,7 @@ export default function RestaurantSearch({ value }: Props) {
       <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         type="search"
-        placeholder="Search restaurants..."
+        placeholder={t('searchPlaceholder')}
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         className="pl-9"

@@ -1,3 +1,6 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 
 const statusStyles: Record<string, string> = {
@@ -10,15 +13,18 @@ const statusStyles: Record<string, string> = {
   cancelled: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
 };
 
-const statusLabels: Record<string, string> = {
-  pending: 'Pending',
-  active: 'Active',
-  preparing: 'Preparing',
-  ready: 'Ready',
-  out_for_delivery: 'Out for delivery',
-  completed: 'Completed',
-  cancelled: 'Cancelled',
-};
+function statusLabelKey(status: string): string {
+  const map: Record<string, string> = {
+    pending: 'pending',
+    active: 'active',
+    preparing: 'preparing',
+    ready: 'ready',
+    out_for_delivery: 'outForDelivery',
+    completed: 'completed',
+    cancelled: 'cancelled',
+  };
+  return map[status] ?? status;
+}
 
 export function OrderStatusBadge({
   status,
@@ -27,6 +33,8 @@ export function OrderStatusBadge({
   status: string;
   className?: string;
 }) {
+  const t = useTranslations('orderStatus');
+
   return (
     <span
       className={cn(
@@ -35,7 +43,7 @@ export function OrderStatusBadge({
         className,
       )}
     >
-      {statusLabels[status] ?? status}
+      {t(statusLabelKey(status))}
     </span>
   );
 }

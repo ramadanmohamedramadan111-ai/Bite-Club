@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -25,6 +26,7 @@ type Props = {
 };
 
 export default function SendGiftDialog({ open, onOpenChange, offer }: Props) {
+  const t = useTranslations('points');
   const profile = useSocialStore((state) => state.profile);
   const users = useSocialStore((state) => state.users);
   const sendGift = usePointsStore((state) => state.sendGift);
@@ -49,7 +51,7 @@ export default function SendGiftDialog({ open, onOpenChange, offer }: Props) {
     const normalizedUsername = username.trim().replace(/^@/, '');
 
     if (!normalizedUsername) {
-      toast.error('Username is required');
+      toast.error(t('usernameRequired'));
       return;
     }
 
@@ -58,12 +60,12 @@ export default function SendGiftDialog({ open, onOpenChange, offer }: Props) {
     );
 
     if (!recipient) {
-      toast.error('User not found');
+      toast.error(t('userNotFound'));
       return;
     }
 
     if (recipient.id === profile.id) {
-      toast.error('You cannot send a gift to yourself');
+      toast.error(t('selfGiftError'));
       return;
     }
 
@@ -79,11 +81,11 @@ export default function SendGiftDialog({ open, onOpenChange, offer }: Props) {
     });
 
     if (!result.success) {
-      toast.error(result.error ?? 'Failed to send gift');
+      toast.error(result.error ?? t('giftSendFailed'));
       return;
     }
 
-    toast.success(`Gift sent to @${recipient.username}!`);
+    toast.success(t('giftSent', { username: recipient.username }));
     handleOpenChange(false);
   }
 
@@ -91,29 +93,28 @@ export default function SendGiftDialog({ open, onOpenChange, offer }: Props) {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Send a gift</DialogTitle>
+          <DialogTitle>{t('sendGiftTitle')}</DialogTitle>
           <DialogDescription>
-            Send &quot;{offer.title}&quot; ({offer.pointsCost.toLocaleString()}{' '}
-            points) to a friend.
+            {t('sendGiftDesc', { title: offer.title, points: offer.pointsCost.toLocaleString() })}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="gift-username">Username</Label>
+            <Label htmlFor="gift-username">{t('usernameLabel')}</Label>
             <Input
               id="gift-username"
-              placeholder="@username"
+              placeholder={t('usernamePlaceholder')}
               value={username}
               onChange={(event) => setUsername(event.target.value)}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="gift-message">Message (optional)</Label>
+            <Label htmlFor="gift-message">{t('messageLabel')}</Label>
             <Input
               id="gift-message"
-              placeholder="Add a personal message..."
+              placeholder={t('messagePlaceholder')}
               value={message}
               onChange={(event) => setMessage(event.target.value)}
             />
@@ -122,9 +123,9 @@ export default function SendGiftDialog({ open, onOpenChange, offer }: Props) {
 
         <DialogFooter>
           <Button variant="outline" onClick={() => handleOpenChange(false)}>
-            Cancel
+            {t('cancel')}
           </Button>
-          <Button onClick={handleSend}>Send gift</Button>
+          <Button onClick={handleSend}>{t('send')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

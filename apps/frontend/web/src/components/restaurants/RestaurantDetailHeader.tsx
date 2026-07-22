@@ -1,3 +1,6 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { Bike, Heart, MapPin, ShoppingBag, Star } from 'lucide-react';
 import type { RestaurantType } from '@/types/restaurant/restaurant';
@@ -8,6 +11,7 @@ type Props = {
 };
 
 export default function RestaurantDetailHeader({ restaurant }: Props) {
+  const t = useTranslations('restaurants');
   return (
     <div className="overflow-hidden rounded-xl border bg-card">
       <div className="relative h-48 w-full sm:h-56">
@@ -21,7 +25,7 @@ export default function RestaurantDetailHeader({ restaurant }: Props) {
         {!restaurant.is_open_now && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/50">
             <span className="rounded-full bg-background px-4 py-2 text-sm font-medium">
-              Currently Unavailable
+              {t('currentlyUnavailable')}
             </span>
           </div>
         )}
@@ -54,7 +58,7 @@ export default function RestaurantDetailHeader({ restaurant }: Props) {
                 <span className="font-medium text-foreground">
                   {restaurant.average_rating}
                 </span>
-                ({restaurant.reviews_count} reviews)
+                {t('reviewsCount', { count: restaurant.reviews_count })}
               </span>
 
               <span className="inline-flex items-center gap-1">
@@ -83,13 +87,13 @@ export default function RestaurantDetailHeader({ restaurant }: Props) {
           {restaurant.delivery_enabled && (
             <span className="inline-flex items-center gap-1.5">
               <Bike className="size-4" />
-              Delivery
+              {t('delivery')}
             </span>
           )}
           {restaurant.pickup_enabled && (
             <span className="inline-flex items-center gap-1.5">
               <ShoppingBag className="size-4" />
-              Pickup
+              {t('pickup')}
             </span>
           )}
           {/* {restaurant.creditCard && (
@@ -103,7 +107,7 @@ export default function RestaurantDetailHeader({ restaurant }: Props) {
         <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
           {restaurant.minimum_order && (
             <span className="inline-flex items-center gap-1.5">
-              Minimum Order: {restaurant.minimum_order.toFixed(0)} EGP
+              {t('minimumOrder', { amount: restaurant.minimum_order.toFixed(0) })}
             </span>
           )}
         </div>

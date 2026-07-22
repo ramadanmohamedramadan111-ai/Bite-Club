@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Copy } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -24,6 +25,7 @@ export default function GroupCartItemsList({
   onRemove,
   compact = false,
 }: Props) {
+  const t = useTranslations('common');
   const cloneUserOrder = useCartStore((state) => state.cloneUserOrder);
   const sessionId = useSessionStore((state) => state.sessionId);
   const guestName = useSessionStore((state) => state.name);
@@ -40,7 +42,7 @@ export default function GroupCartItemsList({
       sessionId: sessionId ?? undefined,
       name: guestName ?? undefined,
     });
-    toast.success(`Cloned ${sourceName}'s order`);
+    toast.success(t('clonedOrder', { name: sourceName }));
   }
 
   return (
@@ -55,13 +57,13 @@ export default function GroupCartItemsList({
                 <p className="font-medium">
                   {group.name}
                   {isCurrentUser && (
-                    <span className="ml-2 text-xs text-muted-foreground">
-                      (You)
+                    <span className="ms-2 text-xs text-muted-foreground">
+                      {t('you')}
                     </span>
                   )}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  {group.subtotal.toFixed(2)} EGP
+                  {group.subtotal.toFixed(2)} {t('egp')}
                 </p>
               </div>
 
@@ -73,7 +75,7 @@ export default function GroupCartItemsList({
                   className="gap-1.5"
                   onClick={() => handleClone(group.key, group.name)}>
                   <Copy className="size-3.5" />
-                  Clone
+                  {t('clone')}
                 </Button>
               )}
             </div>

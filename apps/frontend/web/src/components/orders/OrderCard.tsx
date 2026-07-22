@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -23,6 +24,8 @@ function formatItemsInline(order: OrderResponse) {
 }
 
 export default function OrderCard({ order }: { order: OrderResponse }) {
+  const t = useTranslations('common');
+
   return (
     <Card className="p-4">
       <div className="flex gap-4">
@@ -53,7 +56,7 @@ export default function OrderCard({ order }: { order: OrderResponse }) {
           <div className="flex flex-wrap gap-2 pt-1">
             <Link href={`/orders/${order.id}`}>
               <Button variant="outline" size="sm">
-                View details
+                {t('viewDetails')}
               </Button>
             </Link>
           </div>

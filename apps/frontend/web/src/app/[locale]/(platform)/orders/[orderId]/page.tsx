@@ -1,4 +1,5 @@
 import { serverFetch } from '@/utils/server-fetch';
+import { getTranslations } from 'next-intl/server';
 import type { ApiResponse } from '@/types/api/api-response';
 import type { OrderDetails } from '@/types/orders/order';
 import OrderDetailPageView from '@/components/orders/OrderDetailPageView';
@@ -11,6 +12,7 @@ interface OrderDetailPageProps {
 }
 
 export default async function OrderDetailPage({ params }: OrderDetailPageProps) {
+  const t = await getTranslations('common');
   const { orderId } = await params;
 
   const response = await serverFetch<ApiResponse<OrderDetails>>(
@@ -22,11 +24,11 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
   if (!order) {
     return (
       <div className="container mx-auto flex flex-col items-center justify-center gap-4 py-12">
-        <p className="text-muted-foreground">Order not found</p>
+        <p className="text-muted-foreground">{t('orderNotFound')}</p>
         <Link href="/orders">
           <Button variant="outline">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to orders
+            {t('backToOrders')}
           </Button>
         </Link>
       </div>

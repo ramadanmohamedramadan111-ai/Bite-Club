@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useRestaurantSearchParams } from './useRestaurantSearchParams';
@@ -10,11 +11,12 @@ type Props = {
 };
 
 export default function CategoryFilter({ categories, selected }: Props) {
+  const t = useTranslations('restaurants');
   const { toggleCategory } = useRestaurantSearchParams();
 
   return (
     <div className="space-y-3">
-      <p className="text-sm font-medium">Categories</p>
+      <p className="text-sm font-medium">{t('categories')}</p>
       <div className="space-y-2">
         {categories.map((category) => {
           const id = `category-${category}`;

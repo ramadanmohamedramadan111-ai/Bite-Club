@@ -23,6 +23,7 @@ import {
   User,
   CircleUserRound,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { capitalize } from '@/utils/format';
 import { Link, useRouter } from '@/i18n/navigation';
 import { useAction } from 'next-safe-action/hooks';
@@ -44,27 +45,28 @@ interface NavUserProps {
 export function NavUser({ user }: NavUserProps) {
   const { isMobile } = useSidebar();
   const router = useRouter();
+  const t = useTranslations('userPanel');
 
   const { execute: logout, isExecuting } = useAction(logoutUserAction, {
     onSuccess: ({ data }) => {
-      toast.success(data?.message ?? 'Logged out successfully');
+      toast.success(data?.message ?? t('loggedOutSuccess'));
 
       router.replace('/login');
       router.refresh();
     },
     onError: ({ error }) => {
-      toast.error(error.serverError?.message ?? 'Logout failed');
+      toast.error(error.serverError?.message ?? t('logoutFailed'));
     },
   });
   if (!user) {
     return (
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton asChild tooltip="Login">
+          <SidebarMenuButton asChild tooltip={t('login')}>
             <Link href="/login">
               <User className="size-5 shrink-0" />
               <span className="text-sm font-medium group-data-[collapsible=icon]:hidden">
-                Login
+                {t('login')}
               </span>
             </Link>
           </SidebarMenuButton>
@@ -139,13 +141,13 @@ export function NavUser({ user }: NavUserProps) {
               <DropdownMenuItem asChild>
                 <Link href="/profile">
                   <CircleUserRound />
-                  Profile
+                  {t('profile')}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/notifications">
                   <BellIcon />
-                  Notifications
+                  {t('notifications')}
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
@@ -154,7 +156,7 @@ export function NavUser({ user }: NavUserProps) {
               className="cursor-pointer"
               onClick={() => logout()}>
               <LogOutIcon />
-              {isExecuting ? 'Logging out...' : 'Logout'}
+              {isExecuting ? t('loggingOut') : t('logout')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

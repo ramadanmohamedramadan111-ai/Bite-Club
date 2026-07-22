@@ -12,6 +12,7 @@ import { useState, useEffect } from 'react';
 import { useAction } from 'next-safe-action/hooks';
 import { likePostAction, unlikePostAction } from '@/actions/feed';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 interface PostDetailPageProps {
   post: PostType;
@@ -19,6 +20,7 @@ interface PostDetailPageProps {
 }
 
 export function PostDetailPage({ post, onAddToCart }: PostDetailPageProps) {
+  const tc = useTranslations('common');
   const [isLiked, setIsLiked] = useState(post.is_liked_by_user ?? false);
   const [likeCount, setLikeCount] = useState(post.likes_count);
 
@@ -29,7 +31,7 @@ export function PostDetailPage({ post, onAddToCart }: PostDetailPageProps) {
 
   const { execute: likePost } = useAction(likePostAction, {
     onError: ({ error }) => {
-      toast.error(error.serverError?.message || 'Failed to like post.');
+      toast.error(error.serverError?.message || tc('failedToLike'));
       setIsLiked(false);
       setLikeCount((prev) => prev - 1);
     },
@@ -37,7 +39,7 @@ export function PostDetailPage({ post, onAddToCart }: PostDetailPageProps) {
 
   const { execute: unlikePost } = useAction(unlikePostAction, {
     onError: ({ error }) => {
-      toast.error(error.serverError?.message || 'Failed to unlike post.');
+      toast.error(error.serverError?.message || tc('failedToUnlike'));
       setIsLiked(true);
       setLikeCount((prev) => prev + 1);
     },
@@ -118,7 +120,7 @@ export function PostDetailPage({ post, onAddToCart }: PostDetailPageProps) {
               )}
               <div className="min-w-0 flex-1">
                 <div className="mb-1 text-xs text-muted-foreground">
-                  From Restaurant
+                  {tc('from')}
                 </div>
                 <h3 className="font-semibold">{post.restaurant.name}</h3>
               </div>
@@ -128,7 +130,7 @@ export function PostDetailPage({ post, onAddToCart }: PostDetailPageProps) {
 
         {hasItems && (
           <Card className="p-3">
-            <h3 className="mb-3 font-semibold text-base">Order Details</h3>
+            <h3 className="mb-3 font-semibold text-base">{tc('orderSummary')}</h3>
             <div className="space-y-2">
               {post.order.items.map((item) => (
                 <div key={item.id} className="flex items-center justify-between text-sm">
@@ -140,7 +142,7 @@ export function PostDetailPage({ post, onAddToCart }: PostDetailPageProps) {
                 </div>
               ))}
               <div className="flex justify-between border-t pt-2 font-semibold text-sm">
-                <span>Total</span>
+                <span>{tc('total')}</span>
                 <span className="text-primary">{totalPrice.toFixed(2)} EGP</span>
               </div>
             </div>
@@ -149,7 +151,7 @@ export function PostDetailPage({ post, onAddToCart }: PostDetailPageProps) {
 
         <Button size="lg" className="w-full" onClick={() => onAddToCart?.(post)}>
           <ShoppingCart className="mr-2 h-4 w-4" />
-          Add to Cart
+          {tc('add')}
         </Button>
 
         <Button

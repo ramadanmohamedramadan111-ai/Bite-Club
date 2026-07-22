@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { clientFetch } from '@/utils/client-fetch';
 import { PostCard } from './PostCard';
@@ -11,6 +12,8 @@ import type { PostType } from '@/types/social/posts';
 const POSTS_PER_PAGE = 10;
 
 export function UserPostsSection() {
+  const t = useTranslations('userPosts');
+  const tc = useTranslations('common');
   const {
     data: postsData,
     fetchNextPage,
@@ -63,7 +66,7 @@ export function UserPostsSection() {
   if (posts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-12">
-        <p className="text-muted-foreground">No posts yet</p>
+        <p className="text-muted-foreground">{t('noPosts')}</p>
       </div>
     );
   }
@@ -84,7 +87,7 @@ export function UserPostsSection() {
 
       {!hasNextPage && posts.length > 0 && (
         <p className="py-4 text-center text-sm text-muted-foreground">
-          No more posts to load
+          {tc('noMore')}
         </p>
       )}
     </div>

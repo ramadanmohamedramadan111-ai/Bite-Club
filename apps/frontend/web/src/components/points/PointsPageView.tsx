@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 
 import { rewardOffers } from '@/lib/const-data';
@@ -23,6 +24,7 @@ type Props = {
 };
 
 export default function PointsPageView({ defaultTab = 'rewards' }: Props) {
+  const t = useTranslations('points');
   const searchParams = useSearchParams();
   const tab = (searchParams.get('tab') ?? defaultTab) as PointsTab;
   const giftFilter = (searchParams.get('giftFilter') ??
@@ -96,9 +98,9 @@ export default function PointsPageView({ defaultTab = 'rewards' }: Props) {
   return (
     <div className="container mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Points & Rewards</h1>
+        <h1 className="text-3xl font-bold">{t('title')}</h1>
         <p className="mt-2 text-muted-foreground">
-          Earn points, redeem offers, and send gifts to friends.
+          {t('subtitle')}
         </p>
       </div>
 
@@ -109,9 +111,9 @@ export default function PointsPageView({ defaultTab = 'rewards' }: Props) {
       {tab === 'rewards' && (
         <section className="space-y-4">
           <div>
-            <h2 className="text-xl font-semibold">Rewards & Gifts</h2>
+            <h2 className="text-xl font-semibold">{t('rewardsGifts')}</h2>
             <p className="text-sm text-muted-foreground">
-              Redeem points for yourself or send an offer as a gift.
+              {t('rewardsGiftsDesc')}
             </p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -125,10 +127,9 @@ export default function PointsPageView({ defaultTab = 'rewards' }: Props) {
       {tab === 'active-redeems' && (
         <section className="space-y-4">
           <div>
-            <h2 className="text-xl font-semibold">Active redeems</h2>
+            <h2 className="text-xl font-semibold">{t('activeRedeems')}</h2>
             <p className="text-sm text-muted-foreground">
-              {activeRedemptions.length} active offer
-              {activeRedemptions.length === 1 ? '' : 's'}
+              {activeRedemptions.length} {activeRedemptions.length === 1 ? t('activeOffer') : t('activeOffers')}
             </p>
           </div>
           {activeRedemptions.length > 0 ? (
@@ -143,7 +144,7 @@ export default function PointsPageView({ defaultTab = 'rewards' }: Props) {
             </div>
           ) : (
             <div className="flex min-h-48 flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center">
-              <p className="text-muted-foreground">No active redeems</p>
+              <p className="text-muted-foreground">{t('noActiveRedeems')}</p>
             </div>
           )}
         </section>
@@ -152,10 +153,9 @@ export default function PointsPageView({ defaultTab = 'rewards' }: Props) {
       {tab === 'redeem-history' && (
         <section className="space-y-4">
           <div>
-            <h2 className="text-xl font-semibold">Redeem history</h2>
+            <h2 className="text-xl font-semibold">{t('redeemHistory')}</h2>
             <p className="text-sm text-muted-foreground">
-              {redeemHistory.length} total redemption
-              {redeemHistory.length === 1 ? '' : 's'}
+              {redeemHistory.length} {redeemHistory.length === 1 ? t('redeemCount') : t('redeemCounts')}
             </p>
           </div>
           {paginatedRedeemHistory.items.length > 0 ? (
@@ -172,7 +172,7 @@ export default function PointsPageView({ defaultTab = 'rewards' }: Props) {
             </>
           ) : (
             <div className="flex min-h-48 flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center">
-              <p className="text-muted-foreground">No redemption history yet</p>
+              <p className="text-muted-foreground">{t('noRedeemHistory')}</p>
             </div>
           )}
         </section>
@@ -181,9 +181,9 @@ export default function PointsPageView({ defaultTab = 'rewards' }: Props) {
       {tab === 'my-gifts' && (
         <section className="space-y-4">
           <div>
-            <h2 className="text-xl font-semibold">My gifts</h2>
+            <h2 className="text-xl font-semibold">{t('myGifts')}</h2>
             <p className="text-sm text-muted-foreground">
-              Gifts you received and can still claim.
+              {t('myGiftsDesc')}
             </p>
           </div>
           {myGifts.length > 0 ? (
@@ -194,7 +194,7 @@ export default function PointsPageView({ defaultTab = 'rewards' }: Props) {
             </div>
           ) : (
             <div className="flex min-h-48 flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center">
-              <p className="text-muted-foreground">No gifts to claim</p>
+              <p className="text-muted-foreground">{t('noGiftsToClaim')}</p>
             </div>
           )}
         </section>
@@ -204,10 +204,9 @@ export default function PointsPageView({ defaultTab = 'rewards' }: Props) {
         <section className="space-y-4">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h2 className="text-xl font-semibold">Gift history</h2>
+              <h2 className="text-xl font-semibold">{t('giftHistory')}</h2>
               <p className="text-sm text-muted-foreground">
-                {giftHistory.length} gift
-                {giftHistory.length === 1 ? '' : 's'}
+                {giftHistory.length} {giftHistory.length === 1 ? t('giftItem') : t('giftItems')}
               </p>
             </div>
             <GiftHistoryFilters />
@@ -226,7 +225,7 @@ export default function PointsPageView({ defaultTab = 'rewards' }: Props) {
             </>
           ) : (
             <div className="flex min-h-48 flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center">
-              <p className="text-muted-foreground">No gifts found</p>
+              <p className="text-muted-foreground">{t('noGiftsHistory')}</p>
             </div>
           )}
         </section>

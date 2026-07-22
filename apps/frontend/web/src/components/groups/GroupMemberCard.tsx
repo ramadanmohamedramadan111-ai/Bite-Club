@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { cn } from '@/lib/utils';
 import { GroupMember, GroupType } from '@/types/groups/groups';
 
@@ -11,7 +12,8 @@ type Props = {
   type: 'me' | 'others';
 };
 
-export default function GroupMemberCard({ member, group, type }: Props) {
+export default async function GroupMemberCard({ member, group, type }: Props) {
+  const t = await getTranslations('groups');
   const isMe = type === 'me';
   const isMemberOwner = member.role === 'owner';
   const isMemberAdmin = member.role === 'admin';
@@ -32,11 +34,11 @@ export default function GroupMemberCard({ member, group, type }: Props) {
           <div className="flex items-center gap-2">
             <p className="font-medium">{member.full_name}</p>
 
-            {isMe && <Badge variant="secondary">You</Badge>}
+            {isMe && <Badge variant="secondary">{t('you')}</Badge>}
 
-            {isMemberOwner && <Badge variant="outline">Owner</Badge>}
+            {isMemberOwner && <Badge variant="outline">{t('owner')}</Badge>}
 
-            {isMemberAdmin && <Badge variant="outline">Admin</Badge>}
+            {isMemberAdmin && <Badge variant="outline">{t('admin')}</Badge>}
           </div>
 
           <p className="text-sm text-muted-foreground">@{member.username}</p>

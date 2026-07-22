@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { Users } from 'lucide-react';
 import { toast } from 'sonner';
@@ -55,13 +56,15 @@ export default function CreateGroupOrderDialog({
   const sessionId = useSessionStore((state) => state.sessionId);
   const guestName = useSessionStore((state) => state.name);
 
+  const t = useTranslations('groups');
+  const tc = useTranslations('common');
   const [sessionType, setSessionType] =
     useState<GroupOrderSessionType>('anonymous');
   const [selectedGroupId, setSelectedGroupId] = useState<string>('');
 
   function handleCreate() {
     if (sessionType === 'fixed' && !selectedGroupId) {
-      toast.error('Please select a group');
+      toast.error(t('noGroupToSelect'));
       return;
     }
 
@@ -118,7 +121,7 @@ export default function CreateGroupOrderDialog({
       addItem(mockItem);
     }
 
-    toast.success('Group order created');
+    toast.success(t('groupOrderCreated'));
     onOpenChange(false);
     router.push(`/group-order/${orderSessionId}`);
   }
@@ -129,7 +132,7 @@ export default function CreateGroupOrderDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Users className="size-5" />
-            Create group order
+            {t('groupOrder')}
           </DialogTitle>
           <DialogDescription>
             Start a group order at {restaurant.name}. Invite others to add items
@@ -139,7 +142,7 @@ export default function CreateGroupOrderDialog({
 
         <div className="space-y-4 py-2">
           <div className="space-y-3">
-            <Label>Session type</Label>
+            <Label>{t('sessionType')}</Label>
             <RadioGroup
               value={sessionType}
               onValueChange={(value) =>
@@ -149,22 +152,22 @@ export default function CreateGroupOrderDialog({
                 <RadioGroupItem value="anonymous" id="anonymous" />
                 <div className="space-y-1">
                   <Label htmlFor="anonymous" className="font-medium">
-                    Anonymous
-                  </Label>
-                  <p className="text-sm text-muted-foreground">
-                    Share a code with anyone. No group required.
-                  </p>
+                    {t('anonymous')}
+                   </Label>
+                   <p className="text-sm text-muted-foreground">
+                     {t('anonymousDesc')}
+                   </p>
                 </div>
               </div>
               <div className="flex items-start gap-3 rounded-lg border p-3">
                 <RadioGroupItem value="fixed" id="fixed" />
                 <div className="space-y-1">
                   <Label htmlFor="fixed" className="font-medium">
-                    Fixed group
-                  </Label>
-                  <p className="text-sm text-muted-foreground">
-                    Order with members from one of your groups.
-                  </p>
+                    {t('fixedGroup')}
+                   </Label>
+                   <p className="text-sm text-muted-foreground">
+                     {t('fixedGroupDesc')}
+                   </p>
                 </div>
               </div>
             </RadioGroup>
@@ -172,12 +175,12 @@ export default function CreateGroupOrderDialog({
 
           {sessionType === 'fixed' && (
             <div className="space-y-2">
-              <Label htmlFor="group-select">Select group</Label>
+              <Label htmlFor="group-select">{t('selectGroup')}</Label>
               <Select
                 value={selectedGroupId}
                 onValueChange={setSelectedGroupId}>
                 <SelectTrigger id="group-select">
-                  <SelectValue placeholder="Choose a group" />
+                  <SelectValue placeholder={t('chooseGroup')} />
                 </SelectTrigger>
                 <SelectContent>
                   {groups.map((group) => (
@@ -193,9 +196,9 @@ export default function CreateGroupOrderDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {tc('cancel')}
           </Button>
-          <Button onClick={handleCreate}>Create group order</Button>
+          <Button onClick={handleCreate}>{t('groupOrder')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

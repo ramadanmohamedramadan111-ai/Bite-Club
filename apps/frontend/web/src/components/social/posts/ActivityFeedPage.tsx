@@ -8,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
 import { useSocialStore } from '@/stores/social';
+import { useTranslations } from 'next-intl';
 
 interface ActivityFeedPageProps {
   onAddToCart?: (post: Post) => void;
@@ -41,6 +42,8 @@ function getTabPosts(
 }
 
 export function ActivityFeedPage({ onAddToCart }: ActivityFeedPageProps) {
+  const t = useTranslations('feed');
+  const tc = useTranslations('common');
   const allPosts = useSocialStore((state) => state.posts);
   const users = useSocialStore((state) => state.users);
 
@@ -148,9 +151,9 @@ export function ActivityFeedPage({ onAddToCart }: ActivityFeedPageProps) {
     <div className="container mx-auto space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Activity Feed</h1>
+          <h1 className="text-3xl font-bold">{t('activityFeed')}</h1>
           <p className="mt-2 text-muted-foreground">
-            See what your friends are ordering and share your own meals.
+            {t('activityFeedDesc')}
           </p>
         </div>
         <Link href="/feed/create">
@@ -165,8 +168,8 @@ export function ActivityFeedPage({ onAddToCart }: ActivityFeedPageProps) {
         onValueChange={(v) => setActiveTab(v as TabKey)}
       >
         <TabsList className="w-full">
-          <TabsTrigger value="following">Following</TabsTrigger>
-          <TabsTrigger value="global">Global</TabsTrigger>
+          <TabsTrigger value="following">{t('following')}</TabsTrigger>
+          <TabsTrigger value="global">{t('global')}</TabsTrigger>
         </TabsList>
 
         <div className="mt-6">
@@ -182,7 +185,7 @@ export function ActivityFeedPage({ onAddToCart }: ActivityFeedPageProps) {
             </div>
           ) : (
             <p className="py-12 text-center text-muted-foreground">
-              No posts yet. Follow friends to see their posts!
+              {t('noPosts')}
             </p>
           )}
 
@@ -196,7 +199,7 @@ export function ActivityFeedPage({ onAddToCart }: ActivityFeedPageProps) {
 
           {!hasMorePosts && currentFeed.posts.length > 0 && (
             <p className="py-8 text-center text-muted-foreground">
-              No more posts to load
+              {tc('noMore')}
             </p>
           )}
         </div>

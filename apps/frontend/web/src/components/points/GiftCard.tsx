@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -8,21 +9,6 @@ import { cn } from '@/lib/utils';
 import type { Gift } from '@/types/points/points';
 import { formatPointsDate } from './points-utils';
 import { usePointsStore } from '@/lib/const-data';
-
-function giftStatusLabel(status: Gift['status'], direction: Gift['direction']) {
-  if (direction === 'sent' && status === 'available') {
-    return 'Sent';
-  }
-
-  switch (status) {
-    case 'available':
-      return 'Available';
-    case 'claimed':
-      return 'Claimed';
-    case 'expired':
-      return 'Expired';
-  }
-}
 
 function giftStatusStyles(status: Gift['status']) {
   switch (status) {
@@ -41,17 +27,18 @@ type Props = {
 };
 
 export default function GiftCard({ gift, showClaimAction = false }: Props) {
+  const t = useTranslations('points');
   const claimGift = usePointsStore((state) => state.claimGift);
 
   function handleClaim() {
     const result = claimGift(gift.id);
 
     if (!result.success) {
-      toast.error(result.error ?? 'Failed to claim gift');
+      toast.error(result.error ?? t('giftClaimFailed'));
       return;
     }
 
-    toast.success('Gift claimed! Added to your active redeems.');
+    toast.success(t('giftClaimed'));
   }
 
   const counterparty =
@@ -71,11 +58,11 @@ export default function GiftCard({ gift, showClaimAction = false }: Props) {
                 giftStatusStyles(gift.status),
               )}
             >
-              {giftStatusLabel(gift.status, gift.direction)}
+              {gift.direction === 'sent' && gift.status === 'available' ? t('sent') : t(gift.status)}
             </span>
           </div>
           <p className="text-sm text-muted-foreground">
-            {gift.direction === 'received' ? 'From' : 'To'} {counterparty}
+            {gift.direction === 'received' ? t('from') : t('to')} {counterparty}
           </p>
           {gift.message && (
             <p className="text-sm italic text-muted-foreground">
@@ -83,19 +70,19 @@ export default function GiftCard({ gift, showClaimAction = false }: Props) {
             </p>
           )}
           <p className="text-xs text-muted-foreground">
-            {formatPointsDate(gift.createdAt)} · Expires{' '}
+            {formatPointsDate(gift.createdAt)} · {t('expires')}{' '}
             {formatPointsDate(gift.expiresAt)}
           </p>
           {gift.pointsCost > 0 && gift.direction === 'sent' && (
             <p className="text-xs text-muted-foreground">
-              {gift.pointsCost.toLocaleString()} points spent
+              {gift.pointsCost.toLocaleString()} {t('pointsSpent')}
             </p>
           )}
         </div>
 
         {showClaimAction && gift.status === 'available' && (
           <Button size="sm" onClick={handleClaim}>
-            Claim gift
+            {t('claimGift')}
           </Button>
         )}
       </CardContent>

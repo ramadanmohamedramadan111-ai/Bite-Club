@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { Gift, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
@@ -17,6 +18,7 @@ type Props = {
 };
 
 export default function RewardOfferCard({ offer }: Props) {
+  const t = useTranslations('points');
   const pointsBalance = usePointsStore((state) => state.pointsBalance);
   const redeemOffer = usePointsStore((state) => state.redeemOffer);
   const [redeemOpen, setRedeemOpen] = useState(false);
@@ -28,11 +30,11 @@ export default function RewardOfferCard({ offer }: Props) {
     const result = redeemOffer(offer.id);
 
     if (!result.success) {
-      toast.error(result.error ?? 'Failed to redeem offer');
+      toast.error(result.error ?? t('redeemedFailed'));
       return;
     }
 
-    toast.success('Offer redeemed! Check your active redeems.');
+    toast.success(t('redeemedSuccess'));
     setRedeemOpen(false);
   }
 
@@ -59,7 +61,7 @@ export default function RewardOfferCard({ offer }: Props) {
           </div>
           <p className="flex items-center gap-1 text-sm font-medium">
             <Sparkles className="h-4 w-4 text-primary" />
-            {offer.pointsCost.toLocaleString()} points
+            {offer.pointsCost.toLocaleString()} {t('points')}
           </p>
           <div className="flex gap-2">
             <Button
@@ -68,7 +70,7 @@ export default function RewardOfferCard({ offer }: Props) {
               disabled={!canAfford}
               onClick={() => setRedeemOpen(true)}
             >
-              Redeem
+              {t('redeem')}
             </Button>
             <Button
               size="sm"
@@ -78,7 +80,7 @@ export default function RewardOfferCard({ offer }: Props) {
               onClick={() => setGiftOpen(true)}
             >
               <Gift className="mr-1.5 h-4 w-4" />
-              Send gift
+              {t('sendGift')}
             </Button>
           </div>
         </CardContent>
@@ -87,9 +89,9 @@ export default function RewardOfferCard({ offer }: Props) {
       <ConfirmDialog
         open={redeemOpen}
         onOpenChange={setRedeemOpen}
-        title="Redeem this offer?"
-        description={`This will spend ${offer.pointsCost.toLocaleString()} points to redeem "${offer.title}".`}
-        confirmText="Redeem"
+        title={t('redeemTitle')}
+        description={t('redeemDesc', { points: offer.pointsCost.toLocaleString(), title: offer.title })}
+        confirmText={t('redeemConfirm')}
         onConfirm={handleRedeem}
       />
 

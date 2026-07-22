@@ -1,4 +1,5 @@
 'use client';
+import { useTranslations } from 'next-intl';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { useSearchParams } from 'next/navigation';
@@ -10,6 +11,7 @@ export default function FriendsTabsNavigation({
 }: {
   tab: FriendsTabType;
 }) {
+  const t = useTranslations('friends');
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -31,10 +33,10 @@ export default function FriendsTabsNavigation({
           grid-cols-2
           lg:grid-cols-4
         ">
-        <TabsTrigger value="friends">Friends</TabsTrigger>
-        <TabsTrigger value="received">Received Requests</TabsTrigger>
-        <TabsTrigger value="sent">Sent Requests</TabsTrigger>
-        <TabsTrigger value="discover">Discover Users</TabsTrigger>
+        <TabsTrigger value="friends">{t('friends')}</TabsTrigger>
+        <TabsTrigger value="received">{t('receivedRequests')}</TabsTrigger>
+        <TabsTrigger value="sent">{t('sentRequests')}</TabsTrigger>
+        <TabsTrigger value="discover">{t('discover')}</TabsTrigger>
       </TabsList>
     </Tabs>
   );

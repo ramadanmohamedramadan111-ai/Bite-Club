@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import ConfirmDialog from '@/components/shared/ConfirmationDialog';
 
 type Props = {
@@ -19,6 +20,8 @@ export default function CartConflictDialog({
   onConfirm,
   onCancel,
 }: Props) {
+  const t = useTranslations('groups');
+
   function handleOpenChange(nextOpen: boolean) {
     if (!nextOpen) {
       onCancel();
@@ -31,13 +34,13 @@ export default function CartConflictDialog({
     <ConfirmDialog
       open={open}
       onOpenChange={handleOpenChange}
-      title="Replace your current cart?"
+      title={t('replaceCartTitle')}
       description={
         currentRestaurantName
-          ? `You have an active cart from ${currentRestaurantName}. Switch to the group order at ${newRestaurantName}? Your current cart will be cleared.`
-          : `You have an active cart. Switch to the group order at ${newRestaurantName}? Your current cart will be cleared.`
+          ? t('replaceCartDescGroup', { current: currentRestaurantName, new: newRestaurantName })
+          : t('replaceCartDescGeneric', { new: newRestaurantName })
       }
-      confirmText="Switch to group order"
+      confirmText={t('switchToGroupOrder')}
       onConfirm={onConfirm}
     />
   );

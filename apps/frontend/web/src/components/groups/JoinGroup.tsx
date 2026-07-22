@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { useAction } from 'next-safe-action/hooks';
 import { toast } from 'sonner';
@@ -13,6 +14,8 @@ type Props = {
 export default function JoinGroup({ token }: Props) {
   const router = useRouter();
 
+  const t = useTranslations('groups');
+  const tc = useTranslations('common');
   const { execute, isExecuting } = useAction(joinGroupByLinkAction, {
     onSuccess: ({ data }) => {
       toast.success(data.message);
@@ -29,13 +32,13 @@ export default function JoinGroup({ token }: Props) {
         variant="outline"
         onClick={() => router.back()}
         disabled={isExecuting}>
-        Cancel
+        {tc('cancel')}
       </Button>
 
       <Button
         onClick={() => execute({ invite_token: token })}
         disabled={isExecuting}>
-        Accept Invitation
+        {t('acceptInvitation')}
       </Button>
     </div>
   );

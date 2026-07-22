@@ -1,3 +1,6 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { ExternalLink } from 'lucide-react';
 import type {
@@ -36,6 +39,7 @@ export default function RestaurantMenuView({
   showScannedMenu = true,
   orderingContext = 'restaurant',
 }: Props) {
+  const t = useTranslations('restaurants');
   const normalizedItems = normalizeMenuItems(items);
   const scannedMenu = restaurant.scanned_menu || null;
 
@@ -45,9 +49,9 @@ export default function RestaurantMenuView({
         <div className="overflow-hidden rounded-xl border">
           <div className="flex items-center justify-between gap-3 border-b px-4 py-3">
             <div>
-              <p className="font-medium">Scanned Menu</p>
+              <p className="font-medium">{t('scannedMenu')}</p>
               <p className="text-sm text-muted-foreground">
-                Tap to view the full menu image
+                {t('tapToViewMenu')}
               </p>
             </div>
             <a
@@ -55,7 +59,7 @@ export default function RestaurantMenuView({
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
-              Open
+              {t('open')}
               <ExternalLink className="size-4" />
             </a>
           </div>

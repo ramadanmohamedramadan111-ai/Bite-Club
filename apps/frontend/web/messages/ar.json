@@ -1,249 +1,988 @@
 {
-  "greeting": "Hello",
+  "greeting": "مرحباً",
   "notFound": {
-    "title": "Sorry, we couldn't find the page you're looking for.",
-    "description": "The page may have been moved, deleted, or the URL might be incorrect.",
-    "backToHome": "Go Home",
-    "goBack": "Go Back"
+    "title": "عذراً، لم نتمكن من العثور على الصفحة التي تبحث عنها.",
+    "description": "ربما تم نقل الصفحة أو حذفها أو أن الرابط غير صحيح.",
+    "backToHome": "العودة إلى الرئيسية",
+    "goBack": "العودة للخلف"
+  },
+  "common": {
+    "cancel": "إلغاء",
+    "save": "حفظ التغييرات",
+    "saving": "جاري الحفظ...",
+    "loading": "جاري التحميل...",
+    "noMore": "لا يوجد المزيد من المنشورات",
+    "posts": "المنشورات",
+    "friends": "الأصدقاء",
+    "from": "من",
+    "add": "إضافة",
+    "pending": "قيد المراجعة",
+    "failedToLoad": "فشل تحميل الملف الشخصي",
+    "backToOrders": "العودة إلى الطلبات",
+    "orderNotFound": "الطلب غير موجود",
+    "subtotal": "المجموع الفرعي",
+    "deliveryFee": "رسوم التوصيل",
+    "serviceFee": "رسوم الخدمة",
+    "total": "الإجمالي",
+    "restaurant": "المطعم",
+    "payment": "الدفع",
+    "tracking": "التتبع",
+    "visaCard": "فيزا / بطاقة",
+    "cashOnDelivery": "الدفع عند الاستلام",
+    "viewDetails": "عرض التفاصيل",
+    "search": "بحث...",
+    "noUsersFound": "لم يتم العثور على مستخدمين",
+    "yourCart": "سلة التسوق",
+    "yourCartIsEmpty": "سلة التسوق فارغة",
+    "clearCart": "تفريغ السلة",
+    "clearCartTitle": "تفريغ السلة؟",
+    "clearCartDescription": "سيؤدي هذا إلى إزالة جميع العناصر من سلة التسوق. لا يمكن التراجع عن هذا الإجراء.",
+    "remove": "إزالة",
+    "note": "ملاحظة:",
+    "individualOrder": "طلب فردي",
+    "egp": "ج.م",
+    "orderSummary": "ملخص الطلب",
+    "browseRestaurants": "تصفح المطاعم",
+    "browseRestaurantsDesc": "تصفح المطاعم وأضف عناصر للبدء.",
+    "changePhoto": "تغيير الصورة",
+    "profilePhoto": "صورة الملف الشخصي",
+    "firstName": "الاسم الأول",
+    "firstNamePlaceholder": "الاسم الأول",
+    "lastName": "اسم العائلة",
+    "lastNamePlaceholder": "اسم العائلة",
+    "username": "اسم المستخدم",
+    "usernamePlaceholder": "اسم المستخدم",
+    "firstLetter": "أ",
+    "loadingOrders": "جاري تحميل الطلبات...",
+    "noActiveOrders": "لا توجد طلبات نشطة",
+    "noActiveOrdersDesc": "ليس لديك أي طلبات نشطة حالياً.",
+    "noPastOrders": "لا توجد طلبات سابقة",
+    "noPastOrdersDesc": "ستظهر طلباتك السابقة هنا.",
+    "activeOrder": "طلب نشط",
+    "activeOrders": "طلبات نشطة",
+    "pastOrder": "طلب سابق",
+    "pastOrders": "طلبات سابقة",
+    "failedToLike": "فشل الإعجاب بالمنشور.",
+    "failedToUnlike": "فشل إلغاء الإعجاب بالمنشور.",
+    "notification": "إشعار",
+    "notifications": "الإشعارات",
+    "markAllAsRead": "تحديد الكل كمقروء",
+    "showAll": "عرض الكل",
+    "noNotifications": "لا توجد إشعارات بعد",
+    "points": "نقطة",
+    "pts": "نقطة",
+    "copies": "نسخة",
+    "sharedMeals": "الوجبات المشاركة",
+    "loadingPosts": "جاري تحميل المنشورات...",
+    "noPostsYet": "لا توجد منشورات بعد",
+    "noPostsFeed": "لم يتم العثور على منشورات في التغذية.",
+    "shareFirstMeal": "شارك وجبتك الأولى",
+    "reachedEndOfFeed": "لقد وصلت إلى نهاية التغذية",
+    "copySuccess": "تم نسخ الطلب إلى سلة التسوق بنجاح!",
+    "copyFailed": "فشل نسخ الطلب.",
+    "tax": "الضريبة",
+    "discount": "الخصم",
+    "byMember": "بواسطة عضو",
+    "addedBy": "أضيف بواسطة {name}",
+    "clone": "نسخ",
+    "clonedOrder": "تم نسخ طلب {name}",
+    "you": "(أنت)",
+    "cartWithItems": "السلة تحتوي على {count} عنصر",
+    "previous": "السابق",
+    "next": "التالي",
+    "morePages": "المزيد من الصفحات",
+    "pageOf": "الصفحة {current} من {total}",
+    "proceedToCheckout": "المتابعة إلى الدفع",
+    "youreReady": "أنت مستعد!",
+    "imReady": "أنا مستعد",
+    "waitingForHost": "أنت مستعد! في انتظار المضيف لإتمام الدفع.",
+    "close": "إغلاق"
   },
   "forms": {
     "login": {
-      "title": "Welcome back",
-      "subtitle": "Sign in to your account",
+      "title": "مرحباً بعودتك",
+      "subtitle": "تسجيل الدخول إلى حسابك",
       "forgotPasswordLink": {
-        "text": "Forgot your password?",
+        "text": "نسيت كلمة المرور؟",
         "href": "/forget-password"
       },
       "fields": {
         "email": {
-          "label": "Email",
-          "placeholder": "Enter your email",
+          "label": "البريد الإلكتروني",
+          "placeholder": "أدخل بريدك الإلكتروني",
           "errors": {
-            "required": "Email is required",
-            "invalid": "Please enter a valid email address"
+            "required": "البريد الإلكتروني مطلوب",
+            "invalid": "يرجى إدخال بريد إلكتروني صالح"
           }
         },
         "password": {
-          "label": "Password",
-          "placeholder": "Enter your password",
+          "label": "كلمة المرور",
+          "placeholder": "أدخل كلمة المرور",
           "errors": {
-            "required": "Password is required",
-            "minLength": "Password must be at least 8 characters"
+            "required": "كلمة المرور مطلوبة",
+            "minLength": "كلمة المرور يجب أن تكون 8 أحرف على الأقل"
           }
         }
       },
       "submitButton": {
-        "text": "Login",
-        "loadingText": "Logging in..."
+        "text": "تسجيل الدخول",
+        "loadingText": "جاري تسجيل الدخول..."
+      },
+      "guestLoginButton": {
+        "text": "المتابعة كضيف"
       },
       "registerLink": {
-        "text": "Don't have an account?",
-        "linkText": "Register",
+        "text": "ليس لديك حساب؟",
+        "linkText": "إنشاء حساب",
         "href": "/register"
       },
-      "success": "Login successful! Redirecting...",
-      "verification": "Your account is not verified. Please check your email for the verification code.",
-      "error": "Invalid credentials, please try again."
+      "success": "تم تسجيل الدخول بنجاح! جاري إعادة التوجيه...",
+      "verification": "حسابك غير مفعل. يرجى التحقق من بريدك الإلكتروني للحصول على رمز التفعيل.",
+      "error": "بيانات الدخول غير صحيحة، يرجى المحاولة مرة أخرى."
     },
     "register": {
-      "title": "Create an account",
-      "subtitle": "Sign up to get started",
+      "title": "إنشاء حساب",
+      "subtitle": "سجل للبدء",
       "fields": {
         "firstName": {
-          "label": "First Name",
-          "placeholder": "Enter your first name",
+          "label": "الاسم الأول",
+          "placeholder": "أدخل اسمك الأول",
           "errors": {
-            "required": "First name is required",
-            "minLength": "First name must be at least 2 characters",
-            "maxLength": "First name must be at most 30 characters"
+            "required": "الاسم الأول مطلوب",
+            "minLength": "الاسم الأول يجب أن يكون حرفين على الأقل",
+            "maxLength": "الاسم الأول يجب أن يكون 30 حرفاً كحد أقصى"
           }
         },
         "lastName": {
-          "label": "Last Name",
-          "placeholder": "Enter your last name",
+          "label": "اسم العائلة",
+          "placeholder": "أدخل اسم العائلة",
           "errors": {
-            "required": "Last name is required",
-            "minLength": "Last name must be at least 2 characters",
-            "maxLength": "Last name must be at most 30 characters"
+            "required": "اسم العائلة مطلوب",
+            "minLength": "اسم العائلة يجب أن يكون حرفين على الأقل",
+            "maxLength": "اسم العائلة يجب أن يكون 30 حرفاً كحد أقصى"
           }
         },
         "username": {
-          "label": "Username",
-          "placeholder": "Enter a username",
+          "label": "اسم المستخدم",
+          "placeholder": "أدخل اسم مستخدم",
           "errors": {
-            "required": "Username is required",
-            "minLength": "Username must be at least 3 characters",
-            "maxLength": "Username must be at most 20 characters",
-            "invalid": "Username can only contain letters, numbers, and underscores"
+            "required": "اسم المستخدم مطلوب",
+            "minLength": "اسم المستخدم يجب أن يكون 3 أحرف على الأقل",
+            "maxLength": "اسم المستخدم يجب أن يكون 20 حرفاً كحد أقصى",
+            "invalid": "يمكن أن يحتوي اسم المستخدم على أحرف وأرقام وشرطة سفلية فقط"
           }
         },
         "email": {
-          "label": "Email",
-          "placeholder": "Enter your email",
+          "label": "البريد الإلكتروني",
+          "placeholder": "أدخل بريدك الإلكتروني",
           "errors": {
-            "required": "Email is required",
-            "invalid": "Please enter a valid email address"
+            "required": "البريد الإلكتروني مطلوب",
+            "invalid": "يرجى إدخال بريد إلكتروني صالح"
           }
         },
         "phoneNumber": {
-          "label": "Phone Number",
-          "placeholder": "Enter your phone number",
+          "label": "رقم الهاتف",
+          "placeholder": "أدخل رقم هاتفك",
           "errors": {
-            "required": "Phone number is required",
-            "invalid": "Please enter a valid phone number"
+            "required": "رقم الهاتف مطلوب",
+            "invalid": "يرجى إدخال رقم هاتف صالح"
           }
         },
         "password": {
-          "label": "Password",
-          "placeholder": "Enter your password",
+          "label": "كلمة المرور",
+          "placeholder": "أدخل كلمة المرور",
           "errors": {
-            "required": "Password is required",
-            "minLength": "Password must be at least 8 characters"
+            "required": "كلمة المرور مطلوبة",
+            "minLength": "كلمة المرور يجب أن تكون 8 أحرف على الأقل"
           }
         },
         "confirmPassword": {
-          "label": "Confirm Password",
-          "placeholder": "Confirm your password",
+          "label": "تأكيد كلمة المرور",
+          "placeholder": "تأكيد كلمة المرور",
           "errors": {
-            "required": "Please confirm your password",
-            "mismatch": "Passwords do not match"
+            "required": "يرجى تأكيد كلمة المرور",
+            "mismatch": "كلمة المرور غير متطابقة"
           }
         },
         "gender": {
-          "label": "Choose your gender",
-          "placeholder": "Select your gender",
+          "label": "اختر جنسك",
+          "placeholder": "اختر جنسك",
           "options": {
-            "male": "Male",
-            "female": "Female"
+            "male": "ذكر",
+            "female": "أنثى"
           },
           "errors": {
-            "required": "Please select your gender"
+            "required": "يرجى اختيار جنسك"
           }
         },
         "dateOfBirth": {
-          "label": "Date of Birth",
-          "placeholder": "Select your date of birth",
+          "label": "تاريخ الميلاد",
+          "placeholder": "اختر تاريخ ميلادك",
           "errors": {
-            "required": "Date of birth is required"
+            "required": "تاريخ الميلاد مطلوب"
           }
         }
       },
       "submitButton": {
-        "text": "Create Account",
-        "loadingText": "Creating Account..."
+        "text": "إنشاء حساب",
+        "loadingText": "جاري إنشاء الحساب..."
       },
       "loginLink": {
-        "text": "Already have an account?",
-        "linkText": "Login",
+        "text": "لديك حساب بالفعل؟",
+        "linkText": "تسجيل الدخول",
         "href": "/login"
       },
-      "success": "Registration successful! Please check your email to verify your account.",
-      "error": "Registration failed. Please try again."
+      "success": "تم التسجيل بنجاح! يرجى التحقق من بريدك الإلكتروني لتفعيل حسابك.",
+      "error": "فشل التسجيل. يرجى المحاولة مرة أخرى."
     },
     "verify": {
-      "title": "Verify your account",
-      "title2": "Reset your password",
-      "subtitle": "Enter the verification code sent to your email",
+      "title": "تفعيل حسابك",
+      "title2": "إعادة تعيين كلمة المرور",
+      "subtitle": "أدخل رمز التفعيل المرسل إلى بريدك الإلكتروني",
       "fields": {
         "verificationCode": {
-          "label": "Verification Code",
-          "placeholder": "Enter the code",
+          "label": "رمز التفعيل",
+          "placeholder": "أدخل الرمز",
           "errors": {
-            "required": "Verification code is required",
-            "invalid": "Please enter a valid verification code"
+            "required": "رمز التفعيل مطلوب",
+            "invalid": "يرجى إدخال رمز تفعيل صالح"
           }
         }
       },
       "submitButton": {
-        "text": "Verify",
-        "loadingText": "Verifying..."
+        "text": "تفعيل",
+        "loadingText": "جاري التفعيل..."
       },
       "resendLink": {
-        "text": "Didn't receive the code?",
-        "loadingText": "Resending...",
-        "linkText": "Resend Code",
+        "text": "لم تستلم الرمز؟",
+        "loadingText": "جاري إعادة الإرسال...",
+        "linkText": "إعادة إرسال الرمز",
         "href": "/resend-verification"
       },
-      "success": "Verification successful! Redirecting...",
-      "reset": "Verification successful, you can now reset your password.",
-      "error": "Invalid verification code, please try again.",
-      "resendSuccess": "Verification code resent! Please check your email.",
-      "resendError": "Failed to resend verification code. Please try again."
+      "success": "تم التفعيل بنجاح! جاري إعادة التوجيه...",
+      "reset": "تم التفعيل بنجاح، يمكنك الآن إعادة تعيين كلمة المرور الخاصة بك.",
+      "error": "رمز التفعيل غير صحيح، يرجى المحاولة مرة أخرى.",
+      "resendSuccess": "تم إعادة إرسال رمز التفعيل! يرجى التحقق من بريدك الإلكتروني.",
+      "resendError": "فشل إعادة إرسال رمز التفعيل. يرجى المحاولة مرة أخرى."
     },
     "forgetPassword": {
-      "title": "Forgot your password?",
-      "subtitle": "Enter your email to reset your password",
+      "title": "نسيت كلمة المرور؟",
+      "subtitle": "أدخل بريدك الإلكتروني لإعادة تعيين كلمة المرور",
       "fields": {
         "email": {
-          "label": "Email",
-          "placeholder": "Enter your email",
+          "label": "البريد الإلكتروني",
+          "placeholder": "أدخل بريدك الإلكتروني",
           "errors": {
-            "required": "Email is required",
-            "invalid": "Please enter a valid email address"
+            "required": "البريد الإلكتروني مطلوب",
+            "invalid": "يرجى إدخال بريد إلكتروني صالح"
           }
         }
       },
       "submitButton": {
-        "text": "Send Reset Link",
-        "loadingText": "Sending..."
+        "text": "إرسال رابط إعادة التعيين",
+        "loadingText": "جاري الإرسال..."
       },
       "loginLink": {
-        "text": "Remembered your password?",
-        "linkText": "Login",
+        "text": "تذكرت كلمة المرور؟",
+        "linkText": "تسجيل الدخول",
         "href": "/login"
       },
-      "success": "Password reset otp sent! Please check your email.",
-      "error": "Failed to send reset otp. Please try again."
+      "success": "تم إرسال رمز إعادة تعيين كلمة المرور! يرجى التحقق من بريدك الإلكتروني.",
+      "error": "فشل إرسال رمز إعادة التعيين. يرجى المحاولة مرة أخرى."
     },
     "newPassword": {
-      "title": "Set a new password",
-      "subtitle": "Enter your new password below",
+      "title": "تعيين كلمة مرور جديدة",
+      "subtitle": "أدخل كلمة المرور الجديدة أدناه",
       "fields": {
         "password": {
-          "label": "New Password",
-          "placeholder": "Enter your new password",
+          "label": "كلمة المرور الجديدة",
+          "placeholder": "أدخل كلمة المرور الجديدة",
           "errors": {
-            "required": "New password is required",
-            "minLength": "Password must be at least 8 characters"
+            "required": "كلمة المرور الجديدة مطلوبة",
+            "minLength": "كلمة المرور يجب أن تكون 8 أحرف على الأقل"
           }
         },
         "confirmPassword": {
-          "label": "Confirm New Password",
-          "placeholder": "Confirm your new password",
+          "label": "تأكيد كلمة المرور الجديدة",
+          "placeholder": "تأكيد كلمة المرور الجديدة",
           "errors": {
-            "required": "Please confirm your new password",
-            "mismatch": "Passwords do not match"
+            "required": "يرجى تأكيد كلمة المرور الجديدة",
+            "mismatch": "كلمة المرور غير متطابقة"
           }
         }
       },
       "submitButton": {
-        "text": "Reset Password",
-        "loadingText": "Resetting..."
+        "text": "إعادة تعيين كلمة المرور",
+        "loadingText": "جاري إعادة التعيين..."
       },
       "loginLink": {
-        "text": "Remembered your password?",
-        "linkText": "Login",
+        "text": "تذكرت كلمة المرور؟",
+        "linkText": "تسجيل الدخول",
         "href": "/login"
       },
-      "success": "Password reset successful! You can now log in with your new password.",
-      "error": "Failed to reset password. Please try again."
+      "success": "تم إعادة تعيين كلمة المرور بنجاح! يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة.",
+      "error": "فشل إعادة تعيين كلمة المرور. يرجى المحاولة مرة أخرى."
+    },
+    "registerRestaurant": {
+      "title": "تسجيل مطعمك",
+      "subtitle": "املأ التفاصيل لإنشاء حساب مطعمك",
+      "fields": {
+        "name": {
+          "label": "اسم المطعم",
+          "placeholder": "أدخل اسم المطعم",
+          "errors": {
+            "required": "اسم المطعم مطلوب",
+            "minLength": "اسم المطعم يجب أن يكون حرفين على الأقل"
+          }
+        },
+        "email": {
+          "label": "البريد الإلكتروني",
+          "placeholder": "أدخل بريدك الإلكتروني",
+          "errors": {
+            "required": "البريد الإلكتروني مطلوب",
+            "invalid": "يرجى إدخال بريد إلكتروني صالح"
+          }
+        },
+        "phoneNumber": {
+          "label": "رقم الهاتف",
+          "placeholder": "أدخل رقم هاتفك",
+          "errors": {
+            "required": "رقم الهاتف مطلوب",
+            "invalid": "يرجى إدخال رقم هاتف صالح"
+          }
+        },
+        "password": {
+          "label": "كلمة المرور",
+          "placeholder": "أدخل كلمة المرور",
+          "errors": {
+            "required": "كلمة المرور مطلوبة",
+            "minLength": "كلمة المرور يجب أن تكون 8 أحرف على الأقل"
+          }
+        },
+        "confirmPassword": {
+          "label": "تأكيد كلمة المرور",
+          "placeholder": "تأكيد كلمة المرور",
+          "errors": {
+            "required": "يرجى تأكيد كلمة المرور",
+            "mismatch": "كلمة المرور غير متطابقة"
+          }
+        },
+        "category": {
+          "label": "تصنيف المطعم",
+          "placeholder": "اختر تصنيف مطعمك",
+          "errors": {
+            "required": "يرجى اختيار تصنيف المطعم"
+          }
+        },
+        "description": {
+          "label": "الوصف",
+          "placeholder": "أدخل وصفاً موجزاً لمطعمك",
+          "errors": {
+            "required": "الوصف مطلوب",
+            "minLength": "الوصف يجب أن يكون 10 أحرف على الأقل"
+          }
+        },
+        "address": {
+          "label": "العنوان",
+          "placeholder": "أدخل عنوان مطعمك",
+          "errors": {
+            "required": "العنوان مطلوب",
+            "minLength": "العنوان يجب أن يكون 5 أحرف على الأقل"
+          }
+        }
+      },
+      "submitButton": {
+        "text": "تسجيل المطعم",
+        "loadingText": "جاري التسجيل..."
+      },
+      "loginLink": {
+        "text": "لديك حساب مطعم بالفعل؟",
+        "linkText": "تسجيل الدخول",
+        "href": "/login?type=restaurant"
+      }
+    },
+    "loginRestaurant": {
+      "title": "تسجيل دخول المطعم",
+      "subtitle": "تسجيل الدخول إلى حساب مطعمك",
+      "dashboardLink": {
+        "text": "تسجيل الدخول كمطعم"
+      },
+      "registerLink": {
+        "text": "تسجيل كمطعم"
+      },
+      "success": "تم تسجيل الدخول بنجاح! جاري إعادة التوجيه...",
+      "error": "بيانات الدخول غير صحيحة، يرجى المحاولة مرة أخرى."
+    },
+    "createGroup": {
+      "trigger": "إنشاء مجموعة",
+      "title": "إنشاء مجموعة",
+      "subtitle": "أنشئ مجموعة جديدة للطلب مع الأصدقاء.",
+      "fields": {
+        "name": {
+          "label": "اسم المجموعة",
+          "placeholder": "أدخل اسم المجموعة",
+          "errors": {
+            "required": "اسم المجموعة مطلوب",
+            "minLength": "اسم المجموعة يجب أن يكون حرفين على الأقل"
+          }
+        },
+        "description": {
+          "label": "وصف المجموعة",
+          "placeholder": "أدخل وصف المجموعة",
+          "errors": {
+            "required": "وصف المجموعة مطلوب",
+            "minLength": "وصف المجموعة يجب أن يكون حرفين على الأقل"
+          }
+        },
+        "image": {
+          "label": "صورة المجموعة",
+          "placeholder": "أدخل صورة المجموعة",
+          "errors": {
+            "required": "الصورة مطلوبة",
+            "invalid": "الملف المختار يجب أن يكون صورة",
+            "maxSize": "الصورة يجب أن تكون بحد أقصى 5 ميغابايت"
+          }
+        }
+      },
+      "submitButton": {
+        "text": "إنشاء",
+        "loadingText": "جاري الإنشاء..."
+      },
+      "updateButton": {
+        "text": "تحديث",
+        "loadingText": "جاري التحديث..."
+      },
+      "cancel": "إلغاء",
+      "reset": "إعادة تعيين"
+    },
+    "createPost": {
+      "fields": {
+        "caption": {
+          "label": "التعليق",
+          "placeholder": "أدخل تعليقاً",
+          "errors": {
+            "maxLength": "يجب ألا يتجاوز التعليق 1000 حرف",
+            "minLength": "التعليق يجب أن يكون حرفين على الأقل"
+          }
+        },
+        "image": {
+          "label": "الصور",
+          "errors": {
+            "invalid": "الملف ليس صورة صالحة",
+            "invalidType": "نوع الصورة غير صالح",
+            "maxSize": "الصورة يجب أن تكون بحد أقصى 5 ميغابايت",
+            "minLength": "يجب أن يكون هناك صورة واحدة على الأقل",
+            "maxLength": "يجب ألا يتجاوز عدد الصور 10 صور"
+          }
+        }
+      }
+    },
+    "editUser": {
+      "fields": {
+        "firstName": {
+          "label": "الاسم الأول",
+          "placeholder": "أدخل اسمك الأول",
+          "errors": {
+            "required": "الاسم الأول مطلوب",
+            "minLength": "الاسم الأول يجب أن يكون حرفين على الأقل",
+            "maxLength": "الاسم الأول يجب أن يكون 30 حرفاً كحد أقصى"
+          }
+        },
+        "lastName": {
+          "label": "اسم العائلة",
+          "placeholder": "أدخل اسم العائلة",
+          "errors": {
+            "required": "اسم العائلة مطلوب",
+            "minLength": "اسم العائلة يجب أن يكون حرفين على الأقل",
+            "maxLength": "اسم العائلة يجب أن يكون 30 حرفاً كحد أقصى"
+          }
+        },
+        "username": {
+          "label": "اسم المستخدم",
+          "placeholder": "أدخل اسم مستخدم",
+          "errors": {
+            "required": "اسم المستخدم مطلوب",
+            "minLength": "اسم المستخدم يجب أن يكون 3 أحرف على الأقل",
+            "maxLength": "اسم المستخدم يجب أن يكون 20 حرفاً كحد أقصى",
+            "invalid": "يمكن أن يحتوي اسم المستخدم على أحرف وأرقام وشرطة سفلية فقط"
+          }
+        },
+        "image": {
+          "label": "صورة الملف الشخصي",
+          "errors": {
+            "invalid": "الملف ليس صورة صالحة",
+            "invalidType": "نوع الصورة غير صالح",
+            "maxSize": "الصورة يجب أن تكون بحد أقصى 5 ميغابايت",
+            "minLength": "يجب أن يكون هناك صورة واحدة على الأقل",
+            "maxLength": "يجب ألا يتجاوز عدد الصور 10 صور"
+          }
+        }
+      }
     }
   },
   "sidebar": {
-    "home": "Home",
-    "restaurants": "Restaurants",
-    "orders": "Orders",
-    "points": "Points",
-    "gifts": "Gifts",
-    "groups": "Groups",
-    "profile": "Profile",
-    "friends": "Friends",
-    "feed": "Feed",
-    "favorites": "Favorites",
-    "settings": "Settings",
-    "notifications": "Notifications",
-    "cart": "Cart",
-    "logout": "Logout"
+    "home": "الرئيسية",
+    "restaurants": "المطاعم",
+    "orders": "الطلبات",
+    "points": "النقاط",
+    "gifts": "الهدايا",
+    "groups": "المجموعات",
+    "profile": "الملف الشخصي",
+    "friends": "الأصدقاء",
+    "feed": "التغذية",
+    "favorites": "المفضلة",
+    "settings": "الإعدادات",
+    "notifications": "الإشعارات",
+    "cart": "السلة",
+    "logout": "تسجيل الخروج"
+  },
+  "errors": {
+    "serverUnavailable": "الخادم غير متاح. يرجى المحاولة مرة أخرى لاحقاً.",
+    "requestFailed": "فشل الطلب. يرجى المحاولة مرة أخرى.",
+    "somethingWentWrong": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+    "tryAgain": "يرجى المحاولة مرة أخرى.",
+    "tryAgainButton": "حاول مرة أخرى",
+    "goHome": "العودة إلى الرئيسية"
+  },
+  "profile": {
+    "title": "الملف الشخصي",
+    "subtitle": "منشوراتك ونشاطاتك",
+    "postsCount": "المنشورات",
+    "friendsCount": "الأصدقاء",
+    "myPosts": "منشوراتي",
+    "myPostsDesc": "الوجبات والطلبات التي شاركتها"
+  },
+  "editProfile": {
+    "title": "تعديل الملف الشخصي",
+    "subtitle": "تحديث معلوماتك الشخصية"
+  },
+  "orders": {
+    "title": "الطلبات",
+    "subtitle": "تتبع طلباتك السابقة والحالية، وأعد طلب مفضلاتك."
+  },
+  "orderDetail": {
+    "orderNumber": "طلب #{id}",
+    "orderSummary": "ملخص الطلب",
+    "restaurant": "المطعم",
+    "payment": "الدفع",
+    "tracking": "التتبع"
+  },
+  "orderStatus": {
+    "pending": "قيد الانتظار",
+    "active": "نشط",
+    "preparing": "قيد التحضير",
+    "ready": "جاهز",
+    "outForDelivery": "في طريق التوصيل",
+    "completed": "مكتمل",
+    "cancelled": "ملغي"
+  },
+  "createPost": {
+    "title": "إنشاء منشور",
+    "subtitle": "شارك وجبة من طلباتك السابقة",
+    "selectOrder": "اختر طلباً سابقاً",
+    "noOrders": "ليس لديك أي طلبات مكتملة بعد.",
+    "postImages": "صور المنشور",
+    "addImages": "إضافة صور",
+    "postImageAlt": "صورة المنشور {index}",
+    "addMore": "إضافة المزيد",
+    "uploadImages": "تحميل صور المنشور",
+    "selectMultiple": "يمكنك اختيار عدة صور",
+    "caption": "التعليق",
+    "captionPlaceholder": "شارك أفكارك حول هذه الوجبة...",
+    "charCount": "{count}/500 حرف",
+    "cancel": "إلغاء",
+    "share": "نشر",
+    "sharing": "جاري النشر..."
+  },
+  "postCard": {
+    "pending": "قيد المراجعة",
+    "from": "من",
+    "add": "إضافة"
+  },
+  "userPosts": {
+    "noPosts": "لا توجد منشورات بعد"
+  },
+  "feed": {
+    "activityFeed": "التغذية النشطة",
+    "activityFeedDesc": "شاهد ما يطلبه أصدقاؤك وشارك وجباتك.",
+    "following": "المتابعون",
+    "global": "عام",
+    "noPosts": "لا توجد منشورات بعد. تابع أصدقاءك لترى منشوراتهم!",
+    "socialFeed": "التغذية الاجتماعية",
+    "socialFeedDesc": "استكشف الطلبات، وانسخ الوجبات إلى سلتك، وشاهد أبطال الأسبوع.",
+    "createPost": "إنشاء منشور",
+    "postsFeed": "تغذية المنشورات",
+    "leaderboard": "المتصدرون",
+    "noLeaderboard": "لم يتم العثور على إدخالات للمتصدرين هذا الأسبوع.",
+    "leaderboardLoading": "جاري تحميل ترتيب المتصدرين..."
+  },
+  "friends": {
+    "friends": "الأصدقاء",
+    "receivedRequests": "طلبات الصداقة الواردة",
+    "sentRequests": "طلبات الصداقة المرسلة",
+    "discover": "اكتشف المستخدمين",
+    "removeFriendTitle": "إزالة صديق؟",
+    "removeFriendDesc": "هل أنت متأكد من رغبتك في إزالة {name} من أصدقائك؟",
+    "removeFriendConfirm": "إزالة",
+    "cancelRequestTitle": "إلغاء الطلب؟",
+    "cancelRequestDesc": "هل أنت متأكد من رغبتك في إلغاء طلبك إلى {name}؟",
+    "cancelRequestConfirm": "إلغاء الطلب",
+    "unfollowTitle": "إلغاء متابعة المستخدم؟",
+    "unfollowDesc": "هل أنت متأكد من رغبتك في إلغاء متابعة {name}؟",
+    "unfollowConfirm": "إلغاء المتابعة",
+    "unblockTitle": "إلغاء حظر المستخدم؟",
+    "unblockDesc": "هل أنت متأكد من رغبتك في إلغاء حظر {name}؟",
+    "unblockConfirm": "إلغاء الحظر",
+    "blockTitle": "حظر المستخدم؟",
+    "blockDesc": "هل أنت متأكد من رغبتك في حظر {name}؟",
+    "blockConfirm": "حظر",
+    "removeFriend": "إزالة الصديق",
+    "accept": "قبول",
+    "reject": "رفض",
+    "cancelRequest": "إلغاء الطلب",
+    "addFriend": "إضافة صديق"
+  },
+  "home": {
+    "categories": "التصنيفات",
+    "categoriesDesc": "استكشف الطعام حسب ما ترغب به",
+    "topRestaurants": "أفضل المطاعم",
+    "topRestaurantsDesc": "أعلى التقييمات بالقرب منك",
+    "topRestaurantsNear": "أفضل المطاعم القريبة",
+    "topRestaurantsNearDesc": "أفضل المطاعم المختارة بالقرب منك",
+    "viewAll": "عرض جميع المطاعم"
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "subtitle": "ابق على اطلاع على الطلبات والأصدقاء والمكافآت.",
+    "markAllAsRead": "تحديد الكل كمقروء",
+    "markAsRead": "تحديد كمقروء",
+    "noNotifications": "لا توجد إشعارات بعد"
+  },
+  "points": {
+    "title": "النقاط والمكافآت",
+    "subtitle": "اكسب النقاط، واستبدلها بالعروض، وأرسل الهدايا للأصدقاء.",
+    "rewardsGifts": "المكافآت والهدايا",
+    "rewardsGiftsDesc": "استبدل النقاط لنفسك أو أرسل عرضاً كهدية.",
+    "activeRedeems": "الاستبدالات النشطة",
+    "noActiveRedeems": "لا توجد استبدالات نشطة",
+    "redeemHistory": "سجل الاستبدال",
+    "noRedeemHistory": "لا يوجد سجل استبدال بعد",
+    "myGifts": "هداياي",
+    "myGiftsDesc": "الهدايا التي تلقيتها ولا يزال بإمكانك المطالبة بها.",
+    "noGiftsToClaim": "لا توجد هدايا للمطالبة بها",
+    "giftHistory": "سجل الهدايا",
+    "noGiftsHistory": "لم يتم العثور على هدايا",
+    "pointsBalance": "رصيد النقاط الخاص بك",
+    "points": "نقاط",
+    "active": "نشط",
+    "used": "مستخدم",
+    "all": "الكل",
+    "activeOffer": "عرض نشط",
+    "activeOffers": "عروض نشطة",
+    "redeemCount": "استبدال",
+    "redeemCounts": "استبدالات",
+    "giftItem": "هدية",
+    "giftItems": "هدايا",
+    "code": "الكود:",
+    "redeemed": "تم الاستبدال",
+    "expires": "تنتهي",
+    "pointsSpent": "نقطة تم إنفاقها",
+    "markAsUsed": "تحديد كمستخدم",
+    "redeem": "استبدال",
+    "sendGift": "إرسال هدية",
+    "redeemTitle": "استبدال هذا العرض؟",
+    "redeemDesc": "سيؤدي هذا إلى إنفاق {points} نقطة لاستبدال \"{title}\".",
+    "redeemConfirm": "استبدال",
+    "sent": "مرسل",
+    "available": "متاح",
+    "claimed": "تمت المطالبة",
+    "expired": "منتهي",
+    "claimGift": "المطالبة بالهدية",
+    "from": "من",
+    "to": "إلى",
+    "sendGiftTitle": "إرسال هدية",
+    "sendGiftDesc": "أرسل \"{title}\" ({points} نقطة) إلى صديق.",
+    "usernameLabel": "اسم المستخدم",
+    "usernamePlaceholder": "@اسم المستخدم",
+    "messageLabel": "رسالة (اختياري)",
+    "messagePlaceholder": "أضف رسالة شخصية...",
+    "cancel": "إلغاء",
+    "send": "إرسال الهدية",
+    "referrals": "الإحالات",
+    "referralsDesc": "شارك رابطك مع الأصدقاء ليسجلوا.",
+    "referralLink": "رابط الإحالة الخاص بك",
+    "referralInvite": "ادع الأصدقاء للانضمام إلى Bite Club",
+    "copyLink": "نسخ الرابط",
+    "referralCopied": "تم نسخ رابط الإحالة!",
+    "referralCopyFailed": "فشل نسخ الرابط",
+    "redeemedSuccess": "تم استبدال العرض! تحقق من استبدالاتك النشطة.",
+    "redeemedFailed": "فشل استبدال العرض",
+    "redemptionUsed": "تم تحديد الاستبدال كمستخدم",
+    "giftClaimed": "تمت المطالبة بالهدية! تمت إضافتها إلى استبدالاتك النشطة.",
+    "giftClaimFailed": "فشل المطالبة بالهدية",
+    "giftSent": "تم إرسال الهدية إلى @{username}!",
+    "giftSendFailed": "فشل إرسال الهدية",
+    "selfGiftError": "لا يمكنك إرسال هدية لنفسك",
+    "userNotFound": "المستخدم غير موجود",
+    "usernameRequired": "اسم المستخدم مطلوب"
+  },
+  "userProfile": {
+    "title": "المستخدم غير موجود",
+    "posts": "المنشورات",
+    "postsDesc": "الوجبات والطلبات التي شاركها {name}"
+  },
+  "restaurants": {
+    "title": "المطاعم",
+    "subtitle": "اكتشف أفضل المطاعم القريبة منك",
+    "sort": "ترتيب:",
+    "restaurant": "مطعم",
+    "restaurants_plural": "مطاعم",
+    "noRestaurantsFound": "لم يتم العثور على مطاعم",
+    "adjustFilters": "حاول تعديل عوامل التصفية أو مصطلح البحث.",
+    "searchPlaceholder": "ابحث عن مطاعم...",
+    "categories": "التصنيفات",
+    "noCategoriesFound": "لم يتم العثور على تصنيفات",
+    "noMenuItems": "لم يتم العثور على عناصر قائمة",
+    "tryDifferentSearch": "جرب مصطلح بحث مختلف.",
+    "searchMenuItems": "ابحث في عناصر القائمة...",
+    "filters": "عوامل التصفية",
+    "options": "خيارات",
+    "delivery": "توصيل",
+    "pickup": "استلام",
+    "availability": "التوفر",
+    "availableOnly": "متاح فقط",
+    "minimumRating": "الحد الأدنى للتقييم",
+    "clearAll": "مسح الكل",
+    "sortBy": "ترتيب حسب",
+    "rating": "التقييم",
+    "alphabetical": "أبجدي",
+    "menu": "القائمة",
+    "reviews": "التقييمات",
+    "info": "المعلومات",
+    "viewGroupOrder": "عرض طلب المجموعة",
+    "createGroupOrder": "إنشاء طلب مجموعة",
+    "currentlyUnavailable": "غير متاح حالياً",
+    "reviewsCount": "({count} تقييم)",
+    "minimumOrder": "الحد الأدنى للطلب: {amount} ج.م",
+    "scannedMenu": "القائمة الممسوحة",
+    "tapToViewMenu": "اضغط لعرض صورة القائمة كاملة",
+    "open": "فتح",
+    "prepTime": "{time} دقيقة تحضير",
+    "stockLeft": "متبقي {stock}",
+    "specialInstructions": "تعليمات خاصة",
+    "specialInstructionsPlaceholder": "أضف أي تعليمات خاصة...",
+    "addToCart": "أضف إلى السلة · {total} ج.م",
+    "leaveGroupOrderTitle": "مغادرة طلب المجموعة؟",
+    "leaveGroupOrderDesc": "لديك طلب مجموعة نشط لهذا المطعم. إضافة هذا العنصر ستبدأ سلة فردية جديدة وتزيلك من طلب المجموعة.",
+    "orderIndividually": "اطلب بشكل فردي",
+    "replaceCartTitle": "استبدال السلة؟",
+    "replaceCartDesc": "سلة التسوق الخاصة بك تحتوي على عناصر من \"{current}\". هل تريد تجاهل تلك العناصر وبدء سلة جديدة من \"{new}\"?",
+    "replaceCart": "استبدال السلة",
+    "keepCurrentCart": "الاحتفاظ بالسلة الحالية",
+    "required": "إجباري",
+    "optional": "اختياري",
+    "max": "الحد الأقصى {max}",
+    "reviewsTitle": "التقييمات",
+    "reviewsDesc": "{total} تقييم إجمالي · متوسط التقييم {rating}",
+    "noReviews": "لا توجد تقييمات بعد",
+    "beFirstReview": "كن أول من يترك تقييماً.",
+    "restaurantInfo": "معلومات المطعم",
+    "infoDesc": "تفاصيل الاتصال، ساعات العمل، والموقع",
+    "about": "حول",
+    "openingHours": "ساعات العمل",
+    "sunday": "الأحد",
+    "monday": "الإثنين",
+    "tuesday": "الثلاثاء",
+    "wednesday": "الأربعاء",
+    "thursday": "الخميس",
+    "friday": "الجمعة",
+    "saturday": "السبت",
+    "closed": "مغلق",
+    "location": "الموقع",
+    "deliveryTime": "{time} دقيقة"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "subtitle": "تخصيص مظهر التطبيق واللغة.",
+    "theme": "المظهر",
+    "light": "فاتح",
+    "dark": "داكن",
+    "system": "النظام",
+    "language": "اللغة",
+    "english": "English",
+    "arabic": "العربية"
+  },
+  "groups": {
+    "title": "المجموعات",
+    "subtitle": "إدارة مجموعاتك والانضمام إلى جلسات طلب المجموعة النشطة.",
+    "yourGroups": "مجموعاتك",
+    "yourGroupsDesc": "المجموعات التي تنتمي إليها للطلب المشترك",
+    "noGroups": "لا توجد مجموعات.",
+    "member": "عضو",
+    "members_plural": "أعضاء",
+    "activeGroupOrder": "طلب مجموعة نشط",
+    "members": "الأعضاء",
+    "history": "السجل",
+    "settings": "الإعدادات",
+    "showingMembers": "عرض {count} من {total} {members}",
+    "noMembersFound": "لم يتم العثور على أعضاء.",
+    "orderHistoryEmpty": "سجل الطلبات سيظهر هنا.",
+    "you": "أنت",
+    "owner": "المالك",
+    "admin": "مشرف",
+    "openActions": "فتح الإجراءات",
+    "promoteToAdmin": "ترقية إلى مشرف",
+    "removeFromGroup": "إزالة من المجموعة",
+    "demoteToMember": "خفض إلى عضو",
+    "promoteToAdminTitle": "ترقية إلى مشرف؟",
+    "promoteToAdminDesc": "هل أنت متأكد من رغبتك في ترقية هذا العضو إلى مشرف؟ سيتمكن من الوصول لإدارة إعدادات المجموعة والأعضاء.",
+    "promote": "ترقية",
+    "demoteToMemberTitle": "خفض إلى عضو؟",
+    "demoteToMemberDesc": "هل أنت متأكد من رغبتك في خفض هذا المشرف إلى عضو عادي؟ سيفقد الامتيازات الإدارية.",
+    "demote": "خفض",
+    "removeMemberTitle": "إزالة من المجموعة؟",
+    "removeMemberDesc": "هل أنت متأكد من رغبتك في إزالة هذا العضو من المجموعة؟ لن يتمكن بعد الآن من الوصول إلى سلة المجموعة أو المشاركة في طلبات المجموعة.",
+    "remove": "إزالة",
+    "groupNotFound": "المجموعة غير موجودة",
+    "groupNotFoundDesc": "هذه المجموعة غير موجودة أو ليس لديك صلاحية الوصول.",
+    "inviteLinkCopied": "تم نسخ رابط الدعوة",
+    "inviteLink": "رابط الدعوة",
+    "openInvitations": "دعوات مفتوحة",
+    "allowInviteLink": "السماح للأعضاء الجدد بالانضمام عبر رابط الدعوة",
+    "toggleOpenInvitations": "تبديل الدعوات المفتوحة",
+    "deleting": "جاري الحذف...",
+    "leaving": "جاري المغادرة...",
+    "deleteGroup": "حذف المجموعة",
+    "leaveGroup": "مغادرة المجموعة",
+    "deleteGroupTitle": "حذف المجموعة؟",
+    "deleteGroupDesc": "لا يمكن التراجع عن هذا الإجراء. سيتم حذف المجموعة وجميع بياناتها بشكل دائم.",
+    "leaveGroupTitle": "مغادرة المجموعة؟",
+    "leaveGroupDesc": "هل أنت متأكد من رغبتك في مغادرة هذه المجموعة؟",
+    "deleteConfirm": "حذف",
+    "leaveConfirm": "مغادرة",
+    "activeGroupOrders": "طلبات المجموعة النشطة",
+    "activeGroupOrdersDesc": "انضم إلى جلسة طلب مجموعة جارية",
+    "code": "الكود: {code}",
+    "expiresSoon": "سينتهي قريباً",
+    "groupOrderNotFound": "لم يتم العثور على طلب المجموعة",
+    "groupOrderNotFoundDesc": "قد تكون هذه الجلسة منتهية أو غير موجودة.",
+    "restaurantNotFound": "المطعم غير موجود",
+    "restaurantNotFoundDesc": "المطعم الخاص بطلب المجموعة هذا غير متاح.",
+    "groupOrder": "طلب مجموعة",
+    "copyCode": "نسخ الكود",
+    "sessionType": "نوع الجلسة",
+    "anonymous": "مجهول",
+    "anonymousDesc": "شارك الكود مع أي شخص. لا حاجة لمجموعة.",
+    "fixedGroup": "مجموعة محددة",
+    "fixedGroupDesc": "اطلب مع أعضاء من إحدى مجموعاتك.",
+    "selectGroup": "اختر مجموعة",
+    "chooseGroup": "اختر مجموعة",
+    "groupOrderCreated": "تم إنشاء طلب المجموعة",
+    "replaceCartTitle": "استبدال السلة الحالية؟",
+    "replaceCartDescGroup": "لديك سلة نشطة من {current}. هل تريد التبديل إلى طلب المجموعة في {new}؟ سيتم مسح سلتك الحالية.",
+    "replaceCartDescGeneric": "لديك سلة نشطة. هل تريد التبديل إلى طلب المجموعة في {new}؟ سيتم مسح سلتك الحالية.",
+    "switchToGroupOrder": "التبديل إلى طلب المجموعة",
+    "acceptInvitation": "قبول الدعوة",
+    "addMembers": "إضافة أعضاء",
+    "addMembersTitle": "إضافة أعضاء",
+    "addMembersDesc": "ابحث عن المستخدمين واختر الذين تريد إضافتهم.",
+    "selected": "{count} محدد",
+    "clearSelection": "مسح التحديد",
+    "searchUsers": "ابحث عن مستخدمين...",
+    "addMember": "إضافة عضو",
+    "addMemberDesc": "أضف صديقاً إلى {name}",
+    "groupInvitation": "دعوة مجموعة",
+    "unableToJoin": "تعذر الانضمام إلى المجموعة",
+    "invitationInvalid": "هذه الدعوة لم تعد صالحة، أو انتهت صلاحيتها، أو ليس لديك إذن للانضمام إلى هذه المجموعة.",
+    "invitationHelp": "إذا كنت تعتقد أن هذا خطأ، اطلب من مالك المجموعة إرسال دعوة جديدة.",
+    "goBack": "العودة للخلف",
+    "tryAgain": "حاول مرة أخرى",
+    "invitedToJoin": "تمت دعوتك للانضمام إلى",
+    "noGroupToSelect": "يرجى اختيار مجموعة",
+    "guest": "ضيف",
+    "host": "(المضيف)",
+    "ready": "جاهز",
+    "groupCart": "سلة المجموعة",
+    "noItemsYet": "لا توجد عناصر بعد. اختر من القائمة لإضافة عناصر.",
+    "groupOrderCodeCopied": "تم نسخ كود طلب المجموعة"
+  },
+  "userPanel": {
+    "login": "تسجيل الدخول",
+    "profile": "الملف الشخصي",
+    "notifications": "الإشعارات",
+    "loggingOut": "جاري تسجيل الخروج...",
+    "logout": "تسجيل الخروج",
+    "loggedOutSuccess": "تم تسجيل الخروج بنجاح",
+    "logoutFailed": "فشل تسجيل الخروج"
+  },
+  "checkout": {
+    "title": "إتمام الطلب",
+    "subtitle": "أكمل طلبك من {restaurant}",
+    "yourCartIsEmpty": "سلة التسوق فارغة",
+    "emptyCartDesc": "أضف عناصر من قائمة المطعم قبل إتمام الطلب.",
+    "loading": "جاري تحميل تفاصيل الدفع...",
+    "restaurantNotFound": "المطعم غير موجود",
+    "restaurantNotFoundDesc": "تعذر تحميل تفاصيل هذا الطلب.",
+    "delivery": "توصيل",
+    "pickup": "استلام",
+    "deliveryOptions": "خيارات التوصيل",
+    "deliveryAreaRestriction": "تقييد منطقة التوصيل",
+    "pickupLocation": "موقع الاستلام",
+    "pickupFrom": "استلم طلبك من:",
+    "restaurantAddress": "عنوان المطعم",
+    "orderNotes": "ملاحظات الطلب",
+    "orderNotesPlaceholder": "أضف أي تعليمات خاصة للمطعم...",
+    "paymentMethod": "طريقة الدفع",
+    "fullCashOnDelivery": "الدفع نقداً عند الاستلام",
+    "unavailable": "غير متاح",
+    "depositRequired": "غير متاح لأن هذا المطعم يتطلب عربوناً",
+    "fullCashDesc": "ادفع المبلغ كاملاً نقداً عند استلام طلبك",
+    "payFullOnline": "الدفع كاملاً عبر الإنترنت",
+    "payFullOnlineDesc": "ادفع المبلغ بالكامل عبر الإنترنت بشكل آمن الآن",
+    "splitPayment": "دفع مقسم",
+    "recommended": "موصى به",
+    "splitPaymentDesc": "ادفع {deposit} عربوناً الآن. ادفع الباقي {remaining} عند استلام طلبك.",
+    "placingOrder": "جاري تقديم الطلب...",
+    "payDeposit": "دفع العربون",
+    "payNow": "ادفع الآن",
+    "placeOrder": "تقديم الطلب",
+    "deliveryAddress": "عنوان التوصيل",
+    "change": "تغيير",
+    "selectAddress": "اختر عنواناً",
+    "noAddressSelected": "لم يتم اختيار عنوان توصيل",
+    "noAddressDesc": "اختر عنواناً على الخريطة للمتابعة مع التوصيل.",
+    "outOfDeliveryZone": "الموقع المحدد خارج منطقة التوصيل.",
+    "failedToFetchPreview": "فشل جلب معاينة الاستلام.",
+    "orderPlaced": "تم تقديم الطلب بنجاح!",
+    "failedToPlaceOrder": "فشل تقديم الطلب.",
+    "noAddressForDelivery": "يرجى اختيار عنوان توصيل قبل تقديم الطلب.",
+    "orderSummary": "ملخص الطلب",
+    "subtotal": "المجموع الفرعي",
+    "deliveryFee": "رسوم التوصيل",
+    "serviceFee": "رسوم الخدمة",
+    "requiredDeposit": "العربون المطلوب",
+    "remainingOnDelivery": "المتبقي عند الاستلام",
+    "total": "الإجمالي"
+  },
+  "cartRedemption": {
+    "offerUnavailable": "هذا العرض غير متاح بعد الآن",
+    "offerDetailsNotFound": "لم يتم العثور على تفاصيل العرض",
+    "minimumOrderRequired": "الحد الأدنى للطلب {amount} ج.م مطلوب لهذا العرض",
+    "offerNotApplicable": "لا يمكن تطبيق هذا العرض على سلتك الحالية",
+    "appliedOffer": "تم تطبيق \"{title}\"",
+    "noActiveRedeems": "لا توجد استبدالات نشطة. استبدل العروض من صفحة النقاط الخاصة بك.",
+    "applyRedeem": "تطبيق استبدال",
+    "noRedeem": "لا يوجد استبدال",
+    "saveUpTo": "وفر حتى {amount} ج.م",
+    "requiresSubtotal": "يتطلب مبلغ فرعي {amount} ج.م",
+    "notEligible": "غير مؤهل لهذه السلة",
+    "removeRedeem": "إزالة الاستبدال المطبق",
+    "reviewItems": "راجع عناصرك قبل إتمام الدفع"
+  },
+  "pagination": {
+    "previous": "السابق",
+    "next": "التالي",
+    "morePages": "المزيد من الصفحات",
+    "pageOf": "الصفحة {current} من {total}"
   }
 }
-

@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { GroupMember, GroupType } from '@/types/groups/groups';
 import AddMemberDialog from './AddMemberDialog';
 import { SearchPaginatedType } from '@/types/common';
@@ -19,6 +20,7 @@ export default async function GroupMembersTab({
   page,
   per_page,
 }: Props) {
+  const t = await getTranslations('groups');
   const query = buildQueryString({ search, page, per_page });
   const userId = await getUserId();
 
@@ -37,8 +39,7 @@ export default async function GroupMembersTab({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Showing {members.length} of {meta.total} member
-          {meta.total !== 1 ? 's' : ''}
+          {t('showingMembers', { count: members.length, total: meta.total, members: meta.total !== 1 ? t('members_plural') : t('member') })}
         </p>
         <div className="flex gap-4 items-center">
           <AppSearch route={`/groups/${group.id}`} />
@@ -51,7 +52,7 @@ export default async function GroupMembersTab({
       <div className="space-y-2">
         {members.length === 0 ? (
           <p className="text-center text-sm text-muted-foreground">
-            No members found.
+            {t('noMembersFound')}
           </p>
         ) : (
           members.map((member) => {

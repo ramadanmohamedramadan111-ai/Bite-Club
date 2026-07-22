@@ -1,5 +1,7 @@
 'use client';
 
+import { useLocale, useTranslations } from 'next-intl';
+import { getLangDir } from 'rtl-detect';
 import { Minus, Plus } from 'lucide-react';
 import type { CartItem } from '@/lib/const-data';
 import { Button } from '@/components/ui/button';
@@ -17,6 +19,10 @@ export default function CartItemRow({
   onUpdateQuantity,
   onRemove,
 }: Props) {
+  const locale = useLocale();
+  const direction = getLangDir(locale);
+  const isRtl = direction === 'rtl';
+  const t = useTranslations('common');
   return (
     <div className="space-y-2 rounded-xl border p-4">
       <div className="flex justify-between gap-4">
@@ -49,13 +55,13 @@ export default function CartItemRow({
           </div>
         </div>
 
-        <div className="text-right">
-          <p className="font-semibold">{item.totalPrice.toFixed(2)} EGP</p>
+        <div className={isRtl ? 'text-left' : 'text-right'}>
+          <p className="font-semibold">{item.totalPrice.toFixed(2)} {t('egp')}</p>
           <button
             type="button"
             onClick={() => onRemove(item.cartItemId)}
             className="mt-1 text-sm text-destructive hover:underline">
-            Remove
+            {t('remove')}
           </button>
         </div>
       </div>
@@ -66,7 +72,7 @@ export default function CartItemRow({
             <li key={option.optionId}>
               {option.groupName}: {option.optionName}
               {option.price > 0 && (
-                <span> (+{option.price.toFixed(2)} EGP)</span>
+                <span> (+{option.price.toFixed(2)} {t('egp')})</span>
               )}
             </li>
           ))}
@@ -75,13 +81,13 @@ export default function CartItemRow({
 
       {item.specialInstructions && (
         <p className="text-sm text-muted-foreground">
-          Note: {item.specialInstructions}
+          {t('note')} {item.specialInstructions}
         </p>
       )}
 
       {isGroupCart && item.addedBy?.name && (
         <p className="text-xs text-muted-foreground">
-          Added by {item.addedBy.name}
+          {t('addedBy', { name: item.addedBy.name })}
         </p>
       )}
     </div>

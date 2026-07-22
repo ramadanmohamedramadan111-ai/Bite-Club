@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { ApiResponse, PaginatedResponse } from '@/types/api/api-response';
 import { SearchPaginatedType } from '@/types/common';
 import { GroupTypeSimplified } from '@/types/groups/groups';
@@ -12,6 +13,7 @@ export default async function YourGroupsFetching({
   page,
   per_page,
 }: SearchPaginatedType) {
+  const t = await getTranslations('groups');
   const query = buildQueryString({ search, page, per_page });
   const userId = await getUserId();
 
@@ -27,7 +29,7 @@ export default async function YourGroupsFetching({
   return (
     <>
       {groups.length === 0 ? (
-        <p className="text-muted-foreground">No groups.</p>
+        <p className="text-muted-foreground">{t('noGroups')}</p>
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

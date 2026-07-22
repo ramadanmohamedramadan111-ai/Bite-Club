@@ -1,20 +1,22 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
-const tabs = [
-  { value: 'active', label: 'Active Orders' },
-  { value: 'past', label: 'Past Orders' },
-] as const;
 
 export default function OrdersTabs({
   currentTab,
 }: {
   currentTab: 'active' | 'past';
 }) {
+  const t = useTranslations('common');
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const tabs = [
+    { value: 'active' as const, label: t('activeOrders') },
+    { value: 'past' as const, label: t('pastOrders') },
+  ];
 
   const onTabChange = (value: string) => {
     const params = new URLSearchParams(searchParams);

@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Check } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -14,6 +15,7 @@ type Props = {
 };
 
 export default function GroupCartActionButton({ onCheckout }: Props) {
+  const tc = useTranslations('common');
   const cart = useCartStore((state) => state.cart);
   const setMemberReady = useCartStore((state) => state.setMemberReady);
   const guestSessionId = useSessionStore((state) => state.sessionId);
@@ -27,7 +29,7 @@ export default function GroupCartActionButton({ onCheckout }: Props) {
     return (
       <Button asChild className="w-full" size="lg">
         <Link href="/checkout" onClick={onCheckout}>
-          Proceed to checkout
+          {tc('proceedToCheckout')}
         </Link>
       </Button>
     );
@@ -52,7 +54,7 @@ export default function GroupCartActionButton({ onCheckout }: Props) {
         size="lg"
         disabled={cart.items.length === 0}>
         <Link href="/checkout" onClick={onCheckout}>
-          Proceed to checkout
+          {tc('proceedToCheckout')}
         </Link>
       </Button>
     );
@@ -64,7 +66,7 @@ export default function GroupCartActionButton({ onCheckout }: Props) {
     }
 
     setMemberReady(currentMember.id, true);
-    toast.success("You're ready! Waiting for the host to checkout.");
+    toast.success(tc('waitingForHost'));
   }
 
   return (
@@ -77,10 +79,10 @@ export default function GroupCartActionButton({ onCheckout }: Props) {
       {isReady ? (
         <>
           <Check className="size-4" />
-          You&apos;re ready
+          {tc('youreReady')}
         </>
       ) : (
-        "I'm ready"
+        tc('imReady')
       )}
     </Button>
   );

@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { Clock, Users } from 'lucide-react';
 
@@ -9,6 +10,7 @@ import { useGroupSessionsStore } from '@/lib/const-data';
 import { useGroupsStore } from '@/lib/const-data';
 
 export default function ActiveSessionsSection() {
+  const t = useTranslations('groups');
   const groups = useGroupsStore((state) => state.groups);
   const sessions = useGroupSessionsStore((state) => state.sessions);
 
@@ -25,9 +27,9 @@ export default function ActiveSessionsSection() {
   return (
     <section className="space-y-4">
       <div>
-        <h2 className="text-xl font-semibold">Active group orders</h2>
+        <h2 className="text-xl font-semibold">{t('activeGroupOrders')}</h2>
         <p className="text-sm text-muted-foreground">
-          Join an ongoing group order session
+          {t('activeGroupOrdersDesc')}
         </p>
       </div>
 
@@ -60,7 +62,7 @@ export default function ActiveSessionsSection() {
               <CardContent className="flex items-center gap-4 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-1">
                   <Users className="size-3.5" />
-                  Code: {session.code}
+                  {t('code', { code: session.code })}
                 </span>
                 <span className="inline-flex items-center gap-1 capitalize">
                   {session.type}
@@ -68,7 +70,7 @@ export default function ActiveSessionsSection() {
                 {session.expiresAt && (
                   <span className="inline-flex items-center gap-1">
                     <Clock className="size-3.5" />
-                    Expires soon
+                    {t('expiresSoon')}
                   </span>
                 )}
               </CardContent>

@@ -11,6 +11,8 @@ import {
 } from '@/components/ui/pagination';
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { useSearchParams } from 'next/navigation';
+import { useTranslations, useLocale } from 'next-intl';
+import { getLangDir } from 'rtl-detect';
 
 type AppPaginationProps = {
   currentPage: number;
@@ -21,6 +23,9 @@ export default function AppPagination({
   currentPage,
   totalPages,
 }: AppPaginationProps) {
+  const t = useTranslations('pagination');
+  const locale = useLocale();
+  const direction = getLangDir(locale);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -69,10 +74,11 @@ export default function AppPagination({
   }
 
   return (
-    <Pagination className="mt-6">
+    <Pagination className="mt-6" dir={direction}>
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious
+            text={t('previous')}
             href="#"
             onClick={(e) => {
               e.preventDefault();
@@ -106,6 +112,7 @@ export default function AppPagination({
 
         <PaginationItem>
           <PaginationNext
+            text={t('next')}
             href="#"
             onClick={(e) => {
               e.preventDefault();

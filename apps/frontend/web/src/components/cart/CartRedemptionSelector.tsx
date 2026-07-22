@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import { Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -14,6 +15,7 @@ import {
 } from '@/utils/cart-summary';
 
 export default function CartRedemptionSelector() {
+  const t = useTranslations('cartRedemption');
   const cart = useCartStore((state) => state.cart);
   const applyRedemption = useCartStore((state) => state.applyRedemption);
   const getSummary = useCartStore((state) => state.getSummary);
@@ -41,7 +43,7 @@ export default function CartRedemptionSelector() {
     const redemption = activeRedemptions.find((entry) => entry.id === value);
 
     if (!redemption) {
-      toast.error('This offer is no longer available');
+      toast.error(t('offerUnavailable'));
       applyRedemption(null);
       return;
     }
@@ -49,7 +51,7 @@ export default function CartRedemptionSelector() {
     const offer = getRewardOfferById(redemption.offerId);
 
     if (!offer) {
-      toast.error('Offer details not found');
+      toast.error(t('offerDetailsNotFound'));
       return;
     }
 
@@ -62,22 +64,22 @@ export default function CartRedemptionSelector() {
     if (discount <= 0) {
       if (offer.minSubtotal) {
         toast.error(
-          `Minimum order of ${offer.minSubtotal} EGP required for this offer`,
+          t('minimumOrderRequired', { amount: offer.minSubtotal }),
         );
       } else {
-        toast.error('This offer cannot be applied to your current cart');
+        toast.error(t('offerNotApplicable'));
       }
       return;
     }
 
     applyRedemption(value);
-    toast.success(`Applied "${redemption.offerTitle}"`);
+    toast.success(t('appliedOffer', { title: redemption.offerTitle }));
   }
 
   if (activeRedemptions.length === 0) {
     return (
       <div className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
-        No active redeems available. Redeem offers from your points page.
+        {t('noActiveRedeems')}
       </div>
     );
   }
@@ -86,14 +88,14 @@ export default function CartRedemptionSelector() {
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <Sparkles className="h-4 w-4 text-primary" />
-        <p className="text-sm font-medium">Apply a redeem</p>
+        <p className="text-sm font-medium">{t('applyRedeem')}</p>
       </div>
 
       <RadioGroup value={selectedId || 'none'} onValueChange={handleSelect}>
         <div className="flex items-center gap-2">
           <RadioGroupItem value="none" id="redeem-none" />
           <Label htmlFor="redeem-none" className="font-normal">
-            No redeem
+            {t('noRedeem')}
           </Label>
         </div>
 
@@ -121,10 +123,10 @@ export default function CartRedemptionSelector() {
                 <span className="font-medium">{redemption.offerTitle}</span>
                 <span className="block text-xs text-muted-foreground">
                   {isEligible
-                    ? `Save up to ${discount?.toFixed(2)} EGP`
+                    ? t('saveUpTo', { amount: discount?.toFixed(2) })
                     : offer?.minSubtotal
-                      ? `Requires ${offer.minSubtotal} EGP subtotal`
-                      : 'Not eligible for this cart'}
+                      ? t('requiresSubtotal', { amount: offer.minSubtotal })
+                      : t('notEligible')}
                 </span>
               </Label>
             </div>
@@ -139,7 +141,7 @@ export default function CartRedemptionSelector() {
           size="sm"
           className="px-0"
           onClick={() => applyRedemption(null)}>
-          Remove applied redeem
+          {t('removeRedeem')}
         </Button>
       )}
     </div>

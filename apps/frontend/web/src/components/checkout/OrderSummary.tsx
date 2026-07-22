@@ -1,6 +1,9 @@
+'use client';
+
 import type { Cart } from '@/types/cart/cart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { useTranslations } from 'next-intl';
 
 type Summary = {
   subtotal: number;
@@ -23,10 +26,11 @@ export default function OrderSummary({
   summary,
   fulfillmentType,
 }: Props) {
+  const t = useTranslations('checkout');
   return (
     <Card className="sticky top-20">
       <CardHeader>
-        <CardTitle className="text-base">Order Summary</CardTitle>
+        <CardTitle className="text-base">{t('orderSummary')}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center gap-3">
@@ -64,18 +68,18 @@ export default function OrderSummary({
 
         <dl className="space-y-2.5 text-sm">
           <div className="flex justify-between">
-            <dt className="text-muted-foreground">Subtotal</dt>
+            <dt className="text-muted-foreground">{t('subtotal')}</dt>
             <dd className="font-medium text-foreground">{summary.subtotal.toFixed(2)} EGP</dd>
           </div>
           {fulfillmentType === 'delivery' && (
             <div className="flex justify-between">
-              <dt className="text-muted-foreground">Delivery fee</dt>
+              <dt className="text-muted-foreground">{t('deliveryFee')}</dt>
               <dd className="font-medium text-foreground">{summary.deliveryFee.toFixed(2)} EGP</dd>
             </div>
           )}
           {summary.serviceFee > 0 && (
             <div className="flex justify-between">
-              <dt className="text-muted-foreground">Service fee</dt>
+              <dt className="text-muted-foreground">{t('serviceFee')}</dt>
               <dd className="font-medium text-foreground">{summary.serviceFee.toFixed(2)} EGP</dd>
             </div>
           )}
@@ -86,17 +90,17 @@ export default function OrderSummary({
         {summary.requiresDeposit ? (
           <dl className="space-y-2.5 text-sm">
             <div className="flex justify-between text-base font-bold text-primary">
-              <span>Required Deposit</span>
+              <span>{t('requiredDeposit')}</span>
               <span>{summary.depositAmount.toFixed(2)} EGP</span>
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Remaining on delivery</span>
+              <span>{t('remainingOnDelivery')}</span>
               <span>{summary.remainingAmount.toFixed(2)} EGP</span>
             </div>
           </dl>
         ) : (
           <div className="flex justify-between text-base font-bold">
-            <span>Total</span>
+            <span>{t('total')}</span>
             <span>{summary.total.toFixed(2)} EGP</span>
           </div>
         )}

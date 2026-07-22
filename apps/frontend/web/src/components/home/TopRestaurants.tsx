@@ -1,4 +1,5 @@
 import React from 'react';
+import { getTranslations } from 'next-intl/server';
 import { Button } from '../ui/button';
 import { Link } from '@/i18n/navigation';
 import { ArrowRight } from 'lucide-react';
@@ -10,6 +11,7 @@ import { buildQueryString } from '@/utils/api-helpers';
 import RestaurantCard from '../restaurants/RestaurantCard';
 
 export default async function TopRestaurants() {
+  const t = await getTranslations('home');
   const cookieStore = await cookies();
 
   const lat = cookieStore.get('lat')?.value;
@@ -48,17 +50,17 @@ export default async function TopRestaurants() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="text-2xl font-bold">
-            {lat && lng ? 'Top restaurants near you' : 'Top restaurants'}
+            {lat && lng ? t('topRestaurantsNear') : t('topRestaurants')}
           </h2>
           <p className="mt-1 text-muted-foreground">
             {lat && lng
-              ? 'Highest rated picks near you'
-              : 'Highest rated picks'}
+              ? t('topRestaurantsNearDesc')
+              : t('topRestaurantsDesc')}
           </p>
         </div>
         <Button asChild variant="outline" className="w-fit gap-2">
           <Link href="/restaurants">
-            View all restaurants
+            {t('viewAll')}
             <ArrowRight className="size-4" />
           </Link>
         </Button>

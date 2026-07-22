@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
 import {
   getRestaurantById,
@@ -24,6 +25,7 @@ export default async function RestaurantReviewsPage({
   params,
   searchParams,
 }: PageProps) {
+  const t = await getTranslations('restaurants');
   const { id } = await params;
   const { page = '1', per_page = '5' } = await searchParams;
 
@@ -51,10 +53,9 @@ export default async function RestaurantReviewsPage({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold">Reviews</h2>
+        <h2 className="text-xl font-semibold">{t('reviewsTitle')}</h2>
         <p className="text-sm text-muted-foreground">
-          {restaurant.reviews_count} total reviews · Average rating{' '}
-          {restaurant.average_rating}
+          {t('reviewsDesc', { total: restaurant.reviews_count, rating: restaurant.average_rating })}
         </p>
       </div>
 
@@ -66,9 +67,9 @@ export default async function RestaurantReviewsPage({
         </div>
       ) : (
         <div className="flex min-h-48 flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center">
-          <p className="font-medium">No reviews yet</p>
+          <p className="font-medium">{t('noReviews')}</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Be the first to leave a review.
+            {t('beFirstReview')}
           </p>
         </div>
       )}

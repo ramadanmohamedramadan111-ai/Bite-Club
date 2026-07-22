@@ -1,6 +1,7 @@
 import { serverFetch } from '@/utils/server-fetch';
 import type { ApiResponse } from '@/types/api/api-response';
 import type { UserResponse } from '@/types/profile/user';
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -17,12 +18,14 @@ async function getProfile(): Promise<UserResponse | null> {
 }
 
 export default async function MyProfilePage() {
+  const t = await getTranslations('profile');
+  const tc = await getTranslations('common');
   const user = await getProfile();
 
   if (!user) {
     return (
       <div className="flex items-center justify-center py-12 text-muted-foreground">
-        Failed to load profile
+        {tc('failedToLoad')}
       </div>
     );
   }
@@ -31,8 +34,8 @@ export default async function MyProfilePage() {
     <div className="container mx-auto space-y-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Profile</h1>
-          <p className="mt-2 text-muted-foreground">Your posts and activity</p>
+          <h1 className="text-3xl font-bold">{t('title')}</h1>
+          <p className="mt-2 text-muted-foreground">{t('subtitle')}</p>
         </div>
         <Link href="/profile/edit">
           <Button variant="outline" size="icon">
@@ -63,20 +66,20 @@ export default async function MyProfilePage() {
         <div className="flex gap-8 text-center">
           <div>
             <div className="text-lg font-semibold">{user.posts_count}</div>
-            <div className="text-xs text-muted-foreground">Posts</div>
+            <div className="text-xs text-muted-foreground">{t('postsCount')}</div>
           </div>
           <div>
             <div className="text-lg font-semibold">{user.friends_count}</div>
-            <div className="text-xs text-muted-foreground">Friends</div>
+            <div className="text-xs text-muted-foreground">{t('friendsCount')}</div>
           </div>
         </div>
       </div>
 
       <section className="space-y-4">
         <div>
-          <h2 className="text-xl font-semibold">My Posts</h2>
+          <h2 className="text-xl font-semibold">{t('myPosts')}</h2>
           <p className="text-sm text-muted-foreground">
-            Meals and orders you have shared
+            {t('myPostsDesc')}
           </p>
         </div>
         <UserPostsSection />

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 
@@ -26,6 +27,7 @@ interface Props {
 type Action = 'removeFriend' | 'cancelRequest' | null;
 
 export default function UserActions({ user, tab }: Props) {
+  const t = useTranslations('friends');
   const [action, setAction] = useState<Action>(null);
 
   const actionCallbacks = {
@@ -76,33 +78,33 @@ export default function UserActions({ user, tab }: Props) {
 
   const dialogConfig = {
     removeFriend: {
-      title: 'Remove friend?',
-      description: `Are you sure you want to remove ${user.full_name} from your friends?`,
-      confirmText: 'Remove',
+      title: t('removeFriendTitle'),
+      description: t('removeFriendDesc', { name: user.full_name }),
+      confirmText: t('removeFriendConfirm'),
     },
 
     cancelRequest: {
-      title: 'Cancel request?',
-      description: `Are you sure you want to cancel your request to ${user.full_name}?`,
-      confirmText: 'Cancel Request',
+      title: t('cancelRequestTitle'),
+      description: t('cancelRequestDesc', { name: user.full_name }),
+      confirmText: t('cancelRequestConfirm'),
     },
 
     unfollow: {
-      title: 'Unfollow user?',
-      description: `Are you sure you want to unfollow ${user.full_name}?`,
-      confirmText: 'Unfollow',
+      title: t('unfollowTitle'),
+      description: t('unfollowDesc', { name: user.full_name }),
+      confirmText: t('unfollowConfirm'),
     },
 
     unblock: {
-      title: 'Unblock user?',
-      description: `Are you sure you want to unblock ${user.full_name}?`,
-      confirmText: 'Unblock',
+      title: t('unblockTitle'),
+      description: t('unblockDesc', { name: user.full_name }),
+      confirmText: t('unblockConfirm'),
     },
 
     block: {
-      title: 'Block user?',
-      description: `Are you sure you want to block ${user.full_name}?`,
-      confirmText: 'Block',
+      title: t('blockTitle'),
+      description: t('blockDesc', { name: user.full_name }),
+      confirmText: t('blockConfirm'),
     },
   };
 
@@ -113,7 +115,7 @@ export default function UserActions({ user, tab }: Props) {
           disabled={isExecutingRemoveFriend}
           variant="destructive"
           onClick={() => setAction('removeFriend')}>
-          Remove Friend
+          {t('removeFriend')}
         </Button>
       )}
 
@@ -122,14 +124,14 @@ export default function UserActions({ user, tab }: Props) {
           <Button
             disabled={isExecutingAcceptFriendRequest}
             onClick={() => acceptFriendRequest(user.id)}>
-            Accept
+            {t('accept')}
           </Button>
 
           <Button
             disabled={isExecutingRejectFriendRequest}
             variant="destructive"
             onClick={() => rejectFriendRequest(user.id)}>
-            Reject
+            {t('reject')}
           </Button>
         </div>
       )}
@@ -139,7 +141,7 @@ export default function UserActions({ user, tab }: Props) {
           variant="outline"
           disabled={isExecutingCancelFriendRequest}
           onClick={() => setAction('cancelRequest')}>
-          Cancel Request
+          {t('cancelRequest')}
         </Button>
       )}
 
@@ -148,7 +150,7 @@ export default function UserActions({ user, tab }: Props) {
           variant="outline"
           disabled={isExecutingSendFriendRequest}
           onClick={() => sendFriendRequest(user.id)}>
-          Add as friend
+          {t('addFriend')}
         </Button>
       )}
 

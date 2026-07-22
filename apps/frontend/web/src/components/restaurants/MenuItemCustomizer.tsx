@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import { Minus, Plus } from 'lucide-react';
@@ -51,6 +52,7 @@ export default function MenuItemCustomizer({
   orderingContext = 'restaurant',
   isAuthenticated,
 }: Props) {
+  const t = useTranslations('restaurants');
   const [quantity, setQuantity] = useState(1);
   const [specialInstructions, setSpecialInstructions] = useState('');
   const [leaveGroupDialogOpen, setLeaveGroupDialogOpen] = useState(false);
@@ -136,7 +138,7 @@ export default function MenuItemCustomizer({
           {!item.available && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/50">
               <span className="rounded-full bg-background px-4 py-2 text-sm font-medium">
-                Currently Unavailable
+                {t('currentlyUnavailable')}
               </span>
             </div>
           )}
@@ -158,8 +160,8 @@ export default function MenuItemCustomizer({
           </div>
           <p className="text-sm text-muted-foreground">{item.description}</p>
           <p className="text-xs text-muted-foreground">
-            {item.preparationTime} min prep
-            {item.stock !== undefined ? ` · ${item.stock} left` : ''}
+            {t('prepTime', { time: item.preparationTime })}
+            {item.stock !== undefined ? ` · ${t('stockLeft', { stock: item.stock })}` : ''}
           </p>
         </div>
 
@@ -169,12 +171,12 @@ export default function MenuItemCustomizer({
           <div>
             <Field>
               <FieldLabel htmlFor="instructions">
-                Special Instructions
+                {t('specialInstructions')}
               </FieldLabel>
               <Input
                 id="instructions"
                 type="text"
-                placeholder="Add any special instructions..."
+                placeholder={t('specialInstructionsPlaceholder')}
                 value={specialInstructions}
                 disabled={disabledConditions}
                 onChange={(event) => setSpecialInstructions(event.target.value)}
@@ -215,7 +217,7 @@ export default function MenuItemCustomizer({
             className="flex-1"
             disabled={disabledConditions}
             onClick={handleAddToCart}>
-            Add to cart · {total.toFixed(2)} EGP
+            {t('addToCart', { total: total.toFixed(2) })}
           </Button>
         </div>
       </div>
@@ -223,19 +225,19 @@ export default function MenuItemCustomizer({
       <ConfirmDialog
         open={leaveGroupDialogOpen}
         onOpenChange={setLeaveGroupDialogOpen}
-        title="Leave group order?"
-        description="You have an active group order for this restaurant. Adding this item will start a new individual cart and remove you from the group order."
-        confirmText="Order individually"
+        title={t('leaveGroupOrderTitle')}
+        description={t('leaveGroupOrderDesc')}
+        confirmText={t('orderIndividually')}
         onConfirm={() => onAddToCart && onAddToCart()}
       />
 
       <ConfirmDialog
         open={replaceCartDialogOpen}
         onOpenChange={setReplaceCartDialogOpen}
-        title="Replace your cart?"
-        description={`Your cart contains items from "${cart?.restaurant.name}". Do you want to discard those items and start a new cart from "${restaurant.name}"?`}
-        confirmText="Replace cart"
-        cancelText="Keep current cart"
+        title={t('replaceCartTitle')}
+        description={t('replaceCartDesc', { current: cart?.restaurant.name, new: restaurant.name })}
+        confirmText={t('replaceCart')}
+        cancelText={t('keepCurrentCart')}
         onConfirm={() => {
           addItemToCart();
           setReplaceCartDialogOpen(false);

@@ -1,3 +1,6 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Bike, Heart, ShoppingBag, Star } from 'lucide-react';
@@ -9,6 +12,7 @@ type Props = {
 };
 
 export default function RestaurantCard({ restaurant }: Props) {
+  const t = useTranslations('restaurants');
   return (
     <Card className={`overflow-hidden transition`}>
       <div className="relative">
@@ -25,7 +29,7 @@ export default function RestaurantCard({ restaurant }: Props) {
         {!restaurant.is_open_now && (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/50 dark:bg-white/50">
             <span className="rounded-full bg-background px-4 py-2 text-sm font-medium">
-              Currently Unavailable
+              {t('currentlyUnavailable')}
             </span>
           </div>
         )}
@@ -46,7 +50,7 @@ export default function RestaurantCard({ restaurant }: Props) {
           <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
           <span className="font-medium">{restaurant.average_rating}</span>
           <span className="text-sm text-muted-foreground">
-            ({restaurant.reviews_count} reviews)
+            {t('reviewsCount', { count: restaurant.reviews_count })}
           </span>
         </div>
 

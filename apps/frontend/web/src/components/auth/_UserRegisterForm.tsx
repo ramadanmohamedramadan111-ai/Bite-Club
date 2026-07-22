@@ -164,7 +164,7 @@ export function RegisterForm({
                   id="email"
                   type="email"
                   disabled={isExecuting}
-                  placeholder="m@example.com"
+                  placeholder={t('fields.email.placeholder')}
                   {...register('email')}
                 />
 

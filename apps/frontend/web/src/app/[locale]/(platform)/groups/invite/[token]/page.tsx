@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { ApiResponse } from '@/types/api/api-response';
 import { GroupTypeSimplified } from '@/types/groups/groups';
 import { serverFetch } from '@/utils/server-fetch';
@@ -11,6 +12,8 @@ type PageProps = {
 
 export default async function Page({ params }: PageProps) {
   const { token } = await params;
+
+  const t = await getTranslations('groups');
 
   const { data: group } = await serverFetch<ApiResponse<GroupTypeSimplified>>(
     `/groups/invite/${token}`,
@@ -35,7 +38,7 @@ export default async function Page({ params }: PageProps) {
 
           <div className="space-y-2">
             <p className="text-sm font-medium text-muted-foreground">
-              You are invited to join
+              {t('invitedToJoin')}
             </p>
 
             <h1 className="text-3xl font-bold tracking-tight">{group.name}</h1>
@@ -52,11 +55,11 @@ export default async function Page({ params }: PageProps) {
           <div className="grid grid-cols-2 divide-x rounded-lg border bg-muted/30">
             <div className="p-5 text-center">
               <p className="text-3xl font-bold">{group.members_count}</p>
-              <p className="mt-1 text-sm text-muted-foreground">Members</p>
+              <p className="mt-1 text-sm text-muted-foreground">{t('members')}</p>
             </div>
 
             <div className="p-5 text-center flex items-center flex-col justify-center">
-              <p className="mb-1 text-sm text-muted-foreground">Owner</p>
+              <p className="mb-1 text-sm text-muted-foreground">{t('owner')}</p>
               <p className="truncate font-semibold">{group.owner.full_name}</p>
             </div>
           </div>

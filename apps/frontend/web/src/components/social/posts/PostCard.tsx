@@ -12,6 +12,7 @@ import { useAction } from 'next-safe-action/hooks';
 import { likePostAction, unlikePostAction } from '@/actions/feed';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
+import { useTranslations } from 'next-intl';
 
 interface PostCardProps {
   post: PostType;
@@ -19,6 +20,8 @@ interface PostCardProps {
 }
 
 export function PostCard({ post, onAddToCart }: PostCardProps) {
+  const t = useTranslations('postCard');
+  const tc = useTranslations('common');
   const [isLiked, setIsLiked] = useState(post.is_liked_by_user ?? false);
   const [likeCount, setLikeCount] = useState(post.likes_count);
   const isPending = post.status === 'pending';
@@ -30,7 +33,7 @@ export function PostCard({ post, onAddToCart }: PostCardProps) {
 
   const { execute: likePost } = useAction(likePostAction, {
     onError: ({ error }) => {
-      toast.error(error.serverError?.message || 'Failed to like post.');
+      toast.error(error.serverError?.message || tc('failedToLike'));
       setIsLiked(false);
       setLikeCount((prev) => prev - 1);
     },
@@ -38,7 +41,7 @@ export function PostCard({ post, onAddToCart }: PostCardProps) {
 
   const { execute: unlikePost } = useAction(unlikePostAction, {
     onError: ({ error }) => {
-      toast.error(error.serverError?.message || 'Failed to unlike post.');
+      toast.error(error.serverError?.message || tc('failedToUnlike'));
       setIsLiked(true);
       setLikeCount((prev) => prev + 1);
     },
@@ -72,7 +75,7 @@ export function PostCard({ post, onAddToCart }: PostCardProps) {
         {isPending && (
           <Badge variant="secondary" className="absolute left-2 top-2 gap-1">
             <Clock className="h-3 w-3" />
-            Pending
+            {t('pending')}
           </Badge>
         )}
       </div>
@@ -103,7 +106,7 @@ export function PostCard({ post, onAddToCart }: PostCardProps) {
 
         <Link href={`/restaurants/${post.restaurant.id}`}>
           <div className="mb-3 rounded-md bg-secondary p-2.5 transition-colors hover:bg-secondary/80">
-            <p className="mb-0.5 text-xs text-muted-foreground">From</p>
+            <p className="mb-0.5 text-xs text-muted-foreground">{t('from')}</p>
             <p className="text-sm font-medium">{post.restaurant.name}</p>
           </div>
         </Link>
@@ -140,7 +143,7 @@ export function PostCard({ post, onAddToCart }: PostCardProps) {
             disabled={isPending}
             onClick={() => onAddToCart?.(post)}>
             <ShoppingCart className="mr-1.5 h-4 w-4" />
-            Add
+            {t('add')}
           </Button>
         </div>
       </div>

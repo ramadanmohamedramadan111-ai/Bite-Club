@@ -2,29 +2,30 @@
 
 import { Monitor, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
-const themeOptions = [
-  { value: 'light', label: 'Light', icon: Sun },
-  { value: 'dark', label: 'Dark', icon: Moon },
-  { value: 'system', label: 'System', icon: Monitor },
-] as const;
-
-const languageOptions = [
-  { value: 'en', label: 'English' },
-  { value: 'ar', label: 'العربية' },
-] as const;
-
 export default function SettingsPageView() {
   const { theme, setTheme } = useTheme();
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
+  const t = useTranslations('settings');
+
+  const themeOptions = [
+    { value: 'light', label: t('light'), icon: Sun },
+    { value: 'dark', label: t('dark'), icon: Moon },
+    { value: 'system', label: t('system'), icon: Monitor },
+  ] as const;
+
+  const languageOptions = [
+    { value: 'en', label: t('english') },
+    { value: 'ar', label: t('arabic') },
+  ] as const;
 
   function changeLanguage(newLocale: 'en' | 'ar') {
     router.replace(pathname, { locale: newLocale });
@@ -33,15 +34,15 @@ export default function SettingsPageView() {
   return (
     <div className="container mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Settings</h1>
+        <h1 className="text-3xl font-bold">{t('title')}</h1>
         <p className="mt-2 text-muted-foreground">
-          Customize your app appearance and language.
+          {t('subtitle')}
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Theme</CardTitle>
+          <CardTitle className="text-base">{t('theme')}</CardTitle>
         </CardHeader>
         <CardContent>
           <RadioGroup
@@ -72,7 +73,7 @@ export default function SettingsPageView() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Language</CardTitle>
+          <CardTitle className="text-base">{t('language')}</CardTitle>
         </CardHeader>
         <CardContent>
           <RadioGroup

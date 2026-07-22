@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { Check, Copy, Users } from 'lucide-react';
@@ -35,6 +36,8 @@ function findCurrentMember(
 }
 
 export default function GroupOrderPageView({ sessionId }: Props) {
+  const t = useTranslations('groups');
+  const tRestaurants = useTranslations('common');
   const router = useRouter();
   const session = useGroupSessionsStore((state) =>
     state.sessions.find((entry) => entry.id === sessionId),
@@ -113,7 +116,7 @@ export default function GroupOrderPageView({ sessionId }: Props) {
       addMember({
         id: crypto.randomUUID(),
         sessionId: guestSessionId,
-        name: guestName ?? 'Guest',
+        name: guestName ?? t('guest'),
         isOwner: false,
         isReady: false,
       });
@@ -125,7 +128,7 @@ export default function GroupOrderPageView({ sessionId }: Props) {
       return;
     }
 
-    const displayName = guestName ?? 'Guest';
+      const displayName = guestName ?? t('guest');
     const hostSessionId =
       session.ownerSessionId ?? guestSessionId ?? crypto.randomUUID();
     const isOwner = hostSessionId === guestSessionId;
@@ -170,7 +173,7 @@ export default function GroupOrderPageView({ sessionId }: Props) {
         owner: {
           id: crypto.randomUUID(),
           sessionId: hostSessionId,
-          name: session.ownerName ?? 'Host',
+            name: session.ownerName ?? t('host'),
           isOwner: true,
         },
       });
@@ -203,18 +206,18 @@ export default function GroupOrderPageView({ sessionId }: Props) {
     }
 
     navigator.clipboard.writeText(session.code);
-    toast.success('Group order code copied');
+    toast.success(t('groupOrderCodeCopied'));
   }
 
   if (!session) {
     return (
       <div className="container mx-auto py-16 text-center">
-        <h1 className="text-2xl font-bold">Group order not found</h1>
+        <h1 className="text-2xl font-bold">{t('groupOrderNotFound')}</h1>
         <p className="mt-2 text-muted-foreground">
-          This session may have expired or does not exist.
+          {t('groupOrderNotFoundDesc')}
         </p>
         <Button asChild className="mt-6">
-          <Link href="/restaurants">Browse restaurants</Link>
+          <Link href="/restaurants">{tRestaurants('browseRestaurants')}</Link>
         </Button>
       </div>
     );
@@ -223,9 +226,9 @@ export default function GroupOrderPageView({ sessionId }: Props) {
   if (!restaurant) {
     return (
       <div className="container mx-auto py-16 text-center">
-        <h1 className="text-2xl font-bold">Restaurant not found</h1>
+        <h1 className="text-2xl font-bold">{t('restaurantNotFound')}</h1>
         <p className="mt-2 text-muted-foreground">
-          The restaurant for this group order is unavailable.
+          {t('restaurantNotFoundDesc')}
         </p>
       </div>
     );
@@ -250,7 +253,7 @@ export default function GroupOrderPageView({ sessionId }: Props) {
             </div>
           )}
           <div>
-            <h1 className="text-3xl font-bold">Group order</h1>
+            <h1 className="text-3xl font-bold">{t('groupOrder')}</h1>
             <p className="mt-1 text-muted-foreground">
               {session.restaurantName}
               {session.groupName && ` · ${session.groupName}`}
@@ -258,7 +261,7 @@ export default function GroupOrderPageView({ sessionId }: Props) {
             <div className="mt-2 flex flex-wrap items-center gap-3 text-sm">
               <span className="inline-flex items-center gap-1 rounded-full bg-muted px-3 py-1">
                 <Users className="size-3.5" />
-                Code: {session.code}
+                {t('code', { code: session.code })}
               </span>
               <Button
                 variant="ghost"
@@ -266,10 +269,10 @@ export default function GroupOrderPageView({ sessionId }: Props) {
                 className="h-7 gap-1 px-2"
                 onClick={handleCopyCode}>
                 <Copy className="size-3.5" />
-                Copy code
+                {t('copyCode')}
               </Button>
               <span className="capitalize text-muted-foreground">
-                {session.type} session
+                {session.type}
               </span>
             </div>
           </div>
@@ -278,7 +281,7 @@ export default function GroupOrderPageView({ sessionId }: Props) {
         {activeCart && activeCart.members.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Members</CardTitle>
+              <CardTitle className="text-base">{t('members')}</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-wrap gap-3">
               {activeCart.members.map((member) => (
@@ -290,16 +293,16 @@ export default function GroupOrderPageView({ sessionId }: Props) {
                       {(member.name ?? 'G')[0]}
                     </AvatarFallback>
                   </Avatar>
-                  <span>{member.name ?? 'Guest'}</span>
+                  <span>{member.name ?? t('guest')}</span>
                   {member.isOwner && (
                     <span className="text-xs text-muted-foreground">
-                      (Host)
+                      {t('host')}
                     </span>
                   )}
                   {!member.isOwner && member.isReady && (
                     <span className="inline-flex items-center gap-0.5 text-xs text-green-600">
                       <Check className="size-3" />
-                      Ready
+                      {t('ready')}
                     </span>
                   )}
                 </div>
@@ -320,12 +323,12 @@ export default function GroupOrderPageView({ sessionId }: Props) {
 
           <Card className="h-fit xl:sticky xl:top-20">
             <CardHeader>
-              <CardTitle className="text-base">Group cart</CardTitle>
+              <CardTitle className="text-base">{t('groupCart')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               {cartItems.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  No items yet. Select from the menu to add items.
+                  {t('noItemsYet')}
                 </p>
               ) : (
                 <GroupCartItemsList

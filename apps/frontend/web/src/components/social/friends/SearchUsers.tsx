@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 import { useSearchParams } from 'next/navigation';
 
@@ -13,6 +14,7 @@ import { useDebounce } from 'use-debounce';
 import { Button } from '@/components/ui/button';
 
 export default function SearchUsers() {
+  const t = useTranslations('common');
   const router = useRouter();
 
   const searchParams = useSearchParams();
@@ -38,7 +40,7 @@ export default function SearchUsers() {
         name="search"
         type="search"
         onChange={(e) => setValue(e.target.value)}
-        placeholder="Search..."
+        placeholder={t('search')}
         className="md:pr-10 pr-0"
       />
 
@@ -48,7 +50,7 @@ export default function SearchUsers() {
         variant="ghost"
         className="absolute right-1 top-1/2 size-8 -translate-y-1/2 md:flex hidden">
         <SearchIcon className="size-4" />
-        <span className="sr-only">Search</span>
+        <span className="sr-only">{t('search')}</span>
       </Button>
     </div>
   );

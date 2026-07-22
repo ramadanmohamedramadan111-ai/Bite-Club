@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { Clock, Heart, Search } from 'lucide-react';
@@ -38,6 +39,7 @@ export default function RestaurantMenuClientView({
   items,
   orderingContext = 'restaurant',
 }: Props) {
+  const t = useTranslations('restaurants');
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -99,14 +101,14 @@ export default function RestaurantMenuClientView({
               <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Search menu items..."
+                placeholder={t('searchMenuItems')}
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 className="pl-9"
               />
             </div>
             <div className="rounded-xl border p-2">
-              <p className="px-2 py-1 text-sm font-medium">Categories</p>
+              <p className="px-2 py-1 text-sm font-medium">{t('categories')}</p>
               {visibleCategories.length > 0 ? (
                 visibleCategories.map((category) => (
                   <button
@@ -127,7 +129,7 @@ export default function RestaurantMenuClientView({
                 ))
               ) : (
                 <p className="px-2 py-2 text-sm text-muted-foreground">
-                  No categories found
+                  {t('noCategoriesFound')}
                 </p>
               )}
             </div>
@@ -191,9 +193,9 @@ export default function RestaurantMenuClientView({
             ))
           ) : (
             <div className="flex min-h-48 flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center">
-              <p className="font-medium">No menu items found</p>
+              <p className="font-medium">{t('noMenuItems')}</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Try a different search term.
+                {t('tryDifferentSearch')}
               </p>
             </div>
           )}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,6 +21,8 @@ type Props = {
 };
 
 export function ProfileEditForm({ user }: Props) {
+  const tCommon = useTranslations('common');
+  const tFields = useTranslations('forms.editUser.fields');
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -77,7 +80,7 @@ export function ProfileEditForm({ user }: Props) {
     <form onSubmit={onSubmit}>
       <Card className="mx-auto max-w-lg space-y-6 p-6">
         <div className="space-y-3">
-          <Label>Profile Photo</Label>
+          <Label>{tCommon('profilePhoto')}</Label>
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16">
               <AvatarImage src={previewUrl} />
@@ -90,7 +93,7 @@ export function ProfileEditForm({ user }: Props) {
               variant="outline"
               onClick={() => fileInputRef.current?.click()}
             >
-              Change Photo
+              {tCommon('changePhoto')}
             </Button>
             <input
               ref={fileInputRef}
@@ -108,11 +111,11 @@ export function ProfileEditForm({ user }: Props) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="first_name">First Name</Label>
+          <Label htmlFor="first_name">{tFields('firstName.label')}</Label>
           <Input
             id="first_name"
             {...register('first_name')}
-            placeholder="First name"
+            placeholder={tFields('firstName.placeholder')}
           />
           {errors.first_name && (
             <p className="text-sm text-destructive">
@@ -122,11 +125,11 @@ export function ProfileEditForm({ user }: Props) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="last_name">Last Name</Label>
+          <Label htmlFor="last_name">{tFields('lastName.label')}</Label>
           <Input
             id="last_name"
             {...register('last_name')}
-            placeholder="Last name"
+            placeholder={tFields('lastName.placeholder')}
           />
           {errors.last_name && (
             <p className="text-sm text-destructive">
@@ -136,11 +139,11 @@ export function ProfileEditForm({ user }: Props) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="username">Username</Label>
+          <Label htmlFor="username">{tFields('username.label')}</Label>
           <Input
             id="username"
             {...register('username')}
-            placeholder="username"
+            placeholder={tFields('username.placeholder')}
           />
           {errors.username && (
             <p className="text-sm text-destructive">
@@ -152,7 +155,7 @@ export function ProfileEditForm({ user }: Props) {
         <div className="flex gap-3 pt-2">
           <Link href="/profile" className="flex-1">
             <Button variant="outline" className="w-full" type="button">
-              Cancel
+              {tCommon('cancel')}
             </Button>
           </Link>
           <Button
@@ -160,7 +163,7 @@ export function ProfileEditForm({ user }: Props) {
             type="submit"
             disabled={isSubmitting || isExecuting}
           >
-            {isSubmitting || isExecuting ? 'Saving...' : 'Save Changes'}
+            {isSubmitting || isExecuting ? tCommon('saving') : tCommon('save')}
           </Button>
         </div>
       </Card>

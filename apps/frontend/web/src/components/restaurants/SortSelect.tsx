@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import {
   Select,
   SelectContent,
@@ -9,11 +10,6 @@ import {
 } from '@/components/ui/select';
 import { useRestaurantSearchParams } from './useRestaurantSearchParams';
 
-const sortOptions = [
-  { value: 'rating', label: 'Rating' },
-  { value: 'name', label: 'Alphabetical' },
-] as const;
-
 type SortValue = (typeof sortOptions)[number]['value'];
 
 type Props = {
@@ -21,7 +17,13 @@ type Props = {
 };
 
 export default function SortSelect({ value }: Props) {
+  const t = useTranslations('restaurants');
   const { setParam } = useRestaurantSearchParams();
+
+  const sortOptions = [
+    { value: 'rating', label: t('rating') },
+    { value: 'name', label: t('alphabetical') },
+  ] as const;
 
   return (
     <Select
@@ -30,7 +32,7 @@ export default function SortSelect({ value }: Props) {
         setParam('sort', next === 'rating' ? null : next)
       }>
       <SelectTrigger className="w-full sm:w-48">
-        <SelectValue placeholder="Sort by" />
+        <SelectValue placeholder={t('sortBy')} />
       </SelectTrigger>
       <SelectContent>
         {sortOptions.map((option) => (

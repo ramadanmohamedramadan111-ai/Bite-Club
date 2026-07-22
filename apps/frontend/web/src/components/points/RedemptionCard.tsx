@@ -1,10 +1,11 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import type { Redemption } from '@/types/points/points';
-import { formatPointsDate, redemptionStatusLabel } from './points-utils';
+import { formatPointsDate } from './points-utils';
 import { usePointsStore } from '@/lib/const-data';
 import { toast } from 'sonner';
 
@@ -28,11 +29,12 @@ export default function RedemptionCard({
   redemption,
   showUseAction = false,
 }: Props) {
+  const t = useTranslations('points');
   const useRedemption = usePointsStore((state) => state.useRedemption);
 
   function handleUse() {
     useRedemption(redemption.id);
-    toast.success('Redemption marked as used');
+    toast.success(t('redemptionUsed'));
   }
 
   return (
@@ -47,26 +49,26 @@ export default function RedemptionCard({
                 statusStyles(redemption.status),
               )}
             >
-              {redemptionStatusLabel(redemption.status)}
+              {t(redemption.status)}
             </span>
           </div>
           <p className="text-sm text-muted-foreground">
-            Code: <span className="font-mono">{redemption.code}</span>
+            {t('code')} <span className="font-mono">{redemption.code}</span>
           </p>
           <p className="text-xs text-muted-foreground">
-            Redeemed {formatPointsDate(redemption.redeemedAt)} · Expires{' '}
+            {t('redeemed')} {formatPointsDate(redemption.redeemedAt)} · {t('expires')}{' '}
             {formatPointsDate(redemption.expiresAt)}
           </p>
           {redemption.pointsSpent > 0 && (
             <p className="text-xs text-muted-foreground">
-              {redemption.pointsSpent.toLocaleString()} points spent
+              {redemption.pointsSpent.toLocaleString()} {t('pointsSpent')}
             </p>
           )}
         </div>
 
         {showUseAction && redemption.status === 'active' && (
           <Button size="sm" variant="outline" onClick={handleUse}>
-            Mark as used
+            {t('markAsUsed')}
           </Button>
         )}
       </CardContent>

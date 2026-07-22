@@ -1,6 +1,9 @@
+import { getTranslations } from 'next-intl/server';
 import React from 'react';
 
-export default function UsersFallback() {
+export default async function UsersFallback() {
+  const t = await getTranslations('common');
+
   return (
     <div
       className="
@@ -8,7 +11,7 @@ export default function UsersFallback() {
           text-center
           text-muted-foreground
         ">
-      No users found
+      {t('noUsersFound')}
     </div>
   );
 }

@@ -1,3 +1,6 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import AvailabilityFilter from './AvailabilityFilter';
@@ -18,6 +21,7 @@ type Props = {
 };
 
 export default function RestaurantFiltersPanel({ categories, values }: Props) {
+  const t = useTranslations('restaurants');
   const hasActiveFilters =
     values.selectedCategories.length > 0 ||
     values.minRating > 0 ||
@@ -28,7 +32,7 @@ export default function RestaurantFiltersPanel({ categories, values }: Props) {
   return (
     <Card className="">
       <CardHeader className="flex flex-row items-center justify-between gap-2">
-        <CardTitle className="text-base">Filters</CardTitle>
+        <CardTitle className="text-base">{t('filters')}</CardTitle>
         {hasActiveFilters && <ClearFiltersButton />}
       </CardHeader>
       <CardContent className="space-y-6">

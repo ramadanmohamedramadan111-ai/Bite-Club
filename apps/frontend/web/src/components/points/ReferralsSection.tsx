@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Copy, UserPlus } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -10,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { useSocialStore } from '@/stores/social';
 
 export default function ReferralsSection() {
+  const t = useTranslations('points');
   const profile = useSocialStore((state) => state.profile);
   const [referralLink, setReferralLink] = useState('');
 
@@ -26,18 +28,18 @@ export default function ReferralsSection() {
 
     try {
       await navigator.clipboard.writeText(referralLink);
-      toast.success('Referral link copied!');
+      toast.success(t('referralCopied'));
     } catch {
-      toast.error('Failed to copy link');
+      toast.error(t('referralCopyFailed'));
     }
   }
 
   return (
     <section className="space-y-4">
       <div>
-        <h2 className="text-xl font-semibold">Referrals</h2>
+        <h2 className="text-xl font-semibold">{t('referrals')}</h2>
         <p className="text-sm text-muted-foreground">
-          Share your link with friends so they can sign up.
+          {t('referralsDesc')}
         </p>
       </div>
 
@@ -48,9 +50,9 @@ export default function ReferralsSection() {
               <UserPlus className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="font-medium">Your referral link</p>
+              <p className="font-medium">{t('referralLink')}</p>
               <p className="text-sm text-muted-foreground">
-                Invite friends to join Bite Club
+                {t('referralInvite')}
               </p>
             </div>
           </div>
@@ -68,7 +70,7 @@ export default function ReferralsSection() {
               disabled={!referralLink}
             >
               <Copy className="mr-2 h-4 w-4" />
-              Copy link
+              {t('copyLink')}
             </Button>
           </div>
         </CardContent>

@@ -1,12 +1,13 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useRestaurantSearchParams } from './useRestaurantSearchParams';
 
 const filters = [
-  { key: 'delivery', label: 'Delivery' },
-  { key: 'pickup', label: 'Pickup' },
+  { key: 'delivery', labelKey: 'delivery' as const },
+  { key: 'pickup', labelKey: 'pickup' as const },
 ] as const;
 
 type FilterKey = (typeof filters)[number]['key'];
@@ -16,11 +17,12 @@ type Props = {
 };
 
 export default function RestaurantFilters({ values }: Props) {
+  const t = useTranslations('restaurants');
   const { setBooleanParam } = useRestaurantSearchParams();
 
   return (
     <div className="space-y-3">
-      <p className="text-sm font-medium">Options</p>
+      <p className="text-sm font-medium">{t('options')}</p>
       <div className="space-y-2">
         {filters.map((filter) => {
           const id = `filter-${filter.key}`;
@@ -35,7 +37,7 @@ export default function RestaurantFilters({ values }: Props) {
                 }
               />
               <Label htmlFor={id} className="font-normal">
-                {filter.label}
+                {t(filter.labelKey)}
               </Label>
             </div>
           );

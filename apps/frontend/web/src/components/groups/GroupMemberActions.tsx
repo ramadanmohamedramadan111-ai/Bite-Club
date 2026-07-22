@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { MoreHorizontal, ShieldCheck, ShieldAlert, UserMinus } from 'lucide-react';
 
@@ -35,6 +36,7 @@ export default function GroupMemberActions({
   currentUserRole,
   targetRole,
 }: Props) {
+  const t = useTranslations('groups');
   const [activeAction, setActiveAction] = useState<'promote' | 'demote' | 'remove' | null>(null);
 
   const { execute: removeMember, isExecuting: isRemoving } = useAction(
@@ -85,21 +87,21 @@ export default function GroupMemberActions({
 
   const dialogConfig = {
     promote: {
-      title: 'Promote to admin?',
-      description: 'Are you sure you want to promote this member to an administrator? They will have access to manage group settings and members.',
-      confirmText: 'Promote',
+      title: t('promoteToAdminTitle'),
+      description: t('promoteToAdminDesc'),
+      confirmText: t('promote'),
       onConfirm: () => promoteMember({ user_id: memberId, group_id: groupId }),
     },
     demote: {
-      title: 'Demote to member?',
-      description: 'Are you sure you want to demote this administrator to a regular member? They will lose administrative privileges.',
-      confirmText: 'Demote',
+      title: t('demoteToMemberTitle'),
+      description: t('demoteToMemberDesc'),
+      confirmText: t('demote'),
       onConfirm: () => demoteMember({ user_id: memberId, group_id: groupId }),
     },
     remove: {
-      title: 'Remove from group?',
-      description: 'Are you sure you want to remove this member from the group? They will no longer be able to access the group cart or participate in group orders.',
-      confirmText: 'Remove',
+      title: t('removeMemberTitle'),
+      description: t('removeMemberDesc'),
+      confirmText: t('remove'),
       onConfirm: () => removeMember({ user_id: memberId, group_id: groupId }),
     },
   };
@@ -114,7 +116,7 @@ export default function GroupMemberActions({
           disabled={disabledCondition}
           onClick={() => setActiveAction('promote')}>
           <ShieldCheck />
-          <span>Promote to admin</span>
+          <span>{t('promoteToAdmin')}</span>
         </DropdownMenuItem>,
       );
 
@@ -125,7 +127,7 @@ export default function GroupMemberActions({
           variant="destructive"
           onClick={() => setActiveAction('remove')}>
           <UserMinus />
-          <span>Remove from group</span>
+          <span>{t('removeFromGroup')}</span>
         </DropdownMenuItem>,
       );
     }
@@ -137,7 +139,7 @@ export default function GroupMemberActions({
           disabled={disabledCondition}
           onClick={() => setActiveAction('demote')}>
           <ShieldAlert />
-          <span>Demote to member</span>
+          <span>{t('demoteToMember')}</span>
         </DropdownMenuItem>,
       );
 
@@ -148,7 +150,7 @@ export default function GroupMemberActions({
           variant="destructive"
           onClick={() => setActiveAction('remove')}>
           <UserMinus />
-          <span>Remove from group</span>
+          <span>{t('removeFromGroup')}</span>
         </DropdownMenuItem>,
       );
     }
@@ -162,7 +164,7 @@ export default function GroupMemberActions({
         variant="destructive"
         onClick={() => setActiveAction('remove')}>
         <UserMinus />
-        <span>Remove from group</span>
+        <span>{t('removeFromGroup')}</span>
       </DropdownMenuItem>,
     );
   }
@@ -177,7 +179,7 @@ export default function GroupMemberActions({
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" disabled={disabledCondition}>
             <MoreHorizontal className="size-4" />
-            <span className="sr-only">Open actions</span>
+            <span className="sr-only">{t('openActions')}</span>
           </Button>
         </DropdownMenuTrigger>
 

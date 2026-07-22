@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 import { Dialog as DialogPrimitive } from 'radix-ui';
+import { useLocale, useTranslations } from 'next-intl';
+import { getLangDir } from 'rtl-detect';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -55,6 +57,10 @@ function DialogContent({
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean;
 }) {
+  const locale = useLocale();
+  const direction = getLangDir(locale);
+  const isRtl = direction === 'rtl';
+  const t = useTranslations('common');
   return (
     <DialogPortal>
       <DialogOverlay />
@@ -70,10 +76,10 @@ function DialogContent({
           <DialogPrimitive.Close data-slot="dialog-close" asChild>
             <Button
               variant="ghost"
-              className="absolute top-2 right-2"
+              className={`absolute top-2 ${isRtl ? 'left-2' : 'right-2'}`}
               size="icon-sm">
               <XIcon />
-              <span className="sr-only">Close</span>
+              <span className="sr-only">{t('close')}</span>
             </Button>
           </DialogPrimitive.Close>
         )}

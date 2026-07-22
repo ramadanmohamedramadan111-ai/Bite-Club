@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import InvalidSearchParams from '@/components/errors/InvalidSearchParams';
 import { GroupDetailContent } from '@/components/groups/GroupDetailContent';
 import GroupHeader from '@/components/groups/GroupHeader';
@@ -30,6 +31,8 @@ export default async function Page({ params, searchParams }: PageProps) {
     return <InvalidSearchParams />;
   }
 
+  const t = await getTranslations('groups');
+
   const data = await serverFetch<ApiResponse<GroupType>>(
     `/groups/${id}`,
     'GET',
@@ -44,9 +47,9 @@ export default async function Page({ params, searchParams }: PageProps) {
   if (!group) {
     return (
       <div className="container mx-auto py-16 text-center">
-        <h1 className="text-2xl font-bold">Group not found</h1>
+        <h1 className="text-2xl font-bold">{t('groupNotFound')}</h1>
         <p className="mt-2 text-muted-foreground">
-          This group does not exist or you do not have access.
+          {t('groupNotFoundDesc')}
         </p>
       </div>
     );

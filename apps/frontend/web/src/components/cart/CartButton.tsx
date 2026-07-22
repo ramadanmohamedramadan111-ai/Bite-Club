@@ -1,6 +1,8 @@
 'use client';
 
 import { ShoppingCart } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
+import { getLangDir } from 'rtl-detect';
 import { useCartStore } from '@/stores/cart';
 import { useCartDrawerStore } from '@/stores/cart-drawer';
 import { Button } from '@/components/ui/button';
@@ -11,6 +13,10 @@ type Props = {
 };
 
 export default function CartButton({ className }: Props) {
+  const locale = useLocale();
+  const direction = getLangDir(locale);
+  const isRtl = direction === 'rtl';
+  const t = useTranslations('common');
   const cart = useCartStore((state) => state.cart);
 
   const items = cart?.items;
@@ -32,10 +38,10 @@ export default function CartButton({ className }: Props) {
           openDrawer();
         }
       }}
-      aria-label={`Cart with ${itemsCount} items`}>
+      aria-label={t('cartWithItems', { count: itemsCount })}>
       <ShoppingCart className="size-5" />
       {itemsCount > 0 && (
-        <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
+        <span className={cn('absolute -top-0.5 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground', isRtl ? '-left-0.5' : '-right-0.5')}>
           {itemsCount > 99 ? '99+' : itemsCount}
         </span>
       )}

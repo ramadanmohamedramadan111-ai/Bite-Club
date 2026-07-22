@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { ExternalLink, Users } from 'lucide-react';
 
@@ -14,6 +15,7 @@ type Props = {
 };
 
 export default function RestaurantGroupOrderActions({ restaurant }: Props) {
+  const t = useTranslations('restaurants');
   const cart = useCartStore((state) => state.cart);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -28,7 +30,7 @@ export default function RestaurantGroupOrderActions({ restaurant }: Props) {
       <Button asChild variant="outline" className="gap-2">
         <Link href={`/group-order/${sessionId}`}>
           <ExternalLink className="size-4" />
-          View group order
+          {t('viewGroupOrder')}
         </Link>
       </Button>
     );
@@ -41,7 +43,7 @@ export default function RestaurantGroupOrderActions({ restaurant }: Props) {
         className="gap-2"
         onClick={() => setDialogOpen(true)}>
         <Users className="size-4" />
-        Create group order
+        {t('createGroupOrder')}
       </Button>
 
       <CreateGroupOrderDialog

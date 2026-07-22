@@ -7,6 +7,8 @@ import {
   PaginationPrevious,
   PaginationNext,
 } from '@/components/ui/pagination';
+import { useTranslations, useLocale } from 'next-intl';
+import { getLangDir } from 'rtl-detect';
 
 type Props = {
   currentPage: number;
@@ -19,15 +21,20 @@ export default function DialogPagination({
   totalPages,
   onPageChange,
 }: Props) {
+  const t = useTranslations('pagination');
+  const locale = useLocale();
+  const direction = getLangDir(locale);
+
   if (totalPages <= 1) {
     return null;
   }
 
   return (
-    <Pagination>
+    <Pagination dir={direction}>
       <PaginationContent className="w-full justify-between">
         <PaginationItem>
           <PaginationPrevious
+            text={t('previous')}
             href="#"
             aria-disabled={currentPage === 1}
             className={
@@ -47,12 +54,13 @@ export default function DialogPagination({
 
         <PaginationItem>
           <span className="text-sm text-muted-foreground">
-            Page {currentPage} of {totalPages}
+            {t('pageOf', { current: currentPage, total: totalPages })}
           </span>
         </PaginationItem>
 
         <PaginationItem>
           <PaginationNext
+            text={t('next')}
             href="#"
             aria-disabled={currentPage === totalPages}
             className={

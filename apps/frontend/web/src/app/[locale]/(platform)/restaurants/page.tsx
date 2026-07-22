@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import { getTranslations } from 'next-intl/server';
 import RestaurantCard from '@/components/restaurants/RestaurantCard';
 import RestaurantFiltersPanel from '@/components/restaurants/RestaurantFiltersPanel';
 import RestaurantSearch from '@/components/restaurants/RestaurantSearch';
@@ -26,6 +27,7 @@ type PageProps = {
 };
 
 export default async function Page({ searchParams }: PageProps) {
+  const t = await getTranslations('restaurants');
   const {
     page = '1',
     category = '',
@@ -70,9 +72,9 @@ export default async function Page({ searchParams }: PageProps) {
   return (
     <div className="container mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">Restaurants</h1>
+        <h1 className="text-3xl font-bold">{t('title')}</h1>
         <p className="mt-2 text-muted-foreground">
-          Discover the best restaurants near you
+          {t('subtitle')}
         </p>
       </div>
 
@@ -89,7 +91,7 @@ export default async function Page({ searchParams }: PageProps) {
                     fallback={
                       <div className="h-8 w-48 animate-pulse rounded-lg bg-muted" />
                     }>
-                    <div>Sort: </div>
+                    <div>{t('sort')}</div>
                     <SortSelect value={sort as 'rating' | 'name'} />
                   </Suspense>
                 </div>
@@ -120,8 +122,7 @@ export default async function Page({ searchParams }: PageProps) {
 
         <div className="min-w-0 flex-1">
           <p className="text-sm text-muted-foreground mb-4">
-            {totalItems} restaurant
-            {totalItems === 1 ? '' : 's'}
+            {totalItems} {totalItems === 1 ? t('restaurant') : t('restaurants_plural')}
           </p>
 
           {restaurants.length > 0 ? (
@@ -132,9 +133,9 @@ export default async function Page({ searchParams }: PageProps) {
             </div>
           ) : (
             <div className="flex min-h-64 flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center">
-              <p className="text-lg font-medium">No restaurants found</p>
+              <p className="text-lg font-medium">{t('noRestaurantsFound')}</p>
               <p className="mt-2 text-sm text-muted-foreground">
-                Try adjusting your filters or search query.
+                {t('adjustFilters')}
               </p>
             </div>
           )}

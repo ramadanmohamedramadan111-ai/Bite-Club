@@ -1,10 +1,12 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Coins } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { usePointsStore } from '@/lib/const-data';
 
 export default function PointsBalanceCard() {
+  const t = useTranslations('points');
   const pointsBalance = usePointsStore((state) => state.pointsBalance);
 
   return (
@@ -14,7 +16,7 @@ export default function PointsBalanceCard() {
           <Coins className="h-7 w-7 text-primary" />
         </div>
         <div>
-          <p className="text-sm text-muted-foreground">Your points balance</p>
+          <p className="text-sm text-muted-foreground">{t('pointsBalance')}</p>
           <p className="text-3xl font-bold">{pointsBalance.toLocaleString()}</p>
         </div>
       </CardContent>

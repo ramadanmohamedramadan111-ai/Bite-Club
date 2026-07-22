@@ -16,6 +16,7 @@ import { copyOrderAction } from '@/actions/feed';
 import { toast } from 'sonner';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
+import { useTranslations } from 'next-intl';
 
 interface PostsResponse {
   posts: PostType[];
@@ -42,6 +43,8 @@ interface LeaderboardItem {
 
 export default function FeedClientView() {
   const router = useRouter();
+  const t = useTranslations('feed');
+  const tc = useTranslations('common');
   const [activeMainTab, setActiveMainTab] = useState<'posts' | 'leaderboard'>(
     'posts',
   );
@@ -95,15 +98,15 @@ export default function FeedClientView() {
       onSuccess: ({ data }) => {
         if (data?.success) {
           toast.success(
-            data.message || 'Order copied to your cart successfully!',
+            data.message || tc('copySuccess'),
           );
           router.push('/cart');
         } else {
-          toast.error(data?.message || 'Failed to copy order.');
+          toast.error(data?.message || tc('copyFailed'));
         }
       },
       onError: ({ error }) => {
-        toast.error(error.serverError?.message || 'Failed to copy order.');
+        toast.error(error.serverError?.message || tc('copyFailed'));
       },
     },
   );
@@ -125,17 +128,16 @@ export default function FeedClientView() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground via-foreground/90 to-muted-foreground bg-clip-text text-transparent">
-            Social Feed
+            {t('socialFeed')}
           </h1>
           <p className="mt-1 text-muted-foreground">
-            Explore orders, copy meals to your cart, and see the weekly
-            champions.
+            {t('socialFeedDesc')}
           </p>
         </div>
         <Link href="/feed/create">
           <Button className="shadow-md hover:shadow-lg transition-all duration-200">
             <Plus className="mr-2 h-5 w-5" />
-            Create Post
+            {t('createPost')}
           </Button>
         </Link>
       </div>
@@ -147,13 +149,13 @@ export default function FeedClientView() {
         className="w-full">
         <TabsList className="grid w-full grid-cols-2 bg-muted/60 rounded-xl">
           <TabsTrigger value="posts" className="rounded-lg transition-all">
-            Posts Feed
+            {t('postsFeed')}
           </TabsTrigger>
           <TabsTrigger
             value="leaderboard"
             className="rounded-lg transition-all flex items-center justify-center gap-2">
             <Trophy className="h-4 w-4 text-amber-500" />
-            Leaderboard
+            {t('leaderboard')}
           </TabsTrigger>
         </TabsList>
 
@@ -162,7 +164,7 @@ export default function FeedClientView() {
           {isLoadingPosts ? (
             <div className="flex flex-col items-center justify-center py-20 gap-3">
               <Loader2 className="h-10 w-10 animate-spin text-primary" />
-              <p className="text-sm text-muted-foreground">Loading posts...</p>
+              <p className="text-sm text-muted-foreground">{tc('loadingPosts')}</p>
             </div>
           ) : posts.length > 0 ? (
             <div className="space-y-6">
@@ -188,17 +190,17 @@ export default function FeedClientView() {
 
               {!hasNextPage && (
                 <p className="py-8 text-center text-sm text-muted-foreground">
-                  You&apos;ve reached the end of the feed ✨
+                  {tc('reachedEndOfFeed')}
                 </p>
               )}
             </div>
           ) : (
             <div className="rounded-2xl border border-dashed p-16 text-center">
               <p className="text-muted-foreground">
-                No posts found in the feed.
+                {tc('noPostsFeed')}
               </p>
               <Link href="/feed/create" className="mt-4 inline-block">
-                <Button variant="outline">Share your first meal</Button>
+                <Button variant="outline">{tc('shareFirstMeal')}</Button>
               </Link>
             </div>
           )}
@@ -212,7 +214,7 @@ export default function FeedClientView() {
             <div className="flex flex-col items-center justify-center py-20 gap-3">
               <Loader2 className="h-10 w-10 animate-spin text-primary" />
               <p className="text-sm text-muted-foreground">
-                Loading leaderboard rankings...
+                {t('leaderboardLoading')}
               </p>
             </div>
           ) : leaderboardItems.length > 0 ? (
@@ -380,7 +382,7 @@ export default function FeedClientView() {
           ) : (
             <div className="rounded-2xl border border-dashed p-16 text-center">
               <p className="text-muted-foreground">
-                No leaderboard entries found for this week.
+                {t('noLeaderboard')}
               </p>
             </div>
           )}

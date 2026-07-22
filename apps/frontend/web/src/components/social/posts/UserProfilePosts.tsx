@@ -6,6 +6,7 @@ import type { Post } from '@/types/social/posts';
 import { Loader2 } from 'lucide-react';
 import { useSocialStore } from '@/stores/social';
 import { useAddToIndividualCart } from '@/lib/const-data';
+import { useTranslations } from 'next-intl';
 
 interface UserProfilePostsProps {
   userId: string;
@@ -18,6 +19,7 @@ export function UserProfilePosts({
   userId,
   onAddToCart,
 }: UserProfilePostsProps) {
+  const tc = useTranslations('common');
   const allPosts = useSocialStore((state) => state.posts);
   const { addFromPost, dialog } = useAddToIndividualCart();
 
@@ -102,7 +104,7 @@ export function UserProfilePosts({
   if (posts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-12">
-        <p className="text-muted-foreground">No posts yet</p>
+        <p className="text-muted-foreground">{tc('noPostsYet')}</p>
       </div>
     );
   }
@@ -137,7 +139,7 @@ export function UserProfilePosts({
 
         {!hasNextPage && (
           <p className="py-4 text-center text-sm text-muted-foreground">
-            No more posts to load
+            {tc('noMore')}
           </p>
         )}
       </div>

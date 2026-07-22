@@ -1,5 +1,7 @@
 'use client';
 
+import { useLocale, useTranslations } from 'next-intl';
+import { getLangDir } from 'rtl-detect';
 import { X, Trash2 } from 'lucide-react';
 import GroupCartActionButton from './GroupCartActionButton';
 
@@ -33,6 +35,10 @@ type CartDrawerProps = {
 };
 
 export default function CartDrawer({ open, onClose }: CartDrawerProps) {
+  const t = useTranslations('common');
+  const locale = useLocale();
+  const direction = getLangDir(locale);
+  const isRtl = direction === 'rtl';
   const cart = useCartStore((state) => state.cart);
   const clearCart = useCartStore((state) => state.clearCart);
   const removeItem = useCartStore((state) => state.removeItem);
@@ -105,21 +111,22 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
   return (
     <aside
       className={`
-        fixed top-[64px] right-0 z-50
+        fixed top-[64px] z-50
+        ${isRtl ? 'left-0' : 'right-0'}
         flex h-[calc(100vh-64px)] w-[320px] sm:w-[400px] flex-col
-        border-l border-border
+        ${isRtl ? 'border-r' : 'border-l'} border-border
         bg-background text-foreground
         shadow-xl
         transition-transform duration-300 ease-in-out
-        ${open ? 'translate-x-0' : 'translate-x-full'}
+        ${open ? 'translate-x-0' : isRtl ? '-translate-x-full' : 'translate-x-full'}
       `}>
       {/* Header */}
       <div className="flex shrink-0 items-center justify-between border-b border-border p-4">
         <div className="flex items-center gap-3">
           <div>
-            <h2>Cart</h2>
+            <h2>{t('yourCart')}</h2>
             <p className="text-xs text-muted-foreground">
-              Individual Order {cart?.restaurant && `(${cart.restaurant.name})`}
+              {t('individualOrder')} {cart?.restaurant && `(${cart.restaurant.name})`}
             </p>
           </div>
         </div>
@@ -135,22 +142,21 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                     hover:bg-destructive/10
                   ">
                   <Trash2 size={15} />
-                  Clear
+                  {t('clearCart')}
                 </button>
               </AlertDialogTrigger>
 
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Clear your cart?</AlertDialogTitle>
+                  <AlertDialogTitle>{t('clearCartTitle')}</AlertDialogTitle>
 
                   <AlertDialogDescription>
-                    This will remove all items from your cart. This action
-                    cannot be undone.
+                    {t('clearCartDescription')}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
 
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
 
                   <AlertDialogAction
                     onClick={handleClearCart}
@@ -159,7 +165,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                       bg-destructive text-destructive-foreground
                       hover:bg-destructive/90
                     ">
-                    Clear Cart
+                    {t('clearCart')}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -181,7 +187,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
       {/* Items */}
       <div className="flex-1 overflow-y-auto p-4">
         {cartItems.length === 0 ? (
-          <p className="text-muted-foreground">Your cart is empty</p>
+          <p className="text-muted-foreground">{t('yourCartIsEmpty')}</p>
         ) : (
           <div className="space-y-3">
             {cartItems.map((item) => (
@@ -229,7 +235,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
 
                   <div>
                     <p className="font-medium">
-                      EGP {item.total_price.toFixed(2)}
+                      {t('egp')} {item.total_price.toFixed(2)}
                     </p>
                     <button
                       onClick={() => handleRemoveItemCart(item.id)}
@@ -238,7 +244,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
     text-sm text-destructive
     hover:underline
   ">
-                      Remove
+                      {t('remove')}
                     </button>
                   </div>
                 </div>
@@ -246,7 +252,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                 {/* Special instructions */}
                 {item.notes && (
                   <div className="text-sm text-muted-foreground">
-                    <p className="font-medium text-foreground">Note:</p>
+                    <p className="font-medium text-foreground">{t('note')}</p>
 
                     <p>{item.notes}</p>
                   </div>
@@ -280,9 +286,9 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
           )} */}
 
           <div className="flex justify-between text-sm">
-            <span>Subtotal</span>
+            <span>{t('subtotal')}</span>
 
-            <span>EGP {cart?.subtotal.toFixed(2)}</span>
+            <span>{t('egp')} {cart?.subtotal.toFixed(2)}</span>
           </div>
 
           {/* <div className="flex justify-between text-sm">

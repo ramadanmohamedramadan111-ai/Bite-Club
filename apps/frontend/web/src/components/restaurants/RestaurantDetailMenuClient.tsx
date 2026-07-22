@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { Clock, Search } from 'lucide-react';
@@ -27,6 +28,7 @@ export default function RestaurantDetailMenuClient({
   orderingContext = 'restaurant',
   isAuthenticated,
 }: Props) {
+  const t = useTranslations('restaurants');
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -109,7 +111,7 @@ export default function RestaurantDetailMenuClient({
               <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Search menu items..."
+                placeholder={t('searchMenuItems')}
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 className="pl-9"
@@ -117,7 +119,7 @@ export default function RestaurantDetailMenuClient({
             </div>
 
             <div className="rounded-xl border p-2">
-              <p className="px-2 py-1 text-sm font-medium">Categories</p>
+              <p className="px-2 py-1 text-sm font-medium">{t('categories')}</p>
               {activeCategoriesList.length > 0 ? (
                 activeCategoriesList.map((category) => (
                   <button
@@ -141,7 +143,7 @@ export default function RestaurantDetailMenuClient({
                 ))
               ) : (
                 <p className="px-2 py-2 text-sm text-muted-foreground">
-                  No categories found
+                  {t('noCategoriesFound')}
                 </p>
               )}
             </div>
@@ -194,7 +196,7 @@ export default function RestaurantDetailMenuClient({
                         <div className="flex items-center gap-3 text-xs text-muted-foreground">
                           <span className="inline-flex items-center gap-1">
                             <Clock className="size-3.5" />
-                            15 min
+                            {t('deliveryTime', { time: 15 })}
                           </span>
                         </div>
                       </div>
@@ -205,9 +207,9 @@ export default function RestaurantDetailMenuClient({
             ))
           ) : (
             <div className="flex min-h-48 flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center">
-              <p className="font-medium">No menu items found</p>
+              <p className="font-medium">{t('noMenuItems')}</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Try a different search term.
+                {t('tryDifferentSearch')}
               </p>
             </div>
           )}

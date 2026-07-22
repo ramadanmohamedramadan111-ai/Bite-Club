@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import RestaurantLocationMap from '@/components/restaurants/RestaurantLocationMap';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -12,6 +13,7 @@ type PageProps = {
 };
 
 export default async function RestaurantInfoPage({ params }: PageProps) {
+  const t = await getTranslations('restaurants');
   const { id } = await params;
 
   const data = await serverFetch<ApiResponse<RestaurantType>>(
@@ -25,28 +27,28 @@ export default async function RestaurantInfoPage({ params }: PageProps) {
   }
 
   const days = [
-    { value: 0, label: 'Sunday' },
-    { value: 1, label: 'Monday' },
-    { value: 2, label: 'Tuesday' },
-    { value: 3, label: 'Wednesday' },
-    { value: 4, label: 'Thursday' },
-    { value: 5, label: 'Friday' },
-    { value: 6, label: 'Saturday' },
+    { value: 0, label: t('sunday') },
+    { value: 1, label: t('monday') },
+    { value: 2, label: t('tuesday') },
+    { value: 3, label: t('wednesday') },
+    { value: 4, label: t('thursday') },
+    { value: 5, label: t('friday') },
+    { value: 6, label: t('saturday') },
   ];
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold">Restaurant Info</h2>
+        <h2 className="text-xl font-semibold">{t('restaurantInfo')}</h2>
         <p className="text-sm text-muted-foreground">
-          Contact details, hours, and location
+          {t('infoDesc')}
         </p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>About</CardTitle>
+            <CardTitle>{t('about')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
@@ -70,7 +72,7 @@ export default async function RestaurantInfoPage({ params }: PageProps) {
 
         <Card>
           <CardHeader>
-            <CardTitle>Opening Hours</CardTitle>
+            <CardTitle>{t('openingHours')}</CardTitle>
           </CardHeader>
           <CardContent>
             <dl className="space-y-2">
@@ -87,7 +89,7 @@ export default async function RestaurantInfoPage({ params }: PageProps) {
 
                     <dd className="text-muted-foreground">
                       {!hours || hours.is_closed
-                        ? 'Closed'
+                        ? t('closed')
                         : `${hours.opens_at} - ${hours.closes_at}`}
                     </dd>
                   </div>
@@ -100,7 +102,7 @@ export default async function RestaurantInfoPage({ params }: PageProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Location</CardTitle>
+          <CardTitle>{t('location')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <p className="text-sm text-muted-foreground">{restaurant.address}</p>

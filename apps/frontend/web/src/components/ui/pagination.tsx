@@ -1,8 +1,12 @@
+'use client'
+
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ChevronLeftIcon, ChevronRightIcon, MoreHorizontalIcon } from "lucide-react"
+import { useTranslations, useLocale } from 'next-intl'
+import { getLangDir } from 'rtl-detect'
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
@@ -63,36 +67,46 @@ function PaginationLink({
 
 function PaginationPrevious({
   className,
-  text = "Previous",
+  text,
   ...props
 }: React.ComponentProps<typeof PaginationLink> & { text?: string }) {
+  const t = useTranslations('pagination')
+  const locale = useLocale()
+  const direction = getLangDir(locale)
+  const resolvedText = text ?? t('previous')
+
   return (
     <PaginationLink
-      aria-label="Go to previous page"
+      aria-label={t('previous')}
       size="default"
-      className={cn("pl-1.5!", className)}
+      className={cn(direction === 'rtl' ? "ps-1.5!" : "pl-1.5!", className)}
       {...props}
     >
-      <ChevronLeftIcon data-icon="inline-start" />
-      <span className="hidden sm:block">{text}</span>
+      {direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+      <span className="hidden sm:block">{resolvedText}</span>
     </PaginationLink>
   )
 }
 
 function PaginationNext({
   className,
-  text = "Next",
+  text,
   ...props
 }: React.ComponentProps<typeof PaginationLink> & { text?: string }) {
+  const t = useTranslations('pagination')
+  const locale = useLocale()
+  const direction = getLangDir(locale)
+  const resolvedText = text ?? t('next')
+
   return (
     <PaginationLink
-      aria-label="Go to next page"
+      aria-label={t('next')}
       size="default"
-      className={cn("pr-1.5!", className)}
+      className={cn(direction === 'rtl' ? "pe-1.5!" : "pr-1.5!", className)}
       {...props}
     >
-      <span className="hidden sm:block">{text}</span>
-      <ChevronRightIcon data-icon="inline-end" />
+      <span className="hidden sm:block">{resolvedText}</span>
+      {direction === 'rtl' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
     </PaginationLink>
   )
 }
@@ -101,6 +115,8 @@ function PaginationEllipsis({
   className,
   ...props
 }: React.ComponentProps<"span">) {
+  const t = useTranslations('pagination')
+
   return (
     <span
       aria-hidden
@@ -113,7 +129,7 @@ function PaginationEllipsis({
     >
       <MoreHorizontalIcon
       />
-      <span className="sr-only">More pages</span>
+      <span className="sr-only">{t('morePages')}</span>
     </span>
   )
 }

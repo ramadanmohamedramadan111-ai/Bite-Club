@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useNotificationsStore } from '@/lib/const-data';
@@ -10,6 +11,8 @@ import NotificationsPagination from './NotificationsPagination';
 const NOTIFICATIONS_PER_PAGE = 4;
 
 export default function NotificationsPageView() {
+  const t = useTranslations('notifications');
+  const tc = useTranslations('common');
   const searchParams = useSearchParams();
   const currentPage = Math.max(1, Number(searchParams.get('page') ?? '1'));
 
@@ -43,22 +46,21 @@ export default function NotificationsPageView() {
     <div className="container mx-auto max-w-3xl space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Notifications</h1>
+          <h1 className="text-3xl font-bold">{t('title')}</h1>
           <p className="mt-2 text-muted-foreground">
-            Stay updated on orders, friends, and rewards.
+            {t('subtitle')}
           </p>
         </div>
 
         {hasUnread && (
           <Button variant="outline" onClick={markAllAsRead}>
-            Mark all as read
+            {t('markAllAsRead')}
           </Button>
         )}
       </div>
 
       <p className="text-sm text-muted-foreground">
-        {sortedNotifications.length} notification
-        {sortedNotifications.length === 1 ? '' : 's'}
+        {sortedNotifications.length} {sortedNotifications.length === 1 ? tc('notification') : tc('notifications')}
       </p>
 
       <div className="space-y-3">
@@ -72,7 +74,7 @@ export default function NotificationsPageView() {
           ))
         ) : (
           <div className="flex min-h-48 flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center">
-            <p className="text-muted-foreground">No notifications yet</p>
+            <p className="text-muted-foreground">{t('noNotifications')}</p>
           </div>
         )}
       </div>

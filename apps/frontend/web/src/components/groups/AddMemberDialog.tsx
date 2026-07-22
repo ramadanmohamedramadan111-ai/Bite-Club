@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -14,6 +15,8 @@ import { GroupType } from '@/types/groups/groups';
 import { UserPlus } from 'lucide-react';
 
 export default function AddMemberDialog({ group }: { group: GroupType }) {
+  const t = useTranslations('groups');
+  const tc = useTranslations('common');
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   return (
     <>
@@ -22,14 +25,14 @@ export default function AddMemberDialog({ group }: { group: GroupType }) {
         className="gap-2"
         onClick={() => setAddDialogOpen(true)}>
         <UserPlus className="size-4" />
-        Add member
+        {t('addMember')}
       </Button>
 
       <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add member</DialogTitle>
-            <DialogDescription>Add a friend to {group.name}</DialogDescription>
+            <DialogTitle>{t('addMember')}</DialogTitle>
+            <DialogDescription>{t('addMemberDesc', { name: group.name })}</DialogDescription>
           </DialogHeader>
 
           {/* <div className="max-h-64 space-y-2 overflow-y-auto">
@@ -61,7 +64,7 @@ export default function AddMemberDialog({ group }: { group: GroupType }) {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setAddDialogOpen(false)}>
-              Cancel
+              {tc('cancel')}
             </Button>
           </DialogFooter>
         </DialogContent>

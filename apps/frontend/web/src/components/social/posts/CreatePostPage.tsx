@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import Image from 'next/image';
 import { ArrowLeft, ImagePlus, X } from 'lucide-react';
 import { Link, useRouter } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
@@ -56,6 +57,7 @@ function OrderOption({
 
 export function CreatePostPage({ orders }: { orders: OrderResponse[] }) {
   const router = useRouter();
+  const t = useTranslations('createPost');
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
@@ -122,16 +124,16 @@ export function CreatePostPage({ orders }: { orders: OrderResponse[] }) {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold">Create Post</h1>
+          <h1 className="text-3xl font-bold">{t('title')}</h1>
           <p className="mt-1 text-muted-foreground">
-            Share a meal from one of your previous orders
+            {t('subtitle')}
           </p>
         </div>
       </div>
 
       <div className="mx-auto max-w-lg space-y-6">
         <div className="space-y-3">
-          <Label>Select a previous order</Label>
+          <Label>{t('selectOrder')}</Label>
           {orders.length > 0 ? (
             <div className="max-h-72 space-y-2 overflow-y-auto">
               {orders.map((order) => (
@@ -145,7 +147,7 @@ export function CreatePostPage({ orders }: { orders: OrderResponse[] }) {
             </div>
           ) : (
             <div className="text-center py-6 text-sm text-muted-foreground border rounded-lg border-dashed">
-              You don&apos;t have any completed orders yet.
+              {t('noOrders')}
             </div>
           )}
         </div>
@@ -163,7 +165,7 @@ export function CreatePostPage({ orders }: { orders: OrderResponse[] }) {
 
         <div className="space-y-3">
           <div className="flex items-center justify-between gap-3">
-            <Label>Post images</Label>
+            <Label>{t('postImages')}</Label>
             <Button
               type="button"
               variant="outline"
@@ -171,7 +173,7 @@ export function CreatePostPage({ orders }: { orders: OrderResponse[] }) {
               onClick={() => imageInputRef.current?.click()}
             >
               <ImagePlus className="mr-2 h-4 w-4" />
-              Add Images
+              {t('addImages')}
             </Button>
           </div>
 
@@ -182,7 +184,7 @@ export function CreatePostPage({ orders }: { orders: OrderResponse[] }) {
                   <div className="relative aspect-square">
                     <Image
                       src={image}
-                      alt={`Post image ${index + 1}`}
+                      alt={t('postImageAlt', { index: index + 1 })}
                       fill
                       className="object-cover"
                     />
@@ -204,7 +206,7 @@ export function CreatePostPage({ orders }: { orders: OrderResponse[] }) {
                 className="flex aspect-square flex-col items-center justify-center gap-2 rounded-lg border border-dashed text-muted-foreground transition-colors hover:bg-secondary/50"
               >
                 <ImagePlus className="h-6 w-6" />
-                <span className="text-xs font-medium">Add more</span>
+                <span className="text-xs font-medium">{t('addMore')}</span>
               </button>
             </div>
           ) : (
@@ -214,8 +216,8 @@ export function CreatePostPage({ orders }: { orders: OrderResponse[] }) {
               className="flex w-full flex-col items-center justify-center gap-2 rounded-lg border border-dashed p-8 text-muted-foreground transition-colors hover:bg-secondary/50"
             >
               <ImagePlus className="h-8 w-8" />
-              <span className="text-sm font-medium">Upload post images</span>
-              <span className="text-xs">You can select multiple images</span>
+              <span className="text-sm font-medium">{t('uploadImages')}</span>
+              <span className="text-xs">{t('selectMultiple')}</span>
             </button>
           )}
 
@@ -230,23 +232,23 @@ export function CreatePostPage({ orders }: { orders: OrderResponse[] }) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="caption">Caption</Label>
+          <Label htmlFor="caption">{t('caption')}</Label>
           <textarea
             id="caption"
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
-            placeholder="Share your thoughts about this meal..."
+            placeholder={t('captionPlaceholder')}
             className="h-28 w-full rounded-md border bg-background px-3 py-2 text-sm"
           />
           <p className="text-xs text-muted-foreground">
-            {caption.length}/500 characters
+            {t('charCount', { count: caption.length })}
           </p>
         </div>
 
         <div className="flex gap-3">
           <Link href="/feed" className="flex-1">
             <Button variant="outline" className="w-full">
-              Cancel
+              {t('cancel')}
             </Button>
           </Link>
           <Button
@@ -259,7 +261,7 @@ export function CreatePostPage({ orders }: { orders: OrderResponse[] }) {
               isPosting
             }
           >
-            {isPosting ? 'Posting...' : 'Share Post'}
+            {isPosting ? t('sharing') : t('share')}
           </Button>
         </div>
       </div>

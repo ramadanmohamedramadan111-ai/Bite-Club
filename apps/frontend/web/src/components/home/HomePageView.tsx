@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,13 +16,15 @@ const topRestaurants = [...mockRestaurants]
   .slice(0, 5);
 
 export default function HomePageView() {
+  const t = useTranslations('home');
+
   return (
     <div className="container mx-auto space-y-12 pb-8">
       <section className="space-y-6">
         <div>
-          <h2 className="text-2xl font-bold">Categories</h2>
+          <h2 className="text-2xl font-bold">{t('categories')}</h2>
           <p className="mt-1 text-muted-foreground">
-            Explore food by what you&apos;re craving
+            {t('categoriesDesc')}
           </p>
         </div>
 
@@ -43,14 +46,14 @@ export default function HomePageView() {
       <section className="space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-2xl font-bold">Top restaurants</h2>
+            <h2 className="text-2xl font-bold">{t('topRestaurants')}</h2>
             <p className="mt-1 text-muted-foreground">
-              Highest rated picks near you
+              {t('topRestaurantsDesc')}
             </p>
           </div>
           <Button asChild variant="outline" className="w-fit gap-2">
             <Link href="/restaurants">
-              View all restaurants
+              {t('viewAll')}
               <ArrowRight className="size-4" />
             </Link>
           </Button>

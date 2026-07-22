@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -25,6 +26,7 @@ export default function NotificationCard({
   onMarkAsRead,
   compact = false,
 }: Props) {
+  const t = useTranslations('notifications');
   return (
     <Card
       className={cn(
@@ -55,7 +57,7 @@ export default function NotificationCard({
             size="sm"
             onClick={() => onMarkAsRead(notification.id)}
           >
-            Mark as read
+            {t('markAsRead')}
           </Button>
         )}
       </CardContent>

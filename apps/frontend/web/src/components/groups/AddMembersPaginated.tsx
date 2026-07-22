@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { addGroupMemberAction } from '@/actions/groups';
 import { clientFetch } from '@/utils/client-fetch';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -32,6 +33,9 @@ type Props = {
 };
 
 export default function AddMembersPaginatedDialog({ groupId }: Props) {
+  const t = useTranslations('groups');
+  const tc = useTranslations('common');
+
   // Dialog
   const [open, setOpen] = useState(false);
 
@@ -103,21 +107,21 @@ export default function AddMembersPaginatedDialog({ groupId }: Props) {
       <DialogTrigger asChild>
         <Button>
           <UserPlus className="size-4" />
-          Add members
+          {t('addMembers')}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Add Members</DialogTitle>
+          <DialogTitle>{t('addMembersTitle')}</DialogTitle>
           <DialogDescription>
-            Search for users and select the ones you want to add.
+            {t('addMembersDesc')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between ">
             <span className="text-sm text-muted-foreground">
-              {selectedUserIds.length} selected
+              {t('selected', { count: selectedUserIds.length })}
             </span>
 
             <Button
@@ -125,12 +129,12 @@ export default function AddMembersPaginatedDialog({ groupId }: Props) {
               size="sm"
               onClick={() => setSelectedUserIds([])}
               disabled={selectedUserIds.length === 0}>
-              Clear selection
+              {t('clearSelection')}
             </Button>
           </div>
 
           <Input
-            placeholder="Search users..."
+            placeholder={t('searchUsers')}
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -143,7 +147,7 @@ export default function AddMembersPaginatedDialog({ groupId }: Props) {
           {isPending ? (
             <Spinner />
           ) : users?.length === 0 ? (
-            <p>No users found.</p>
+            <p>{t('noMembersFound')}</p>
           ) : (
             users?.map((user) => {
               const checked = selectedUserIds.includes(user.id);
@@ -194,13 +198,12 @@ export default function AddMembersPaginatedDialog({ groupId }: Props) {
               setOpen(false);
             }}
             disabled={isExecuting}>
-            Cancel
+            {tc('cancel')}
           </Button>
           <Button
             onClick={handleAddMembers}
             disabled={selectedUserIds.length === 0 || isExecuting}>
-            Add {selectedUserIds.length || ''} Member
-            {selectedUserIds.length === 1 ? '' : 's'}
+            {t('addMembers')} {selectedUserIds.length || ''} {selectedUserIds.length === 1 ? t('member') : t('members_plural')}
           </Button>
         </DialogFooter>
       </DialogContent>

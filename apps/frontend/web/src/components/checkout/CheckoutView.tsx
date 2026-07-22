@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 
 import { useRouter } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import { useCartStore } from '@/stores/cart';
 import { useAuthStore } from '@/stores/auth';
 import type { SavedLocation } from '@/components/location/types';
@@ -67,6 +68,8 @@ export default function CheckoutView({ initialLocation }: Props) {
     useState<PaymentMethod>('full_cash');
   const [error, setError] = useState<string | null>(null);
   const [orderNotes, setOrderNotes] = useState('');
+  const t = useTranslations('checkout');
+  const tc = useTranslations('common');
 
   const { data: restaurantResponse, isPending: isLoadingRestaurant } = useQuery(
     {
@@ -93,7 +96,7 @@ export default function CheckoutView({ initialLocation }: Props) {
         } else {
           setCheckoutPreview(null);
           setError(
-            data?.message || 'Selected location is out of the delivery zone.',
+            data?.message || t('outOfDeliveryZone'),
           );
         }
       },
@@ -101,7 +104,7 @@ export default function CheckoutView({ initialLocation }: Props) {
         setCheckoutPreview(null);
         setError(
           error.serverError?.message ||
-            'Selected location is out of the delivery zone.',
+            t('outOfDeliveryZone'),
         );
       },
     });
@@ -114,13 +117,13 @@ export default function CheckoutView({ initialLocation }: Props) {
           setError(null);
         } else {
           setCheckoutPreview(null);
-          setError(data?.message || 'Failed to fetch pickup preview.');
+          setError(data?.message || t('failedToFetchPreview'));
         }
       },
       onError: ({ error }) => {
         setCheckoutPreview(null);
         setError(
-          error.serverError?.message || 'Failed to fetch pickup preview.',
+          error.serverError?.message || t('failedToFetchPreview'),
         );
       },
     });
@@ -141,18 +144,18 @@ export default function CheckoutView({ initialLocation }: Props) {
         if (data?.success && data.data) {
           console.log(`DATA DATA: `, data);
           clearCart();
-          toast.success(data.message || 'Order placed successfully!');
+          toast.success(data.message || t('orderPlaced'));
           if (data.data.payment_url) {
             window.location.href = data.data.payment_url;
           } else {
             router.push(`/orders/${data.data.order_id}`);
           }
         } else {
-          setError(data?.message || 'Failed to place order.');
+          setError(data?.message || t('failedToPlaceOrder'));
         }
       },
       onError: ({ error }) => {
-        setError(error.serverError?.message || 'Failed to place order.');
+        setError(error.serverError?.message || t('failedToPlaceOrder'));
       },
     },
   );
@@ -225,12 +228,12 @@ export default function CheckoutView({ initialLocation }: Props) {
   if (!cart || cart.items.length === 0) {
     return (
       <div className="container mx-auto flex min-h-[60vh] max-w-2xl flex-col items-center justify-center text-center">
-        <h1 className="text-2xl font-bold">Your cart is empty</h1>
+        <h1 className="text-2xl font-bold">{t('yourCartIsEmpty')}</h1>
         <p className="mt-2 text-muted-foreground">
-          Add items from a restaurant menu before checking out.
+          {t('emptyCartDesc')}
         </p>
         <Button asChild className="mt-6">
-          <Link href="/restaurants">Browse restaurants</Link>
+          <Link href="/restaurants">{tc('browseRestaurants')}</Link>
         </Button>
       </div>
     );
@@ -239,7 +242,7 @@ export default function CheckoutView({ initialLocation }: Props) {
   if (isLoadingRestaurant) {
     return (
       <div className="container mx-auto flex min-h-[60vh] max-w-2xl flex-col items-center justify-center text-center">
-        <h1 className="text-xl font-medium">Loading checkout details...</h1>
+          <h1 className="text-xl font-medium">{t('loading')}</h1>
       </div>
     );
   }
@@ -247,12 +250,12 @@ export default function CheckoutView({ initialLocation }: Props) {
   if (!restaurant) {
     return (
       <div className="container mx-auto flex min-h-[60vh] max-w-2xl flex-col items-center justify-center text-center">
-        <h1 className="text-2xl font-bold">Restaurant not found</h1>
+        <h1 className="text-2xl font-bold">{t('restaurantNotFound')}</h1>
         <p className="mt-2 text-muted-foreground">
-          We couldn&apos;t load details for this order.
+          {t('restaurantNotFoundDesc')}
         </p>
         <Button asChild className="mt-6">
-          <Link href="/restaurants">Browse restaurants</Link>
+          <Link href="/restaurants">{tc('browseRestaurants')}</Link>
         </Button>
       </div>
     );
@@ -266,13 +269,13 @@ export default function CheckoutView({ initialLocation }: Props) {
   }[] = [
     {
       value: 'delivery',
-      label: 'Delivery',
+      label: t('delivery'),
       icon: Bike,
       disabled: !restaurant.delivery_enabled,
     },
     {
       value: 'pickup',
-      label: 'Pickup',
+      label: t('pickup'),
       icon: ShoppingBag,
       disabled: !restaurant.pickup_enabled,
     },
@@ -295,7 +298,7 @@ export default function CheckoutView({ initialLocation }: Props) {
 
     if (fulfillmentType === 'delivery') {
       if (!location) {
-        setError('Please select a delivery address before placing your order.');
+        setError(t('noAddressForDelivery'));
         return;
       }
       placeOrderExecute({
@@ -317,9 +320,9 @@ export default function CheckoutView({ initialLocation }: Props) {
   return (
     <div className="container mx-auto space-y-8 ">
       <div>
-        <h1 className="text-3xl font-bold">Checkout</h1>
+        <h1 className="text-3xl font-bold">{t('title')}</h1>
         <p className="mt-1 text-muted-foreground">
-          Complete your order from {cart.restaurant?.name || 'Restaurant'}
+          {t('subtitle', { restaurant: cart.restaurant?.name || 'Restaurant' })}
         </p>
       </div>
 
@@ -328,7 +331,7 @@ export default function CheckoutView({ initialLocation }: Props) {
           {availableFulfillment.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Delivery Options</CardTitle>
+                <CardTitle className="text-base">{t('deliveryOptions')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex gap-1 rounded-lg border bg-muted/40 p-1">
@@ -368,7 +371,7 @@ export default function CheckoutView({ initialLocation }: Props) {
               <AlertCircle className="size-5 shrink-0 mt-0.5" />
               <div>
                 <h4 className="font-semibold text-sm">
-                  Delivery Area Restriction
+                  {t('deliveryAreaRestriction')}
                 </h4>
                 <p className="text-sm mt-1 opacity-90">{error}</p>
               </div>
@@ -378,14 +381,14 @@ export default function CheckoutView({ initialLocation }: Props) {
           {fulfillmentType === 'pickup' && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Pickup Location</CardTitle>
+                <CardTitle className="text-base">{t('pickupLocation')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Pick up your order from:
+                  {t('pickupFrom')}
                 </p>
                 <p className="mt-1 font-medium">
-                  {restaurant.address || 'Restaurant Address'}
+                  {restaurant.address || t('restaurantAddress')}
                 </p>
               </CardContent>
             </Card>
@@ -393,11 +396,11 @@ export default function CheckoutView({ initialLocation }: Props) {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Order Notes</CardTitle>
+              <CardTitle className="text-base">{t('orderNotes')}</CardTitle>
             </CardHeader>
             <CardContent>
               <textarea
-                placeholder="Add special instructions (e.g. gate code, floor number, cutlery preference)..."
+                placeholder={t('orderNotesPlaceholder')}
                 value={orderNotes}
                 onChange={(e) => setOrderNotes(e.target.value)}
                 className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-none"
@@ -407,7 +410,7 @@ export default function CheckoutView({ initialLocation }: Props) {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Payment Method</CardTitle>
+              <CardTitle className="text-base">{t('paymentMethod')}</CardTitle>
             </CardHeader>
             <CardContent>
               <RadioGroup
@@ -443,21 +446,18 @@ export default function CheckoutView({ initialLocation }: Props) {
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <p className="font-medium text-foreground">
-                          Full Cash on{' '}
-                          {fulfillmentType === 'delivery'
-                            ? 'Delivery'
-                            : 'Pickup'}
+                          {t('fullCashOnDelivery')}
                         </p>
                         {summary.requiresDeposit && (
                           <span className="rounded bg-destructive/10 px-2 py-0.5 text-xs font-semibold text-destructive">
-                            Unavailable
+                            {t('unavailable')}
                           </span>
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground mt-0.5">
                         {summary.requiresDeposit
-                          ? 'Not available because this restaurant requires a deposit'
-                          : 'Pay the full amount in cash when you receive your order'}
+                          ? t('depositRequired')
+                          : t('fullCashDesc')}
                       </p>
                     </div>
                   </Label>
@@ -481,11 +481,10 @@ export default function CheckoutView({ initialLocation }: Props) {
                     <CreditCard className="size-5 text-muted-foreground" />
                     <div className="flex-1">
                       <p className="font-medium text-foreground">
-                        Pay Full Online
+                        {t('payFullOnline')}
                       </p>
                       <p className="text-sm text-muted-foreground mt-0.5">
-                        Pay the entire amount ({summary.total.toFixed(2)} EGP)
-                        securely online now
+                        {t('payFullOnlineDesc', { total: summary.total.toFixed(2) })}
                       </p>
                     </div>
                   </Label>
@@ -511,18 +510,15 @@ export default function CheckoutView({ initialLocation }: Props) {
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
                           <p className="font-medium text-foreground">
-                            Split Payment
+                            {t('splitPayment')}
                           </p>
                           <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
-                            Recommended
+                            {t('recommended')}
                           </span>
                         </div>
-                        <p className="text-sm text-muted-foreground mt-0.5">
-                          Pay deposit ({summary.depositAmount.toFixed(2)} EGP)
-                          online now, and the remaining (
-                          {summary.remainingAmount.toFixed(2)} EGP) in cash upon
-                          receipt
-                        </p>
+                          <p className="text-sm text-muted-foreground mt-0.5">
+                            {t('splitPaymentDesc', { deposit: summary.depositAmount.toFixed(2), remaining: summary.remainingAmount.toFixed(2) })}
+                          </p>
                       </div>
                     </Label>
                   </div>
@@ -540,14 +536,14 @@ export default function CheckoutView({ initialLocation }: Props) {
             onClick={handlePlaceOrder}
             disabled={disabledCondition}>
             {isPlacingOrder ? (
-              'Placing order...'
+t('placingOrder')
             ) : (
               <>
                 {paymentMethod === 'split_payment'
-                  ? `Pay Deposit · ${summary.depositAmount.toFixed(2)} EGP`
+                  ? `${t('payDeposit')} · ${summary.depositAmount.toFixed(2)} EGP`
                   : paymentMethod === 'full_online'
-                    ? `Pay Now · ${summary.total.toFixed(2)} EGP`
-                    : `Place Order · ${summary.total.toFixed(2)} EGP`}
+                    ? `${t('payNow')} · ${summary.total.toFixed(2)} EGP`
+                    : `${t('placeOrder')} · ${summary.total.toFixed(2)} EGP`}
               </>
             )}
           </Button>
