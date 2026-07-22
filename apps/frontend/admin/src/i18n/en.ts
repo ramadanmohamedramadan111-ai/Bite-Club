@@ -392,6 +392,8 @@ export const en = {
     approve: 'Approve',
     reject: 'Reject',
     reportReason: 'Report Reason',
+    rejectReason: 'Rejection Reason',
+    enterRejectReason: 'Please enter a reason for rejecting this post...',
   },
   aiMonitoring: {
     title: 'AI Monitoring',

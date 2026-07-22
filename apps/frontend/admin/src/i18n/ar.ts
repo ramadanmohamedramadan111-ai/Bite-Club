@@ -392,6 +392,8 @@ export const ar: Record<string, any> = {
     approve: 'موافقة',
     reject: 'رفض',
     reportReason: 'سبب التبليغ',
+    rejectReason: 'سبب الرفض',
+    enterRejectReason: 'الرجاء إدخال سبب لرفض هذا المنشور...',
   },
   aiMonitoring: {
     title: 'مراقبة الذكاء الاصطناعي',
