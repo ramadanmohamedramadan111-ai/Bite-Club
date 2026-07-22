@@ -3,7 +3,7 @@
 import { PostType } from '@/types/social/posts';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
-import { Heart, ShoppingCart } from 'lucide-react';
+import { Heart, ShoppingCart, Clock } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { PostImages } from './PostImages';
@@ -11,6 +11,7 @@ import { useState, useEffect } from 'react';
 import { useAction } from 'next-safe-action/hooks';
 import { likePostAction, unlikePostAction } from '@/actions/feed';
 import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 
 interface PostCardProps {
   post: PostType;
@@ -20,6 +21,7 @@ interface PostCardProps {
 export function PostCard({ post, onAddToCart }: PostCardProps) {
   const [isLiked, setIsLiked] = useState(post.is_liked_by_user ?? false);
   const [likeCount, setLikeCount] = useState(post.likes_count);
+  const isPending = post.status === 'pending';
 
   useEffect(() => {
     setIsLiked(post.is_liked_by_user ?? false);
@@ -43,6 +45,7 @@ export function PostCard({ post, onAddToCart }: PostCardProps) {
   });
 
   const handleLike = () => {
+    if (isPending) return;
     const nextLiked = !isLiked;
     setIsLiked(nextLiked);
     setLikeCount((prev) => (nextLiked ? prev + 1 : prev - 1));
@@ -57,14 +60,22 @@ export function PostCard({ post, onAddToCart }: PostCardProps) {
   const hasItems = post.order?.items && post.order.items.length > 0;
 
   return (
-    <Card className="flex h-full w-full flex-col overflow-hidden transition-shadow hover:shadow-md">
-      <PostImages
-        post={post}
-        imageClassName="aspect-square"
-        showCounter
-        imageHref={`/posts/${post.id}`}
-        className="transition-all hover:brightness-95"
-      />
+    <Card className={`flex h-full w-full flex-col overflow-hidden transition-shadow hover:shadow-md ${isPending ? 'opacity-60' : ''}`}>
+      <div className="relative">
+        <PostImages
+          post={post}
+          imageClassName="aspect-square"
+          showCounter
+          imageHref={isPending ? undefined : `/posts/${post.id}`}
+          className={isPending ? '' : 'transition-all hover:brightness-95'}
+        />
+        {isPending && (
+          <Badge variant="secondary" className="absolute left-2 top-2 gap-1">
+            <Clock className="h-3 w-3" />
+            Pending
+          </Badge>
+        )}
+      </div>
 
       <div className="p-3">
         <div className="mb-3 flex items-center gap-2">
@@ -115,6 +126,7 @@ export function PostCard({ post, onAddToCart }: PostCardProps) {
             variant="ghost"
             size="sm"
             className="flex-1"
+            disabled={isPending}
             onClick={handleLike}>
             <Heart
               className="mr-1.5 h-4 w-4"
@@ -125,6 +137,7 @@ export function PostCard({ post, onAddToCart }: PostCardProps) {
           <Button
             size="sm"
             className="flex-1"
+            disabled={isPending}
             onClick={() => onAddToCart?.(post)}>
             <ShoppingCart className="mr-1.5 h-4 w-4" />
             Add

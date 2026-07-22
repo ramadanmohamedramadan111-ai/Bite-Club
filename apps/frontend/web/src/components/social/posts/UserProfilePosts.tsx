@@ -5,7 +5,7 @@ import { PostCard } from './PostCard';
 import type { Post } from '@/types/social/posts';
 import { Loader2 } from 'lucide-react';
 import { useSocialStore } from '@/stores/social';
-import { useAddToIndividualCart } from '@/hooks/use-add-to-individual-cart';
+import { useAddToIndividualCart } from '@/lib/const-data';
 
 interface UserProfilePostsProps {
   userId: string;

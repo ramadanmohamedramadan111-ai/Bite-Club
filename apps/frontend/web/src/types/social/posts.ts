@@ -1,5 +1,4 @@
 import { Order } from '../orders/order';
-import { SocialUser } from './friends';
 
 export type PostType = {
   id: number;

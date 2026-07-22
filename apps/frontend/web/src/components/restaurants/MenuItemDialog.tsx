@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { useCartStore } from '@/stores/_cart';
+import { useCartStore } from '@/lib/const-data';
 import MenuItemCustomizer, { type OrderingContext } from './MenuItemCustomizer';
 import type {
   ClientMenuItem,

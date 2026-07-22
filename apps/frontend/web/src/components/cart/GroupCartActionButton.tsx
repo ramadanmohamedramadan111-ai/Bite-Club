@@ -5,8 +5,7 @@ import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
-import { useCartStore } from '@/stores/_cart';
-import { useGroupSessionsStore } from '@/stores/group-sessions';
+import { useCartStore, useGroupSessionsStore } from '@/lib/const-data';
 import { useSessionStore } from '@/stores/session';
 import { isGroupSessionOwner } from '@/utils/group-order';
 

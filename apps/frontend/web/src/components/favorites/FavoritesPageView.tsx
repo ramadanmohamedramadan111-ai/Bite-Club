@@ -1,8 +1,7 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { getFavoriteMenuItems } from '@/data/mock-favorites';
-import { getFavoriteRestaurants } from '@/data/mock-restaurants';
+import { getFavoriteMenuItems, getFavoriteRestaurants } from '@/lib/const-data';
 import RestaurantCard from '@/components/restaurants/RestaurantCard';
 import FavoriteItemCard from './FavoriteItemCard';
 import FavoritesTabs from './FavoritesTabs';

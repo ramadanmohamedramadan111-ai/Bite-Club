@@ -1,4 +1,4 @@
-import type { CartItem, CartSummary } from '@/types/cart/_cart';
+import type { CartItem, CartSummary } from '@/lib/const-data';
 import { groupCartItemsByUser } from '@/utils/cart-grouping';
 import { Separator } from '@/components/ui/separator';
 

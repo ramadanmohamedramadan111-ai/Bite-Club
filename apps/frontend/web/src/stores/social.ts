@@ -1,10 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { mockPosts } from '@/data/mock-posts';
-import { mockPastOrders } from '@/data/mock-past-orders';
-import { socialUsers } from '@/data/social-users';
-import type { PastOrder } from '@/types/social/orders';
+import { mockPosts, mockPastOrders, socialUsers } from '@/lib/const-data';
+import type { PastOrder } from '@/lib/const-data';
 import type { SocialUser } from '@/types/social/friends';
 import type { Post } from '@/types/social/posts';
 import { normalizePost } from '@/types/social/posts';

@@ -7,7 +7,7 @@ import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useSocialStore } from '@/stores/social';
-import { useAddToIndividualCart } from '@/hooks/use-add-to-individual-cart';
+import { useAddToIndividualCart } from '@/lib/const-data';
 
 interface UserProfilePageProps {
   params: Promise<{

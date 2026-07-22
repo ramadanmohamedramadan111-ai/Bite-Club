@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Clock, Heart, Search } from 'lucide-react';
 import type { MenuItem, RestaurantType } from '@/types/restaurant/restaurant';
 
-import { getMenuCategories } from '@/data/restaurant-details';
+import { getMenuCategories } from '@/lib/const-data';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import MenuItemDialog from './MenuItemDialog';

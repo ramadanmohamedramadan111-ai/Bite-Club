@@ -6,9 +6,9 @@ import { Button } from '@/components/ui/button';
 import RestaurantCard from '@/components/restaurants/RestaurantCard';
 import {
   categoryEmojis,
+  mockRestaurants,
   restaurantCategories,
-} from '@/data/restaurant-categories';
-import { mockRestaurants } from '@/data/mock-restaurants';
+} from '@/lib/const-data';
 
 const topRestaurants = [...mockRestaurants]
   .sort((a, b) => b.rating - a.rating)

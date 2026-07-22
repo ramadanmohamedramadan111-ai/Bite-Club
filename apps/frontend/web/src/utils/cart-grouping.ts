@@ -1,4 +1,4 @@
-import type { CartItem, CartMemberReference } from '@/types/cart/_cart';
+import type { CartItem, CartMemberReference } from '@/lib/const-data';
 
 export type UserCartGroup = {
   key: string;

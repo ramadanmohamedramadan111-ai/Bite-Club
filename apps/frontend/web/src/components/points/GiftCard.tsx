@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import type { Gift } from '@/types/points/points';
 import { formatPointsDate } from './points-utils';
-import { usePointsStore } from '@/stores/points';
+import { usePointsStore } from '@/lib/const-data';
 
 function giftStatusLabel(status: Gift['status'], direction: Gift['direction']) {
   if (direction === 'sent' && status === 'available') {

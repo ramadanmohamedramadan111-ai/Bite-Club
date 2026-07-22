@@ -4,9 +4,9 @@ import { Copy } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
-import { useCartStore } from '@/stores/_cart';
+import { useCartStore } from '@/lib/const-data';
 import { useSessionStore } from '@/stores/session';
-import type { CartItem } from '@/types/cart/_cart';
+import type { CartItem } from '@/lib/const-data';
 import { getItemOwnerKey, groupCartItemsByUser } from '@/utils/cart-grouping';
 
 import CartItemRow from './CartItemRow';

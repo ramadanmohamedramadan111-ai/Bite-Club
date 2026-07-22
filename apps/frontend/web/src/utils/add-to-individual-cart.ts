@@ -1,7 +1,7 @@
-import type { Cart, CartItem } from '@/types/cart/_cart';
-import type { Order, OrderItem } from '@/types/orders/order';
+import type { Cart, CartItem } from '@/lib/const-data';
+import type { OrderResponse, OrderItem } from '@/types/orders/order';
 import type { PostItem } from '@/types/social/posts';
-import { useCartStore } from '@/stores/_cart';
+import { useCartStore } from '@/lib/const-data';
 
 export type CartAddConflict =
   | 'different_restaurant'
@@ -19,11 +19,11 @@ export function convertOrderItemToCartItem(item: OrderItem): CartItem {
   return {
     cartItemId: `cart-${item.id}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     itemId: item.id,
-    name: item.name,
+    name: item.item_name,
     quantity: item.quantity,
-    basePrice: item.price,
-    unitPrice: item.price,
-    totalPrice: item.price * item.quantity,
+    basePrice: Number(item.price),
+    unitPrice: Number(item.price),
+    totalPrice: Number(item.price) * item.quantity,
     configurationKey: item.id,
     selectedOptions: [],
   };
@@ -95,20 +95,18 @@ export function executeAddItemsToIndividualCart(
   }
 }
 
-export function orderToCartTarget(order: Order): RestaurantCartTarget {
+export function orderToCartTarget(order: OrderResponse): RestaurantCartTarget {
   return {
-    restaurantId: order.restaurantId,
-    restaurantName: order.restaurantName,
-    restaurantImage: order.restaurantImage,
-    restaurantDeliveryFee: order.deliveryFee,
+    restaurantId: String(order.restaurant.id),
+    restaurantName: order.restaurant.name,
   };
 }
 
-export function orderToCartItems(order: Order): CartItem[] {
+export function orderToCartItems(order: OrderResponse): CartItem[] {
   return order.items.map(convertOrderItemToCartItem);
 }
 
-export function executeReorder(order: Order) {
+export function executeReorder(order: OrderResponse) {
   const cartStore = useCartStore.getState();
   const target = orderToCartTarget(order);
   const conflict = getCartAddConflict(cartStore.cart, target);
@@ -123,8 +121,7 @@ export type ReorderConflict = CartAddConflict;
 
 export function getReorderConflict(
   cart: Cart | null,
-  order: Order,
+  order: OrderResponse,
 ): ReorderConflict {
   return getCartAddConflict(cart, orderToCartTarget(order));
 }
-

@@ -6,7 +6,7 @@ export const actionClient = createSafeActionClient({
     if (error instanceof AppError) {
       return {
         status: error.status,
-        data: error.data,
+        data: null,
         message: error.message,
       };
     }

@@ -3,7 +3,7 @@ import { Suspense } from 'react';
 import {
   getRestaurantById,
   getReviewsByRestaurantId,
-} from '@/data/restaurant-details';
+} from '@/lib/const-data';
 import RestaurantReviewCard from '@/components/restaurants/RestaurantReviewCard';
 import RestaurantsPagination from '@/components/restaurants/RestaurantPagination';
 import { serverFetch } from '@/utils/server-fetch';

@@ -1,6 +1,6 @@
 'use client';
 
-import { useGroupsStore } from '@/stores/groups';
+import { useGroupsStore } from '@/lib/const-data';
 
 import ActiveSessionsSection from './ActiveSessionsSection';
 import CreateGroupDialog from './CreateGroupDialog';

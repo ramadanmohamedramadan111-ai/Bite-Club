@@ -3,8 +3,7 @@ import { Link } from '@/i18n/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import type { MenuItem } from '@/types/restaurant/restaurant';
 
-import { getRestaurantById } from '@/data/restaurant-details';
-import { getRestaurantListItemById } from '@/data/mock-restaurants';
+import { getRestaurantById, getRestaurantListItemById } from '@/lib/const-data';
 
 type Props = {
   item: MenuItem;

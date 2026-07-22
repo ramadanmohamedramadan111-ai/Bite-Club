@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Store } from 'lucide-react';
-import { getMenuItemById, getRestaurantById } from '@/data/restaurant-details';
+import { getMenuItemById, getRestaurantById } from '@/lib/const-data';
 import { Link } from '@/i18n/navigation';
 import MenuItemCustomizer from '@/components/restaurants/MenuItemCustomizer';
 import { Button } from '@/components/ui/button';

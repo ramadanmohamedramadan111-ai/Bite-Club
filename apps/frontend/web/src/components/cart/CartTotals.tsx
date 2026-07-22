@@ -1,4 +1,4 @@
-import type { CartSummary } from '@/types/cart/_cart';
+import type { CartSummary } from '@/lib/const-data';
 import { Separator } from '@/components/ui/separator';
 
 type Props = {

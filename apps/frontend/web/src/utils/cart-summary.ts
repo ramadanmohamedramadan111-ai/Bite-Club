@@ -1,5 +1,5 @@
-import { getRewardOfferById } from '@/data/mock-rewards';
-import type { Cart, CartSummary } from '@/types/cart/_cart';
+import { getRewardOfferById } from '@/lib/const-data';
+import type { Cart, CartSummary } from '@/lib/const-data';
 import type { Redemption, RewardOffer } from '@/types/points/points';
 
 type SummaryOptions = {

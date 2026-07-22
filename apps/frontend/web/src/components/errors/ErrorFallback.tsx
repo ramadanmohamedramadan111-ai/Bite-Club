@@ -3,15 +3,13 @@
 import { Button } from '@/components/ui/button';
 import { useTranslations } from 'next-intl';
 
-interface ErrorFallbackProps {
-  error: unknown;
-  resetErrorBoundary: () => void;
-}
-
 export function ErrorFallback({
   error,
   resetErrorBoundary,
-}: ErrorFallbackProps) {
+}: {
+  error: unknown;
+  resetErrorBoundary: () => void;
+}) {
   const t = useTranslations('errors');
   const message =
     error instanceof Error ? error.message : t('somethingWentWrong');
@@ -26,4 +24,3 @@ export function ErrorFallback({
     </div>
   );
 }
-

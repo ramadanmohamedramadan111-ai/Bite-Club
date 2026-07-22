@@ -14,7 +14,7 @@ import {
 import {
   useNotificationsStore,
   useUnreadNotificationCount,
-} from '@/stores/notifications';
+} from '@/lib/const-data';
 import NotificationCard from '@/components/notifications/NotificationCard';
 
 export default function NotificationPopover() {

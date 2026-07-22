@@ -38,6 +38,11 @@ const nextConfig: NextConfig = {
         port: '8080',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'eraser-pediatric-tablet.ngrok-free.dev',
+        pathname: '/**',
+      },
     ],
   },
 };

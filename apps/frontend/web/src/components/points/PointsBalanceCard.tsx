@@ -2,7 +2,7 @@
 
 import { Coins } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import { usePointsStore } from '@/stores/points';
+import { usePointsStore } from '@/lib/const-data';
 
 export default function PointsBalanceCard() {
   const pointsBalance = usePointsStore((state) => state.pointsBalance);

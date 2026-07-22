@@ -1,7 +1,7 @@
 'use client';
 
 import { Minus, Plus } from 'lucide-react';
-import type { CartItem } from '@/types/cart/_cart';
+import type { CartItem } from '@/lib/const-data';
 import { Button } from '@/components/ui/button';
 
 type Props = {

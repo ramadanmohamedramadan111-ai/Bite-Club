@@ -2,17 +2,15 @@
 
 import { useRef, useState } from 'react';
 import Image from 'next/image';
-import { ArrowLeft, ImagePlus, X, Loader2 } from 'lucide-react';
+import { ArrowLeft, ImagePlus, X } from 'lucide-react';
 import { Link, useRouter } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
-import type { PastOrder } from '@/types/social/orders';
-import { useQuery } from '@tanstack/react-query';
-import { clientFetch } from '@/utils/client-fetch';
 import { toast } from 'sonner';
 import { useAction } from 'next-safe-action/hooks';
 import { createPostAction } from '@/actions/feed';
+import type { OrderResponse } from '@/types/orders/order';
 
 function formatOrderDate(date: string) {
   return new Intl.DateTimeFormat('en-US', {
@@ -27,7 +25,7 @@ function OrderOption({
   selected,
   onSelect,
 }: {
-  order: PastOrder;
+  order: OrderResponse;
   selected: boolean;
   onSelect: () => void;
 }) {
@@ -41,21 +39,14 @@ function OrderOption({
       onClick={onSelect}
     >
       <div className="flex gap-3">
-        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md">
-          <Image
-            src={order.restaurantImage}
-            alt={order.restaurantName}
-            fill
-            className="object-cover"
-          />
-        </div>
+        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md bg-muted" />
         <div className="min-w-0 flex-1">
-          <p className="font-medium">{order.restaurantName}</p>
+          <p className="font-medium">{order.restaurant.name}</p>
           <p className="text-xs text-muted-foreground">
-            {formatOrderDate(order.orderedAt)} · {order.totalPrice} EGP
+            {formatOrderDate(order.created_at)} · {order.financials.total} EGP
           </p>
           <p className="mt-1 line-clamp-1 text-sm text-muted-foreground">
-            {order.items.map((item) => item.name).join(', ')}
+            {order.items.map((item) => item.item_name).join(', ')}
           </p>
         </div>
       </div>
@@ -63,17 +54,11 @@ function OrderOption({
   );
 }
 
-export function CreatePostPage() {
+export function CreatePostPage({ orders }: { orders: OrderResponse[] }) {
   const router = useRouter();
   const imageInputRef = useRef<HTMLInputElement>(null);
 
-  // Fetch past orders from backend
-  const { data: pastOrders = [], isLoading: isLoadingOrders } = useQuery<PastOrder[]>({
-    queryKey: ['pastOrders'],
-    queryFn: () => clientFetch<PastOrder[]>('/api/orders'),
-  });
-
-  const [selectedOrderId, setSelectedOrderId] = useState('');
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [caption, setCaption] = useState('');
   const [postImages, setPostImages] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -81,18 +66,18 @@ export function CreatePostPage() {
   const { execute: createPost, isExecuting: isPosting } = useAction(createPostAction, {
     onSuccess: ({ data }) => {
       if (data?.success) {
-        toast.success('Post shared successfully and is pending review!');
+        toast.success(data.message);
         router.push('/feed');
       } else {
-        toast.error(data?.message || 'Failed to share post');
+        toast.error(data?.message);
       }
     },
     onError: ({ error }) => {
-      toast.error(error.serverError?.message || 'Failed to share post');
+      toast.error(error.serverError?.message);
     },
   });
 
-  const selectedOrder = pastOrders.find((order) => order.id === selectedOrderId);
+  const selectedOrder = orders.find((order) => order.id === selectedOrderId);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
@@ -122,7 +107,7 @@ export function CreatePostPage() {
     if (!selectedOrderId || !caption.trim() || selectedFiles.length === 0) return;
 
     createPost({
-      order_id: Number(selectedOrderId),
+      order_id: selectedOrderId,
       caption: caption || undefined,
       images: selectedFiles,
     });
@@ -147,13 +132,9 @@ export function CreatePostPage() {
       <div className="mx-auto max-w-lg space-y-6">
         <div className="space-y-3">
           <Label>Select a previous order</Label>
-          {isLoadingOrders ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="animate-spin text-primary h-6 w-6" />
-            </div>
-          ) : pastOrders.length > 0 ? (
+          {orders.length > 0 ? (
             <div className="max-h-72 space-y-2 overflow-y-auto">
-              {pastOrders.map((order) => (
+              {orders.map((order) => (
                 <OrderOption
                   key={order.id}
                   order={order}
@@ -171,13 +152,10 @@ export function CreatePostPage() {
 
         {selectedOrder && (
           <Card className="p-3 text-sm">
-            <p className="font-medium">{selectedOrder.restaurantName}</p>
-            <p className="text-muted-foreground">
-              {selectedOrder.restaurantAddress}
-            </p>
+            <p className="font-medium">{selectedOrder.restaurant.name}</p>
             <p className="mt-2 text-muted-foreground">
               {selectedOrder.items
-                .map((item) => `${item.quantity}x ${item.name}`)
+                .map((item) => `${item.quantity}x ${item.item_name}`)
                 .join(' · ')}
             </p>
           </Card>
@@ -278,8 +256,7 @@ export function CreatePostPage() {
               !selectedOrderId ||
               !caption.trim() ||
               selectedFiles.length === 0 ||
-              isPosting ||
-              isLoadingOrders
+              isPosting
             }
           >
             {isPosting ? 'Posting...' : 'Share Post'}

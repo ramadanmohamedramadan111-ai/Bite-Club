@@ -1,44 +1,34 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { serverFetch } from '@/utils/server-fetch';
+import type { ApiResponse } from '@/types/api/api-response';
+import type { OrderDetails } from '@/types/orders/order';
 import OrderDetailPageView from '@/components/orders/OrderDetailPageView';
-import { getOrderById } from '@/data/mock-orders';
+import { ArrowLeft } from 'lucide-react';
+import { Link } from '@/i18n/navigation';
+import { Button } from '@/components/ui/button';
 
 interface OrderDetailPageProps {
-  params: Promise<{
-    orderId: string;
-  }>;
+  params: Promise<{ orderId: string }>;
 }
 
-export default function OrderDetailPage({ params }: OrderDetailPageProps) {
-  const [orderId, setOrderId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+export default async function OrderDetailPage({ params }: OrderDetailPageProps) {
+  const { orderId } = await params;
 
-  useEffect(() => {
-    params.then((value) => setOrderId(value.orderId));
-  }, [params]);
+  const response = await serverFetch<ApiResponse<OrderDetails>>(
+    `/user/orders/${orderId}`,
+  );
 
-  useEffect(() => {
-    if (!orderId) return;
-    const timer = setTimeout(() => setLoading(false), 200);
-    return () => clearTimeout(timer);
-  }, [orderId]);
-
-  const order = orderId ? getOrderById(orderId) : undefined;
-
-  if (loading) {
-    return (
-      <div className="container mx-auto flex items-center justify-center py-12">
-        <Loader2 className="animate-spin" />
-      </div>
-    );
-  }
+  const order = response.data;
 
   if (!order) {
     return (
-      <div className="container mx-auto flex items-center justify-center py-12">
+      <div className="container mx-auto flex flex-col items-center justify-center gap-4 py-12">
         <p className="text-muted-foreground">Order not found</p>
+        <Link href="/orders">
+          <Button variant="outline">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to orders
+          </Button>
+        </Link>
       </div>
     );
   }

@@ -15,7 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { RewardOffer } from '@/types/points/points';
-import { usePointsStore } from '@/stores/points';
+import { usePointsStore } from '@/lib/const-data';
 import { useSocialStore } from '@/stores/social';
 
 type Props = {

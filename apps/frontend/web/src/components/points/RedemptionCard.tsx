@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import type { Redemption } from '@/types/points/points';
 import { formatPointsDate, redemptionStatusLabel } from './points-utils';
-import { usePointsStore } from '@/stores/points';
+import { usePointsStore } from '@/lib/const-data';
 import { toast } from 'sonner';
 
 function statusStyles(status: Redemption['status']) {

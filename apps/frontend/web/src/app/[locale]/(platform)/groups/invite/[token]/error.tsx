@@ -9,11 +9,7 @@ export default function Error({
   error,
   reset,
 }: {
-  error: Error & {
-    digest?: string;
-    status?: number;
-    code?: string;
-  };
+  error: Error;
   reset: () => void;
 }) {
   const router = useRouter();

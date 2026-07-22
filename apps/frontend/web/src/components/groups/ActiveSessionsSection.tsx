@@ -5,8 +5,8 @@ import { Clock, Users } from 'lucide-react';
 
 import { Link } from '@/i18n/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useGroupSessionsStore } from '@/stores/group-sessions';
-import { useGroupsStore } from '@/stores/groups';
+import { useGroupSessionsStore } from '@/lib/const-data';
+import { useGroupsStore } from '@/lib/const-data';
 
 export default function ActiveSessionsSection() {
   const groups = useGroupsStore((state) => state.groups);

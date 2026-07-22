@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { useNotificationsStore } from '@/stores/notifications';
+import { useNotificationsStore } from '@/lib/const-data';
 import NotificationCard from './NotificationCard';
 import NotificationsPagination from './NotificationsPagination';
 

@@ -10,7 +10,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import ConfirmDialog from '@/components/shared/ConfirmationDialog';
 import SendGiftDialog from './SendGiftDialog';
 import type { RewardOffer } from '@/types/points/points';
-import { usePointsStore } from '@/stores/points';
+import { usePointsStore } from '@/lib/const-data';
 
 type Props = {
   offer: RewardOffer;

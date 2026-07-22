@@ -16,12 +16,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   getMenuItemsByRestaurantId,
   getRestaurantById,
-} from '@/data/restaurant-details';
+} from '@/lib/const-data';
 import { Link, useRouter } from '@/i18n/navigation';
-import { useCartStore } from '@/stores/_cart';
-import { useGroupSessionsStore } from '@/stores/group-sessions';
+import { useCartStore } from '@/lib/const-data';
+import { useGroupSessionsStore } from '@/lib/const-data';
 import { useSessionStore } from '@/stores/session';
-import type { CartMember } from '@/types/cart/_cart';
+import type { CartMember } from '@/lib/const-data';
 
 type Props = {
   sessionId: string;

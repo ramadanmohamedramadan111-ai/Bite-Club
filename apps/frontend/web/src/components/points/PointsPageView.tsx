@@ -3,9 +3,9 @@
 import { useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 
-import { rewardOffers } from '@/data/mock-rewards';
+import { rewardOffers } from '@/lib/const-data';
 import type { GiftHistoryFilter, PointsTab } from '@/types/points/points';
-import { usePointsStore } from '@/stores/points';
+import { usePointsStore } from '@/lib/const-data';
 import PointsBalanceCard from './PointsBalanceCard';
 import PointsTabs from './PointsTabs';
 import RewardOfferCard from './RewardOfferCard';

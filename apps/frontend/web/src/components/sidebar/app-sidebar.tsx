@@ -30,7 +30,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { getLangDir } from 'rtl-detect';
 import { useCartStore } from '@/stores/cart';
 
-import { useUnreadNotificationCount } from '@/stores/notifications';
+import { useUnreadNotificationCount } from '@/lib/const-data';
 
 export function AppSidebar({
   user,

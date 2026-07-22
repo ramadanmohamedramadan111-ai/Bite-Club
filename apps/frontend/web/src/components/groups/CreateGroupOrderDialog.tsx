@@ -23,14 +23,14 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useRouter } from '@/i18n/navigation';
-import { useCartStore } from '@/stores/_cart';
-import { useGroupSessionsStore } from '@/stores/group-sessions';
-import { useGroupsStore } from '@/stores/groups';
+import { useCartStore } from '@/lib/const-data';
+import { useGroupSessionsStore } from '@/lib/const-data';
+import { useGroupsStore } from '@/lib/const-data';
 import { useSessionStore } from '@/stores/session';
 import {
   createMockGroupMember,
   createMockGroupOrderItems,
-} from '@/data/mock-group-order-items';
+} from '@/lib/const-data';
 import type { GroupOrderSessionType } from '@/types/groups/groups';
 import type { RestaurantType } from '@/types/restaurant/restaurant';
 import { generateGroupOrderCode } from '@/utils/group-order';

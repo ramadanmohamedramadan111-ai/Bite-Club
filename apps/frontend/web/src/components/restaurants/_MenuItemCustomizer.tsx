@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import { useCartStore } from '@/stores/_cart';
+import { useCartStore } from '@/lib/const-data';
 import { useSessionStore } from '@/stores/session';
 import type {
   ClientMenuItem,

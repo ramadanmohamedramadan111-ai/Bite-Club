@@ -385,6 +385,48 @@
           }
         }
       }
+    },
+    "editUser": {
+      "fields": {
+        "firstName": {
+          "label": "First Name",
+          "placeholder": "Enter your first name",
+          "errors": {
+            "required": "First name is required",
+            "minLength": "First name must be at least 2 characters",
+            "maxLength": "First name must be at most 30 characters"
+          }
+        },
+        "lastName": {
+          "label": "Last Name",
+          "placeholder": "Enter your last name",
+          "errors": {
+            "required": "Last name is required",
+            "minLength": "Last name must be at least 2 characters",
+            "maxLength": "Last name must be at most 30 characters"
+          }
+        },
+        "username": {
+          "label": "Username",
+          "placeholder": "Enter a username",
+          "errors": {
+            "required": "Username is required",
+            "minLength": "Username must be at least 3 characters",
+            "maxLength": "Username must be at most 20 characters",
+            "invalid": "Username can only contain letters, numbers, and underscores"
+          }
+        },
+        "image": {
+          "label": "ProfileImage",
+          "errors": {
+            "invalid": "File is not a valid image",
+            "invalidType": "Image type is not valid",
+            "maxSize": "Image must be at max 5mb",
+            "minLength": "There must be at least one image",
+            "maxLength": "Images must be at most 10 images"
+          }
+        }
+      }
     }
   },
   "sidebar": {

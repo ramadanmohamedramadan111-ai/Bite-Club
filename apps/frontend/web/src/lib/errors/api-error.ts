@@ -1,7 +1,7 @@
-import { AppError, AppErrorData } from './app-error';
+import { AppError } from './app-error';
 
 export class APIError extends AppError {
-  constructor(status: number, data: AppErrorData | null, message?: string) {
+  constructor(status: number, data: unknown = null, message?: string) {
     super(
       status,
       data,
