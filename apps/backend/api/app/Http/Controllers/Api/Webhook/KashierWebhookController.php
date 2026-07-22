@@ -22,9 +22,17 @@ class KashierWebhookController extends Controller
         Log::info('Kashier Webhook Payload:', $payload);
 
         $kashierSignature = $request->header('x-kashier-signature');
+        
+        $data = $payload['data'] ?? [];
+        $orderId = $data['merchantOrderId'] ?? null;
+        
+        $paymentApiKey = null;
+        if ($orderId) {
+            $paymentApiKey = $this->orderDomainService->getKashierApiKeyForOrder((int)$orderId);
+        }
 
-        if (!$this->paymentGateway->validateWebhookSignature($payload, $kashierSignature)) {
-            Log::error('Kashier Webhook: Invalid Signature', ['signature' => $kashierSignature]);
+        if (!$paymentApiKey || !$this->paymentGateway->validateWebhookSignature($payload, $kashierSignature, $paymentApiKey)) {
+            Log::error('Kashier Webhook: Invalid Signature or Missing API Key', ['signature' => $kashierSignature, 'orderId' => $orderId]);
             return response()->json(['message' => 'Invalid signature'], 400);
         }
 
@@ -32,7 +40,6 @@ class KashierWebhookController extends Controller
         $data = $payload['data'] ?? [];
 
         if ($event === 'pay') {
-            $orderId = $data['merchantOrderId'] ?? null;
             $status = $data['status'] ?? null;
             $transactionId = $data['transactionId'] ?? null;
 

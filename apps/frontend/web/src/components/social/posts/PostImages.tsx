@@ -5,11 +5,10 @@ import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
-import { getPostImages } from '@/types/social/posts';
-import type { Post } from '@/types/social/posts';
+import type { PostType } from '@/types/social/posts';
 
 interface PostImagesProps {
-  post: Post;
+  post: PostType;
   className?: string;
   imageClassName?: string;
   showCounter?: boolean;
@@ -23,7 +22,10 @@ export function PostImages({
   showCounter = true,
   imageHref,
 }: PostImagesProps) {
-  const images = getPostImages(post);
+  const images = (post.images || [])
+    .sort((a, b) => a.position - b.position)
+    .map((img) => img.image_url)
+    .filter((url): url is string => !!url);
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {

@@ -52,6 +52,7 @@ Route::middleware('auth.restaurant')->group(function () {
 
     Route::prefix('orders')->name('orders.')->group(function () {
         Route::get('/live', [OrderController::class, 'liveOrders'])->name('live');
+        Route::get('/history', [OrderController::class, 'history'])->name('history');
         Route::get('/{orderId}/available-statuses', [OrderController::class, 'availableStatuses'])->name('available-statuses');
         Route::patch('/{orderId}/status', [OrderController::class, 'updateStatus'])->name('update-status');
     });

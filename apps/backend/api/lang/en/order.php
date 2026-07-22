@@ -12,4 +12,5 @@ return [
     'retrieved_successfully' => 'Orders retrieved successfully.',
     'statuses_retrieved_successfully' => 'Available statuses retrieved successfully.',
     'status_updated_successfully' => 'Order status updated successfully.',
+    'history_retrieved_successfully' => 'Order history retrieved successfully.',
 ];

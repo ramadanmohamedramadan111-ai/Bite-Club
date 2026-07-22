@@ -16,6 +16,10 @@ use App\Enums\Payment\PaymentStatusEnum;
 use App\Enums\Payment\PaymentOptionEnum;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
+use App\Models\Order;
 use Exception;
 
 use App\Services\Domain\User\Order\Calculators\OrderCalculationContext;
@@ -258,6 +262,12 @@ class OrderDomainService
         ];
     }
 
+    public function getKashierApiKeyForOrder(int $orderId): ?string
+    {
+        $order = $this->orderRepository->find($orderId);
+        return $order?->restaurant?->setting?->kashier_api_key;
+    }
+
     public function handlePaymentWebhook(string $orderId, string $status, ?string $transactionId = null): void
     {
         try {
@@ -300,5 +310,26 @@ class OrderDomainService
             DB::rollBack();
             Log::error("Kashier Webhook Error processing payment: " . $e->getMessage());
         }
+    }
+
+    public function getActiveOrders(int $userId): Collection
+    {
+        return $this->orderRepository->getActiveOrdersForUser($userId);
+    }
+
+    public function getPastOrders(int $userId, int $page, int $perPage): LengthAwarePaginator
+    {
+        return $this->orderRepository->getPaginatedPastOrdersForUser($userId, $page, $perPage);
+    }
+
+    public function getOrderDetails(int $orderId, int $userId): Order
+    {
+        $order = $this->orderRepository->findOrderForUser($orderId, $userId);
+
+        if (!$order) {
+            throw new NotFoundHttpException(trans('order.not_found') ?? 'Order not found.');
+        }
+
+        return $order;
     }
 }

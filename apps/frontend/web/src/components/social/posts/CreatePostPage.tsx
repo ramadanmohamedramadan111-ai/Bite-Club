@@ -2,13 +2,17 @@
 
 import { useRef, useState } from 'react';
 import Image from 'next/image';
-import { ArrowLeft, ImagePlus, X } from 'lucide-react';
+import { ArrowLeft, ImagePlus, X, Loader2 } from 'lucide-react';
 import { Link, useRouter } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
-import { useSocialStore } from '@/stores/social';
 import type { PastOrder } from '@/types/social/orders';
+import { useQuery } from '@tanstack/react-query';
+import { clientFetch } from '@/utils/client-fetch';
+import { toast } from 'sonner';
+import { useAction } from 'next-safe-action/hooks';
+import { createPostAction } from '@/actions/feed';
 
 function formatOrderDate(date: string) {
   return new Intl.DateTimeFormat('en-US', {
@@ -62,19 +66,39 @@ function OrderOption({
 export function CreatePostPage() {
   const router = useRouter();
   const imageInputRef = useRef<HTMLInputElement>(null);
-  const pastOrders = useSocialStore((state) => state.pastOrders);
-  const addPostFromOrder = useSocialStore((state) => state.addPostFromOrder);
+
+  // Fetch past orders from backend
+  const { data: pastOrders = [], isLoading: isLoadingOrders } = useQuery<PastOrder[]>({
+    queryKey: ['pastOrders'],
+    queryFn: () => clientFetch<PastOrder[]>('/api/orders'),
+  });
 
   const [selectedOrderId, setSelectedOrderId] = useState('');
   const [caption, setCaption] = useState('');
   const [postImages, setPostImages] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+
+  const { execute: createPost, isExecuting: isPosting } = useAction(createPostAction, {
+    onSuccess: ({ data }) => {
+      if (data?.success) {
+        toast.success('Post shared successfully and is pending review!');
+        router.push('/feed');
+      } else {
+        toast.error(data?.message || 'Failed to share post');
+      }
+    },
+    onError: ({ error }) => {
+      toast.error(error.serverError?.message || 'Failed to share post');
+    },
+  });
 
   const selectedOrder = pastOrders.find((order) => order.id === selectedOrderId);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     if (files.length === 0) return;
+
+    setSelectedFiles((prev) => [...prev, ...files]);
 
     files.forEach((file) => {
       const reader = new FileReader();
@@ -91,17 +115,17 @@ export function CreatePostPage() {
 
   const removeImage = (index: number) => {
     setPostImages((prev) => prev.filter((_, imageIndex) => imageIndex !== index));
+    setSelectedFiles((prev) => prev.filter((_, fileIndex) => fileIndex !== index));
   };
 
   const handleSubmit = () => {
-    if (!selectedOrderId || !caption.trim() || postImages.length === 0) return;
+    if (!selectedOrderId || !caption.trim() || selectedFiles.length === 0) return;
 
-    setIsLoading(true);
-    setTimeout(() => {
-      addPostFromOrder(selectedOrderId, caption, postImages);
-      setIsLoading(false);
-      router.push('/feed');
-    }, 400);
+    createPost({
+      order_id: Number(selectedOrderId),
+      caption: caption || undefined,
+      images: selectedFiles,
+    });
   };
 
   return (
@@ -123,16 +147,26 @@ export function CreatePostPage() {
       <div className="mx-auto max-w-lg space-y-6">
         <div className="space-y-3">
           <Label>Select a previous order</Label>
-          <div className="max-h-72 space-y-2 overflow-y-auto">
-            {pastOrders.map((order) => (
-              <OrderOption
-                key={order.id}
-                order={order}
-                selected={selectedOrderId === order.id}
-                onSelect={() => setSelectedOrderId(order.id)}
-              />
-            ))}
-          </div>
+          {isLoadingOrders ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="animate-spin text-primary h-6 w-6" />
+            </div>
+          ) : pastOrders.length > 0 ? (
+            <div className="max-h-72 space-y-2 overflow-y-auto">
+              {pastOrders.map((order) => (
+                <OrderOption
+                  key={order.id}
+                  order={order}
+                  selected={selectedOrderId === order.id}
+                  onSelect={() => setSelectedOrderId(order.id)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-6 text-sm text-muted-foreground border rounded-lg border-dashed">
+              You don&apos;t have any completed orders yet.
+            </div>
+          )}
         </div>
 
         {selectedOrder && (
@@ -243,11 +277,12 @@ export function CreatePostPage() {
             disabled={
               !selectedOrderId ||
               !caption.trim() ||
-              postImages.length === 0 ||
-              isLoading
+              selectedFiles.length === 0 ||
+              isPosting ||
+              isLoadingOrders
             }
           >
-            {isLoading ? 'Posting...' : 'Share Post'}
+            {isPosting ? 'Posting...' : 'Share Post'}
           </Button>
         </div>
       </div>

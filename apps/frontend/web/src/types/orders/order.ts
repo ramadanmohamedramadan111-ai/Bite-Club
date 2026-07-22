@@ -26,35 +26,20 @@ export interface OrderLocation {
 
 export interface OrderItem {
   id: string;
-  name: string;
-  price: number;
+  item_id: string;
+  item_name: string;
   quantity: number;
-}
-
-export interface OrderMemberItems {
-  memberName: string;
-  items: OrderItem[];
+  price: string;
+  notes: string;
 }
 
 export interface Order {
-  id: string;
-  orderNumber: string;
-  restaurantId: string;
-  restaurantName: string;
-  restaurantImage: string;
-  restaurantAddress: string;
-  restaurantLocation: OrderLocation;
-  status: OrderStatus;
-  type: OrderType;
-  fulfillmentType: FulfillmentType;
-  paymentMethod: PaymentMethod;
-  orderedAt: string;
+  id: number;
+  order_type: 'delivery' | 'pickup';
+  subtotal: string;
+  delivery_fee: string;
+  service_fee: string;
+  total: string;
   items: OrderItem[];
-  groupMembers?: OrderMemberItems[];
-  subtotal: number;
-  deliveryFee: number;
-  tax: number;
-  total: number;
-  deliveryAddress?: string;
-  deliveryLocation?: OrderLocation;
 }
+

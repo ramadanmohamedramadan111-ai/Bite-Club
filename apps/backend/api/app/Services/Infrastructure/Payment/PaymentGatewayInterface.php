@@ -14,5 +14,5 @@ interface PaymentGatewayInterface
     /**
      * Validate the webhook signature from the payment gateway.
      */
-    public function validateWebhookSignature(array $payload, ?string $signature): bool;
+    public function validateWebhookSignature(array $payload, ?string $signature, string $paymentApiKey): bool;
 }

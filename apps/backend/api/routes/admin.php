@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\RestaurantCategoryController;
 use App\Http\Controllers\Api\GeneralSettingController;
 use App\Http\Controllers\Api\Admin\RestaurantController;
 use App\Http\Controllers\Api\Admin\PostModerationController;
+use App\Http\Controllers\Api\Admin\UserManagement\UserController;
+use App\Http\Controllers\Api\Admin\UserManagement\UserBanController;
 
 Route::post('/login', [AdminAuthController::class, 'login'])->name('login');
 
@@ -37,6 +39,19 @@ Route::middleware('auth.admin')->group(function () {
         Route::get('/', [PostModerationController::class, 'index'])->name('index');
         Route::post('/{postId}/approve', [PostModerationController::class, 'approve'])->name('approve');
         Route::post('/{postId}/reject', [PostModerationController::class, 'reject'])->name('reject');
+    });
+
+    Route::prefix('users')->name('users.')->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('index');
+        Route::get('/stats', [UserController::class, 'stats'])->name('stats');
+        Route::get('/{id}', [UserController::class, 'show'])->name('show');
+    });
+
+    Route::prefix('user-bans')->name('user-bans.')->group(function () {
+        Route::get('/', [UserBanController::class, 'index'])->name('index');
+        Route::post('/', [UserBanController::class, 'store'])->name('store');
+        Route::get('/{id}', [UserBanController::class, 'show'])->name('show');
+        Route::patch('/{id}/lift', [UserBanController::class, 'lift'])->name('lift');
     });
 });
 

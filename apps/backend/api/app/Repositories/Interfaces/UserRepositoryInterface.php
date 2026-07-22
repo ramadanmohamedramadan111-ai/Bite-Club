@@ -15,4 +15,8 @@ interface UserRepositoryInterface extends BaseRepositoryInterface
     public function findByReferralCode(string $referralCode): ?User;
 
     public function updateLastLogin(int $id): void;
+
+    public function listForAdmin(array $filters): array;
+
+    public function getDashboardStats(): array;
 }

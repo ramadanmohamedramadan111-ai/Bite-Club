@@ -90,6 +90,13 @@ Route::prefix('user')->name('user.')->group(function () {
             Route::post('place', [UserOrderController::class, 'placeOrder'])->name('checkout.place');
         });
 
+        Route::get('orders', [UserOrderController::class, 'index'])->name('orders.index');
+        Route::prefix('orders')->name('orders.')->group(function () {
+            Route::get('active', [UserOrderController::class, 'activeOrders'])->name('active');
+            Route::get('past', [UserOrderController::class, 'pastOrders'])->name('past');
+            Route::get('{orderId}', [UserOrderController::class, 'show'])->name('show');
+        });
+
     });
 
     // Webhooks (No auth required)

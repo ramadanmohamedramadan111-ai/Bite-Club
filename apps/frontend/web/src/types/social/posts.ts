@@ -1,3 +1,35 @@
+import { Order } from '../orders/order';
+import { SocialUser } from './friends';
+
+export type PostType = {
+  id: number;
+  user: {
+    id: number;
+    name: string;
+    username: string;
+    profile_image_url: string | null;
+  };
+  restaurant: {
+    id: number;
+    name: string;
+    logo_url: string | null;
+  };
+  images: {
+    id: number;
+    image_url: string | null;
+    position: number;
+  }[];
+  order: Order;
+  caption: string;
+  likes_count: number;
+  copy_count: number;
+  is_liked_by_user: boolean;
+  status: 'approved' | 'pending';
+  published_at: string;
+  expires_at: string;
+  created_at: string;
+};
+
 export interface Post {
   id: string;
   authorId: string;
@@ -12,7 +44,7 @@ export interface Post {
     id: string;
     name: string;
     address: string;
-    image: string;
+    image: string | null;
   };
   items: PostItem[];
   caption: string;
@@ -56,3 +88,4 @@ export function normalizePost(post: LegacyPost): Post {
     images: getPostImages(post),
   };
 }
+

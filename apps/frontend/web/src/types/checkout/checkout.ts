@@ -18,3 +18,10 @@ export type CheckoutPreviewResponse = {
   };
 };
 
+export type CheckoutPaymentResponse = {
+  order_id: number;
+  status: 'pending';
+  payment_url: string | null;
+  message: string;
+};
+
