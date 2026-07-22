@@ -12,10 +12,12 @@ use App\Http\Controllers\Api\User\RestaurantController as UserRestaurantControll
 use App\Http\Controllers\Api\User\RestaurantMenuController as UserRestaurantMenuController;
 use App\Http\Controllers\Api\User\RestaurantReviewController as UserRestaurantReviewController;
 use App\Http\Controllers\Api\User\PostController;
+use App\Http\Controllers\Api\User\ProfileController;
 use App\Http\Controllers\Api\User\LeaderboardController;
 use App\Http\Controllers\Api\User\UserSearchController;
 use App\Http\Controllers\Api\Webhook\KashierWebhookController;
 use Illuminate\Support\Facades\Route;
+
 
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -53,6 +55,12 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::post('/refresh', [UserAuthController::class, 'refresh'])->name('refresh');
 
         Route::get('/me', [UserAuthController::class, 'me'])->name('me');
+
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+        Route::get('/posts', [PostController::class, 'myPosts'])->name('posts.my');
+
+        Route::get('/posts/shareable-orders', [PostController::class, 'shareableOrders'])->name('posts.shareable-orders');
 
         Route::get('/restaurant-categories', [UserRestaurantCategoryController::class, 'index'])->name('restaurant-categories.index');
 
@@ -96,7 +104,6 @@ Route::prefix('user')->name('user.')->group(function () {
             Route::get('past', [UserOrderController::class, 'pastOrders'])->name('past');
             Route::get('{orderId}', [UserOrderController::class, 'show'])->name('show');
         });
-
     });
 
     // Webhooks (No auth required)
@@ -155,5 +162,3 @@ Route::middleware('auth.user')->prefix('posts')->name('posts.')->group(function 
 Route::middleware('auth.user')->prefix('leaderboards')->name('leaderboards.')->group(function () {
     Route::get('/', [LeaderboardController::class, 'index'])->name('index');
 });
-
-

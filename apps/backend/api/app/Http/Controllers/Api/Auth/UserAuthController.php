@@ -183,11 +183,14 @@ class UserAuthController extends Controller
     public function me(): JsonResponse
     {
         try {
-            $data = $this->userAuthApplicationService->me();
+            $user = auth('user')->user();
+            if (!$user) {
+                return $this->unauthorizedResponse(trans('auth.unauthorized'));
+            }
 
             return $this->successResponse(
-                null,
-                $data
+                'Profile retrieved successfully.',
+                (new \App\Http\Resources\User\UserResource($user))->resolve()
             );
         } catch (Exception $e) {
 
