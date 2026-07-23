@@ -9,5 +9,7 @@ return [
     'item_added_successfully' => 'تم إضافة الصنف إلى طلب المجموعة بنجاح.',
     'item_not_in_order' => 'هذا الصنف لا ينتمي إلى طلب المجموعة المحدد.',
     'cannot_remove_item' => 'ليس لديك صلاحية لإزالة هذا الصنف.',
+    'cannot_update_item' => 'ليس لديك صلاحية لتعديل كمية هذا الصنف.',
     'item_removed_successfully' => 'تم إزالة الصنف من طلب المجموعة بنجاح.',
+    'item_quantity_updated_successfully' => 'تم تحديث كمية الصنف بنجاح.',
 ];

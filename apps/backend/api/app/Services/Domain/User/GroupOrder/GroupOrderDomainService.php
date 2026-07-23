@@ -129,4 +129,28 @@ class GroupOrderDomainService
 
         $this->groupOrderItemRepo->delete($groupOrderItemId);
     }
+
+    public function updateItemQuantity(int $userId, int $groupOrderId, int $groupOrderItemId, int $quantity): void
+    {
+        $groupOrder = $this->groupOrderRepo->findOrFail($groupOrderId);
+
+        // 1. Check if the order is still OPEN
+        if ($groupOrder->status !== GroupOrderStatusEnum::OPEN) {
+            throw new Exception(trans('group_order.order_not_open'));
+        }
+
+        $item = $this->groupOrderItemRepo->findOrFail($groupOrderItemId);
+
+        // 2. Check if item belongs to this group order
+        if ($item->group_order_id !== $groupOrderId) {
+            throw new Exception(trans('group_order.item_not_in_order'));
+        }
+
+        // 3. Only the host or the user who added the item can update its quantity
+        if ($item->user_id !== $userId && $groupOrder->host_id !== $userId) {
+            throw new Exception(trans('group_order.cannot_update_item'));
+        }
+
+        $this->groupOrderItemRepo->update($groupOrderItemId, ['quantity' => $quantity]);
+    }
 }
