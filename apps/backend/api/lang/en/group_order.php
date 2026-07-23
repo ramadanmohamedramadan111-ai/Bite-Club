@@ -12,4 +12,5 @@ return [
     'cannot_update_item' => 'You do not have permission to update this item.',
     'item_removed_successfully' => 'Item removed successfully from the group order.',
     'item_quantity_updated_successfully' => 'Item quantity updated successfully.',
+    'retrieved_successfully' => 'Group order retrieved successfully.',
 ];

@@ -7,11 +7,14 @@ use App\Http\Requests\User\GroupOrder\CreateGroupOrderRequest;
 use App\Http\Requests\User\GroupOrder\AddGroupOrderItemRequest;
 use App\Http\Requests\User\GroupOrder\RemoveGroupOrderItemRequest;
 use App\Http\Requests\User\GroupOrder\UpdateGroupOrderItemQuantityRequest;
+use App\Http\Requests\User\GroupOrder\GetGroupOrderRequest;
 use App\DTOs\User\GroupOrder\CreateGroupOrderDto;
 use App\DTOs\User\GroupOrder\AddGroupOrderItemDto;
 use App\DTOs\User\GroupOrder\RemoveGroupOrderItemDto;
 use App\DTOs\User\GroupOrder\UpdateGroupOrderItemQuantityDto;
+use App\DTOs\User\GroupOrder\GetGroupOrderDto;
 use App\Services\Application\User\GroupOrder\GroupOrderApplicationService;
+use App\Http\Resources\User\GroupOrder\GroupOrderResource;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
 use Exception;
@@ -94,6 +97,23 @@ class GroupOrderController extends Controller
             );
         } catch (Exception $e) {
             Log::error('Failed to update group order item quantity: ' . $e->getMessage());
+            return $this->errorResponse($e->getMessage(), [], 400);
+        }
+    }
+
+    public function show(GetGroupOrderRequest $request): JsonResponse
+    {
+        try {
+            $dto = GetGroupOrderDto::fromValidatedRequest($request);
+            
+            $groupOrder = $this->groupOrderApplicationService->getGroupOrder($dto);
+
+            return $this->successResponse(
+                trans('group_order.retrieved_successfully') ?? 'Group order retrieved successfully',
+                new GroupOrderResource($groupOrder)
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to retrieve group order: ' . $e->getMessage());
             return $this->errorResponse($e->getMessage(), [], 400);
         }
     }

@@ -6,6 +6,7 @@ use App\DTOs\User\GroupOrder\CreateGroupOrderDto;
 use App\DTOs\User\GroupOrder\AddGroupOrderItemDto;
 use App\DTOs\User\GroupOrder\RemoveGroupOrderItemDto;
 use App\DTOs\User\GroupOrder\UpdateGroupOrderItemQuantityDto;
+use App\DTOs\User\GroupOrder\GetGroupOrderDto;
 use App\Models\GroupOrder;
 use App\Models\GroupOrderItem;
 use App\Services\Domain\User\GroupOrder\GroupOrderDomainService;
@@ -52,6 +53,14 @@ class GroupOrderApplicationService
             $dto->getGroupOrderId(),
             $dto->getGroupOrderItemId(),
             $dto->getQuantity()
+        );
+    }
+
+    public function getGroupOrder(GetGroupOrderDto $dto): GroupOrder
+    {
+        return $this->groupOrderDomainService->getGroupOrder(
+            $dto->getUserId(),
+            $dto->getGroupOrderId()
         );
     }
 }

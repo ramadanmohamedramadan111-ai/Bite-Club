@@ -12,4 +12,5 @@ return [
     'cannot_update_item' => 'ليس لديك صلاحية لتعديل كمية هذا الصنف.',
     'item_removed_successfully' => 'تم إزالة الصنف من طلب المجموعة بنجاح.',
     'item_quantity_updated_successfully' => 'تم تحديث كمية الصنف بنجاح.',
+    'retrieved_successfully' => 'تم استرجاع بيانات السلة بنجاح.',
 ];

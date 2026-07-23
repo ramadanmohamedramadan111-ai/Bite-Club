@@ -153,4 +153,28 @@ class GroupOrderDomainService
 
         $this->groupOrderItemRepo->update($groupOrderItemId, ['quantity' => $quantity]);
     }
+
+    public function getGroupOrder(int $userId, int $groupOrderId): GroupOrder
+    {
+        $groupOrder = $this->groupOrderRepo->findOrFail($groupOrderId);
+
+        // Check if the user is a member of the group
+        $isMember = $this->groupMemberRepo->query()
+            ->where('group_id', $groupOrder->group_id)
+            ->where('user_id', $userId)
+            ->exists();
+
+        if (!$isMember) {
+            throw new Exception(trans('group_order.not_member'));
+        }
+
+        $groupOrder->load([
+            'restaurant', 
+            'host', 
+            'items.user', 
+            'items.menuItem.menuCategory'
+        ]);
+
+        return $groupOrder;
+    }
 }
