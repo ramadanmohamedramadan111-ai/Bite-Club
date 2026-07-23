@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\User\ProfileController;
 use App\Http\Controllers\Api\User\LeaderboardController;
 use App\Http\Controllers\Api\User\UserSearchController;
 use App\Http\Controllers\Api\Webhook\KashierWebhookController;
+use App\Http\Controllers\Api\User\WalletController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -161,4 +162,12 @@ Route::middleware('auth.user')->prefix('posts')->name('posts.')->group(function 
 // Leaderboard module
 Route::middleware('auth.user')->prefix('leaderboards')->name('leaderboards.')->group(function () {
     Route::get('/', [LeaderboardController::class, 'index'])->name('index');
+});
+
+// Loyalty module
+Route::middleware('auth.user')->prefix('wallet')->name('wallet.')->group(function () {
+    Route::get('/', [WalletController::class, 'show'])->name('show');
+    Route::get('/transactions', [WalletController::class, 'transactions'])->name('transactions');
+    Route::get('/referrals', [WalletController::class, 'referrals'])->name('referrals');
+    Route::get('/streak', [WalletController::class, 'streak'])->name('streak');
 });

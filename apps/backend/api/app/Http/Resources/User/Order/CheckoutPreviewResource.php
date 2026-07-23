@@ -22,6 +22,8 @@ class CheckoutPreviewResource extends JsonResource
                 'subtotal' => $this['financials']['subtotal'],
                 'delivery_fee' => $this['financials']['delivery_fee'],
                 'service_fee' => $this['financials']['service_fee'],
+                'discount_amount' => $this['financials']['discount_amount'] ?? 0,
+                'points_redeemed' => $this['financials']['points_redeemed'] ?? 0,
                 'total' => $this['financials']['total'],
             ],
             'deposit_rules' => [

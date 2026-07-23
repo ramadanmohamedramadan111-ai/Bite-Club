@@ -53,6 +53,10 @@ use App\Services\Infrastructure\Payment\KashierPaymentGateway;
 use App\Services\Infrastructure\Payment\PaymentGatewayInterface;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use App\Models\User;
+use App\Observers\UserObserver;
+use App\Models\Order;
+use App\Observers\OrderObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -161,5 +165,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Restaurant::observe(RestaurantObserver::class);
         RestaurantReview::observe(RestaurantReviewObserver::class);
+        User::observe(UserObserver::class);
+        Order::observe(OrderObserver::class);
     }
 }

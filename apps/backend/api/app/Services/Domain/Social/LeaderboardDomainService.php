@@ -13,6 +13,10 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class LeaderboardDomainService
 {
+    public function __construct(
+        private readonly \App\Services\Domain\Loyalty\LeaderboardRewardDomainService $leaderboardRewardService
+    ) {}
+
     public function generateWeeklyLeaderboard(?Carbon $periodStart = null, ?Carbon $periodEnd = null): array
     {
         $periodStart = $periodStart ?? now()->startOfWeek(Carbon::TUESDAY);
@@ -39,9 +43,9 @@ class LeaderboardDomainService
 
             foreach ($stats as $stat) {
                 $points = match ($rank) {
-                    1 => 500,
-                    2 => 300,
-                    3 => 200,
+                    1 => 2000,
+                    2 => 1000,
+                    3 => 500,
                     default => 0,
                 };
 
@@ -54,6 +58,8 @@ class LeaderboardDomainService
                     'copies'        => (int) $stat->total_copies,
                     'reward_points' => $points,
                 ]);
+
+                $this->leaderboardRewardService->rewardWinner($record);
 
                 $created[] = $record->load('user');
                 $rank++;

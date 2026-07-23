@@ -10,18 +10,21 @@ class CheckoutPreviewDto
         private readonly int $userId,
         private readonly string $orderType,
         private readonly ?float $lat,
-        private readonly ?float $long
+        private readonly ?float $long,
+        private readonly int $points = 0
     ) {}
 
     public static function fromValidatedRequest(CheckoutPreviewRequest $request): self
     {
         $validated = $request->validated();
+        $points = $validated['points'] ?? $request->input('points_redeemed') ?? $request->input('points') ?? 0;
 
         return new self(
             $validated['user_id'],
             $validated['order_type'],
             $validated['lat'] ?? null,
-            $validated['long'] ?? null
+            $validated['long'] ?? null,
+            (int) $points
         );
     }
 
@@ -43,5 +46,10 @@ class CheckoutPreviewDto
     public function getLong(): ?float
     {
         return $this->long;
+    }
+
+    public function getPoints(): int
+    {
+        return $this->points;
     }
 }

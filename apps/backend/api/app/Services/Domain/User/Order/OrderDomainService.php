@@ -7,19 +7,22 @@ use App\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Repositories\Interfaces\OrderItemRepositoryInterface;
 use App\Repositories\Interfaces\OrderPaymentRepositoryInterface;
 use App\Services\Infrastructure\Payment\PaymentGatewayInterface;
+use App\Services\Domain\Loyalty\WalletDomainService;
 use App\Models\GeneralSetting;
+use App\Models\Order;
+use App\Models\Redemption;
 use App\Enums\Order\OrderTypeEnum;
 use App\Enums\Order\OrderStatusEnum;
 use App\Enums\Payment\PaymentTypeEnum;
 use App\Enums\Payment\PaymentMethodEnum;
 use App\Enums\Payment\PaymentStatusEnum;
 use App\Enums\Payment\PaymentOptionEnum;
+use App\Enums\Loyalty\PointTransactionSourceEnum;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
-use App\Models\Order;
 use Exception;
 
 use App\Services\Domain\User\Order\Calculators\OrderCalculationContext;
@@ -38,7 +41,8 @@ class OrderDomainService
         private readonly OrderRepositoryInterface $orderRepository,
         private readonly OrderItemRepositoryInterface $orderItemRepository,
         private readonly OrderPaymentRepositoryInterface $orderPaymentRepository,
-        private readonly PaymentGatewayInterface $paymentGateway
+        private readonly PaymentGatewayInterface $paymentGateway,
+        private readonly WalletDomainService $walletDomainService
     ) {
         $this->calculators = [
             new SubtotalCalculator(),
@@ -49,7 +53,7 @@ class OrderDomainService
         ];
     }
 
-    public function previewCheckout(int $userId, string $orderType, ?float $lat, ?float $long): array
+    public function previewCheckout(int $userId, string $orderType, ?float $lat, ?float $long, int $points = 0): array
     {
         $cart = $this->cartRepository->getUserCart($userId);
 
@@ -104,6 +108,28 @@ class OrderDomainService
                 'total_price' => round($item->quantity * $item->unit_price, 2),
             ];
         })->toArray();
+
+        // Loyalty discount calculation
+        $totalBeforeDiscount = round($context->subtotal + $context->deliveryFee + $context->serviceFee, 2);
+        $discountAmount = 0.0;
+
+        if ($points > 0) {
+            $balance = $this->walletDomainService->getBalance($userId);
+            if ($points > $balance) {
+                throw new Exception(trans('loyalty.insufficient_points') ?? 'Insufficient points in wallet.');
+            }
+
+            $discountAmount = round($points * 0.1, 2);
+            if ($discountAmount > $totalBeforeDiscount) {
+                throw new Exception(trans('loyalty.discount_exceeds_total') ?? 'Discount amount cannot exceed order total.');
+            }
+
+            $context->total = max(0.0, round($totalBeforeDiscount - $discountAmount, 2));
+        }
+
+        // Re-calculate deposit rules after discount
+        $depositCalculator = new DepositCalculator();
+        $depositCalculator->calculate($context);
 
         $depositAmount = round($context->depositAmount, 2);
         $totalAmount = round($context->total, 2);
@@ -166,6 +192,8 @@ class OrderDomainService
                 'subtotal' => round($context->subtotal, 2),
                 'delivery_fee' => round($context->deliveryFee, 2),
                 'service_fee' => round($context->serviceFee, 2),
+                'discount_amount' => round($discountAmount, 2),
+                'points_redeemed' => $points,
                 'total' => round($context->total, 2),
             ],
             'deposit_rules' => [
@@ -181,9 +209,9 @@ class OrderDomainService
         ];
     }
 
-    public function placeOrder(int $userId, string $orderType, string $paymentOptionId, ?float $lat, ?float $long): array
+    public function placeOrder(int $userId, string $orderType, string $paymentOptionId, ?float $lat, ?float $long, int $points = 0): array
     {
-        $preview = $this->previewCheckout($userId, $orderType, $lat, $long);
+        $preview = $this->previewCheckout($userId, $orderType, $lat, $long, $points);
         
         $selectedOption = null;
         foreach ($preview['available_payment_options'] as $option) {
@@ -197,7 +225,7 @@ class OrderDomainService
             throw new Exception(trans('order.invalid_payment_option'));
         }
 
-        $order = DB::transaction(function () use ($userId, $preview, $selectedOption) {
+        $order = DB::transaction(function () use ($userId, $preview, $selectedOption, $points) {
             $cart = $this->cartRepository->getUserCart($userId);
 
             $orderStatus = $selectedOption['required_now']['method'] === PaymentMethodEnum::ONLINE->value 
@@ -214,6 +242,24 @@ class OrderDomainService
                 'service_fee' => $preview['financials']['service_fee'],
                 'total' => $preview['financials']['total'],
             ]);
+
+            if ($points > 0) {
+                $discountAmount = round($points * 0.1, 2);
+                $redemption = Redemption::create([
+                    'user_id'         => $userId,
+                    'order_id'        => $order->id,
+                    'points_redeemed' => $points,
+                    'discount_amount' => $discountAmount,
+                ]);
+
+                $this->walletDomainService->redeemPoints(
+                    $userId,
+                    $points,
+                    PointTransactionSourceEnum::REDEMPTION->value,
+                    $redemption->id,
+                    Redemption::class
+                );
+            }
 
             foreach ($cart->items as $cartItem) {
                 $this->orderItemRepository->create([
