@@ -10,7 +10,8 @@ class CheckoutPreviewDto
         private readonly int $userId,
         private readonly string $orderType,
         private readonly ?float $lat,
-        private readonly ?float $long
+        private readonly ?float $long,
+        private readonly bool $isGroupOrder = false
     ) {}
 
     public static function fromValidatedRequest(CheckoutPreviewRequest $request): self
@@ -21,7 +22,8 @@ class CheckoutPreviewDto
             $validated['user_id'],
             $validated['order_type'],
             $validated['lat'] ?? null,
-            $validated['long'] ?? null
+            $validated['long'] ?? null,
+            false // always false when coming from individual checkout request
         );
     }
 
@@ -43,5 +45,10 @@ class CheckoutPreviewDto
     public function getLong(): ?float
     {
         return $this->long;
+    }
+
+    public function isGroupOrder(): bool
+    {
+        return $this->isGroupOrder;
     }
 }

@@ -11,7 +11,8 @@ class PlaceOrderDto
         private readonly string $orderType,
         private readonly string $paymentOptionId,
         private readonly ?float $lat = null,
-        private readonly ?float $long = null
+        private readonly ?float $long = null,
+        private readonly bool $isGroupOrder = false
     ) {}
 
     public static function fromValidatedRequest(PlaceOrderRequest $request): self
@@ -23,7 +24,8 @@ class PlaceOrderDto
             $validated['order_type'],
             $validated['payment_option_id'],
             $validated['lat'] ?? null,
-            $validated['long'] ?? null
+            $validated['long'] ?? null,
+            false // always false when coming from individual place request
         );
     }
 
@@ -50,5 +52,10 @@ class PlaceOrderDto
     public function getLong(): ?float
     {
         return $this->long;
+    }
+
+    public function isGroupOrder(): bool
+    {
+        return $this->isGroupOrder;
     }
 }

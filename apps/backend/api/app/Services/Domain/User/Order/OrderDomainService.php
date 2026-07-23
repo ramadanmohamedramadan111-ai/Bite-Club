@@ -49,9 +49,9 @@ class OrderDomainService
         ];
     }
 
-    public function previewCheckout(int $userId, string $orderType, ?float $lat, ?float $long): array
+    public function previewCheckout(int $userId, string $orderType, ?float $lat, ?float $long, bool $isGroupOrder = false): array
     {
-        $cart = $this->cartRepository->getUserCart($userId);
+        $cart = $this->cartRepository->getUserCart($userId, $isGroupOrder);
 
         if (!$cart) {
             throw new Exception(trans('order.cart_not_found'));
@@ -181,9 +181,9 @@ class OrderDomainService
         ];
     }
 
-    public function placeOrder(int $userId, string $orderType, string $paymentOptionId, ?float $lat, ?float $long): array
+    public function placeOrder(int $userId, string $orderType, string $paymentOptionId, ?float $lat, ?float $long, bool $isGroupOrder = false): array
     {
-        $preview = $this->previewCheckout($userId, $orderType, $lat, $long);
+        $preview = $this->previewCheckout($userId, $orderType, $lat, $long, $isGroupOrder);
         
         $selectedOption = null;
         foreach ($preview['available_payment_options'] as $option) {
@@ -197,8 +197,8 @@ class OrderDomainService
             throw new Exception(trans('order.invalid_payment_option'));
         }
 
-        $order = DB::transaction(function () use ($userId, $preview, $selectedOption) {
-            $cart = $this->cartRepository->getUserCart($userId);
+        $order = DB::transaction(function () use ($userId, $preview, $selectedOption, $isGroupOrder) {
+            $cart = $this->cartRepository->getUserCart($userId, $isGroupOrder);
 
             $orderStatus = $selectedOption['required_now']['method'] === PaymentMethodEnum::ONLINE->value 
                 ? OrderStatusEnum::AWAITING_PAYMENT->value 
