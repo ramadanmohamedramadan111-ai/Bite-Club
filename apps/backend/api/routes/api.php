@@ -113,6 +113,7 @@ Route::prefix('user')->name('user.')->group(function () {
     // Group Orders module
     Route::middleware('auth.user')->prefix('group-orders')->name('group-orders.')->group(function () {
         Route::post('/', [GroupOrderController::class, 'store'])->name('store');
+        Route::post('/{id}/items', [GroupOrderController::class, 'addItem'])->name('items.add');
     });
 });
 
