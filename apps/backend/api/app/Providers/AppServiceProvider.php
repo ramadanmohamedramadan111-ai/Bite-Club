@@ -9,6 +9,8 @@ use App\Observers\RestaurantReviewObserver;
 use App\Repositories\Eloquent\AdminRepository;
 use App\Repositories\Eloquent\CartItemRepository;
 use App\Repositories\Eloquent\CartRepository;
+use App\Repositories\Eloquent\GroupOrderRepository;
+use App\Repositories\Eloquent\GroupOrderItemRepository;
 use App\Repositories\Eloquent\GeneralSettingRepository;
 use App\Repositories\Eloquent\MenuCategoryRepository;
 use App\Repositories\Eloquent\MenuItemRepository;
@@ -30,6 +32,8 @@ use App\Repositories\Eloquent\UserRepository;
 use App\Repositories\Interfaces\AdminRepositoryInterface;
 use App\Repositories\Interfaces\CartItemRepositoryInterface;
 use App\Repositories\Interfaces\CartRepositoryInterface;
+use App\Repositories\Interfaces\GroupOrderRepositoryInterface;
+use App\Repositories\Interfaces\GroupOrderItemRepositoryInterface;
 use App\Repositories\Interfaces\GeneralSettingRepositoryInterface;
 use App\Repositories\Interfaces\MenuCategoryRepositoryInterface;
 use App\Repositories\Interfaces\MenuItemRepositoryInterface;
@@ -151,6 +155,8 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->bind(CartRepositoryInterface::class, CartRepository::class);
         $this->app->bind(CartItemRepositoryInterface::class, CartItemRepository::class);
+        $this->app->bind(GroupOrderRepositoryInterface::class, GroupOrderRepository::class);
+        $this->app->bind(GroupOrderItemRepositoryInterface::class, GroupOrderItemRepository::class);
         $this->app->bind(OrderRepositoryInterface::class, OrderRepository::class);
         $this->app->bind(OrderItemRepositoryInterface::class, OrderItemRepository::class);
         $this->app->bind(OrderPaymentRepositoryInterface::class, OrderPaymentRepository::class);
