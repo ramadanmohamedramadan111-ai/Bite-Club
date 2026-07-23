@@ -14,17 +14,19 @@ use App\Models\GroupOrderItem;
 use Exception;
 use App\Enums\GroupOrder\GroupOrderStatusEnum;
 use Illuminate\Support\Facades\DB;
+use App\Services\Application\User\Order\OrderApplicationService;
+use App\DTOs\User\Order\CheckoutPreviewDto;
 
 class GroupOrderDomainService
 {
     public function __construct(
-        private GroupOrderRepositoryInterface $groupOrderRepo,
-        private GroupOrderItemRepositoryInterface $groupOrderItemRepo,
-        private CartRepositoryInterface $cartRepo,
-        private CartItemRepositoryInterface $cartItemRepo,
-        private GroupMemberRepositoryInterface $groupMemberRepo,
-        private MenuItemRepositoryInterface $menuItemRepo,
-        private OrderDomainService $orderDomainService
+        private readonly GroupOrderRepositoryInterface $groupOrderRepo,
+        private readonly GroupOrderItemRepositoryInterface $groupOrderItemRepo,
+        private readonly CartRepositoryInterface $cartRepo,
+        private readonly CartItemRepositoryInterface $cartItemRepo,
+        private readonly GroupMemberRepositoryInterface $groupMemberRepo,
+        private readonly MenuItemRepositoryInterface $menuItemRepo,
+        private readonly OrderApplicationService $orderApplicationService
     ) {}
 
     public function createGroupOrder(int $hostId, int $groupId, int $restaurantId): GroupOrder
@@ -176,5 +178,85 @@ class GroupOrderDomainService
         ]);
 
         return $groupOrder;
+    }
+
+    public function previewCheckout(int $userId, int $groupOrderId, string $orderType, ?float $lat, ?float $long): array
+    {
+        DB::transaction(function () use ($userId, $groupOrderId) {
+            $groupOrder = $this->groupOrderRepo->findOrFail($groupOrderId);
+
+            // 1. Only host can checkout
+            if ($groupOrder->host_id !== $userId) {
+                throw new Exception(trans('group_order.only_host_can_checkout'));
+            }
+
+            // 2. Lock the order if it's still open
+            if ($groupOrder->status === GroupOrderStatusEnum::OPEN) {
+                $this->groupOrderRepo->update($groupOrderId, ['status' => GroupOrderStatusEnum::LOCKED->value]);
+            }
+
+            // 3. Clear host cart & move aggregated items
+            $this->aggregateAndMoveToPersonalCart($groupOrder, $userId);
+        });
+
+        // 4. Call the existing preview system using the OrderApplicationService
+        $checkoutPreviewDto = new CheckoutPreviewDto($userId, $orderType, $lat, $long);
+        return $this->orderApplicationService->previewCheckout($checkoutPreviewDto);
+    }
+
+    private function aggregateAndMoveToPersonalCart(GroupOrder $groupOrder, int $hostId): void
+    {
+        // Fetch group order items
+        $items = $this->groupOrderItemRepo->query()
+            ->where('group_order_id', $groupOrder->id)
+            ->get();
+
+        if ($items->isEmpty()) {
+            throw new Exception(trans('group_order.empty_order'));
+        }
+
+        // Aggregate items (group by item_id AND notes)
+        $aggregatedItems = [];
+        foreach ($items as $item) {
+            $key = $item->item_id . '_' . md5((string)$item->notes);
+            if (!isset($aggregatedItems[$key])) {
+                $aggregatedItems[$key] = [
+                    'item_id' => $item->item_id,
+                    'item_name' => $item->item_name,
+                    'unit_price' => $item->unit_price,
+                    'notes' => $item->notes,
+                    'quantity' => 0,
+                ];
+            }
+            $aggregatedItems[$key]['quantity'] += $item->quantity;
+        }
+
+        // Find or create host cart
+        $cart = $this->cartRepo->findOrCreateForGroupOrder(
+            $hostId,
+            $groupOrder->restaurant_id,
+            $groupOrder->id
+        );
+
+        // Clear existing cart items
+        $this->cartItemRepo->query()->where('cart_id', $cart->id)->delete();
+
+        // Update cart to point to the current restaurant and group order
+        $this->cartRepo->update($cart->id, [
+            'restaurant_id' => $groupOrder->restaurant_id,
+            'group_order_id' => $groupOrder->id
+        ]);
+
+        // Insert new aggregated items
+        foreach ($aggregatedItems as $aggItem) {
+            $this->cartItemRepo->create([
+                'cart_id' => $cart->id,
+                'item_id' => $aggItem['item_id'],
+                'item_name' => $aggItem['item_name'],
+                'quantity' => $aggItem['quantity'],
+                'unit_price' => $aggItem['unit_price'],
+                'notes' => $aggItem['notes'],
+            ]);
+        }
     }
 }

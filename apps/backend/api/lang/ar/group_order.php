@@ -13,4 +13,7 @@ return [
     'item_removed_successfully' => 'تم إزالة الصنف من طلب المجموعة بنجاح.',
     'item_quantity_updated_successfully' => 'تم تحديث كمية الصنف بنجاح.',
     'retrieved_successfully' => 'تم استرجاع بيانات السلة بنجاح.',
+    'only_host_can_checkout' => 'الهوست فقط هو من يمكنه تأكيد الدفع لهذا الجروب.',
+    'empty_order' => 'السلة فارغة. يرجى إضافة عناصر قبل المتابعة.',
+    'preview_successful' => 'تم إعداد الفاتورة المبدئية بنجاح.',
 ];

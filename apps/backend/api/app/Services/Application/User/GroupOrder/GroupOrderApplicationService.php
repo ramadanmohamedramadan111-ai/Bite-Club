@@ -7,6 +7,7 @@ use App\DTOs\User\GroupOrder\AddGroupOrderItemDto;
 use App\DTOs\User\GroupOrder\RemoveGroupOrderItemDto;
 use App\DTOs\User\GroupOrder\UpdateGroupOrderItemQuantityDto;
 use App\DTOs\User\GroupOrder\GetGroupOrderDto;
+use App\DTOs\User\GroupOrder\GroupOrderPreviewDto;
 use App\Models\GroupOrder;
 use App\Models\GroupOrderItem;
 use App\Services\Domain\User\GroupOrder\GroupOrderDomainService;
@@ -61,6 +62,17 @@ class GroupOrderApplicationService
         return $this->groupOrderDomainService->getGroupOrder(
             $dto->getUserId(),
             $dto->getGroupOrderId()
+        );
+    }
+
+    public function previewCheckout(GroupOrderPreviewDto $dto): array
+    {
+        return $this->groupOrderDomainService->previewCheckout(
+            $dto->getUserId(),
+            $dto->getGroupOrderId(),
+            $dto->getOrderType(),
+            $dto->getLat(),
+            $dto->getLong()
         );
     }
 }

@@ -13,4 +13,7 @@ return [
     'item_removed_successfully' => 'Item removed successfully from the group order.',
     'item_quantity_updated_successfully' => 'Item quantity updated successfully.',
     'retrieved_successfully' => 'Group order retrieved successfully.',
+    'only_host_can_checkout' => 'Only the host can perform the checkout for this group order.',
+    'empty_order' => 'The group order is empty. Please add items before checking out.',
+    'preview_successful' => 'Group order preview successful.',
 ];
