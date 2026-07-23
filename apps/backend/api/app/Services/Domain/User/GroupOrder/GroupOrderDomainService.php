@@ -259,4 +259,22 @@ class GroupOrderDomainService
             ]);
         }
     }
+
+    public function unlock(int $userId, int $groupOrderId): void
+    {
+        $groupOrder = $this->groupOrderRepo->findOrFail($groupOrderId);
+
+        // 1. Only host can unlock
+        if ($groupOrder->host_id !== $userId) {
+            throw new Exception(trans('group_order.only_host_can_unlock'));
+        }
+
+        // 2. Ensure order is locked before unlocking
+        if ($groupOrder->status !== GroupOrderStatusEnum::LOCKED) {
+            throw new Exception(trans('group_order.order_not_locked'));
+        }
+
+        // 3. Change status back to OPEN
+        $this->groupOrderRepo->update($groupOrderId, ['status' => GroupOrderStatusEnum::OPEN->value]);
+    }
 }

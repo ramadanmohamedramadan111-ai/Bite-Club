@@ -16,4 +16,7 @@ return [
     'only_host_can_checkout' => 'Only the host can perform the checkout for this group order.',
     'empty_order' => 'The group order is empty. Please add items before checking out.',
     'preview_successful' => 'Group order preview successful.',
+    'only_host_can_unlock' => 'Only the host can unlock this group order.',
+    'order_not_locked' => 'This group order is not locked.',
+    'unlocked_successfully' => 'Group order unlocked successfully.',
 ];

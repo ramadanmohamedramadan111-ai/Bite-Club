@@ -8,6 +8,7 @@ use App\DTOs\User\GroupOrder\RemoveGroupOrderItemDto;
 use App\DTOs\User\GroupOrder\UpdateGroupOrderItemQuantityDto;
 use App\DTOs\User\GroupOrder\GetGroupOrderDto;
 use App\DTOs\User\GroupOrder\GroupOrderPreviewDto;
+use App\DTOs\User\GroupOrder\UnlockGroupOrderDto;
 use App\Models\GroupOrder;
 use App\Models\GroupOrderItem;
 use App\Services\Domain\User\GroupOrder\GroupOrderDomainService;
@@ -73,6 +74,14 @@ class GroupOrderApplicationService
             $dto->getOrderType(),
             $dto->getLat(),
             $dto->getLong()
+        );
+    }
+
+    public function unlock(UnlockGroupOrderDto $dto): void
+    {
+        $this->groupOrderDomainService->unlock(
+            $dto->getUserId(),
+            $dto->getGroupOrderId()
         );
     }
 }
