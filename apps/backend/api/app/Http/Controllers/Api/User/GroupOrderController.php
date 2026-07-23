@@ -10,6 +10,7 @@ use App\Http\Requests\User\GroupOrder\UpdateGroupOrderItemQuantityRequest;
 use App\Http\Requests\User\GroupOrder\GetGroupOrderRequest;
 use App\Http\Requests\User\GroupOrder\GroupOrderPreviewRequest;
 use App\Http\Requests\User\GroupOrder\UnlockGroupOrderRequest;
+use App\Http\Requests\User\GroupOrder\PlaceGroupOrderRequest;
 use App\DTOs\User\GroupOrder\CreateGroupOrderDto;
 use App\DTOs\User\GroupOrder\AddGroupOrderItemDto;
 use App\DTOs\User\GroupOrder\RemoveGroupOrderItemDto;
@@ -17,6 +18,7 @@ use App\DTOs\User\GroupOrder\UpdateGroupOrderItemQuantityDto;
 use App\DTOs\User\GroupOrder\GetGroupOrderDto;
 use App\DTOs\User\GroupOrder\GroupOrderPreviewDto;
 use App\DTOs\User\GroupOrder\UnlockGroupOrderDto;
+use App\DTOs\User\GroupOrder\PlaceGroupOrderDto;
 use App\Services\Application\User\GroupOrder\GroupOrderApplicationService;
 use App\Http\Resources\User\GroupOrder\GroupOrderResource;
 use App\Http\Resources\User\Order\CheckoutPreviewResource;
@@ -152,6 +154,23 @@ class GroupOrderController extends Controller
             );
         } catch (Exception $e) {
             Log::error('Failed to unlock group order: ' . $e->getMessage());
+            return $this->errorResponse($e->getMessage(), [], 400);
+        }
+    }
+
+    public function placeOrder(PlaceGroupOrderRequest $request): JsonResponse
+    {
+        try {
+            $dto = PlaceGroupOrderDto::fromValidatedRequest($request);
+            
+            $result = $this->groupOrderApplicationService->placeOrder($dto);
+
+            return $this->successResponse(
+                trans('group_order.placed_successfully') ?? 'Group order placed successfully',
+                $result
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to place group order: ' . $e->getMessage());
             return $this->errorResponse($e->getMessage(), [], 400);
         }
     }

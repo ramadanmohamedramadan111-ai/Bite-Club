@@ -9,6 +9,7 @@ use App\DTOs\User\GroupOrder\UpdateGroupOrderItemQuantityDto;
 use App\DTOs\User\GroupOrder\GetGroupOrderDto;
 use App\DTOs\User\GroupOrder\GroupOrderPreviewDto;
 use App\DTOs\User\GroupOrder\UnlockGroupOrderDto;
+use App\DTOs\User\GroupOrder\PlaceGroupOrderDto;
 use App\Models\GroupOrder;
 use App\Models\GroupOrderItem;
 use App\Services\Domain\User\GroupOrder\GroupOrderDomainService;
@@ -82,6 +83,18 @@ class GroupOrderApplicationService
         $this->groupOrderDomainService->unlock(
             $dto->getUserId(),
             $dto->getGroupOrderId()
+        );
+    }
+
+    public function placeOrder(PlaceGroupOrderDto $dto): array
+    {
+        return $this->groupOrderDomainService->placeOrder(
+            $dto->getUserId(),
+            $dto->getGroupOrderId(),
+            $dto->getOrderType(),
+            $dto->getPaymentOptionId(),
+            $dto->getLat(),
+            $dto->getLong()
         );
     }
 }

@@ -19,4 +19,6 @@ return [
     'only_host_can_unlock' => 'Only the host can unlock this group order.',
     'order_not_locked' => 'This group order is not locked.',
     'unlocked_successfully' => 'Group order unlocked successfully.',
+    'must_be_locked_to_place' => 'The group order must be previewed and locked before placing.',
+    'placed_successfully' => 'Group order placed successfully.',
 ];

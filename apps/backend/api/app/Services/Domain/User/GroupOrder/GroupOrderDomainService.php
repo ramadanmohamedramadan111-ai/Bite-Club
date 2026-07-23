@@ -16,6 +16,7 @@ use App\Enums\GroupOrder\GroupOrderStatusEnum;
 use Illuminate\Support\Facades\DB;
 use App\Services\Application\User\Order\OrderApplicationService;
 use App\DTOs\User\Order\CheckoutPreviewDto;
+use App\DTOs\User\Order\PlaceOrderDto;
 
 class GroupOrderDomainService
 {
@@ -276,5 +277,35 @@ class GroupOrderDomainService
 
         // 3. Change status back to OPEN
         $this->groupOrderRepo->update($groupOrderId, ['status' => GroupOrderStatusEnum::OPEN->value]);
+    }
+
+    public function placeOrder(int $userId, int $groupOrderId, string $orderType, string $paymentOptionId, ?float $lat, ?float $long): array
+    {
+        $groupOrder = $this->groupOrderRepo->findOrFail($groupOrderId);
+
+        // 1. Only host can checkout
+        if ($groupOrder->host_id !== $userId) {
+            throw new Exception(trans('group_order.only_host_can_checkout'));
+        }
+
+        // 2. Ensure order is locked
+        if ($groupOrder->status !== GroupOrderStatusEnum::LOCKED) {
+            throw new Exception(trans('group_order.must_be_locked_to_place'));
+        }
+
+        // 3. Sync personal cart with group order items again just to be safe
+        $this->aggregateAndMoveToPersonalCart($groupOrder, $userId);
+
+        // 4. Place order using the old system
+        $placeOrderDto = new PlaceOrderDto($userId, $orderType, $paymentOptionId, $lat, $long);
+        $result = $this->orderApplicationService->placeOrder($placeOrderDto);
+
+        // 5. Mark group order as COMPLETED and link the created order_id
+        $this->groupOrderRepo->update($groupOrderId, [
+            'status' => GroupOrderStatusEnum::COMPLETED->value,
+            'order_id' => $result['order_id'] ?? null,
+        ]);
+
+        return $result;
     }
 }
