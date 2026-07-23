@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\GroupOrder\CreateGroupOrderRequest;
 use App\Http\Requests\User\GroupOrder\AddGroupOrderItemRequest;
+use App\Http\Requests\User\GroupOrder\RemoveGroupOrderItemRequest;
 use App\DTOs\User\GroupOrder\CreateGroupOrderDto;
 use App\DTOs\User\GroupOrder\AddGroupOrderItemDto;
+use App\DTOs\User\GroupOrder\RemoveGroupOrderItemDto;
 use App\Services\Application\User\GroupOrder\GroupOrderApplicationService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
@@ -58,6 +60,22 @@ class GroupOrderController extends Controller
             );
         } catch (Exception $e) {
             Log::error('Failed to add item to group order: ' . $e->getMessage());
+            return $this->errorResponse($e->getMessage(), [], 400);
+        }
+    }
+
+    public function removeItem(RemoveGroupOrderItemRequest $request): JsonResponse
+    {
+        try {
+            $dto = RemoveGroupOrderItemDto::fromValidatedRequest($request);
+            
+            $this->groupOrderApplicationService->removeItem($dto);
+
+            return $this->successResponse(
+                trans('group_order.item_removed_successfully') ?? 'Item removed successfully'
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to remove item from group order: ' . $e->getMessage());
             return $this->errorResponse($e->getMessage(), [], 400);
         }
     }
