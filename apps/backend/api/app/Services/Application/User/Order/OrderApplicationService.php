@@ -25,7 +25,8 @@ class OrderApplicationService
             $dto->getOrderType(),
             $dto->getLat(),
             $dto->getLong(),
-            $dto->getPoints()
+            $dto->getPoints(),
+            $dto->isGroupOrder()
         );
     }
 
@@ -37,7 +38,8 @@ class OrderApplicationService
             $dto->getPaymentOptionId(),
             $dto->getLat(),
             $dto->getLong(),
-            $dto->getPoints()
+            $dto->getPoints(),
+            $dto->isGroupOrder()
         );
     }
 

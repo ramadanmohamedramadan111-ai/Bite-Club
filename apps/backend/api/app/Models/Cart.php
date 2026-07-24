@@ -12,6 +12,7 @@ class Cart extends Model
     protected $fillable = [
         'user_id',
         'restaurant_id',
+        'group_order_id',
     ];
 
     public function user()

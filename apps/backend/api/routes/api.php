@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\User\RestaurantCategoryController as UserRestaurant
 use App\Http\Controllers\Api\User\RestaurantController as UserRestaurantController;
 use App\Http\Controllers\Api\User\RestaurantMenuController as UserRestaurantMenuController;
 use App\Http\Controllers\Api\User\RestaurantReviewController as UserRestaurantReviewController;
+use App\Http\Controllers\Api\User\GroupOrderController;
 use App\Http\Controllers\Api\User\PostController;
 use App\Http\Controllers\Api\User\ProfileController;
 use App\Http\Controllers\Api\User\LeaderboardController;
@@ -109,6 +110,18 @@ Route::prefix('user')->name('user.')->group(function () {
 
     // Webhooks (No auth required)
     Route::post('webhooks/kashier', [\App\Http\Controllers\Api\Webhook\KashierWebhookController::class, 'handle']);
+
+    // Group Orders module
+    Route::middleware('auth.user')->prefix('group-orders')->name('group-orders.')->group(function () {
+        Route::post('/', [GroupOrderController::class, 'store'])->name('store');
+        Route::get('/{id}', [GroupOrderController::class, 'show'])->name('show');
+        Route::post('/{id}/preview', [GroupOrderController::class, 'previewCheckout'])->name('preview');
+        Route::post('/{id}/unlock', [GroupOrderController::class, 'unlock'])->name('unlock');
+        Route::post('/{id}/place', [GroupOrderController::class, 'placeOrder'])->name('place');
+        Route::post('/{id}/items', [GroupOrderController::class, 'addItem'])->name('items.add');
+        Route::put('/{id}/items/{itemId}', [GroupOrderController::class, 'updateItemQuantity'])->name('items.update');
+        Route::delete('/{id}/items/{itemId}', [GroupOrderController::class, 'removeItem'])->name('items.remove');
+    });
 });
 
 // User Friends module
@@ -147,6 +160,8 @@ Route::middleware('auth.user')->prefix('groups')->name('groups.')->group(functio
     Route::patch('/{group}/join-settings', [GroupController::class, 'updateJoinSettings'])->name('join-settings');
     Route::post('/{group}/regenerate-link', [GroupController::class, 'regenerateInviteToken'])->name('regenerate-link');
 });
+
+
 
 // Social Feed module
 Route::middleware('auth.user')->prefix('posts')->name('posts.')->group(function () {

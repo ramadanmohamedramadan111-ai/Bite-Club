@@ -11,7 +11,8 @@ class CheckoutPreviewDto
         private readonly string $orderType,
         private readonly ?float $lat,
         private readonly ?float $long,
-        private readonly int $points = 0
+        private readonly int $points = 0,
+        private readonly bool $isGroupOrder = false
     ) {}
 
     public static function fromValidatedRequest(CheckoutPreviewRequest $request): self
@@ -24,7 +25,8 @@ class CheckoutPreviewDto
             $validated['order_type'],
             $validated['lat'] ?? null,
             $validated['long'] ?? null,
-            (int) $points
+            (int) $points,
+            false // always false when coming from individual checkout request
         );
     }
 
@@ -51,5 +53,10 @@ class CheckoutPreviewDto
     public function getPoints(): int
     {
         return $this->points;
+    }
+
+    public function isGroupOrder(): bool
+    {
+        return $this->isGroupOrder;
     }
 }
