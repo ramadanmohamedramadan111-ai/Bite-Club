@@ -18,46 +18,48 @@ class ReferralDomainService
 
     public function handleReferredUserFirstOrder(Order $order): void
     {
-        // Check if there is a pending referral record for the referred user
-        $referral = Referral::where('referred_id', $order->user_id)
-            ->where('status', ReferralStatusEnum::PENDING->value)
-            ->first();
+        $this->syncPendingReferralsForUser($order->user_id);
+    }
 
-        if (!$referral) {
-            return;
-        }
+    public function syncPendingReferralsForUser(int $userId): void
+    {
+        $pendingReferrals = Referral::where(function ($query) use ($userId) {
+            $query->where('referrer_id', $userId)
+                  ->orWhere('referred_id', $userId);
+        })->where('status', ReferralStatusEnum::PENDING->value)->get();
 
-        // Check if this is the user's first completed order
-        $completedCount = Order::where('user_id', $order->user_id)
-            ->where('status', OrderStatusEnum::COMPLETED->value)
-            ->count();
+        foreach ($pendingReferrals as $referral) {
+            $hasCompletedOrder = Order::where('user_id', $referral->referred_id)
+                ->where('status', OrderStatusEnum::COMPLETED->value)
+                ->exists();
 
-        if ($completedCount >= 1) {
-            DB::transaction(function () use ($referral) {
-                // Lock referral for update to prevent concurrent updates
-                $lockedReferral = Referral::where('id', $referral->id)->lockForUpdate()->first();
-                
-                if ($lockedReferral->status->value === ReferralStatusEnum::PENDING->value || $lockedReferral->status === ReferralStatusEnum::PENDING) {
-                    $lockedReferral->update([
-                        'status'       => ReferralStatusEnum::COMPLETED->value,
-                        'completed_at' => now(),
-                    ]);
+            if ($hasCompletedOrder) {
+                DB::transaction(function () use ($referral) {
+                    $lockedReferral = Referral::where('id', $referral->id)->lockForUpdate()->first();
+                    
+                    if ($lockedReferral && ($lockedReferral->status->value === ReferralStatusEnum::PENDING->value || $lockedReferral->status === ReferralStatusEnum::PENDING)) {
+                        $lockedReferral->update([
+                            'status'       => ReferralStatusEnum::COMPLETED->value,
+                            'completed_at' => now(),
+                        ]);
 
-                    // Referrer earns 100 points
-                    $this->walletService->earnPoints(
-                        $lockedReferral->referrer_id,
-                        100,
-                        PointTransactionSourceEnum::REFERRAL->value,
-                        $lockedReferral->id,
-                        Referral::class
-                    );
-                }
-            });
+                        $this->walletService->earnPoints(
+                            $lockedReferral->referrer_id,
+                            100,
+                            PointTransactionSourceEnum::REFERRAL->value,
+                            $lockedReferral->id,
+                            Referral::class
+                        );
+                    }
+                });
+            }
         }
     }
 
     public function getReferrals(int $userId, int $perPage = 15): LengthAwarePaginator
     {
+        $this->syncPendingReferralsForUser($userId);
+
         return Referral::with('referred')
             ->where('referrer_id', $userId)
             ->orderBy('created_at', 'desc')

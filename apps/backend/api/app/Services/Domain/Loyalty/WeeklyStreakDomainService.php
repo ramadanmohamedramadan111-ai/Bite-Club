@@ -5,6 +5,7 @@ namespace App\Services\Domain\Loyalty;
 use App\Models\Order;
 use App\Models\UserWeeklyStreak;
 use App\Models\UserBadge;
+use App\Enums\Order\OrderStatusEnum;
 use App\Enums\Loyalty\PointTransactionSourceEnum;
 use App\Enums\Loyalty\BadgeTypeEnum;
 use Carbon\Carbon;
@@ -18,26 +19,38 @@ class WeeklyStreakDomainService
 
     public function handleCompletedOrder(Order $order): void
     {
-        // Eligibility: Order total must be >= 50 EGP
-        if ($order->total < 50.00) {
-            return;
+        $weekStart = now()->startOfWeek(Carbon::TUESDAY)->toDateString();
+        $this->syncStreakOrderCount($order->user_id, $weekStart);
+    }
+
+    public function syncStreakOrderCount(int $userId, string $weekStartDate): int
+    {
+        $weekStart = Carbon::parse($weekStartDate)->startOfDay();
+        $weekEnd = (clone $weekStart)->addDays(6)->endOfDay();
+
+        // Count completed orders >= 50 EGP created or updated within the week window
+        $actualCount = Order::where('user_id', $userId)
+            ->where('status', OrderStatusEnum::COMPLETED->value)
+            ->where('total', '>=', 50.00)
+            ->where(function ($q) use ($weekStart, $weekEnd) {
+                $q->whereBetween('created_at', [$weekStart, $weekEnd])
+                  ->orWhereBetween('updated_at', [$weekStart, $weekEnd]);
+            })
+            ->count();
+
+        $streak = UserWeeklyStreak::firstOrCreate([
+            'user_id'         => $userId,
+            'week_start_date' => $weekStartDate,
+        ], [
+            'completed_orders_count' => 0,
+            'reward_granted'         => false,
+        ]);
+
+        if ($actualCount > $streak->completed_orders_count) {
+            $streak->update(['completed_orders_count' => $actualCount]);
         }
 
-        $weekStart = now()->startOfWeek(Carbon::TUESDAY)->toDateString();
-
-        DB::transaction(function () use ($order, $weekStart) {
-            $streak = UserWeeklyStreak::firstOrCreate([
-                'user_id'         => $order->user_id,
-                'week_start_date' => $weekStart,
-            ], [
-                'completed_orders_count' => 0,
-                'reward_granted'         => false,
-            ]);
-
-            // Lock row to prevent race conditions
-            $lockedStreak = UserWeeklyStreak::where('id', $streak->id)->lockForUpdate()->first();
-            $lockedStreak->increment('completed_orders_count');
-        });
+        return max($streak->completed_orders_count, $actualCount);
     }
 
     public function grantWeeklyRewards(): void
@@ -50,13 +63,16 @@ class WeeklyStreakDomainService
             ->get();
 
         foreach ($pendingStreaks as $streak) {
+            // Sync count from orders table before evaluating rewards
+            $completedCount = $this->syncStreakOrderCount($streak->user_id, $streak->week_start_date);
+
             $points = 0;
             $badgeType = null;
 
-            if ($streak->completed_orders_count >= 5) {
+            if ($completedCount >= 5) {
                 $points = 150;
                 $badgeType = BadgeTypeEnum::WEEKLY_5_ORDERS->value;
-            } elseif ($streak->completed_orders_count >= 3) {
+            } elseif ($completedCount >= 3) {
                 $points = 100;
                 $badgeType = BadgeTypeEnum::WEEKLY_3_ORDERS->value;
             }
@@ -96,15 +112,7 @@ class WeeklyStreakDomainService
     {
         $currentWeekStart = now()->startOfWeek(Carbon::TUESDAY)->toDateString();
 
-        $streak = UserWeeklyStreak::firstOrCreate([
-            'user_id'         => $userId,
-            'week_start_date' => $currentWeekStart,
-        ], [
-            'completed_orders_count' => 0,
-            'reward_granted'         => false,
-        ]);
-
-        $count = $streak->completed_orders_count;
+        $count = $this->syncStreakOrderCount($userId, $currentWeekStart);
 
         $nextTier = null;
         if ($count < 3) {
