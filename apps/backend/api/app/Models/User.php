@@ -93,6 +93,26 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(self::class, 'referred_by');
     }
+
+    public function wallet(): HasOne
+    {
+        return $this->hasOne(Wallet::class);
+    }
+
+    public function referralRecords(): HasMany
+    {
+        return $this->hasMany(Referral::class, 'referrer_id');
+    }
+
+    public function weeklyStreaks(): HasMany
+    {
+        return $this->hasMany(UserWeeklyStreak::class);
+    }
+
+    public function userBadges(): HasMany
+    {
+        return $this->hasMany(UserBadge::class);
+    }
     public function getFullNameAttribute(): string
     {
         return "{$this->first_name} {$this->last_name}";

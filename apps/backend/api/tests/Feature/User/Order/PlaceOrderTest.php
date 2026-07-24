@@ -72,7 +72,7 @@ class PlaceOrderTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJsonPath('success', true);
-        $response->assertJsonPath('data.status', 'pending');
+        $response->assertJsonPath('data.status', 'awaiting_payment');
         
         $orderId = $response->json('data.order_id');
         $this->assertNotNull($orderId);
@@ -80,7 +80,7 @@ class PlaceOrderTest extends TestCase
         $this->assertDatabaseHas('orders', [
             'id' => $orderId,
             'user_id' => $user->id,
-            'status' => 'pending',
+            'status' => 'awaiting_payment',
             'total' => 205,
         ]);
 

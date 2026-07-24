@@ -36,14 +36,24 @@ class PlaceOrderRequest extends FormRequest
             'payment_option_id' => 'required|string|in:' . implode(',', PaymentOptionEnum::values()),
             'lat' => 'required_if:order_type,' . OrderTypeEnum::DELIVERY->value . '|numeric|between:-90,90',
             'long' => 'required_if:order_type,' . OrderTypeEnum::DELIVERY->value . '|numeric|between:-180,180',
+            'points' => 'sometimes|nullable|integer|min:0',
+            'points_redeemed' => 'sometimes|nullable|integer|min:0',
         ];
     }
 
     protected function prepareForValidation(): void
     {
-        $this->merge([
+        $points = $this->input('points') ?? $this->input('points_redeemed');
+
+        $data = [
             'user_id' => auth('user')->id(),
-        ]);
+        ];
+
+        if ($points !== null) {
+            $data['points'] = (int) $points;
+        }
+
+        $this->merge($data);
     }
 
     protected function failedValidation(Validator $validator)

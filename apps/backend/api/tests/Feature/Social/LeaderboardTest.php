@@ -51,15 +51,19 @@ class LeaderboardTest extends TestCase
             'user_id'       => $creator1->id,
             'rank'          => 1,
             'copies'        => 3,
-            'reward_points' => 500,
+            'reward_points' => 2000,
         ]);
 
         $this->assertDatabaseHas('leaderboards', [
             'user_id'       => $creator2->id,
             'rank'          => 2,
             'copies'        => 1,
-            'reward_points' => 300,
+            'reward_points' => 1000,
         ]);
+
+        // Assert wallets were updated
+        $this->assertEquals(2000, $creator1->wallet->fresh()->balance);
+        $this->assertEquals(1000, $creator2->wallet->fresh()->balance);
 
         $response = $this->getJson('/api/leaderboards?type=weekly', $this->getHeadersForUser($creator1));
 
