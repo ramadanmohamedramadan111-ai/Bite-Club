@@ -2,8 +2,10 @@
 
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
-import { Users } from 'lucide-react';
+import { Search, Users } from 'lucide-react';
 import { toast } from 'sonner';
+import { useQuery } from '@tanstack/react-query';
+import { useDebounce } from 'use-debounce';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -16,25 +18,18 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Spinner } from '@/components/ui/spinner';
 import { useRouter } from '@/i18n/navigation';
-import { useCartStore } from '@/lib/const-data';
-import { useGroupSessionsStore } from '@/lib/const-data';
-import { useGroupsStore } from '@/lib/const-data';
-import { useSessionStore } from '@/stores/session';
-import {
-  createMockGroupMember,
-  createMockGroupOrderItems,
-} from '@/lib/const-data';
+import { clientFetch } from '@/utils/client-fetch';
 import type { GroupOrderSessionType } from '@/types/groups/groups';
+import type { GroupTypeSimplified } from '@/types/groups/groups';
 import type { RestaurantType } from '@/types/restaurant/restaurant';
-import { generateGroupOrderCode } from '@/utils/group-order';
+import type { ApiResponse, PaginatedResponse } from '@/types/api/api-response';
+import DialogPagination from '@/components/shared/DialogPagination';
+import { createGroupOrderSessionAction } from '@/actions/group-order';
+import { useAction } from 'next-safe-action/hooks';
 
 type Props = {
   open: boolean;
@@ -48,19 +43,46 @@ export default function CreateGroupOrderDialog({
   restaurant,
 }: Props) {
   const router = useRouter();
-  const groups = useGroupsStore((state) => state.groups);
-  const createGroupCart = useCartStore((state) => state.createGroupCart);
-  const addMember = useCartStore((state) => state.addMember);
-  const addItem = useCartStore((state) => state.addItem);
-  const addSession = useGroupSessionsStore((state) => state.addSession);
-  const sessionId = useSessionStore((state) => state.sessionId);
-  const guestName = useSessionStore((state) => state.name);
 
   const t = useTranslations('groups');
   const tc = useTranslations('common');
   const [sessionType, setSessionType] =
     useState<GroupOrderSessionType>('anonymous');
-  const [selectedGroupId, setSelectedGroupId] = useState<string>('');
+  const [selectedGroupId, setSelectedGroupId] = useState<number>();
+
+  // Search & pagination
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [debouncedSearch] = useDebounce(search, 500);
+
+  const { data, isFetching } = useQuery({
+    queryKey: ['groups-select', debouncedSearch, page],
+    enabled: open && sessionType === 'fixed',
+    queryFn: () =>
+      clientFetch<ApiResponse<PaginatedResponse<GroupTypeSimplified>>>(
+        `/api/groups?search=${debouncedSearch}&page=${page}&per_page=10`,
+      ),
+  });
+
+  const groups = data?.data?.items ?? [];
+  const meta = data?.data?.meta;
+
+  function resetState() {
+    setSearch('');
+    setPage(1);
+    setSelectedGroupId(undefined);
+  }
+
+  const { execute, isExecuting } = useAction(createGroupOrderSessionAction, {
+    onSuccess: ({ data }) => {
+      console.log('Group order session created:', data);
+      toast.success(t('groupOrderCreated'));
+      onOpenChange(false);
+    },
+    onError: ({ error }) => {
+      toast.error(error.serverError?.message);
+    },
+  });
 
   function handleCreate() {
     if (sessionType === 'fixed' && !selectedGroupId) {
@@ -68,66 +90,23 @@ export default function CreateGroupOrderDialog({
       return;
     }
 
-    const selectedGroup = groups.find((group) => group.id === selectedGroupId);
-    const orderSessionId = crypto.randomUUID();
-    const code = generateGroupOrderCode();
-    const ownerMemberId = crypto.randomUUID();
-    const displayName = guestName ?? 'Guest';
-    const hostSessionId = sessionId ?? crypto.randomUUID();
-
-    createGroupCart({
-      restaurantId: String(restaurant.id),
-      restaurantName: restaurant.name,
-      restaurantImage: restaurant.logo_url,
-      groupCart: {
-        id: orderSessionId,
-        type: sessionType === 'anonymous' ? 'temporary' : 'fixed',
-        code,
-        groupId: sessionType === 'fixed' ? selectedGroupId : undefined,
-        expiresAt:
-          sessionType === 'anonymous'
-            ? new Date(Date.now() + 24 * 60 * 60 * 1000)
-            : undefined,
-      },
-      sessionId: hostSessionId,
-      owner: {
-        id: ownerMemberId,
-        sessionId: hostSessionId,
-        name: displayName,
-        isOwner: true,
-      },
-    });
-
-    addSession({
-      id: orderSessionId,
-      restaurantId: String(restaurant.id),
-      restaurantName: restaurant.name,
-      restaurantImage: restaurant.logo_url,
-      code,
-      type: sessionType,
-      groupId: sessionType === 'fixed' ? selectedGroupId : undefined,
-      groupName: selectedGroup?.name,
-      ownerSessionId: hostSessionId,
-      ownerName: displayName,
-      expiresAt:
-        sessionType === 'anonymous'
-          ? new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-          : undefined,
-      createdAt: new Date().toISOString(),
-    });
-
-    addMember(createMockGroupMember());
-    for (const mockItem of createMockGroupOrderItems()) {
-      addItem(mockItem);
+    if (sessionType === 'fixed' && selectedGroupId) {
+      execute({
+        group_id: selectedGroupId,
+        restaurant_id: restaurant.id,
+      });
     }
-
-    toast.success(t('groupOrderCreated'));
-    onOpenChange(false);
-    router.push(`/group-order/${orderSessionId}`);
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          resetState();
+        }
+        onOpenChange(isOpen);
+      }}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -145,18 +124,22 @@ export default function CreateGroupOrderDialog({
             <Label>{t('sessionType')}</Label>
             <RadioGroup
               value={sessionType}
-              onValueChange={(value) =>
-                setSessionType(value as GroupOrderSessionType)
-              }>
+              onValueChange={(value) => {
+                const newType = value as GroupOrderSessionType;
+                setSessionType(newType);
+                if (newType === 'anonymous') {
+                  resetState();
+                }
+              }}>
               <div className="flex items-start gap-3 rounded-lg border p-3">
                 <RadioGroupItem value="anonymous" id="anonymous" />
                 <div className="space-y-1">
                   <Label htmlFor="anonymous" className="font-medium">
                     {t('anonymous')}
-                   </Label>
-                   <p className="text-sm text-muted-foreground">
-                     {t('anonymousDesc')}
-                   </p>
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    {t('anonymousDesc')}
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-3 rounded-lg border p-3">
@@ -164,10 +147,10 @@ export default function CreateGroupOrderDialog({
                 <div className="space-y-1">
                   <Label htmlFor="fixed" className="font-medium">
                     {t('fixedGroup')}
-                   </Label>
-                   <p className="text-sm text-muted-foreground">
-                     {t('fixedGroupDesc')}
-                   </p>
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    {t('fixedGroupDesc')}
+                  </p>
                 </div>
               </div>
             </RadioGroup>
@@ -175,21 +158,64 @@ export default function CreateGroupOrderDialog({
 
           {sessionType === 'fixed' && (
             <div className="space-y-2">
-              <Label htmlFor="group-select">{t('selectGroup')}</Label>
-              <Select
-                value={selectedGroupId}
-                onValueChange={setSelectedGroupId}>
-                <SelectTrigger id="group-select">
-                  <SelectValue placeholder={t('chooseGroup')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {groups.map((group) => (
-                    <SelectItem key={group.id} value={group.id}>
-                      {group.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label htmlFor="group-search">{t('selectGroup')}</Label>
+
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="group-search"
+                  placeholder={t('searchGroups')}
+                  className="pl-9"
+                  value={search}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setPage(1);
+                    setSelectedGroupId(undefined);
+                  }}
+                />
+              </div>
+
+              {isFetching ? (
+                <div className="flex justify-center py-4">
+                  <Spinner />
+                </div>
+              ) : groups.length === 0 ? (
+                <p className="py-2 text-sm text-muted-foreground">
+                  {t('noGroupsFound')}
+                </p>
+              ) : (
+                <ScrollArea className="max-h-48">
+                  <div className="space-y-1">
+                    {groups.map((group) => (
+                      <button
+                        key={group.id}
+                        type="button"
+                        className={`w-full rounded-lg border p-3 text-left transition-colors hover:bg-accent ${
+                          selectedGroupId === group.id
+                            ? 'border-primary bg-primary/5'
+                            : ''
+                        }`}
+                        onClick={() => setSelectedGroupId(group.id)}>
+                        <p className="font-medium">{group.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {group.description}
+                        </p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {group.members_count} members
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+                </ScrollArea>
+              )}
+
+              {meta && (
+                <DialogPagination
+                  currentPage={meta.current_page}
+                  totalPages={meta.last_page}
+                  onPageChange={setPage}
+                />
+              )}
             </div>
           )}
         </div>
@@ -198,7 +224,13 @@ export default function CreateGroupOrderDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             {tc('cancel')}
           </Button>
-          <Button onClick={handleCreate}>{t('groupOrder')}</Button>
+          <Button
+            disabled={
+              isExecuting || (sessionType === 'fixed' && !selectedGroupId)
+            }
+            onClick={handleCreate}>
+            {t('groupOrder')}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

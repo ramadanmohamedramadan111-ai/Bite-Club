@@ -550,7 +550,12 @@
     "postsCount": "المنشورات",
     "friendsCount": "الأصدقاء",
     "myPosts": "منشوراتي",
-    "myPostsDesc": "الوجبات والطلبات التي شاركتها"
+    "myPostsDesc": "الوجبات والطلبات التي شاركتها",
+    "referralLink": "رابط الإحالة",
+    "referralLinkDesc": "شارك هذا الرابط مع أصدقائك لدعوتهم",
+    "copyLink": "نسخ الرابط",
+    "linkCopied": "تم نسخ الرابط إلى الحافظة",
+    "linkCopyFailed": "فشل نسخ الرابط"
   },
   "editProfile": {
     "title": "تعديل الملف الشخصي",
@@ -898,6 +903,8 @@
     "goBack": "العودة للخلف",
     "tryAgain": "حاول مرة أخرى",
     "invitedToJoin": "تمت دعوتك للانضمام إلى",
+    "searchGroups": "ابحث عن مجموعات...",
+    "noGroupsFound": "لم يتم العثور على مجموعات.",
     "noGroupToSelect": "يرجى اختيار مجموعة",
     "guest": "ضيف",
     "host": "(المضيف)",

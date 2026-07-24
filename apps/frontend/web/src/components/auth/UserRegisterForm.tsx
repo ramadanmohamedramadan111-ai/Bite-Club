@@ -33,8 +33,6 @@ import {
   type UserRegisterSchema,
 } from '@/schemas/auth/user-register-schema';
 import { useTranslations } from 'next-intl';
-import { useMutation } from '@tanstack/react-query';
-import { clientFetch } from '@/utils/client-fetch';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import VerifyForm from '@/components/auth/verify-form';
@@ -42,13 +40,13 @@ import useNavigation from '@/hooks/useNavigation';
 import { registerUserAction } from '@/actions/auth/register';
 
 import { useAction } from 'next-safe-action/hooks';
-import { serverFetch } from '@/utils/server-fetch';
 import { mapServerFieldErrors } from '@/utils/server/map-server-field-errors';
 
 export function RegisterForm({
   className,
+  referrer_code,
   ...props
-}: React.ComponentProps<'div'>) {
+}: React.ComponentProps<'div'> & { referrer_code?: string }) {
   const t = useTranslations('forms.register');
   const registerSchema = createUserRegisterSchema(t);
 
@@ -65,6 +63,7 @@ export function RegisterForm({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       gender: undefined,
+      referrer_code: referrer_code || '',
     },
   });
 
@@ -79,6 +78,7 @@ export function RegisterForm({
       navigate('/login');
     },
     onError: ({ error }) => {
+      console.error('Registration failed:', error);
       if (error.serverError?.data?.errors) {
         mapServerFieldErrors(error.serverError.data.errors, setError);
       }

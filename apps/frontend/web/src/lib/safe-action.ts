@@ -1,12 +1,20 @@
 import { createSafeActionClient } from 'next-safe-action';
 import { AppError } from './errors/app-error';
 
+export type ServerError = {
+  status: number;
+  data: {
+    errors?: Record<string, string[]>;
+  } | null;
+  message: string;
+};
+
 export const actionClient = createSafeActionClient({
-  handleServerError(error) {
+  handleServerError(error): ServerError {
     if (error instanceof AppError) {
       return {
         status: error.status,
-        data: null,
+        data: error.data as ServerError['data'],
         message: error.message,
       };
     }
@@ -18,3 +26,4 @@ export const actionClient = createSafeActionClient({
     };
   },
 });
+

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Edit } from 'lucide-react';
 import { UserPostsSection } from '@/components/social/posts/UserPostsSection';
+import ReferralLinkSection from '@/components/profile/ReferralLinkSection';
 
 async function getProfile(): Promise<UserResponse | null> {
   try {
@@ -48,42 +49,45 @@ export default async function MyProfilePage() {
         <div className="mb-6 flex items-start gap-4">
           <Avatar className="h-20 w-20">
             <AvatarImage src={user.profile_image || undefined} />
-            <AvatarFallback>
-              {user.first_name.charAt(0)}
-            </AvatarFallback>
+            <AvatarFallback>{user.first_name.charAt(0)}</AvatarFallback>
           </Avatar>
           <div className="flex-1">
             <h2 className="text-2xl font-bold">
               {user.first_name} {user.last_name}
             </h2>
             <p className="text-muted-foreground">@{user.username}</p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {user.email}
-            </p>
+            <p className="mt-2 text-sm text-muted-foreground">{user.email}</p>
           </div>
         </div>
 
-        <div className="flex gap-8 text-center">
+        <div className="mb-6 flex gap-8 text-center">
           <div>
             <div className="text-lg font-semibold">{user.posts_count}</div>
-            <div className="text-xs text-muted-foreground">{t('postsCount')}</div>
+            <div className="text-xs text-muted-foreground">
+              {t('postsCount')}
+            </div>
           </div>
           <div>
             <div className="text-lg font-semibold">{user.friends_count}</div>
-            <div className="text-xs text-muted-foreground">{t('friendsCount')}</div>
+            <div className="text-xs text-muted-foreground">
+              {t('friendsCount')}
+            </div>
           </div>
         </div>
+
+        <hr className="mb-6" />
+
+        <ReferralLinkSection referralCode={user.referral_code} />
       </div>
 
       <section className="space-y-4">
         <div>
           <h2 className="text-xl font-semibold">{t('myPosts')}</h2>
-          <p className="text-sm text-muted-foreground">
-            {t('myPostsDesc')}
-          </p>
+          <p className="text-sm text-muted-foreground">{t('myPostsDesc')}</p>
         </div>
         <UserPostsSection />
       </section>
     </div>
   );
 }
+

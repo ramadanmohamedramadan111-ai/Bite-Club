@@ -550,7 +550,12 @@
     "postsCount": "Posts",
     "friendsCount": "Friends",
     "myPosts": "My Posts",
-    "myPostsDesc": "Meals and orders you have shared"
+    "myPostsDesc": "Meals and orders you have shared",
+    "referralLink": "Referral Link",
+    "referralLinkDesc": "Share this link with friends to invite them",
+    "copyLink": "Copy Link",
+    "linkCopied": "Link copied to clipboard",
+    "linkCopyFailed": "Failed to copy link"
   },
   "editProfile": {
     "title": "Edit Profile",
@@ -898,6 +903,8 @@
     "goBack": "Go Back",
     "tryAgain": "Try Again",
     "invitedToJoin": "You are invited to join",
+    "searchGroups": "Search groups...",
+    "noGroupsFound": "No groups found.",
     "noGroupToSelect": "Please select a group",
     "guest": "Guest",
     "host": "(Host)",

@@ -19,10 +19,12 @@ import LocationButtonServer from '@/components/location/location-button-server';
 import CartDrawerHost from '@/components/cart/CartDrawerHost';
 import { serverFetch } from '@/utils/server-fetch';
 import { getUserId } from '@/utils/api-helpers';
-import { ApiResponse } from '@/types/api/api-response';
+import { ApiResponse, PaginatedResponse } from '@/types/api/api-response';
 import { Cart, IndividualCartResponse } from '@/types/cart/cart';
 import { CartInitializer } from '@/providers/CartInitilaizer';
 import AuthInitializer from '@/providers/AuthInitializer';
+import { FriendResponseType } from '@/types/social/friends';
+import FriendsInitializer from '@/providers/FriendsInitializer';
 
 interface UserMeResponse {
   success: boolean;
@@ -49,6 +51,7 @@ export default async function Layout({
 }) {
   let user = null;
   let cart = null;
+  let friendsRequestsCount = 0;
   try {
     const res = await serverFetch<UserMeResponse>('/user/me', 'GET', {
       skipRefresh: true,
@@ -68,6 +71,16 @@ export default async function Layout({
           tags: ['cart', `cart-${userId}`],
         },
       });
+
+      const requestsData = await serverFetch<
+        ApiResponse<PaginatedResponse<FriendResponseType>>
+      >(`/friends/requests`, 'GET', {
+        next: {
+          tags: ['friends-requests', `friends-requests-${userId}`],
+        },
+      });
+      friendsRequestsCount = requestsData.data?.meta?.total ?? 0;
+
       cart = res.data;
     } catch (error) {
       console.log('Failed to fetch cart in layout:', error);
@@ -79,6 +92,7 @@ export default async function Layout({
       <AppSidebar user={user} />
       <CartInitializer cart={cart} />
       <AuthInitializer isAuthenticated={!!userId} />
+      <FriendsInitializer count={friendsRequestsCount} />
 
       <SidebarInset>
         <header className="sticky top-0 z-40 flex h-16 items-center border-b bg-background/95 backdrop-blur px-4">

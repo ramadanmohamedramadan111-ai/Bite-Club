@@ -1,9 +1,15 @@
 import { RegisterForm } from '@/components/auth/UserRegisterForm';
 
-export default function page() {
+export default async function page({
+  searchParams,
+}: {
+  searchParams: { referrer_code?: string };
+}) {
+  const referrer_code = searchParams.referrer_code || '';
+
   return (
     <>
-      <RegisterForm />
+      <RegisterForm referrer_code={referrer_code} />
     </>
   );
 }
