@@ -119,6 +119,7 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::get('/{id}', [GroupOrderController::class, 'show'])->name('show');
         Route::post('/{id}/preview', [GroupOrderController::class, 'previewCheckout'])->name('preview');
         Route::post('/{id}/unlock', [GroupOrderController::class, 'unlock'])->name('unlock');
+        Route::post('/{id}/cancel', [GroupOrderController::class, 'cancel'])->name('cancel');
         Route::post('/{id}/place', [GroupOrderController::class, 'placeOrder'])->name('place');
         Route::post('/{id}/items', [GroupOrderController::class, 'addItem'])->name('items.add');
         Route::put('/{id}/items/{itemId}', [GroupOrderController::class, 'updateItemQuantity'])->name('items.update');

@@ -18,11 +18,13 @@ use App\DTOs\User\GroupOrder\UpdateGroupOrderItemQuantityDto;
 use App\DTOs\User\GroupOrder\GetGroupOrderDto;
 use App\DTOs\User\GroupOrder\GroupOrderPreviewDto;
 use App\DTOs\User\GroupOrder\UnlockGroupOrderDto;
+use App\DTOs\User\GroupOrder\CancelGroupOrderDto;
 use App\DTOs\User\GroupOrder\PlaceGroupOrderDto;
 use App\DTOs\User\GroupOrder\GroupOrderHistoryDto;
 use App\DTOs\User\GroupOrder\ActiveGroupOrdersDto;
 use App\Http\Requests\User\GroupOrder\GroupOrderHistoryRequest;
 use App\Http\Requests\User\GroupOrder\ActiveGroupOrdersRequest;
+use App\Http\Requests\User\GroupOrder\CancelGroupOrderRequest;
 use App\Services\Application\User\GroupOrder\GroupOrderApplicationService;
 use App\Http\Resources\User\GroupOrder\GroupOrderResource;
 use App\Http\Resources\User\GroupOrder\GroupOrderSimpleResource;
@@ -159,6 +161,22 @@ class GroupOrderController extends Controller
             );
         } catch (Exception $e) {
             Log::error('Failed to unlock group order: ' . $e->getMessage());
+            return $this->errorResponse($e->getMessage(), [], 400);
+        }
+    }
+
+    public function cancel(CancelGroupOrderRequest $request): JsonResponse
+    {
+        try {
+            $dto = CancelGroupOrderDto::fromValidatedRequest($request);
+
+            $this->groupOrderApplicationService->cancel($dto);
+
+            return $this->successResponse(
+                trans('group_order.cancelled_successfully') ?? 'Group order cancelled successfully'
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to cancel group order: ' . $e->getMessage());
             return $this->errorResponse($e->getMessage(), [], 400);
         }
     }

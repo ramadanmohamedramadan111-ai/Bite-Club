@@ -287,6 +287,26 @@ class GroupOrderDomainService
         }
     }
 
+    public function cancel(int $userId, int $groupOrderId): void
+    {
+        $groupOrder = $this->groupOrderRepo->findOrFail($groupOrderId);
+
+        if ($groupOrder->host_id !== $userId) {
+            throw new Exception(trans('group_order.only_host_can_cancel') ?? 'Only the host can cancel the group order.');
+        }
+
+        if (in_array($groupOrder->status, [GroupOrderStatusEnum::COMPLETED, GroupOrderStatusEnum::CANCELLED], true)) {
+            throw new Exception(trans('group_order.cannot_cancel_finished_order') ?? 'Cannot cancel an order that is already completed or cancelled.');
+        }
+
+        $this->groupOrderRepo->update($groupOrderId, ['status' => GroupOrderStatusEnum::CANCELLED->value]);
+
+        $cart = $this->cartRepo->getUserCart($userId, true);
+        if ($cart && $cart->group_order_id === $groupOrderId) {
+            $this->cartRepo->delete($cart->id);
+        }
+    }
+
     public function placeOrder(int $userId, int $groupOrderId, string $orderType, string $paymentOptionId, ?float $lat, ?float $long): array
     {
         $groupOrder = $this->groupOrderRepo->findOrFail($groupOrderId);

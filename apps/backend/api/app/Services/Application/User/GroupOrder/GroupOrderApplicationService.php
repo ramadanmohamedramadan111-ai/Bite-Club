@@ -9,6 +9,7 @@ use App\DTOs\User\GroupOrder\UpdateGroupOrderItemQuantityDto;
 use App\DTOs\User\GroupOrder\GetGroupOrderDto;
 use App\DTOs\User\GroupOrder\GroupOrderPreviewDto;
 use App\DTOs\User\GroupOrder\UnlockGroupOrderDto;
+use App\DTOs\User\GroupOrder\CancelGroupOrderDto;
 use App\DTOs\User\GroupOrder\PlaceGroupOrderDto;
 use App\DTOs\User\GroupOrder\GroupOrderHistoryDto;
 use App\DTOs\User\GroupOrder\ActiveGroupOrdersDto;
@@ -85,6 +86,14 @@ class GroupOrderApplicationService
     public function unlock(UnlockGroupOrderDto $dto): void
     {
         $this->groupOrderDomainService->unlock(
+            $dto->getUserId(),
+            $dto->getGroupOrderId()
+        );
+    }
+
+    public function cancel(CancelGroupOrderDto $dto): void
+    {
+        $this->groupOrderDomainService->cancel(
             $dto->getUserId(),
             $dto->getGroupOrderId()
         );
