@@ -277,6 +277,12 @@ class GroupOrderDomainService
 
         // 3. Change status back to OPEN
         $this->groupOrderRepo->update($groupOrderId, ['status' => GroupOrderStatusEnum::OPEN->value]);
+
+        // 4. Delete the temporary group cart created during preview
+        $cart = $this->cartRepo->getUserCart($userId, true);
+        if ($cart && $cart->group_order_id === $groupOrderId) {
+            $this->cartRepo->delete($cart->id);
+        }
     }
 
     public function placeOrder(int $userId, int $groupOrderId, string $orderType, string $paymentOptionId, ?float $lat, ?float $long): array
