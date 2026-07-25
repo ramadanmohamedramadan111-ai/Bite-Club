@@ -61,6 +61,10 @@ class CartDomainService
             throw new Exception(trans('cart.unauthorized_action'));
         }
 
+        if ($cart->group_order_id !== null) {
+            throw new Exception(trans('cart.unauthorized_action') ?? 'Cannot modify group order items from individual cart.');
+        }
+
         $this->cartItemRepository->update($cartItemId, ['quantity' => $quantity]);
     }
 
@@ -71,6 +75,10 @@ class CartDomainService
 
         if ($cart->user_id !== $userId) {
             throw new Exception(trans('cart.unauthorized_action'));
+        }
+
+        if ($cart->group_order_id !== null) {
+            throw new Exception(trans('cart.unauthorized_action') ?? 'Cannot modify group order items from individual cart.');
         }
 
         $this->cartItemRepository->delete($cartItemId);
