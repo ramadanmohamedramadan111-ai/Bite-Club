@@ -183,9 +183,11 @@ class SmartWaiterAiTest extends TestCase
             ], 200),
         ]);
 
-        $response = $this->withHeaders($this->getHeadersForUser($user))->postJson('/api/ai/smart-waiter/chat', [
-            'message' => 'Add the spicy chicken wrap to my cart',
-            'add_to_cart' => true,
+        $response = $this->withHeaders($this->getHeadersForUser($user))->postJson('/api/ai/smart-waiter/add-to-cart', [
+            'restaurant_id' => $restaurant->id,
+            'items' => [
+                ['id' => $item->id, 'quantity' => 1]
+            ]
         ]);
 
         $response->assertOk();
@@ -197,5 +199,44 @@ class SmartWaiterAiTest extends TestCase
             'quantity' => 1,
         ]);
     }
+
+    public function test_smart_waiter_dedicated_add_to_cart_endpoint(): void
+    {
+        $user = User::factory()->create();
+        $restaurant = $this->createRestaurant();
+        $category = \App\Models\MenuCategory::create([
+            'restaurant_id' => $restaurant->id,
+            'title' => 'Burgers',
+            'icon_name' => 'fast-food',
+            'short_description' => 'Burgers',
+            'visibility' => 'visible',
+        ]);
+        $item = \App\Models\MenuItem::create([
+            'menu_category_id' => $category->id,
+            'title' => 'Spicy Chicken Wrap',
+            'price' => 75.00,
+            'description' => 'Spicy Wrap',
+            'image_url' => 'default.jpg',
+            'availability' => 'available',
+        ]);
+
+        $response = $this->withHeaders($this->getHeadersForUser($user))->postJson('/api/ai/smart-waiter/add-to-cart', [
+            'restaurant_id' => $restaurant->id,
+            'items' => [
+                ['id' => $item->id, 'quantity' => 1]
+            ]
+        ]);
+
+        $response->assertOk();
+        $response->assertJsonPath('success', true);
+        $response->assertJsonPath('data.cart_updated', true);
+        $response->assertJsonPath('data.cart_item_count', 1);
+
+        $this->assertDatabaseHas('cart_items', [
+            'item_id' => $item->id,
+            'quantity' => 1,
+        ]);
+    }
 }
+
 
