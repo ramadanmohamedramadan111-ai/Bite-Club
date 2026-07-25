@@ -27,6 +27,11 @@ class SmartWaiterAgentService:
         # Collect tool context from Laravel backend
         tool_results = {}
         try:
+            tool_results["restaurant"] = self.tool_client.call("restaurant", {}, restaurant_id)
+        except Exception as e:
+            tool_results["restaurant"] = {"error": str(e)}
+
+        try:
             tool_results["menu"] = self.tool_client.call("menu", {}, restaurant_id)
         except Exception as e:
             tool_results["menu"] = {"error": str(e)}
@@ -50,7 +55,7 @@ class SmartWaiterAgentService:
             f"{json.dumps(tool_results, indent=2)}\n\n"
             "Analyze the customer request and menu data, apply budget/group/flavor constraints, "
             "and generate the response strictly in the specified JSON format. "
-            "IMPORTANT: Every recommended item MUST include a detailed 'why' explanation."
+            "IMPORTANT: Always include restaurant_id and restaurant_name in the output."
         )
 
         messages = [{"role": "user", "content": user_content}]
@@ -81,15 +86,22 @@ class SmartWaiterAgentService:
                 cleaned_message = "\n".join(lines).strip()
 
         try:
-            return json.loads(cleaned_message)
+            res = json.loads(cleaned_message)
         except Exception:
             try:
-                return json.loads(message)
+                res = json.loads(message)
             except Exception:
                 return {
                     "error": "Failed to parse Smart Waiter AI response as JSON.",
                     "raw_response": message
                 }
+
+        if isinstance(res, dict):
+            res.setdefault("restaurant_id", restaurant_id)
+            if "restaurant" in tool_results and "name" in tool_results["restaurant"]:
+                res.setdefault("restaurant_name", tool_results["restaurant"]["name"])
+
+        return res
 
     def _completion(self, messages, system_prompt=None):
         body = {
