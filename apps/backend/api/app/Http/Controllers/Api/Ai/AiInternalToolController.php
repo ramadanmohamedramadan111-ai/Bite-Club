@@ -220,6 +220,48 @@ class AiInternalToolController extends Controller
         ]);
     }
 
+    public function userHistory(Request $request): JsonResponse
+    {
+        $restaurant = $this->validatedRestaurant($request);
+        if ($restaurant instanceof JsonResponse) {
+            return $restaurant;
+        }
+
+        $userId = $request->input('user_id');
+        if (!$userId) {
+            return response()->json([
+                'restaurant_id' => $restaurant->id,
+                'user_id' => null,
+                'total_orders' => 0,
+                'past_items' => [],
+            ]);
+        }
+
+        $orders = Order::query()
+            ->where('restaurant_id', $restaurant->id)
+            ->where('user_id', $userId)
+            ->with('items')
+            ->latest()
+            ->limit(10)
+            ->get();
+
+        $pastItems = $orders->flatMap(fn (Order $order) => $order->items->map(fn ($item) => [
+            'item_id' => $item->item_id,
+            'item_name' => $item->item_name,
+            'quantity' => (int) $item->quantity,
+            'price' => (float) $item->price,
+            'ordered_at' => $order->created_at?->toIso8601String(),
+        ]))->values();
+
+        return response()->json([
+            'restaurant_id' => $restaurant->id,
+            'user_id' => (int) $userId,
+            'total_orders' => $orders->count(),
+            'past_items' => $pastItems,
+        ]);
+    }
+
+
     private function validatedRestaurant(Request $request): Restaurant|JsonResponse
     {
         try {

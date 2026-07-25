@@ -21,4 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include('ai_assistant.urls')),
     path('api/v1/', include('review_rag.urls')),
+    path('api/v1/', include('smart_waiter.urls')),
 ]
+

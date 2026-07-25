@@ -56,7 +56,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'ai_assistant',
     'review_rag',
+    'smart_waiter',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
