@@ -5,6 +5,8 @@ build
 .git
 .env
 *.log
+__pycache__/
+*.py[cod]
 .cursor
 .qodo
 .env.local

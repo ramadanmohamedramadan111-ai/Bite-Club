@@ -30,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth.admin' => \App\Http\Middleware\AdminAuthenticated::class,
             'auth.user'  => \App\Http\Middleware\UserAuthenticated::class,
             'auth.restaurant' => \App\Http\Middleware\RestaurantAuthenticated::class,
+            'ai.internal' => \App\Http\Middleware\AiInternalAuthMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {})->create();
