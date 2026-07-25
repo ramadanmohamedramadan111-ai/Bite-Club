@@ -1,62 +1,45 @@
-export type RedemptionStatus = 'active' | 'used' | 'expired';
+export type PointsTab = 'history' | 'referrals';
 
-export type GiftStatus = 'available' | 'claimed' | 'expired';
-
-export type GiftDirection = 'received' | 'sent';
-
-export type PointsTab =
-  | 'rewards'
-  | 'active-redeems'
-  | 'redeem-history'
-  | 'my-gifts'
-  | 'gift-history'
-  | 'referrals';
-
-export type GiftHistoryFilter = 'all' | 'sent' | 'received';
-
-export type RewardDiscountType =
-  | 'percent_subtotal'
-  | 'free_delivery'
-  | 'flat_subtotal';
-
-export interface RewardOffer {
-  id: string;
-  title: string;
-  description: string;
-  pointsCost: number;
-  discountLabel: string;
-  image: string;
-  validForDays: number;
-  discountType: RewardDiscountType;
-  discountValue: number;
-  minSubtotal?: number;
+export interface ReferralItem {
+  id: number;
+  referred_user: {
+    id: number;
+    name: string;
+    username: string;
+    profile_image_url: null | string;
+  };
+  status: 'pending' | 'completed';
+  completed_at: null | string;
+  created_at: string;
 }
 
-export interface Redemption {
-  id: string;
-  offerId: string;
-  offerTitle: string;
-  pointsSpent: number;
-  status: RedemptionStatus;
-  redeemedAt: string;
-  expiresAt: string;
-  code: string;
+export interface WalletDetails {
+  id: number;
+  user_id: number;
+  balance: number;
+  balance_in_egp: number;
+  created_at: string;
+  updated_at: string;
 }
 
-export interface Gift {
-  id: string;
-  offerId: string;
-  offerTitle: string;
-  pointsCost: number;
-  status: GiftStatus;
-  direction: GiftDirection;
-  fromUserId: string;
-  fromUsername: string;
-  fromName: string;
-  toUserId: string;
-  toUsername: string;
-  toName: string;
-  message?: string;
-  createdAt: string;
-  expiresAt: string;
+export interface StreakDetails {
+  week_start_date: string;
+  completed_orders_count: number;
+  next_tier: null | {
+    target_orders: number;
+    orders_needed: number;
+    reward_points: number;
+    badge_type: string;
+  };
+  badges: [];
 }
+
+export interface WalletHistory {
+  id: number;
+  points: number;
+  type: 'earn' | 'redeem';
+  source: 'referral' | 'redemption' | 'leaderboard' | 'weekly_streak' | 'gift';
+  reference_id: number;
+  created_at: string;
+}
+

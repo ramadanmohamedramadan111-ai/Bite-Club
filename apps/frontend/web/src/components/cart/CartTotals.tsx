@@ -14,15 +14,21 @@ export default function CartTotals({ summary }: Props) {
     <div className="space-y-2 text-sm">
       <div className="flex justify-between">
         <span className="text-muted-foreground">{t('subtotal')}</span>
-        <span>{summary.subtotal.toFixed(2)} {t('egp')}</span>
+        <span>
+          {summary.subtotal.toFixed(2)} {t('egp')}
+        </span>
       </div>
       <div className="flex justify-between">
         <span className="text-muted-foreground">{t('deliveryFee')}</span>
-        <span>{summary.deliveryFee.toFixed(2)} {t('egp')}</span>
+        <span>
+          {summary.deliveryFee.toFixed(2)} {t('egp')}
+        </span>
       </div>
       <div className="flex justify-between">
         <span className="text-muted-foreground">{t('tax')}</span>
-        <span>{summary.tax.toFixed(2)} {t('egp')}</span>
+        <span>
+          {summary.tax.toFixed(2)} {t('egp')}
+        </span>
       </div>
       {summary.discount > 0 && (
         <div className="flex justify-between">
@@ -32,13 +38,17 @@ export default function CartTotals({ summary }: Props) {
               ? ` (${summary.appliedRedemptionTitle})`
               : ''}
           </span>
-          <span>-{summary.discount.toFixed(2)} {t('egp')}</span>
+          <span>
+            -{summary.discount.toFixed(2)} {t('egp')}
+          </span>
         </div>
       )}
       <Separator />
       <div className="flex justify-between text-base font-semibold">
         <span>{t('total')}</span>
-        <span>{summary.total.toFixed(2)} {t('egp')}</span>
+        <span>
+          {summary.total.toFixed(2)} {t('egp')}
+        </span>
       </div>
     </div>
   );

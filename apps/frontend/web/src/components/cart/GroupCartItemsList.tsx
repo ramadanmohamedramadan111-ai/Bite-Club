@@ -1,99 +1,136 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Copy } from 'lucide-react';
+import { Minus, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
-import { useCartStore } from '@/lib/const-data';
-import { useSessionStore } from '@/stores/session';
-import type { CartItem } from '@/lib/const-data';
-import { getItemOwnerKey, groupCartItemsByUser } from '@/utils/cart-grouping';
-
-import CartItemRow from './CartItemRow';
+import { useRouter } from '@/i18n/navigation';
+import { useAction } from 'next-safe-action/hooks';
+import {
+  removeItemFromGroupOrderSessionAction,
+  updateItemQuantityGroupOrderSessionAction,
+} from '@/actions/group-order';
+import type { GroupOrderCartSession } from '@/types/group-order/group-order';
 
 type Props = {
-  items: CartItem[];
-  onUpdateQuantity: (cartItemId: string, quantity: number) => void;
-  onRemove: (cartItemId: string) => void;
-  compact?: boolean;
+  membersSummary: GroupOrderCartSession['members_summary'];
+  sessionId: number;
 };
 
 export default function GroupCartItemsList({
-  items,
-  onUpdateQuantity,
-  onRemove,
-  compact = false,
+  membersSummary,
+  sessionId,
 }: Props) {
   const t = useTranslations('common');
-  const cloneUserOrder = useCartStore((state) => state.cloneUserOrder);
-  const sessionId = useSessionStore((state) => state.sessionId);
-  const guestName = useSessionStore((state) => state.name);
+  const router = useRouter();
 
-  const currentUserKey = getItemOwnerKey({
-    sessionId: sessionId ?? undefined,
-    name: guestName ?? undefined,
-  });
+  const { execute: removeItem } = useAction(
+    removeItemFromGroupOrderSessionAction,
+    {
+      onSuccess: () => {
+        toast.success('Item removed');
+      },
+      onError: ({ error }) => {
+        toast.error(error.serverError?.message ?? 'Failed to remove item');
+      },
+    },
+  );
 
-  const userGroups = groupCartItemsByUser(items);
-
-  function handleClone(sourceOwnerKey: string, sourceName: string) {
-    cloneUserOrder(sourceOwnerKey, {
-      sessionId: sessionId ?? undefined,
-      name: guestName ?? undefined,
-    });
-    toast.success(t('clonedOrder', { name: sourceName }));
-  }
+  const { execute: updateQty } = useAction(
+    updateItemQuantityGroupOrderSessionAction,
+    {
+      onSuccess: () => {},
+      onError: ({ error }) => {
+        toast.error(error.serverError?.message ?? 'Failed to update quantity');
+      },
+    },
+  );
 
   return (
     <div className="space-y-4">
-      {userGroups.map((group) => {
-        const isCurrentUser = group.key === currentUserKey;
-
-        return (
-          <div key={group.key} className="space-y-3 rounded-xl border p-4">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="font-medium">
-                  {group.name}
-                  {isCurrentUser && (
-                    <span className="ms-2 text-xs text-muted-foreground">
-                      {t('you')}
-                    </span>
-                  )}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {group.subtotal.toFixed(2)} {t('egp')}
-                </p>
-              </div>
-
-              {!isCurrentUser && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="gap-1.5"
-                  onClick={() => handleClone(group.key, group.name)}>
-                  <Copy className="size-3.5" />
-                  {t('clone')}
-                </Button>
-              )}
-            </div>
-
-            <div className={compact ? 'space-y-2' : 'space-y-3'}>
-              {group.items.map((item) => (
-                <CartItemRow
-                  key={item.cartItemId}
-                  item={item}
-                  isGroupCart={false}
-                  onUpdateQuantity={onUpdateQuantity}
-                  onRemove={onRemove}
-                />
-              ))}
-            </div>
+      {membersSummary.map((member) => (
+        <div key={member.user.id} className="space-y-3 rounded-xl border p-4">
+          <div className="flex items-center justify-between gap-3">
+            <p className="font-medium">
+              {member.user.name}
+              <span className="ms-2 text-sm text-muted-foreground">
+                {member.user_total.toFixed(2)} {t('egp')}
+              </span>
+            </p>
           </div>
-        );
-      })}
+
+          <div className="space-y-3">
+            {member.items.map((cartItem) => (
+              <div
+                key={cartItem.id}
+                className="space-y-2 rounded-xl border p-4">
+                <div className="flex justify-between gap-4">
+                  <div className="min-w-0 space-y-2">
+                    <p className="font-medium">{cartItem.item.title}</p>
+
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon-sm"
+                        disabled={cartItem.quantity <= 1}
+                        onClick={() =>
+                          updateQty({
+                            group_order_id: sessionId,
+                            item_id: cartItem.id,
+                            quantity: cartItem.quantity - 1,
+                          })
+                        }>
+                        <Minus className="size-4" />
+                      </Button>
+                      <span className="min-w-6 text-center text-sm font-medium">
+                        {cartItem.quantity}
+                      </span>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon-sm"
+                        onClick={() =>
+                          updateQty({
+                            group_order_id: sessionId,
+                            item_id: cartItem.id,
+                            quantity: cartItem.quantity + 1,
+                          })
+                        }>
+                        <Plus className="size-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    <p className="font-semibold">
+                      {cartItem.total_price.toFixed(2)} {t('egp')}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        removeItem({
+                          group_order_id: sessionId,
+                          item_id: cartItem.id,
+                        })
+                      }
+                      className="mt-1 text-sm text-destructive hover:underline">
+                      {t('remove')}
+                    </button>
+                  </div>
+                </div>
+
+                {cartItem.notes && (
+                  <p className="text-sm text-muted-foreground">
+                    {t('note')} {cartItem.notes}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

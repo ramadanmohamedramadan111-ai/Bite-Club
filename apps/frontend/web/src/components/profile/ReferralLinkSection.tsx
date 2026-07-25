@@ -16,7 +16,7 @@ export default function ReferralLinkSection({
 }: ReferralLinkSectionProps) {
   const t = useTranslations('profile');
   const locale = useLocale();
-  const referralLink = `${process.env.NEXT_PUBLIC_BASE_URL}/${locale}/register?referral_code=${referralCode}`;
+  const referralLink = `${process.env.NEXT_PUBLIC_BASE_URL}/${locale}/register?referrer_code=${referralCode}`;
 
   async function handleCopy() {
     try {

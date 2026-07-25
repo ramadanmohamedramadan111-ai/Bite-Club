@@ -85,14 +85,16 @@ export default function MenuItemCustomizer({
         },
         normalizedItem,
       );
-    } else {
-      addToIndividualCart({
-        ...normalizedItem,
-        restaurant_id: item.restaurantId,
-      });
+
+      onAddToCart?.();
+
+      return;
     }
 
-    onAddToCart?.();
+    addToIndividualCart({
+      ...normalizedItem,
+      restaurant_id: item.restaurantId,
+    });
   };
 
   function handleAddToCart() {
@@ -112,6 +114,7 @@ export default function MenuItemCustomizer({
   } = useAction(addIndividualCartItemAction, {
     onSuccess: ({ data }) => {
       toast.success(data.message);
+      onAddToCart?.();
     },
     onError: ({ error }) => {
       toast.error(error.serverError?.message);
@@ -161,7 +164,9 @@ export default function MenuItemCustomizer({
           <p className="text-sm text-muted-foreground">{item.description}</p>
           <p className="text-xs text-muted-foreground">
             {t('prepTime', { time: item.preparationTime })}
-            {item.stock !== undefined ? ` · ${t('stockLeft', { stock: item.stock })}` : ''}
+            {item.stock !== undefined
+              ? ` · ${t('stockLeft', { stock: item.stock })}`
+              : ''}
           </p>
         </div>
 
@@ -235,7 +240,10 @@ export default function MenuItemCustomizer({
         open={replaceCartDialogOpen}
         onOpenChange={setReplaceCartDialogOpen}
         title={t('replaceCartTitle')}
-        description={t('replaceCartDesc', { current: cart?.restaurant.name, new: restaurant.name })}
+        description={t('replaceCartDesc', {
+          current: cart?.restaurant.name,
+          new: restaurant.name,
+        })}
         confirmText={t('replaceCart')}
         cancelText={t('keepCurrentCart')}
         onConfirm={() => {

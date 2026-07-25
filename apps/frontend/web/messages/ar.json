@@ -665,7 +665,16 @@
   },
   "points": {
     "title": "النقاط والمكافآت",
-    "subtitle": "اكسب النقاط، واستبدلها بالعروض، وأرسل الهدايا للأصدقاء.",
+    "subtitle": "تتبع نقاطك وسجل معاملاتك وإحالاتك.",
+    "history": "السجل",
+    "historyEmpty": "لا توجد معاملات بعد",
+    "sourceReferral": "مكافأة الإحالة",
+    "sourceRedemption": "نقاط مستبدلة",
+    "sourceLeaderboard": "مكافأة لوحة الصدارة",
+    "sourceWeeklyStreak": "مكافأة السلسلة الأسبوعية",
+    "sourceGift": "هدية مستلمة",
+    "earned": "مكتسب",
+    "redeemed": "مستبدل",
     "rewardsGifts": "المكافآت والهدايا",
     "rewardsGiftsDesc": "استبدل النقاط لنفسك أو أرسل عرضاً كهدية.",
     "activeRedeems": "الاستبدالات النشطة",
@@ -720,6 +729,11 @@
     "copyLink": "نسخ الرابط",
     "referralCopied": "تم نسخ رابط الإحالة!",
     "referralCopyFailed": "فشل نسخ الرابط",
+    "referredUsers": "المستخدمون المُحالون",
+    "referredUsersDesc": "المستخدمون الذين سجلوا باستخدام رابط الإحالة الخاص بك",
+    "referralPending": "قيد الانتظار",
+    "referralCompleted": "مكتمل",
+    "referralNoUsers": "لا توجد إحالات بعد. شارك رابطك للبدء!",
     "redeemedSuccess": "تم استبدال العرض! تحقق من استبدالاتك النشطة.",
     "redeemedFailed": "فشل استبدال العرض",
     "redemptionUsed": "تم تحديد الاستبدال كمستخدم",
@@ -969,7 +983,15 @@
     "serviceFee": "رسوم الخدمة",
     "requiredDeposit": "العربون المطلوب",
     "remainingOnDelivery": "المتبقي عند الاستلام",
-    "total": "الإجمالي"
+    "total": "الإجمالي",
+    "redeemPoints": "استبدال النقاط",
+    "pointsApplied": "تم تطبيق {count} نقطة",
+    "pointsPlaceholder": "أدخل النقاط للاستبدال",
+    "apply": "تطبيق",
+    "availableBalance": "متاح: {balance} نقطة",
+    "discount": "خصم النقاط",
+    "pointsRedeemed": "تم استبدال {count} نقطة",
+    "remove": "إزالة"
   },
   "cartRedemption": {
     "offerUnavailable": "هذا العرض غير متاح بعد الآن",
@@ -991,5 +1013,32 @@
     "next": "التالي",
     "morePages": "المزيد من الصفحات",
     "pageOf": "الصفحة {current} من {total}"
+  },
+  "gamification": {
+    "signInToTrack": "سجل الدخول لتتبع مكافآتك",
+    "yourRewards": "مكافآتك",
+    "nextTarget": "الهدف التالي",
+    "allBadges": "جميع الشارات",
+    "viewAllRewards": "عرض جميع المكافآت",
+    "pointsLabel": "نقاط",
+    "weeklyProgress": "التقدم الأسبوعي",
+    "orders": "طلبات",
+    "ordersToEarn": "{count} طلب(طلبات) أخرى لكسب",
+    "targetReached": "تم تحقيق الهدف!",
+    "complete": "مكتمل!",
+    "maxTier": "الأقصى",
+    "allBadgesEarned": "تم كسب جميع الشارات!",
+    "earnedPoints": "+{count} نقطة",
+    "nextBadgeLabel": "التالي",
+    "badges": {
+      "trailblazer": {
+        "name": "رائد",
+        "desc": "قم بـ {count} طلبات"
+      },
+      "foodChampion": {
+        "name": "بطل الطعام",
+        "desc": "قم بـ {count} طلبات"
+      }
+    }
   }
 }

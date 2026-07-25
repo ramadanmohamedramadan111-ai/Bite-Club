@@ -1,5 +1,5 @@
-import FeedClientView from '@/components/social/posts/FeedClientView';
+import { redirect } from 'next/navigation';
 
-export default async function FeedPage() {
-  return <FeedClientView />;
+export default function FeedPage() {
+  redirect('/feed/posts');
 }

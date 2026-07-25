@@ -78,6 +78,7 @@ export default function CreateGroupOrderDialog({
       console.log('Group order session created:', data);
       toast.success(t('groupOrderCreated'));
       onOpenChange(false);
+      router.push(`/group-order/${data.data.group_order_id}`);
     },
     onError: ({ error }) => {
       toast.error(error.serverError?.message);

@@ -1,66 +1,44 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import type { CartItem, CartSummary } from '@/lib/const-data';
-import { groupCartItemsByUser } from '@/utils/cart-grouping';
 import { Separator } from '@/components/ui/separator';
+import type { GroupOrderCartSession } from '@/types/group-order/group-order';
 
 type Props = {
-  items: CartItem[];
-  summary: CartSummary;
+  membersSummary: GroupOrderCartSession['members_summary'];
+  totalAmount: number;
 };
 
-export default function GroupCartTotals({ items, summary }: Props) {
+export default function GroupCartTotals({
+  membersSummary,
+  totalAmount,
+}: Props) {
   const t = useTranslations('common');
-  const userGroups = groupCartItemsByUser(items);
 
   return (
     <div className="space-y-3 text-sm">
       <div className="space-y-2">
         <p className="font-medium">{t('byMember')}</p>
-        {userGroups.map((group) => (
-          <div key={group.key} className="flex justify-between">
-            <span className="text-muted-foreground">{group.name}</span>
-            <span>{group.subtotal.toFixed(2)} {t('egp')}</span>
+        {membersSummary.map((member) => (
+          <div key={member.user.id} className="flex justify-between">
+            <span className="text-muted-foreground">
+              {member.user.name}
+            </span>
+            <span>
+              {member.user_total.toFixed(2)} {t('egp')}
+            </span>
           </div>
         ))}
       </div>
 
       <Separator />
 
-      <div className="space-y-2">
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">{t('subtotal')}</span>
-          <span>{summary.subtotal.toFixed(2)} {t('egp')}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">{t('deliveryFee')}</span>
-          <span>{summary.deliveryFee.toFixed(2)} {t('egp')}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">{t('tax')}</span>
-          <span>{summary.tax.toFixed(2)} {t('egp')}</span>
-        </div>
-        {summary.discount > 0 && (
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">
-              {t('discount')}
-              {summary.appliedRedemptionTitle
-                ? ` (${summary.appliedRedemptionTitle})`
-                : ''}
-            </span>
-            <span>-{summary.discount.toFixed(2)} {t('egp')}</span>
-          </div>
-        )}
-      </div>
-
-      <Separator />
-
       <div className="flex justify-between text-base font-semibold">
         <span>{t('total')}</span>
-        <span>{summary.total.toFixed(2)} {t('egp')}</span>
+        <span>
+          {totalAmount.toFixed(2)} {t('egp')}
+        </span>
       </div>
     </div>
   );
 }
-

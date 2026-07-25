@@ -1,5 +1,5 @@
-import PointsPageView from '@/components/points/PointsPageView';
+import { redirect } from 'next/navigation';
 
 export default function GiftsPage() {
-  return <PointsPageView defaultTab="my-gifts" />;
+  redirect('/points/my-gifts');
 }

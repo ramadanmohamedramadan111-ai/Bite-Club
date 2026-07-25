@@ -665,7 +665,16 @@
   },
   "points": {
     "title": "Points & Rewards",
-    "subtitle": "Earn points, redeem offers, and send gifts to friends.",
+    "subtitle": "Track your points, history, and referrals.",
+    "history": "History",
+    "historyEmpty": "No transactions yet",
+    "sourceReferral": "Referral Bonus",
+    "sourceRedemption": "Points Redeemed",
+    "sourceLeaderboard": "Leaderboard Reward",
+    "sourceWeeklyStreak": "Weekly Streak Reward",
+    "sourceGift": "Gift Received",
+    "earned": "Earned",
+    "redeemed": "Redeemed",
     "rewardsGifts": "Rewards & Gifts",
     "rewardsGiftsDesc": "Redeem points for yourself or send an offer as a gift.",
     "activeRedeems": "Active redeems",
@@ -720,6 +729,11 @@
     "copyLink": "Copy link",
     "referralCopied": "Referral link copied!",
     "referralCopyFailed": "Failed to copy link",
+    "referredUsers": "Referred users",
+    "referredUsersDesc": "Users who signed up using your referral link",
+    "referralPending": "Pending",
+    "referralCompleted": "Completed",
+    "referralNoUsers": "No referrals yet. Share your link to get started!",
     "redeemedSuccess": "Offer redeemed! Check your active redeems.",
     "redeemedFailed": "Failed to redeem offer",
     "redemptionUsed": "Redemption marked as used",
@@ -969,7 +983,15 @@
     "serviceFee": "Service fee",
     "requiredDeposit": "Required Deposit",
     "remainingOnDelivery": "Remaining on delivery",
-    "total": "Total"
+    "total": "Total",
+    "redeemPoints": "Redeem Points",
+    "pointsApplied": "{count} points applied",
+    "pointsPlaceholder": "Enter points to redeem",
+    "apply": "Apply",
+    "availableBalance": "Available: {balance} points",
+    "discount": "Points discount",
+    "pointsRedeemed": "{count} points redeemed",
+    "remove": "Remove"
   },
   "cartRedemption": {
     "offerUnavailable": "This offer is no longer available",
@@ -991,5 +1013,32 @@
     "next": "Next",
     "morePages": "More pages",
     "pageOf": "Page {current} of {total}"
+  },
+  "gamification": {
+    "signInToTrack": "Sign in to track your rewards",
+    "yourRewards": "Your Rewards",
+    "nextTarget": "Next Target",
+    "allBadges": "All Badges",
+    "viewAllRewards": "View All Rewards",
+    "pointsLabel": "Points",
+    "weeklyProgress": "Weekly Progress",
+    "orders": "orders",
+    "ordersToEarn": "{count} more order(s) to earn",
+    "targetReached": "Target Reached!",
+    "complete": "Complete!",
+    "maxTier": "Max",
+    "allBadgesEarned": "All badges earned!",
+    "earnedPoints": "+{count} pts",
+    "nextBadgeLabel": "NEXT",
+    "badges": {
+      "trailblazer": {
+        "name": "Trailblazer",
+        "desc": "Place {count} orders"
+      },
+      "foodChampion": {
+        "name": "Food Champion",
+        "desc": "Place {count} orders"
+      }
+    }
   }
 }
