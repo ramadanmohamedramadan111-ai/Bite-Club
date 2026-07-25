@@ -201,7 +201,7 @@ class GroupOrderDomainService
         });
 
         // 4. Call the existing preview system using the OrderApplicationService
-        $checkoutPreviewDto = new CheckoutPreviewDto($userId, $orderType, $lat, $long, true);
+        $checkoutPreviewDto = new CheckoutPreviewDto($userId, $orderType, $lat, $long, isGroupOrder: true);
         return $this->orderApplicationService->previewCheckout($checkoutPreviewDto);
     }
 
@@ -303,7 +303,7 @@ class GroupOrderDomainService
         $this->aggregateAndMoveToPersonalCart($groupOrder, $userId);
 
         // 4. Place order using the old system
-        $placeOrderDto = new PlaceOrderDto($userId, $orderType, $paymentOptionId, $lat, $long, true);
+        $placeOrderDto = new PlaceOrderDto($userId, $orderType, $paymentOptionId, $lat, $long, isGroupOrder: true);
         $result = $this->orderApplicationService->placeOrder($placeOrderDto);
 
         // 5. Mark group order as COMPLETED and link the created order_id
