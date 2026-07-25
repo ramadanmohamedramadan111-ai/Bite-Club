@@ -8,3 +8,4 @@ build
 .cursor
 .qodo
 .env.local
+**/__pycache__/
