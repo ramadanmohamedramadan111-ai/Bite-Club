@@ -60,20 +60,62 @@ class AiChatTest extends TestCase
 
         Http::fake([
             'http://ai-service/api/v1/chat/*' => Http::response([
-                'message' => 'Hello owner!',
-                'conversation_id' => '123',
-                'tool_results' => [],
+                'summary' => 'Great performance!',
+                'overall_score' => 85,
+                'sales_performance' => [
+                    'revenue' => 1500.00,
+                    'orders' => 25,
+                    'growth' => '10%',
+                    'peak_hours' => '7 PM'
+                ],
+                'menu_performance' => [
+                    'best_selling_items' => ['Burger', 'Pizza'],
+                    'worst_selling_items' => ['Salad'],
+                    'slow_selling_items' => ['Soup'],
+                    'suggested_promotions' => ['Buy 1 Get 1 Free on Pizza']
+                ],
+                'customer_satisfaction' => [
+                    'average_rating' => 4.5,
+                    'positive_feedback' => ['Good food'],
+                    'negative_feedback' => ['Slow delivery'],
+                    'common_complaints' => ['Delivery time']
+                ],
+                'operational_issues' => [
+                    [
+                        'severity' => 'medium',
+                        'explanation' => 'Slow delivery during peak hours',
+                        'suggested_solution' => 'Hire more drivers'
+                    ]
+                ],
+                'recommendations' => ['Promote Pizza'],
+                'action_plan' => ['1. Adjust pricing', '2. Promote Pizza']
             ], 200),
         ]);
 
         $response = $this->withToken($token)->postJson('/api/ai/chat', [
-            'message' => 'Hello AI',
+            'message' => 'Generate report',
             'conversation_id' => '123',
         ]);
 
         $response->assertOk();
         $response->assertJsonPath('success', true);
-        $response->assertJsonPath('data.message', 'Hello owner!');
+        $response->assertJsonStructure([
+            'success',
+            'message',
+            'data' => [
+                'summary',
+                'overall_score',
+                'sales_performance' => ['revenue', 'orders', 'growth', 'peak_hours'],
+                'menu_performance' => ['best_selling_items', 'worst_selling_items', 'slow_selling_items', 'suggested_promotions'],
+                'customer_satisfaction' => ['average_rating', 'positive_feedback', 'negative_feedback', 'common_complaints'],
+                'operational_issues' => [
+                    '*' => ['severity', 'explanation', 'suggested_solution']
+                ],
+                'recommendations',
+                'action_plan'
+            ]
+        ]);
+        $response->assertJsonPath('data.summary', 'Great performance!');
     }
 
     public function test_internal_tools_block_invalid_key(): void

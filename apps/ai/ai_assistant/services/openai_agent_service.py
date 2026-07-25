@@ -23,9 +23,7 @@ class OpenAiAgentService:
     def chat(self, payload):
         if not self.api_key:
             return {
-                "message": "AI service is not configured.",
-                "conversation_id": payload.get("conversation_id"),
-                "tool_results": [],
+                "error": "AI service is not configured.",
             }
 
         restaurant_id = payload["restaurant_id"]
@@ -49,18 +47,21 @@ class OpenAiAgentService:
                     }
                 )
 
-            final = self._completion(messages)
+            final = self._completion(messages, response_format={"type": "json_object"})
             message = final.get("choices", [{}])[0].get("message", {}).get("content", "")
         else:
-            message = choice.get("content", "")
+            final = self._completion(messages, response_format={"type": "json_object"})
+            message = final.get("choices", [{}])[0].get("message", {}).get("content", "")
 
-        return {
-            "message": message,
-            "conversation_id": payload.get("conversation_id"),
-            "tool_results": tool_results,
-        }
+        try:
+            return json.loads(message)
+        except Exception:
+            return {
+                "error": "Failed to parse AI report as JSON.",
+                "raw_response": message
+            }
 
-    def _completion(self, messages, tools=None):
+    def _completion(self, messages, tools=None, response_format=None):
         body = {
             "model": self.model,
             "messages": messages,
@@ -71,6 +72,9 @@ class OpenAiAgentService:
         if tools:
             body["tools"] = tools
             body["tool_choice"] = "auto"
+
+        if response_format:
+            body["response_format"] = response_format
 
         request = urllib.request.Request(
             f"{self.base_url}/chat/completions",
@@ -90,3 +94,4 @@ class OpenAiAgentService:
             return {"choices": [{"message": {"content": exc.read().decode("utf-8")}}]}
         except urllib.error.URLError as exc:
             return {"choices": [{"message": {"content": f"AI provider unavailable: {exc.reason}"}}]}
+
