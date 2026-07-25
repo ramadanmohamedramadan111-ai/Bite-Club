@@ -105,7 +105,8 @@ class GroupOrderApplicationService
         return $this->groupOrderDomainService->getHistory(
             $dto->getUserId(),
             $dto->getPage(),
-            $dto->getPerPage()
+            $dto->getPerPage(),
+            $dto->getGroupId()
         );
     }
 }

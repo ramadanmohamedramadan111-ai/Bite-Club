@@ -8,6 +8,7 @@ class GroupOrderHistoryDto
 {
     public function __construct(
         private readonly int $userId,
+        private readonly ?int $groupId,
         private readonly int $page,
         private readonly int $perPage
     ) {}
@@ -18,6 +19,7 @@ class GroupOrderHistoryDto
 
         return new self(
             (int) $validated['user_id'],
+            isset($validated['group_id']) ? (int) $validated['group_id'] : null,
             (int) ($validated['page'] ?? 1),
             (int) ($validated['per_page'] ?? 15)
         );
@@ -26,6 +28,11 @@ class GroupOrderHistoryDto
     public function getUserId(): int
     {
         return $this->userId;
+    }
+
+    public function getGroupId(): ?int
+    {
+        return $this->groupId;
     }
 
     public function getPage(): int

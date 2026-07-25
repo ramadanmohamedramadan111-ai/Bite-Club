@@ -316,8 +316,8 @@ class GroupOrderDomainService
         return $result;
     }
 
-    public function getHistory(int $userId, int $page, int $perPage): LengthAwarePaginator
+    public function getHistory(int $userId, int $page, int $perPage, ?int $groupId = null): LengthAwarePaginator
     {
-        return $this->groupOrderRepo->getPaginatedHistoryForUser($userId, $page, $perPage);
+        return $this->groupOrderRepo->getPaginatedHistoryForUser($userId, $page, $perPage, $groupId);
     }
 }

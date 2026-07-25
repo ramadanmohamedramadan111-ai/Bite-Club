@@ -21,7 +21,7 @@ class GroupOrderRepository extends BaseRepository implements GroupOrderRepositor
             ->first();
     }
 
-    public function getPaginatedHistoryForUser(int $userId, int $page, int $perPage)
+    public function getPaginatedHistoryForUser(int $userId, int $page, int $perPage, ?int $groupId = null)
     {
         $query = $this->query()
             ->whereIn('status', [
@@ -36,8 +36,13 @@ class GroupOrderRepository extends BaseRepository implements GroupOrderRepositor
                   ->orWhereHas('group.members', function ($memberQuery) use ($userId) {
                       $memberQuery->where('user_id', $userId);
                   });
-            })
-            ->with(['group', 'restaurant', 'host', 'items.user', 'order'])
+            });
+
+        if ($groupId) {
+            $query->where('group_id', $groupId);
+        }
+
+        $query->with(['group', 'restaurant', 'host', 'items.user', 'order'])
             ->orderBy('created_at', 'desc');
 
         return $query->paginate($perPage, ['*'], 'page', $page);

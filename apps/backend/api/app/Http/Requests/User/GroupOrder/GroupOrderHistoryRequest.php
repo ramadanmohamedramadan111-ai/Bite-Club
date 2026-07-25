@@ -27,6 +27,7 @@ class GroupOrderHistoryRequest extends FormRequest
     {
         return [
             'user_id' => 'required|integer',
+            'group_id' => 'nullable|integer|exists:groups,id',
             'page' => 'nullable|integer|min:1',
             'per_page' => 'nullable|integer|min:1|max:100',
         ];
