@@ -19,6 +19,8 @@ return [
     'only_host_can_unlock' => 'الهوست فقط هو من يمكنه فتح هذا الجروب مرة أخرى.',
     'order_not_locked' => 'هذا الجروب غير مقفل حالياً.',
     'unlocked_successfully' => 'تم فتح الجروب بنجاح. يمكن للأعضاء إضافة طلبات جديدة.',
-    'must_be_locked_to_place' => 'يجب عرض الفاتورة وإغلاق الطلب قبل تأكيده.',
     'placed_successfully' => 'تم تأكيد طلب الجروب بنجاح.',
+    'only_host_can_cancel' => 'الهوست فقط هو من يمكنه إلغاء هذا الجروب.',
+    'cannot_cancel_finished_order' => 'لا يمكن إلغاء طلب تم إكماله أو إلغاؤه بالفعل.',
+    'cancelled_successfully' => 'تم إلغاء طلب المجموعة بنجاح.',
 ];
