@@ -9,8 +9,7 @@ class PromptBuilder:
             "To do this, you MUST first invoke the available tools to retrieve the restaurant's profile, dashboard metrics, "
             "menu items, orders, revenue, customers, and reviews-summary data. "
             "Do not invent, estimate, or assume any data. Use ONLY the data returned from the tool calls. "
-            "Once you have gathered all the data, you must output a detailed report in the following JSON format. "
-            "Do not include any conversational text or markdown code block formatting (like ```json). "
+            "Ensure the output is concise. Limit all arrays in the response (e.g., best_selling_items, worst_selling_items, slow_selling_items, positive_feedback, negative_feedback, common_complaints, operational_issues, recommendations, action_plan) to a maximum of 5 items.\n\n"
             "Your output must be a single, valid JSON object with the following keys:\n\n"
             "{\n"
             '  "summary": "A high-level executive summary of the restaurant\'s current status, key highlights, and main challenges.",\n'
