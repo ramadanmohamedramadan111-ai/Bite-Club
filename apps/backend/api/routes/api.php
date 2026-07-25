@@ -114,6 +114,7 @@ Route::prefix('user')->name('user.')->group(function () {
     // Group Orders module
     Route::middleware('auth.user')->prefix('group-orders')->name('group-orders.')->group(function () {
         Route::post('/', [GroupOrderController::class, 'store'])->name('store');
+        Route::get('/history', [GroupOrderController::class, 'history'])->name('history');
         Route::get('/{id}', [GroupOrderController::class, 'show'])->name('show');
         Route::post('/{id}/preview', [GroupOrderController::class, 'previewCheckout'])->name('preview');
         Route::post('/{id}/unlock', [GroupOrderController::class, 'unlock'])->name('unlock');

@@ -19,6 +19,8 @@ use App\DTOs\User\GroupOrder\GetGroupOrderDto;
 use App\DTOs\User\GroupOrder\GroupOrderPreviewDto;
 use App\DTOs\User\GroupOrder\UnlockGroupOrderDto;
 use App\DTOs\User\GroupOrder\PlaceGroupOrderDto;
+use App\DTOs\User\GroupOrder\GroupOrderHistoryDto;
+use App\Http\Requests\User\GroupOrder\GroupOrderHistoryRequest;
 use App\Services\Application\User\GroupOrder\GroupOrderApplicationService;
 use App\Http\Resources\User\GroupOrder\GroupOrderResource;
 use App\Http\Resources\User\Order\CheckoutPreviewResource;
@@ -171,6 +173,33 @@ class GroupOrderController extends Controller
             );
         } catch (Exception $e) {
             Log::error('Failed to place group order: ' . $e->getMessage());
+            return $this->errorResponse($e->getMessage(), [], 400);
+        }
+    }
+
+    public function history(GroupOrderHistoryRequest $request): JsonResponse
+    {
+        try {
+            $dto = GroupOrderHistoryDto::fromValidatedRequest($request);
+            
+            $orders = $this->groupOrderApplicationService->getHistory($dto);
+
+            $items = GroupOrderResource::collection($orders->items());
+
+            return $this->successResponse(
+                trans('group_order.retrieved_successfully') ?? 'Group orders retrieved successfully',
+                [
+                    'items' => $items,
+                    'meta'  => [
+                        'current_page' => $orders->currentPage(),
+                        'last_page'    => $orders->lastPage(),
+                        'per_page'     => $orders->perPage(),
+                        'total'        => $orders->total(),
+                    ],
+                ]
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to retrieve group order history: ' . $e->getMessage());
             return $this->errorResponse($e->getMessage(), [], 400);
         }
     }

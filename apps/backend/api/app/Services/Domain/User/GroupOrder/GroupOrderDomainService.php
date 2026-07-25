@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\DB;
 use App\Services\Application\User\Order\OrderApplicationService;
 use App\DTOs\User\Order\CheckoutPreviewDto;
 use App\DTOs\User\Order\PlaceOrderDto;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class GroupOrderDomainService
 {
@@ -313,5 +314,10 @@ class GroupOrderDomainService
         ]);
 
         return $result;
+    }
+
+    public function getHistory(int $userId, int $page, int $perPage): LengthAwarePaginator
+    {
+        return $this->groupOrderRepo->getPaginatedHistoryForUser($userId, $page, $perPage);
     }
 }

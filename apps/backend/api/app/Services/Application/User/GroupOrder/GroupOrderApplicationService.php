@@ -10,9 +10,11 @@ use App\DTOs\User\GroupOrder\GetGroupOrderDto;
 use App\DTOs\User\GroupOrder\GroupOrderPreviewDto;
 use App\DTOs\User\GroupOrder\UnlockGroupOrderDto;
 use App\DTOs\User\GroupOrder\PlaceGroupOrderDto;
+use App\DTOs\User\GroupOrder\GroupOrderHistoryDto;
 use App\Models\GroupOrder;
 use App\Models\GroupOrderItem;
 use App\Services\Domain\User\GroupOrder\GroupOrderDomainService;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class GroupOrderApplicationService
 {
@@ -95,6 +97,15 @@ class GroupOrderApplicationService
             $dto->getPaymentOptionId(),
             $dto->getLat(),
             $dto->getLong()
+        );
+    }
+
+    public function getHistory(GroupOrderHistoryDto $dto): LengthAwarePaginator
+    {
+        return $this->groupOrderDomainService->getHistory(
+            $dto->getUserId(),
+            $dto->getPage(),
+            $dto->getPerPage()
         );
     }
 }

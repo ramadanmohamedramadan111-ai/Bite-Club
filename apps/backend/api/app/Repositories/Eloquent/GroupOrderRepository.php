@@ -20,4 +20,26 @@ class GroupOrderRepository extends BaseRepository implements GroupOrderRepositor
             ->where('status', GroupOrderStatusEnum::OPEN->value)
             ->first();
     }
+
+    public function getPaginatedHistoryForUser(int $userId, int $page, int $perPage)
+    {
+        $query = $this->query()
+            ->whereIn('status', [
+                GroupOrderStatusEnum::COMPLETED->value,
+                GroupOrderStatusEnum::CANCELLED->value,
+            ])
+            ->where(function ($q) use ($userId) {
+                $q->where('host_id', $userId)
+                  ->orWhereHas('items', function ($itemQuery) use ($userId) {
+                      $itemQuery->where('user_id', $userId);
+                  })
+                  ->orWhereHas('group.members', function ($memberQuery) use ($userId) {
+                      $memberQuery->where('user_id', $userId);
+                  });
+            })
+            ->with(['group', 'restaurant', 'host', 'items.user', 'order'])
+            ->orderBy('created_at', 'desc');
+
+        return $query->paginate($perPage, ['*'], 'page', $page);
+    }
 }
