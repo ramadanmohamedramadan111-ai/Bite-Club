@@ -6,6 +6,8 @@ enum PointTransactionTypeEnum: string
 {
     case EARN   = 'earn';
     case REDEEM = 'redeem';
+    case GIFT_SENT = 'gift_sent';
+    case GIFT_RECEIVED = 'gift_received';
 
     public static function values(): array
     {

@@ -1,0 +1,25 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('point_gifts', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('sender_user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('receiver_user_id')->constrained('users')->cascadeOnDelete();
+            $table->unsignedInteger('points');
+            $table->string('note', 255)->nullable();
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('point_gifts');
+    }
+};

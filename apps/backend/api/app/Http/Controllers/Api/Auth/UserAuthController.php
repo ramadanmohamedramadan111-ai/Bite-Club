@@ -46,7 +46,7 @@ class UserAuthController extends Controller
         }
     }
 
-    public function verifyEmail(Request $request, $id, $hash): JsonResponse
+    public function verifyEmail(Request $request, $id, $hash): \Illuminate\Http\RedirectResponse
     {
         try {
             $this->userAuthApplicationService->verifyEmail(
@@ -55,15 +55,13 @@ class UserAuthController extends Controller
                 $request->hasValidSignature()
             );
 
-            return $this->successResponse(
-                'Email verified successfully.'
-            );
+            return redirect('http://web.localhost:8080/en/login?status=success');
         } catch (Exception $e) {
             Log::error('Email verification failed: ' . $e->getMessage(), [
                 'id' => $id,
             ]);
 
-            return $this->errorResponse($e->getMessage());
+            return redirect('http://web.localhost:8080/en/login?status=failed');
         }
     }
 
