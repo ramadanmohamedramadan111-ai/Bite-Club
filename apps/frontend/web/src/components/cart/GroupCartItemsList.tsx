@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { useRouter } from '@/i18n/navigation';
 import { useAction } from 'next-safe-action/hooks';
+import { cn } from '@/lib/utils';
 import {
   removeItemFromGroupOrderSessionAction,
   updateItemQuantityGroupOrderSessionAction,
@@ -16,11 +17,13 @@ import type { GroupOrderCartSession } from '@/types/group-order/group-order';
 type Props = {
   membersSummary: GroupOrderCartSession['members_summary'];
   sessionId: number;
+  currentUserId?: number | null;
 };
 
 export default function GroupCartItemsList({
   membersSummary,
   sessionId,
+  currentUserId,
 }: Props) {
   const t = useTranslations('common');
   const router = useRouter();
@@ -50,7 +53,7 @@ export default function GroupCartItemsList({
   return (
     <div className="space-y-4">
       {membersSummary.map((member) => (
-        <div key={member.user.id} className="space-y-3 rounded-xl border p-4">
+        <div key={member.user.id} className={cn('space-y-3 rounded-xl border p-4', member.user.id === currentUserId && 'border-primary/50')}>
           <div className="flex items-center justify-between gap-3">
             <p className="font-medium">
               {member.user.name}

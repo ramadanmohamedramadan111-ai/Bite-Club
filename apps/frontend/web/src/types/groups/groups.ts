@@ -43,18 +43,3 @@ export type GroupTypeSimplified = {
 
 export type GroupOrderSessionType = 'fixed' | 'anonymous';
 
-export type ActiveGroupSession = {
-  id: string;
-  restaurantId: string;
-  restaurantName: string;
-  restaurantImage?: string;
-  code: string;
-  type: GroupOrderSessionType;
-  groupId?: string;
-  groupName?: string;
-  ownerSessionId: string;
-  ownerName: string;
-  expiresAt?: string;
-  createdAt: string;
-};
-

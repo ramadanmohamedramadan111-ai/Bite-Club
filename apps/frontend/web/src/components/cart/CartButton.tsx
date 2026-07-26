@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { getLangDir } from 'rtl-detect';
 import { useCartStore } from '@/stores/cart';
 import { useCartDrawerStore } from '@/stores/cart-drawer';
+import { useGroupOrderDrawerStore } from '@/stores/group-order-drawer';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -24,6 +25,9 @@ export default function CartButton({ className }: Props) {
   const openDrawer = useCartDrawerStore((state) => state.openDrawer);
   const closeDrawer = useCartDrawerStore((state) => state.closeDrawer);
   const open = useCartDrawerStore((state) => state.open);
+  const closeGroupOrderDrawer = useGroupOrderDrawerStore(
+    (state) => state.closeDrawer,
+  );
 
   return (
     <Button
@@ -35,6 +39,7 @@ export default function CartButton({ className }: Props) {
         if (open) {
           closeDrawer();
         } else {
+          closeGroupOrderDrawer();
           openDrawer();
         }
       }}
