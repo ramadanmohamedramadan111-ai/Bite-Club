@@ -18,6 +18,8 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.api
+    environment:
+      PHP_CLI_SERVER_WORKERS: 4
     volumes:
       - ./apps/backend/api:/var/www/api
     networks:

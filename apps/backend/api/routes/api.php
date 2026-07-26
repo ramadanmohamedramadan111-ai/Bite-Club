@@ -1,6 +1,12 @@
 <?php
 
 use App\Http\Controllers\Api\Auth\AdminAuthController;
+use App\Http\Controllers\Api\Ai\AiChatController;
+use App\Http\Controllers\Api\Ai\AiInternalToolController;
+
+use App\Http\Controllers\Api\Ai\SmartWaiterAddToCartController;
+use App\Http\Controllers\Api\Ai\SmartWaiterChatController;
+
 use App\Http\Controllers\Api\Auth\UserAuthController;
 use App\Http\Controllers\Api\RestaurantCategoryController;
 use App\Http\Controllers\Api\User\CartController as UserCartController;
@@ -21,6 +27,25 @@ use App\Http\Controllers\Api\User\WalletController;
 use Illuminate\Support\Facades\Route;
 
 
+
+Route::middleware('auth.restaurant')->post('/ai/chat', AiChatController::class)->name('ai.chat');
+Route::middleware('auth.user')->post('/ai/smart-waiter/chat', SmartWaiterChatController::class)->name('ai.smart-waiter.chat');
+Route::middleware('auth.user')->post('/ai/smart-waiter/add-to-cart', SmartWaiterAddToCartController::class)->name('ai.smart-waiter.add-to-cart');
+
+
+Route::middleware('ai.internal')
+    ->prefix('internal/ai/tools')
+    ->name('internal.ai.tools.')
+    ->group(function () {
+        Route::post('/menu', [AiInternalToolController::class, 'menu'])->name('menu');
+        Route::post('/dashboard', [AiInternalToolController::class, 'dashboard'])->name('dashboard');
+        Route::post('/orders', [AiInternalToolController::class, 'orders'])->name('orders');
+        Route::post('/revenue', [AiInternalToolController::class, 'revenue'])->name('revenue');
+        Route::post('/customers', [AiInternalToolController::class, 'customers'])->name('customers');
+        Route::post('/restaurant', [AiInternalToolController::class, 'restaurant'])->name('restaurant');
+        Route::post('/reviews-summary', [AiInternalToolController::class, 'reviewsSummary'])->name('reviews-summary');
+        Route::post('/user-history', [AiInternalToolController::class, 'userHistory'])->name('user-history');
+    });
 
 Route::prefix('admin')->name('admin.')->group(function () {
 

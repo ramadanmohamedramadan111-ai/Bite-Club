@@ -22,7 +22,9 @@ class DatabaseSeeder extends Seeder
             RestaurantMenuSeeder::class,
             FiveRestaurantsSeeder::class,
             OrderSeeder::class,
+            SmartWaiterTestUserSeeder::class,
         ]);
+
 
         User::factory()->create([
             'phone_number' => '01000000000',

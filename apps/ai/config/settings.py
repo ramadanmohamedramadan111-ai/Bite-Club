@@ -11,9 +11,26 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+def load_env_file(path):
+    if not path.exists():
+        return
+
+    for line in path.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+
+        key, value = line.split("=", 1)
+        os.environ.setdefault(key, value.strip().strip('"').strip("'"))
+
+
+load_env_file(BASE_DIR / ".env")
 
 
 # Quick-start development settings - unsuitable for production
@@ -25,7 +42,7 @@ SECRET_KEY = 'django-insecure-)pe(2=j11#ko5t)@m50(dzk(&-t=4+c3#xhp&t9f)m#p0yuch-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "*").split(",")
 
 
 # Application definition
@@ -37,7 +54,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'ai_assistant',
+    'review_rag',
+    'smart_waiter',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -78,6 +99,18 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+if os.getenv("AI_DB_ENGINE") == "mysql":
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'HOST': os.getenv('AI_DB_HOST', 'db'),
+            'PORT': os.getenv('AI_DB_PORT', '3306'),
+            'NAME': os.getenv('AI_DB_DATABASE', 'laravel'),
+            'USER': os.getenv('AI_DB_USERNAME', 'laravel'),
+            'PASSWORD': os.getenv('AI_DB_PASSWORD', 'secret'),
+        }
+    }
 
 
 # Password validation
