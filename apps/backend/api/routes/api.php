@@ -111,6 +111,8 @@ Route::prefix('user')->name('user.')->group(function () {
         // Cart
         Route::prefix('cart')->group(function () {
             Route::get('/', [UserCartController::class, 'show'])->name('cart.show');
+            Route::delete('/', [UserCartController::class, 'clear'])->name('cart.clear');
+            Route::delete('clear', [UserCartController::class, 'clear'])->name('cart.clear.explicit');
         });
 
         Route::prefix('cart')->group(function () {

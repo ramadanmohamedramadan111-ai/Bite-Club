@@ -88,4 +88,13 @@ class CartDomainService
             $this->cartRepository->delete($cart->id);
         }
     }
+
+    public function clearCart(int $userId): void
+    {
+        $cart = $this->cartRepository->getUserCart($userId, false);
+
+        if ($cart) {
+            $this->cartRepository->delete($cart->id);
+        }
+    }
 }
