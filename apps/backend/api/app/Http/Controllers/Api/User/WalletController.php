@@ -6,9 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Services\Application\Loyalty\WalletApplicationService;
 use App\Services\Application\Loyalty\ReferralApplicationService;
 use App\Services\Application\Loyalty\WeeklyStreakApplicationService;
+use App\Services\Application\Loyalty\PointGiftApplicationService;
+use App\Http\Requests\User\Wallet\GiftPointsRequest;
+use App\DTOs\User\Wallet\GiftPointsDto;
 use App\Http\Resources\Loyalty\WalletResource;
 use App\Http\Resources\Loyalty\PointTransactionResource;
 use App\Http\Resources\Loyalty\ReferralResource;
+use App\Http\Resources\Loyalty\PointGiftCollection;
+use App\Http\Resources\Loyalty\PointGiftFriendResource;
 use App\Models\Wallet;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -20,7 +25,8 @@ class WalletController extends Controller
     public function __construct(
         private readonly WalletApplicationService $walletApplicationService,
         private readonly ReferralApplicationService $referralApplicationService,
-        private readonly WeeklyStreakApplicationService $weeklyStreakApplicationService
+        private readonly WeeklyStreakApplicationService $weeklyStreakApplicationService,
+        private readonly PointGiftApplicationService $pointGiftApplicationService
     ) {}
 
     public function show(Request $request): JsonResponse
@@ -109,6 +115,57 @@ class WalletController extends Controller
         } catch (Exception $e) {
             Log::error('Failed to fetch weekly streak: ' . $e->getMessage());
             return $this->serverErrorResponse(trans('loyalty.streak_fetch_failed') ?? 'Failed to retrieve weekly streak.');
+        }
+    }
+
+    public function gift(GiftPointsRequest $request): JsonResponse
+    {
+        try {
+            $senderId = auth('user')->id();
+            $dto = GiftPointsDto::fromValidatedRequest($request);
+            $this->pointGiftApplicationService->giftPoints($senderId, $dto);
+
+            return $this->successResponse('Points gifted successfully.');
+        } catch (Exception $e) {
+            Log::error('Failed to gift points: ' . $e->getMessage());
+            $code = $e->getCode();
+            if ($code === 403) {
+                return $this->errorResponse($e->getMessage(), null, 403);
+            }
+            if ($code === 404) {
+                return $this->errorResponse($e->getMessage(), null, 404);
+            }
+            return $this->errorResponse($e->getMessage(), null, 400);
+        }
+    }
+
+    public function gifts(Request $request): JsonResponse
+    {
+        try {
+            $userId = auth('user')->id();
+            $perPage = $request->query('per_page', 15);
+            $gifts = $this->pointGiftApplicationService->getGiftHistory($userId, (int) $perPage);
+
+            return $this->successResponse(
+                'Gift history retrieved successfully.',
+                new PointGiftCollection($gifts)
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to fetch gift history: ' . $e->getMessage());
+            return $this->serverErrorResponse('Failed to retrieve gift history.');
+        }
+    }
+
+    public function giftFriends(Request $request): JsonResponse
+    {
+        try {
+            $userId = auth('user')->id();
+            $friends = $this->pointGiftApplicationService->getAcceptedFriends($userId);
+
+            return response()->json(PointGiftFriendResource::collection($friends));
+        } catch (Exception $e) {
+            Log::error('Failed to fetch friends for gifting: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to retrieve friends.'], 500);
         }
     }
 }

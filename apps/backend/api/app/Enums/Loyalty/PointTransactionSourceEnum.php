@@ -8,6 +8,7 @@ enum PointTransactionSourceEnum: string
     case WEEKLY_STREAK = 'weekly_streak';
     case LEADERBOARD   = 'leaderboard';
     case REDEMPTION    = 'redemption';
+    case POINT_GIFT    = 'point_gift';
 
     public static function values(): array
     {

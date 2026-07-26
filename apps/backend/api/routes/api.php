@@ -210,4 +210,7 @@ Route::middleware('auth.user')->prefix('wallet')->name('wallet.')->group(functio
     Route::get('/transactions', [WalletController::class, 'transactions'])->name('transactions');
     Route::get('/referrals', [WalletController::class, 'referrals'])->name('referrals');
     Route::get('/streak', [WalletController::class, 'streak'])->name('streak');
+    Route::post('/gift', [WalletController::class, 'gift'])->name('gift');
+    Route::get('/gifts', [WalletController::class, 'gifts'])->name('gifts');
+    Route::get('/gift/friends', [WalletController::class, 'giftFriends'])->name('gift.friends');
 });

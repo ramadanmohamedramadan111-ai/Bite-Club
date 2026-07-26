@@ -177,6 +177,19 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(OrderCopy::class, 'copied_by_user_id');
     }
 
+
+    public function sentPointGifts(): HasMany
+    {
+        return $this->hasMany(PointGift::class, 'sender_user_id');
+    }
+
+    public function receivedPointGifts(): HasMany
+    {
+        return $this->hasMany(PointGift::class, 'receiver_user_id');
+    }
+
+
+
     public function bans(): HasMany
     {
         return $this->hasMany(UserBan::class);
