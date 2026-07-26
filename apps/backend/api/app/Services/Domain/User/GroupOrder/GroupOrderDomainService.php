@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\DB;
 use App\Services\Application\User\Order\OrderApplicationService;
 use App\DTOs\User\Order\CheckoutPreviewDto;
 use App\DTOs\User\Order\PlaceOrderDto;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 
 class GroupOrderDomainService
 {
@@ -157,6 +159,20 @@ class GroupOrderDomainService
         $this->groupOrderItemRepo->update($groupOrderItemId, ['quantity' => $quantity]);
     }
 
+    public function clearUserItems(int $userId, int $groupOrderId): void
+    {
+        $groupOrder = $this->groupOrderRepo->findOrFail($groupOrderId);
+
+        if ($groupOrder->status !== GroupOrderStatusEnum::OPEN) {
+            throw new Exception(trans('group_order.order_not_open'));
+        }
+
+        $this->groupOrderItemRepo->query()
+            ->where('group_order_id', $groupOrderId)
+            ->where('user_id', $userId)
+            ->delete();
+    }
+
     public function getGroupOrder(int $userId, int $groupOrderId): GroupOrder
     {
         $groupOrder = $this->groupOrderRepo->findOrFail($groupOrderId);
@@ -201,7 +217,7 @@ class GroupOrderDomainService
         });
 
         // 4. Call the existing preview system using the OrderApplicationService
-        $checkoutPreviewDto = new CheckoutPreviewDto($userId, $orderType, $lat, $long, true);
+        $checkoutPreviewDto = new CheckoutPreviewDto($userId, $orderType, $lat, $long, isGroupOrder: true);
         return $this->orderApplicationService->previewCheckout($checkoutPreviewDto);
     }
 
@@ -277,6 +293,32 @@ class GroupOrderDomainService
 
         // 3. Change status back to OPEN
         $this->groupOrderRepo->update($groupOrderId, ['status' => GroupOrderStatusEnum::OPEN->value]);
+
+        // 4. Delete the temporary group cart created during preview
+        $cart = $this->cartRepo->getUserCart($userId, true);
+        if ($cart && $cart->group_order_id === $groupOrderId) {
+            $this->cartRepo->delete($cart->id);
+        }
+    }
+
+    public function cancel(int $userId, int $groupOrderId): void
+    {
+        $groupOrder = $this->groupOrderRepo->findOrFail($groupOrderId);
+
+        if ($groupOrder->host_id !== $userId) {
+            throw new Exception(trans('group_order.only_host_can_cancel') ?? 'Only the host can cancel the group order.');
+        }
+
+        if (in_array($groupOrder->status, [GroupOrderStatusEnum::COMPLETED, GroupOrderStatusEnum::CANCELLED], true)) {
+            throw new Exception(trans('group_order.cannot_cancel_finished_order') ?? 'Cannot cancel an order that is already completed or cancelled.');
+        }
+
+        $this->groupOrderRepo->update($groupOrderId, ['status' => GroupOrderStatusEnum::CANCELLED->value]);
+
+        $cart = $this->cartRepo->getUserCart($userId, true);
+        if ($cart && $cart->group_order_id === $groupOrderId) {
+            $this->cartRepo->delete($cart->id);
+        }
     }
 
     public function placeOrder(int $userId, int $groupOrderId, string $orderType, string $paymentOptionId, ?float $lat, ?float $long): array
@@ -297,7 +339,7 @@ class GroupOrderDomainService
         $this->aggregateAndMoveToPersonalCart($groupOrder, $userId);
 
         // 4. Place order using the old system
-        $placeOrderDto = new PlaceOrderDto($userId, $orderType, $paymentOptionId, $lat, $long, true);
+        $placeOrderDto = new PlaceOrderDto($userId, $orderType, $paymentOptionId, $lat, $long, isGroupOrder: true);
         $result = $this->orderApplicationService->placeOrder($placeOrderDto);
 
         // 5. Mark group order as COMPLETED and link the created order_id
@@ -307,5 +349,15 @@ class GroupOrderDomainService
         ]);
 
         return $result;
+    }
+
+    public function getHistory(int $userId, int $page, int $perPage, ?int $groupId = null): LengthAwarePaginator
+    {
+        return $this->groupOrderRepo->getPaginatedHistoryForUser($userId, $page, $perPage, $groupId);
+    }
+
+    public function getActiveSessions(int $userId): Collection
+    {
+        return $this->groupOrderRepo->getActiveSessionsForUser($userId);
     }
 }

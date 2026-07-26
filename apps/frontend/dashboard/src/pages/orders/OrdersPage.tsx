@@ -1,33 +1,30 @@
 import { useTranslation } from 'react-i18next'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Bell, CheckCircle, XCircle } from 'lucide-react'
 import { Table } from '../../components/common/Table'
 import type { Column } from '../../components/common/Table'
 import { Pagination } from '../../components/common/Pagination'
-
-const mockOrders = [
-  { id: '#BC-1024', customer: 'Sarah Chen',  phone: '+20 100 293 8472', branch: 'Zamalek',   status: 'Preparing', payment: 'Paid',     total: 450,  time: '11:45 AM' },
-  { id: '#BC-1025', customer: 'Ahmed Hassan', phone: '+20 112 443 1290', branch: 'Maadi',     status: 'Ready',     payment: 'Unpaid',   total: 1250, time: '12:05 PM' },
-  { id: '#BC-1026', customer: 'Mona Zayed',   phone: '+20 105 882 1104', branch: 'New Cairo', status: 'Completed', payment: 'Paid',     total: 320,  time: '12:15 PM' },
-  { id: '#BC-1027', customer: 'Omar Khaled',  phone: '+20 120 449 0032', branch: 'Zamalek',   status: 'Cancelled', payment: 'Refunded', total: 180,  time: '12:30 PM' },
-]
+import { useOrderStore } from '../../store/orderStore'
+import type { Order } from '../../store/orderStore'
 
 function statusPill(status: string) {
-  switch (status) {
-    case 'Preparing':  return 'bg-blue-105 text-blue-600 dark:bg-blue-950/20 dark:text-blue-500'
-    case 'Ready':      return 'bg-orange-50 text-brand-orange dark:bg-orange-950/20'
-    case 'Completed':  return 'bg-green-100 text-green-700 dark:bg-green-950/20 dark:text-green-500'
-    case 'Cancelled':  return 'bg-red-100 text-red-500 dark:bg-red-950/20 dark:text-red-500'
+  switch (status.toLowerCase()) {
+    case 'preparing':  return 'bg-blue-105 text-blue-600 dark:bg-blue-950/20 dark:text-blue-500'
+    case 'ready':      return 'bg-orange-50 text-brand-orange dark:bg-orange-950/20'
+    case 'completed':  return 'bg-green-100 text-green-700 dark:bg-green-950/20 dark:text-green-500'
+    case 'cancelled':  return 'bg-red-100 text-red-500 dark:bg-red-950/20 dark:text-red-500'
+    case 'pending':    return 'bg-yellow-100 text-yellow-600 dark:bg-yellow-950/20 dark:text-yellow-500'
     default:           return 'bg-gray-100 text-gray-500 dark:bg-slate-800 dark:text-slate-400'
   }
 }
 
 function paymentColor(p: string) {
-  switch (p) {
-    case 'Paid':     return 'text-green-600 dark:text-green-500'
-    case 'Unpaid':   return 'text-gray-400 dark:text-slate-500'
-    case 'Refunded': return 'text-red-550 dark:text-red-500'
+  switch (p?.toLowerCase()) {
+    case 'paid':     return 'text-green-600 dark:text-green-500'
+    case 'unpaid':   return 'text-gray-400 dark:text-slate-500'
+    case 'refunded': return 'text-red-550 dark:text-red-500'
+    case 'pending':  return 'text-yellow-500 dark:text-yellow-600'
     default:         return 'text-gray-400 dark:text-slate-500'
   }
 }
@@ -38,66 +35,70 @@ export function OrdersPage() {
   const [searchParams] = useSearchParams()
   const [currentPage, setCurrentPage] = useState(1)
 
+  const { orders: liveOrders, isLoading, fetchLiveOrders } = useOrderStore()
+
+  useEffect(() => {
+    fetchLiveOrders()
+  }, [fetchLiveOrders])
+
   const query = (searchParams.get('q') || '').toLowerCase()
-  const orders = mockOrders.filter(o => 
-    o.customer.toLowerCase().includes(query) || 
-    o.id.toLowerCase().includes(query) ||
-    o.phone.includes(query)
+  const orders = liveOrders.filter(o => 
+    (o.customer?.name || '').toLowerCase().includes(query) || 
+    o.id.toString().toLowerCase().includes(query) ||
+    (o.customer?.phone_number || '').includes(query)
   )
 
   const columns: Column<typeof orders[0]>[] = [
     {
       header: t('orderHash', 'ORDER ID'),
       key: 'id',
-      render: (o) => <span className="font-bold text-gray-800 dark:text-white">{o.id}</span>
+      render: (o) => <span className="font-bold text-gray-800 dark:text-white">#{o.id}</span>
     },
     {
       header: t('customer', 'CUSTOMER'),
       key: 'customer',
       render: (o) => (
         <div>
-          <p className="font-semibold text-gray-800 dark:text-white">{o.customer}</p>
-          <p className="text-xs text-gray-400 dark:text-slate-500">{o.phone}</p>
+          <p className="font-semibold text-gray-800 dark:text-white">{o.customer?.name || 'Guest'}</p>
+          <p className="text-xs text-gray-400 dark:text-slate-500">{o.customer?.phone_number || '-'}</p>
         </div>
       )
     },
     {
-      header: t('branch', 'BRANCH'),
-      key: 'branch',
-      render: (o) => o.branch
-    },
-    {
       header: t('type', 'TYPE'),
-      key: 'type',
-      render: () => t('pickup', 'Pickup')
+      key: 'order_type',
+      render: (o) => <span className="capitalize">{o.order_type.replace('_', ' ')}</span>
     },
     {
       header: t('status', 'STATUS'),
       key: 'status',
       render: (o) => (
-        <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${statusPill(o.status)}`}>
-          {o.status}
+        <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold capitalize ${statusPill(o.status)}`}>
+          {o.status.replace('_', ' ')}
         </span>
       )
     },
     {
       header: t('payment', 'PAYMENT'),
       key: 'payment',
-      render: (o) => (
-        <span className={`text-sm font-semibold ${paymentColor(o.payment)}`}>
-          {o.payment}
-        </span>
-      )
+      render: (o) => {
+        const paymentStatus = o.payments[0]?.status || 'unpaid'
+        return (
+          <span className={`text-sm font-semibold capitalize ${paymentColor(paymentStatus)}`}>
+            {paymentStatus}
+          </span>
+        )
+      }
     },
     {
       header: t('total', 'TOTAL'),
-      key: 'total',
-      render: (o) => <span className="font-bold text-gray-800 dark:text-white">{o.total} EGP</span>
+      key: 'financials',
+      render: (o) => <span className="font-bold text-gray-800 dark:text-white">{o.financials.total} EGP</span>
     },
     {
       header: t('date', 'DATE'),
-      key: 'time',
-      render: (o) => o.time
+      key: 'time_ago',
+      render: (o) => o.time_ago
     },
     {
       header: t('action', 'ACTION'),
@@ -106,7 +107,7 @@ export function OrdersPage() {
         <button
           onClick={(e) => {
             e.stopPropagation()
-            navigate(`/orders/${o.id.replace('#', '')}`)
+            navigate(`/orders/${o.id}`)
           }}
           className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:border-brand-orange hover:text-brand-orange transition dark:border-slate-600 dark:text-slate-300"
         >

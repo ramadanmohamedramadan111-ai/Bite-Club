@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\Collection;
 interface GroupOrderRepositoryInterface extends BaseRepositoryInterface
 {
     public function findActiveGroupOrderForGroup(int $groupId): ?GroupOrder;
+
+    public function getPaginatedHistoryForUser(int $userId, int $page, int $perPage, ?int $groupId = null);
+
+    public function getActiveSessionsForUser(int $userId): Collection;
 }

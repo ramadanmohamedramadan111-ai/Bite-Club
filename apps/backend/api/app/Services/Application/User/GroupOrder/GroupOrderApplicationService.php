@@ -6,13 +6,19 @@ use App\DTOs\User\GroupOrder\CreateGroupOrderDto;
 use App\DTOs\User\GroupOrder\AddGroupOrderItemDto;
 use App\DTOs\User\GroupOrder\RemoveGroupOrderItemDto;
 use App\DTOs\User\GroupOrder\UpdateGroupOrderItemQuantityDto;
+use App\DTOs\User\GroupOrder\ClearGroupOrderItemsDto;
 use App\DTOs\User\GroupOrder\GetGroupOrderDto;
 use App\DTOs\User\GroupOrder\GroupOrderPreviewDto;
 use App\DTOs\User\GroupOrder\UnlockGroupOrderDto;
+use App\DTOs\User\GroupOrder\CancelGroupOrderDto;
 use App\DTOs\User\GroupOrder\PlaceGroupOrderDto;
+use App\DTOs\User\GroupOrder\GroupOrderHistoryDto;
+use App\DTOs\User\GroupOrder\ActiveGroupOrdersDto;
 use App\Models\GroupOrder;
 use App\Models\GroupOrderItem;
 use App\Services\Domain\User\GroupOrder\GroupOrderDomainService;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 
 class GroupOrderApplicationService
 {
@@ -59,6 +65,14 @@ class GroupOrderApplicationService
         );
     }
 
+    public function clearUserItems(ClearGroupOrderItemsDto $dto): void
+    {
+        $this->groupOrderDomainService->clearUserItems(
+            $dto->getUserId(),
+            $dto->getGroupOrderId()
+        );
+    }
+
     public function getGroupOrder(GetGroupOrderDto $dto): GroupOrder
     {
         return $this->groupOrderDomainService->getGroupOrder(
@@ -86,6 +100,14 @@ class GroupOrderApplicationService
         );
     }
 
+    public function cancel(CancelGroupOrderDto $dto): void
+    {
+        $this->groupOrderDomainService->cancel(
+            $dto->getUserId(),
+            $dto->getGroupOrderId()
+        );
+    }
+
     public function placeOrder(PlaceGroupOrderDto $dto): array
     {
         return $this->groupOrderDomainService->placeOrder(
@@ -95,6 +117,23 @@ class GroupOrderApplicationService
             $dto->getPaymentOptionId(),
             $dto->getLat(),
             $dto->getLong()
+        );
+    }
+
+    public function getHistory(GroupOrderHistoryDto $dto): LengthAwarePaginator
+    {
+        return $this->groupOrderDomainService->getHistory(
+            $dto->getUserId(),
+            $dto->getPage(),
+            $dto->getPerPage(),
+            $dto->getGroupId()
+        );
+    }
+
+    public function getActiveSessions(ActiveGroupOrdersDto $dto): Collection
+    {
+        return $this->groupOrderDomainService->getActiveSessions(
+            $dto->getUserId()
         );
     }
 }

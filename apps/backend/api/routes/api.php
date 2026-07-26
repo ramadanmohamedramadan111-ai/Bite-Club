@@ -139,13 +139,17 @@ Route::prefix('user')->name('user.')->group(function () {
     // Group Orders module
     Route::middleware('auth.user')->prefix('group-orders')->name('group-orders.')->group(function () {
         Route::post('/', [GroupOrderController::class, 'store'])->name('store');
+        Route::get('/active-sessions', [GroupOrderController::class, 'activeSessions'])->name('active-sessions');
+        Route::get('/history', [GroupOrderController::class, 'history'])->name('history');
         Route::get('/{id}', [GroupOrderController::class, 'show'])->name('show');
         Route::post('/{id}/preview', [GroupOrderController::class, 'previewCheckout'])->name('preview');
         Route::post('/{id}/unlock', [GroupOrderController::class, 'unlock'])->name('unlock');
+        Route::post('/{id}/cancel', [GroupOrderController::class, 'cancel'])->name('cancel');
         Route::post('/{id}/place', [GroupOrderController::class, 'placeOrder'])->name('place');
         Route::post('/{id}/items', [GroupOrderController::class, 'addItem'])->name('items.add');
         Route::put('/{id}/items/{itemId}', [GroupOrderController::class, 'updateItemQuantity'])->name('items.update');
         Route::delete('/{id}/items/{itemId}', [GroupOrderController::class, 'removeItem'])->name('items.remove');
+        Route::delete('/{id}/items', [GroupOrderController::class, 'clearUserItems'])->name('items.clear');
     });
 });
 
