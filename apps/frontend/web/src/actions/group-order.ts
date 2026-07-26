@@ -1,6 +1,5 @@
 'use server';
 import { actionClient } from '@/lib/safe-action';
-import { checkoutPreviewDeliverySchema } from '@/schemas/checkout/checkout-preview-delivery-schema';
 import { idSchema } from '@/schemas/common/id-schema';
 import { addGroupCartItemSchema } from '@/schemas/group-order/add-item-schema';
 import { checkoutGroupPaySchema } from '@/schemas/group-order/checkout-payment-schema';
@@ -113,7 +112,7 @@ export const checkoutGroupPreviewDeliveryAction = actionClient
       },
     );
 
-    updateTag(`cart-${userId}`);
+    updateTag(`groups-sessions-${userId}`);
 
     return response;
   });
@@ -135,7 +134,7 @@ export const checkoutGroupPreviewPickupAction = actionClient
       },
     );
 
-    updateTag(`cart-${userId}`);
+    updateTag(`groups-sessions-${userId}`);
 
     return response;
   });
@@ -151,7 +150,7 @@ export const unlockGroupAction = actionClient
       'POST',
     );
 
-    updateTag(`cart-${userId}`);
+    updateTag(`groups-sessions-${userId}`);
 
     return response;
   });
@@ -171,7 +170,38 @@ export const checkoutGroupPayAction = actionClient
       },
     );
 
-    updateTag(`cart-${userId}`);
+    updateTag(`groups-sessions-${userId}`);
+
+    return response;
+  });
+
+// HOST ONLY
+export const cancelGroupAction = actionClient
+  .inputSchema(idSchema)
+  .action(async ({ parsedInput }) => {
+    const userId = await getUserId();
+
+    const response = await serverFetch<ApiResponse<null>>(
+      `/user/group-orders/${parsedInput}/cancel`,
+      'POST',
+    );
+
+    updateTag(`groups-sessions-${userId}`);
+
+    return response;
+  });
+
+export const clearMyItemsGroupOrderAction = actionClient
+  .inputSchema(idSchema)
+  .action(async ({ parsedInput }) => {
+    const userId = await getUserId();
+
+    const response = await serverFetch<ApiResponse<null>>(
+      `/user/group-orders/${parsedInput}/items`,
+      'DELETE',
+    );
+
+    updateTag(`groups-sessions-${userId}`);
 
     return response;
   });

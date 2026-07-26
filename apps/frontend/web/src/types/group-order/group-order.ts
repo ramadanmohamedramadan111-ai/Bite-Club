@@ -5,7 +5,7 @@ export interface GroupOrderSessionSuccessResponse {
 
 export interface GroupOrderCartSession {
   id: number;
-  status: 'open';
+  status: 'open' | 'cancelled' | 'locked';
   restaurant: {
     id: number;
     name: string;
@@ -85,4 +85,50 @@ export interface CheckoutGroupOrderPreviewResponse {
   internal_data: {
     system_commission: number;
   };
+}
+
+export interface GroupOrderSession {
+  id: number;
+  status: 'open' | 'cancelled' | 'locked';
+  group_id: number;
+  group_name: string;
+  restaurant_id: number;
+  restaurant_name: string;
+}
+
+export interface GroupOrderHistory {
+  id: number;
+  status: 'completed' | 'cancelled';
+  restaurant: {
+    id: number;
+    name: string;
+    image_url: null | string;
+  };
+  host: {
+    id: number;
+    name: string;
+  };
+  total_amount: number;
+  members_summary: {
+    user: {
+      id: number;
+      name: string;
+    };
+    user_total: number;
+    items: {
+      id: number;
+      item: {
+        id: number;
+        title: string;
+        image_url: string | null;
+        price: number;
+      };
+      quantity: number;
+      unit_price: number;
+      notes: null | string;
+      total_price: number;
+    }[];
+  }[];
+  created_at: string;
+  updated_at: string;
 }

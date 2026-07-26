@@ -1,5 +1,6 @@
 import GroupsHeader from '@/components/groups/GroupsHeader';
 import YourGroups from '@/components/groups/YourGroups';
+import ActiveSessionsPanel from '@/components/groups/ActiveSessionsPanel';
 import { SearchPaginatedType } from '@/types/common';
 
 export default async function Page({
@@ -13,8 +14,7 @@ export default async function Page({
   return (
     <div className="container mx-auto space-y-8">
       <GroupsHeader />
-
-      {/* <ActiveSessionsSection /> */}
+      <ActiveSessionsPanel />
       <YourGroups search={search} page={page} per_page={per_page} />
     </div>
   );

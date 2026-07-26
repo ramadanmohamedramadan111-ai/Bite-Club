@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/sidebar';
 import LocationButtonServer from '@/components/location/location-button-server';
 import CartDrawerHost from '@/components/cart/CartDrawerHost';
+import GroupOrderSessionsDrawerHost from '@/components/navbar/GroupOrderSessionsDrawerHost';
 import { serverFetch } from '@/utils/server-fetch';
 import { getUserId } from '@/utils/api-helpers';
 import { ApiResponse, PaginatedResponse } from '@/types/api/api-response';
@@ -29,6 +30,8 @@ import FriendsInitializer from '@/providers/FriendsInitializer';
 import { UserMeResponse } from '@/types/auth/auth';
 import type { WalletDetails, StreakDetails } from '@/types/points/points';
 import GamificationInitializer from '@/providers/GamificationInitializer';
+import GroupOrderSessionsInitializer from '@/providers/GroupOrderSessionsInitializer';
+import type { GroupOrderSession } from '@/types/group-order/group-order';
 import GamificationPopover, {
   GamificationPanel,
   MobileGamificationButton,
@@ -47,6 +50,7 @@ export default async function Layout({
   let friendsRequestsCount = 0;
   let wallet: WalletDetails | null = null;
   let streak: StreakDetails | null = null;
+  let activeGroupOrderSessions: GroupOrderSession[] = [];
 
   try {
     const res = await serverFetch<ApiResponse<UserMeResponse>>(
@@ -82,6 +86,24 @@ export default async function Layout({
       friendsRequestsCount = requestsData.data?.meta?.total ?? 0;
 
       cart = res.data;
+
+      try {
+        const sessionsRes = await serverFetch<ApiResponse<GroupOrderSession[]>>(
+          '/user/group-orders/active-sessions',
+          'GET',
+          {
+            next: {
+              tags: ['group-order-sessions', `group-order-sessions-${userId}`],
+            },
+          },
+        );
+        activeGroupOrderSessions =
+          sessionsRes?.data?.filter(
+            (s) => s.status === 'open' || s.status === 'locked',
+          ) ?? [];
+      } catch (error) {
+        console.log('Failed to fetch group order sessions in layout:', error);
+      }
     } catch (error) {
       console.log('Failed to fetch cart in layout:', error);
     }
@@ -109,6 +131,7 @@ export default async function Layout({
       <AuthInitializer isAuthenticated={!!userId} />
       <FriendsInitializer count={friendsRequestsCount} />
       <GamificationInitializer wallet={wallet} streak={streak} />
+      <GroupOrderSessionsInitializer sessions={activeGroupOrderSessions} />
 
       <SidebarInset>
         <header className="sticky top-0 z-40 flex h-16 items-center border-b bg-background/95 backdrop-blur gap-1 sm:gap-2 px-2 sm:px-4">
@@ -180,6 +203,7 @@ export default async function Layout({
         <main className="min-h-[200vh] p-4">{children}</main>
       </SidebarInset>
       <CartDrawerHost />
+      <GroupOrderSessionsDrawerHost />
     </SidebarProvider>
   );
 }
