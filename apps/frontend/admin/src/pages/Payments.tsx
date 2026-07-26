@@ -8,7 +8,8 @@ import { PaginationUI } from '../components/PaginationUI'
 import { Modal } from '../components/Modal'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { StatusBadge } from '../components/StatusBadge'
-import { StatCard } from '../components/StatCard'
+import { StatsGrid } from '../components/StatsGrid'
+import { ActionButtons } from '../components/ActionButtons'
 
 interface Payment {
   id: string
@@ -71,10 +72,10 @@ export function PaymentsPage() {
     { key: 'status', label: t('common.status'), sortable: true, render: (p) => <StatusBadge status={p.status} /> },
     { key: 'date', label: t('payments.fields.date'), sortable: true },
     { key: 'id', label: t('common.actions'), render: (p) => (
-      <div className="action-btns">
-        <button className="btn btn-sm btn-outline" onClick={(e) => { e.stopPropagation(); setShowDetails(p) }}>{t('common.view')}</button>
-        {p.status === 'completed' && <button className="btn btn-sm btn-warning" onClick={(e) => { e.stopPropagation(); setShowRefund(p) }}>{t('payments.refund')}</button>}
-      </div>
+      <ActionButtons actions={[
+        { label: t('common.view'), onClick: () => setShowDetails(p) },
+        { label: t('payments.refund'), onClick: () => setShowRefund(p), variant: 'warning', condition: p.status === 'completed' },
+      ]} />
     ) },
   ]
 
@@ -82,12 +83,12 @@ export function PaymentsPage() {
     <div className="page-content">
       <PageHeader title={t('payments.title')} subtitle={t('payments.subtitle')} />
 
-      <div className="stats-grid">
-        <StatCard label={t('payments.totalRevenue')} value="$206.75" change="+15.3%" direction="up" icon="💰" iconBg="var(--success-bg)" />
-        <StatCard label={t('payments.successfulPayments')} value="5" change="" icon="✅" iconBg="var(--success-bg)" />
-        <StatCard label={t('payments.failedPayments')} value="1" change="" icon="❌" iconBg="var(--danger-bg)" />
-        <StatCard label={t('payments.refundedPayments')} value="1" change="" icon="↩️" iconBg="var(--warning-bg)" />
-      </div>
+      <StatsGrid cards={[
+        { label: t('payments.totalRevenue'), value: '$206.75', change: '+15.3%', direction: 'up', icon: '💰', iconBg: 'var(--success-bg)' },
+        { label: t('payments.successfulPayments'), value: '5', change: '', icon: '✅', iconBg: 'var(--success-bg)' },
+        { label: t('payments.failedPayments'), value: '1', change: '', icon: '❌', iconBg: 'var(--danger-bg)' },
+        { label: t('payments.refundedPayments'), value: '1', change: '', icon: '↩️', iconBg: 'var(--warning-bg)' },
+      ]} />
 
       <div className="card">
         <div className="card-header">

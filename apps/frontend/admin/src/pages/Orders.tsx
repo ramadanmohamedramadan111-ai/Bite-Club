@@ -8,7 +8,8 @@ import { PaginationUI } from '../components/PaginationUI'
 import { Modal } from '../components/Modal'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { StatusBadge } from '../components/StatusBadge'
-import { StatCard } from '../components/StatCard'
+import { StatsGrid } from '../components/StatsGrid'
+import { ActionButtons } from '../components/ActionButtons'
 
 interface Order {
   id: string
@@ -76,11 +77,11 @@ export function OrdersPage() {
     { key: 'status', label: t('common.status'), sortable: true, render: (o) => <StatusBadge status={o.status} /> },
     { key: 'time', label: t('orders.fields.time'), sortable: true },
     { key: 'id', label: t('common.actions'), render: (o) => (
-      <div className="action-btns">
-        <button className="btn btn-sm btn-outline" onClick={(e) => { e.stopPropagation(); setShowDetails(o) }}>{t('common.view')}</button>
-        {o.status === 'pending' && <button className="btn btn-sm btn-primary" onClick={(e) => { e.stopPropagation(); setShowUpdateStatus(o) }}>{t('orders.updateStatus')}</button>}
-        {(o.status === 'pending' || o.status === 'processing') && <button className="btn btn-sm btn-danger" onClick={(e) => { e.stopPropagation(); setShowCancel(o) }}>{t('orders.cancelOrder')}</button>}
-      </div>
+      <ActionButtons actions={[
+        { label: t('common.view'), onClick: () => setShowDetails(o) },
+        { label: t('orders.updateStatus'), onClick: () => setShowUpdateStatus(o), variant: 'primary', condition: o.status === 'pending' },
+        { label: t('orders.cancelOrder'), onClick: () => setShowCancel(o), variant: 'danger', condition: o.status === 'pending' || o.status === 'processing' },
+      ]} />
     ) },
   ]
 
@@ -88,12 +89,12 @@ export function OrdersPage() {
     <div className="page-content">
       <PageHeader title={t('orders.title')} subtitle={t('orders.subtitle')} />
 
-      <div className="stats-grid">
-        <StatCard label={t('orders.totalOrders')} value="8" change="+12" direction="up" icon="📦" iconBg="var(--info-bg)" />
-        <StatCard label={t('orders.pendingOrders')} value="1" change="" icon="⏳" iconBg="var(--warning-bg)" />
-        <StatCard label={t('orders.processingOrders')} value="2" change="" icon="⚙️" iconBg="var(--info-bg)" />
-        <StatCard label={t('orders.deliveredOrders')} value="3" change="" icon="✅" iconBg="var(--success-bg)" />
-      </div>
+      <StatsGrid cards={[
+        { label: t('orders.totalOrders'), value: '8', change: '+12', direction: 'up', icon: '📦', iconBg: 'var(--info-bg)' },
+        { label: t('orders.pendingOrders'), value: '1', change: '', icon: '⏳', iconBg: 'var(--warning-bg)' },
+        { label: t('orders.processingOrders'), value: '2', change: '', icon: '⚙️', iconBg: 'var(--info-bg)' },
+        { label: t('orders.deliveredOrders'), value: '3', change: '', icon: '✅', iconBg: 'var(--success-bg)' },
+      ]} />
 
       <div className="card">
         <div className="card-header">

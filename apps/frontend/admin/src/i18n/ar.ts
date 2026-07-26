@@ -11,7 +11,7 @@ export const ar: Record<string, any> = {
     loyalty: 'نقاط الولاء',
     referrals: 'نظام الإحالة',
     badges: 'الشارات',
-    leaderboard: 'المتصدر اليومي',
+    leaderboard: 'المتصدر الأسبوعي',
     feed: 'مراجعة المحتوى',
     aiMonitoring: 'مراقبة الذكاء الاصطناعي',
     activityLogs: 'سجل النشاطات',

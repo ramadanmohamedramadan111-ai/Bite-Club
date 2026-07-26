@@ -7,7 +7,10 @@ import { DataTable, type Column } from '../components/DataTable'
 import { PaginationUI } from '../components/PaginationUI'
 import { Modal } from '../components/Modal'
 import { StatusBadge } from '../components/StatusBadge'
-import { StatCard } from '../components/StatCard'
+import { StatsGrid } from '../components/StatsGrid'
+import { ActionButtons } from '../components/ActionButtons'
+import { AlertBanner } from '../components/AlertBanner'
+import { LoadingState } from '../components/LoadingState'
 import api from '../lib/api'
 
 interface PostImage {
@@ -194,15 +197,11 @@ export function FeedModerationPage() {
     { key: 'status', label: t('common.status'), sortable: true, render: (f) => <StatusBadge status={f.status} /> },
     { key: 'submittedAt', label: t('feed.fields.submittedAt'), sortable: true },
     { key: 'id', label: t('common.actions'), render: (f) => (
-      <div className="action-btns">
-        <button className="btn btn-sm btn-outline" onClick={(e) => { e.stopPropagation(); setShowDetails(f) }}>{t('common.view')}</button>
-        {f.status === 'pending' && (
-          <>
-            <button className="btn btn-sm btn-success" onClick={(e) => { e.stopPropagation(); handleApprove(f.id) }} disabled={submitting}>{t('feed.approve')}</button>
-            <button className="btn btn-sm btn-danger" onClick={(e) => { e.stopPropagation(); setShowRejectModal(f) }} disabled={submitting}>{t('feed.reject')}</button>
-          </>
-        )}
-      </div>
+      <ActionButtons actions={[
+        { label: t('common.view'), onClick: () => setShowDetails(f) },
+        { label: t('feed.approve'), onClick: () => handleApprove(f.id), variant: 'success', disabled: submitting, condition: f.status === 'pending' },
+        { label: t('feed.reject'), onClick: () => setShowRejectModal(f), variant: 'danger', disabled: submitting, condition: f.status === 'pending' },
+      ]} />
     ) },
   ]
 
@@ -210,17 +209,13 @@ export function FeedModerationPage() {
     <div className="page-content">
       <PageHeader title={t('feed.title')} subtitle={t('feed.subtitle')} />
 
-      {error && (
-        <div className="alert alert-danger" style={{ marginBottom: '20px' }}>
-          {error}
-        </div>
-      )}
+      {error && <AlertBanner variant="danger" message={error} />}
 
-      <div className="stats-grid">
-        <StatCard label={t('feed.pendingReviews')} value={pendingCount.toString()} change="" icon="⏳" iconBg="var(--warning-bg)" />
-        <StatCard label={t('feed.approvedContent')} value={approvedCount.toString()} change="" icon="✅" iconBg="var(--success-bg)" />
-        <StatCard label={t('feed.rejectedContent')} value={rejectedCount.toString()} change="" icon="❌" iconBg="var(--danger-bg)" />
-      </div>
+      <StatsGrid cards={[
+        { label: t('feed.pendingReviews'), value: pendingCount.toString(), change: '', icon: '⏳', iconBg: 'var(--warning-bg)' },
+        { label: t('feed.approvedContent'), value: approvedCount.toString(), change: '', icon: '✅', iconBg: 'var(--success-bg)' },
+        { label: t('feed.rejectedContent'), value: rejectedCount.toString(), change: '', icon: '❌', iconBg: 'var(--danger-bg)' },
+      ]} />
 
       <div className="card">
         <div className="card-header">
@@ -239,9 +234,7 @@ export function FeedModerationPage() {
           </div>
         </div>
         {loading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '40px', color: 'var(--text-muted)' }}>
-            {t('common.loading')}
-          </div>
+          <LoadingState message={t('common.loading')} />
         ) : (
           <>
             <DataTable columns={columns} data={displayedPosts} onRowClick={(f) => setShowDetails(f)} />

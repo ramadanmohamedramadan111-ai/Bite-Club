@@ -7,7 +7,9 @@ import { DataTable, type Column } from '../components/DataTable'
 import { PaginationUI } from '../components/PaginationUI'
 import { Modal } from '../components/Modal'
 import { StatusBadge } from '../components/StatusBadge'
-import { StatCard } from '../components/StatCard'
+import { StatsGrid } from '../components/StatsGrid'
+import { ActionButtons } from '../components/ActionButtons'
+import { AlertBanner } from '../components/AlertBanner'
 import api from '../lib/api'
 
 interface Category {
@@ -176,115 +178,20 @@ export function RestaurantsPage() {
       label: t('common.actions'),
       render: (r) => {
         const isActionLoading = updatingStatusId === r.id
+        const isPending = r.status === 'pending_approval'
+        const isActive = r.status === 'active'
+        const isSuspended = r.status === 'suspended'
+        const isClosed = r.status === 'closed'
+        const isRejected = r.status === 'rejected'
         return (
-          <div className="action-btns">
-            <button
-              className="btn btn-sm btn-outline"
-              onClick={(e) => {
-                e.stopPropagation()
-                setShowDetails(r)
-              }}
-              disabled={isActionLoading}
-            >
-              {t('common.view')}
-            </button>
-            {r.status === 'pending_approval' && (
-              <>
-                <button
-                  className="btn btn-sm btn-success"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleStatusUpdate(r.id, 'active')
-                  }}
-                  disabled={isActionLoading}
-                >
-                  {t('restaurants.approve')}
-                </button>
-                <button
-                  className="btn btn-sm btn-danger"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleStatusUpdate(r.id, 'rejected')
-                  }}
-                  disabled={isActionLoading}
-                >
-                  {t('feed.reject') || 'Reject'}
-                </button>
-              </>
-            )}
-            {r.status === 'active' && (
-              <>
-                <button
-                  className="btn btn-sm btn-warning"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleStatusUpdate(r.id, 'suspended')
-                  }}
-                  disabled={isActionLoading}
-                >
-                  {t('restaurants.suspend')}
-                </button>
-                <button
-                  className="btn btn-sm btn-danger"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleStatusUpdate(r.id, 'closed')
-                  }}
-                  disabled={isActionLoading}
-                >
-                  Close
-                </button>
-              </>
-            )}
-            {r.status === 'suspended' && (
-              <>
-                <button
-                  className="btn btn-sm btn-success"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleStatusUpdate(r.id, 'active')
-                  }}
-                  disabled={isActionLoading}
-                >
-                  {t('restaurants.activate')}
-                </button>
-                <button
-                  className="btn btn-sm btn-danger"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleStatusUpdate(r.id, 'closed')
-                  }}
-                  disabled={isActionLoading}
-                >
-                  Close
-                </button>
-              </>
-            )}
-            {r.status === 'closed' && (
-              <button
-                className="btn btn-sm btn-success"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleStatusUpdate(r.id, 'active')
-                }}
-                disabled={isActionLoading}
-              >
-                {t('restaurants.activate')}
-              </button>
-            )}
-            {r.status === 'rejected' && (
-              <button
-                className="btn btn-sm btn-success"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleStatusUpdate(r.id, 'active')
-                }}
-                disabled={isActionLoading}
-              >
-                {t('restaurants.activate')}
-              </button>
-            )}
-          </div>
+          <ActionButtons actions={[
+            { label: t('common.view'), onClick: () => setShowDetails(r), disabled: isActionLoading },
+            { label: t('restaurants.approve'), onClick: () => handleStatusUpdate(r.id, 'active'), variant: 'success', disabled: isActionLoading, condition: isPending },
+            { label: 'Reject', onClick: () => handleStatusUpdate(r.id, 'rejected'), variant: 'danger', disabled: isActionLoading, condition: isPending },
+            { label: t('restaurants.suspend'), onClick: () => handleStatusUpdate(r.id, 'suspended'), variant: 'warning', disabled: isActionLoading, condition: isActive },
+            { label: 'Close', onClick: () => handleStatusUpdate(r.id, 'closed'), variant: 'danger', disabled: isActionLoading, condition: isActive || isSuspended },
+            { label: t('restaurants.activate'), onClick: () => handleStatusUpdate(r.id, 'active'), variant: 'success', disabled: isActionLoading, condition: isSuspended || isClosed || isRejected },
+          ]} />
         )
       },
     },
@@ -300,53 +207,14 @@ export function RestaurantsPage() {
     <div className="page-content">
       <PageHeader title={t('restaurants.title')} subtitle={t('restaurants.subtitle')} />
 
-      <div className="stats-grid">
-        <StatCard
-          label={t('restaurants.totalRestaurants')}
-          value={loading ? '...' : totalCount.toString()}
-          change=""
-          icon="🏪"
-          iconBg="var(--info-bg)"
-        />
-        <StatCard
-          label={t('restaurants.active')}
-          value={loading ? '...' : activeCount.toString()}
-          change=""
-          icon="✅"
-          iconBg="var(--success-bg)"
-        />
-        <StatCard
-          label={t('restaurants.pending')}
-          value={loading ? '...' : pendingCount.toString()}
-          change=""
-          icon="⏳"
-          iconBg="var(--warning-bg)"
-        />
-        <StatCard
-          label={t('restaurants.suspended')}
-          value={loading ? '...' : suspendedCount.toString()}
-          change=""
-          icon="🚫"
-          iconBg="var(--danger-bg)"
-        />
-      </div>
+      <StatsGrid cards={[
+        { label: t('restaurants.totalRestaurants'), value: loading ? '...' : totalCount.toString(), change: '', icon: '🏪', iconBg: 'var(--info-bg)' },
+        { label: t('restaurants.active'), value: loading ? '...' : activeCount.toString(), change: '', icon: '✅', iconBg: 'var(--success-bg)' },
+        { label: t('restaurants.pending'), value: loading ? '...' : pendingCount.toString(), change: '', icon: '⏳', iconBg: 'var(--warning-bg)' },
+        { label: t('restaurants.suspended'), value: loading ? '...' : suspendedCount.toString(), change: '', icon: '🚫', iconBg: 'var(--danger-bg)' },
+      ]} />
 
-      {error && (
-        <div
-          style={{
-            background: 'var(--danger-bg)',
-            border: '1px solid var(--danger)',
-            color: 'var(--danger)',
-            padding: '12px',
-            borderRadius: 'var(--radius-sm)',
-            fontSize: '13px',
-            fontWeight: '500',
-            marginBottom: '16px',
-          }}
-        >
-          {error}
-        </div>
-      )}
+      {error && <AlertBanner variant="danger" message={error} />}
 
       <div className="card">
         <div className="card-header">
@@ -404,6 +272,7 @@ export function RestaurantsPage() {
           onSort={handleSort}
           onRowClick={(r) => setShowDetails(r)}
           loading={loading}
+          emptyTitle="No restaurants found"
         />
         <PaginationUI
           currentPage={page}

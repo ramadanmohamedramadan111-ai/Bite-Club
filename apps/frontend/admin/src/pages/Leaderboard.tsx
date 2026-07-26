@@ -4,7 +4,7 @@ import { PageHeader } from '../components/PageHeader'
 import { DataTable, type Column } from '../components/DataTable'
 import { PaginationUI } from '../components/PaginationUI'
 import { Tabs } from '../components/Tabs'
-import { StatCard } from '../components/StatCard'
+import { StatsGrid } from '../components/StatsGrid'
 
 interface LeaderboardEntry {
   id: string
@@ -79,10 +79,10 @@ export function LeaderboardPage() {
         <button className="btn btn-outline btn-danger-outline" onClick={() => {}}>{t('leaderboard.resetLeaderboard')}</button>
       </PageHeader>
 
-      <div className="stats-grid">
-        <StatCard label={t('loyalty.totalPointsIssued')} value="17,350" change="" icon="⭐" iconBg="var(--info-bg)" />
-        <StatCard label={t('users.totalUsers')} value="10" change="" icon="👥" iconBg="var(--success-bg)" />
-      </div>
+      <StatsGrid cards={[
+        { label: t('loyalty.totalPointsIssued'), value: '17,350', change: '', icon: '⭐', iconBg: 'var(--info-bg)' },
+        { label: t('users.totalUsers'), value: '10', change: '', icon: '👥', iconBg: 'var(--success-bg)' },
+      ]} />
 
       <Tabs
         tabs={[
@@ -95,7 +95,7 @@ export function LeaderboardPage() {
       />
 
       <div className="card">
-        <DataTable columns={columns} data={paged} />
+        <DataTable columns={columns} data={paged} emptyTitle="No leaderboard data" />
         <PaginationUI currentPage={page} totalPages={totalPages} totalItems={data.length} pageSize={PAGE_SIZE} onPageChange={setPage} />
       </div>
     </div>

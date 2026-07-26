@@ -8,7 +8,8 @@ import { PaginationUI } from '../components/PaginationUI'
 import { Modal } from '../components/Modal'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { StatusBadge } from '../components/StatusBadge'
-import { StatCard } from '../components/StatCard'
+import { StatsGrid } from '../components/StatsGrid'
+import { ActionButtons } from '../components/ActionButtons'
 
 interface Badge {
   id: string
@@ -58,10 +59,10 @@ export function BadgesPage() {
     { key: 'usersCount', label: t('badges.fields.usersCount'), sortable: true },
     { key: 'status', label: t('common.status'), sortable: true, render: (b) => <StatusBadge status={b.status} /> },
     { key: 'id', label: t('common.actions'), render: (b) => (
-      <div className="action-btns">
-        <button className="btn btn-sm btn-outline" onClick={(e) => { e.stopPropagation(); setShowEdit(b) }}>{t('common.edit')}</button>
-        <button className="btn btn-sm btn-danger" onClick={(e) => { e.stopPropagation(); setShowDelete(b) }}>{t('common.delete')}</button>
-      </div>
+      <ActionButtons actions={[
+        { label: t('common.edit'), onClick: () => setShowEdit(b) },
+        { label: t('common.delete'), onClick: () => setShowDelete(b), variant: 'danger' },
+      ]} />
     ) },
   ]
 
@@ -71,10 +72,10 @@ export function BadgesPage() {
         <button className="btn btn-primary" onClick={() => setShowCreate(true)}>+ {t('badges.createBadge')}</button>
       </PageHeader>
 
-      <div className="stats-grid">
-        <StatCard label={t('badges.totalBadges')} value="7" change="" icon="🎖️" iconBg="var(--info-bg)" />
-        <StatCard label={t('badges.assignedBadges')} value="304" change="" icon="👥" iconBg="var(--success-bg)" />
-      </div>
+      <StatsGrid cards={[
+        { label: t('badges.totalBadges'), value: '7', change: '', icon: '🎖️', iconBg: 'var(--info-bg)' },
+        { label: t('badges.assignedBadges'), value: '304', change: '', icon: '👥', iconBg: 'var(--success-bg)' },
+      ]} />
 
       <div className="card">
         <div className="card-header">

@@ -1,7 +1,7 @@
 import { useLocale } from '../contexts/LocaleContext'
-import { StatCard } from '../components/StatCard'
 import { StatusBadge } from '../components/StatusBadge'
 import { PageHeader } from '../components/PageHeader'
+import { StatsGrid } from '../components/StatsGrid'
 
 interface Order {
   id: string
@@ -46,12 +46,12 @@ export function DashboardPage() {
     <div className="page-content">
       <PageHeader title={t('dashboard.title')} subtitle={t('dashboard.subtitle')} />
 
-      <div className="stats-grid">
-        <StatCard label={t('dashboard.totalRevenue')} value="$48,295" change="+12.5%" direction="up" icon="💰" iconBg="var(--success-bg)" />
-        <StatCard label={t('dashboard.totalOrders')} value="3,842" change="+8.3%" direction="up" icon="🧾" iconBg="var(--info-bg)" />
-        <StatCard label={t('dashboard.activeUsers')} value="1,204" change="+5.1%" direction="up" icon="👥" iconBg="rgba(139,91,246,0.15)" />
-        <StatCard label={t('dashboard.cancelled')} value="47" change="-2.4%" direction="down" icon="❌" iconBg="var(--danger-bg)" />
-      </div>
+      <StatsGrid cards={[
+        { label: t('dashboard.totalRevenue'), value: '$48,295', change: '+12.5%', direction: 'up', icon: '💰', iconBg: 'var(--success-bg)' },
+        { label: t('dashboard.totalOrders'), value: '3,842', change: '+8.3%', direction: 'up', icon: '🧾', iconBg: 'var(--info-bg)' },
+        { label: t('dashboard.activeUsers'), value: '1,204', change: '+5.1%', direction: 'up', icon: '👥', iconBg: 'rgba(139,91,246,0.15)' },
+        { label: t('dashboard.cancelled'), value: '47', change: '-2.4%', direction: 'down', icon: '❌', iconBg: 'var(--danger-bg)' },
+      ]} />
 
       <div className="content-grid">
         <div className="card">

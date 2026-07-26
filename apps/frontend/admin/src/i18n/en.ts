@@ -11,7 +11,7 @@ export const en = {
     loyalty: 'Loyalty Points',
     referrals: 'Referral System',
     badges: 'Badges',
-    leaderboard: 'Daily Leaderboard',
+    leaderboard: 'Weekly Leaderboard',
     feed: 'Feed Moderation',
     aiMonitoring: 'AI Monitoring',
     activityLogs: 'Activity Logs',
@@ -353,7 +353,7 @@ export const en = {
   },
   leaderboard: {
     title: 'Daily Leaderboard',
-    subtitle: 'View daily leaderboard rankings',
+    subtitle: 'View weekly leaderboard rankings',
     today: "Today's Rankings",
     thisWeek: 'This Week',
     thisMonth: 'This Month',

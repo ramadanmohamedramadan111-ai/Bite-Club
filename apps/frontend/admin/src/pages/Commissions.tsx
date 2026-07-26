@@ -6,7 +6,8 @@ import { DataTable, type Column } from '../components/DataTable'
 import { PaginationUI } from '../components/PaginationUI'
 import { Modal } from '../components/Modal'
 import { StatusBadge } from '../components/StatusBadge'
-import { StatCard } from '../components/StatCard'
+import { StatsGrid } from '../components/StatsGrid'
+import { ActionButtons } from '../components/ActionButtons'
 
 interface Commission {
   id: string
@@ -51,10 +52,10 @@ export function CommissionsPage() {
     { key: 'pending', label: t('commissions.fields.pending'), sortable: true },
     { key: 'status', label: t('common.status'), sortable: true, render: (c) => <StatusBadge status={c.status} /> },
     { key: 'id', label: t('common.actions'), render: (c) => (
-      <div className="action-btns">
-        <button className="btn btn-sm btn-outline" onClick={(e) => { e.stopPropagation(); setShowAdjust(c) }}>{t('commissions.adjustRate')}</button>
-        {c.status !== 'paid' && <button className="btn btn-sm btn-primary" onClick={(e) => { e.stopPropagation(); setShowPayout(c) }}>{t('commissions.markAsPaid')}</button>}
-      </div>
+      <ActionButtons actions={[
+        { label: t('commissions.adjustRate'), onClick: () => setShowAdjust(c) },
+        { label: t('commissions.markAsPaid'), onClick: () => setShowPayout(c), variant: 'primary', condition: c.status !== 'paid' },
+      ]} />
     ) },
   ]
 
@@ -62,12 +63,12 @@ export function CommissionsPage() {
     <div className="page-content">
       <PageHeader title={t('commissions.title')} subtitle={t('commissions.subtitle')} />
 
-      <div className="stats-grid">
-        <StatCard label={t('commissions.totalEarned')} value="$16,212" change="+8.7%" direction="up" icon="💰" iconBg="var(--success-bg)" />
-        <StatCard label={t('commissions.pendingPayout')} value="$6,646" change="" icon="⏳" iconBg="var(--warning-bg)" />
-        <StatCard label={t('commissions.paidOut')} value="$9,566" change="" icon="✅" iconBg="var(--info-bg)" />
-        <StatCard label={t('commissions.commissionRate')} value="15%" change="" icon="📊" iconBg="var(--info-bg)" />
-      </div>
+      <StatsGrid cards={[
+        { label: t('commissions.totalEarned'), value: '$16,212', change: '+8.7%', direction: 'up', icon: '💰', iconBg: 'var(--success-bg)' },
+        { label: t('commissions.pendingPayout'), value: '$6,646', change: '', icon: '⏳', iconBg: 'var(--warning-bg)' },
+        { label: t('commissions.paidOut'), value: '$9,566', change: '', icon: '✅', iconBg: 'var(--info-bg)' },
+        { label: t('commissions.commissionRate'), value: '15%', change: '', icon: '📊', iconBg: 'var(--info-bg)' },
+      ]} />
 
       <div className="card">
         <div className="card-header">

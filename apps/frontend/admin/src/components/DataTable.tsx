@@ -52,9 +52,17 @@ export function DataTable<T extends { id: string | number }>({
   }
 
   if (data.length === 0) {
+    const defaultSvg = (
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" opacity="0.5">
+        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
+        <polyline points="13 2 13 9 20 9"/>
+        <line x1="9" y1="13" x2="15" y2="13"/>
+        <line x1="12" y1="10" x2="12" y2="16"/>
+      </svg>
+    )
     return (
       <div className="empty-state">
-        <div className="empty-icon">{emptyIcon || '📭'}</div>
+        <div className="empty-icon">{emptyIcon || defaultSvg}</div>
         <h3 className="empty-title">{emptyTitle || t('common.noResults')}</h3>
         {emptyMessage && <p className="empty-message">{emptyMessage}</p>}
         {emptyAction && <button className="btn btn-primary" onClick={emptyAction.onClick}>{emptyAction.label}</button>}
