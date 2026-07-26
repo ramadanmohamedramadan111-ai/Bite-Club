@@ -519,6 +519,23 @@
           }
         }
       }
+    },
+    "sendGift": {
+      "title": "إرسال هدية",
+      "description": "أرسل نقاطاً إلى @{username} ({name})",
+      "fields": {
+        "points": {
+          "label": "النقاط",
+          "placeholder": "أضف النقاط",
+          "errors": {
+            "min": "مطلوب 10 نقاط على الأقل"
+          }
+        },
+        "note": {
+          "label": "ملاحظة (اختياري)",
+          "placeholder": "أضف رسالة شخصية..."
+        }
+      }
     }
   },
   "sidebar": {
@@ -643,6 +660,7 @@
     "blockDesc": "هل أنت متأكد من رغبتك في حظر {name}؟",
     "blockConfirm": "حظر",
     "removeFriend": "إزالة الصديق",
+    "sendGift": "إرسال هدية",
     "accept": "قبول",
     "reject": "رفض",
     "cancelRequest": "إلغاء الطلب",
@@ -674,6 +692,7 @@
     "sourceLeaderboard": "مكافأة لوحة الصدارة",
     "sourceWeeklyStreak": "مكافأة السلسلة الأسبوعية",
     "sourceGift": "هدية مستلمة",
+    "sourceGiftSent": "هدية مرسلة",
     "earned": "مكتسب",
     "redeemed": "مستبدل",
     "rewardsGifts": "المكافآت والهدايا",
@@ -1060,3 +1079,4 @@
     }
   }
 }
+

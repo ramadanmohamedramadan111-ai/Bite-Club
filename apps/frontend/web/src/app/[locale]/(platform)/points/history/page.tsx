@@ -22,7 +22,7 @@ const sourceMeta: Record<
   redemption: { icon: '🛍️', labelKey: 'sourceRedemption' },
   leaderboard: { icon: '🏆', labelKey: 'sourceLeaderboard' },
   weekly_streak: { icon: '🔥', labelKey: 'sourceWeeklyStreak' },
-  gift: { icon: '🎁', labelKey: 'sourceGift' },
+  point_gift: { icon: '🎁', labelKey: 'sourceGift' },
 };
 
 export default async function HistoryPage({ searchParams }: PageProps) {
@@ -51,7 +51,11 @@ export default async function HistoryPage({ searchParams }: PageProps) {
           <div className="space-y-3">
             {items.map((tx) => {
               const meta = sourceMeta[tx.source];
-              const isEarn = tx.type === 'earn';
+              const isEarn = tx.type === 'earn' || tx.type === 'gift_received';
+              const labelKey =
+                tx.source === 'point_gift' && tx.type === 'gift_sent'
+                  ? 'sourceGiftSent'
+                  : meta.labelKey;
               return (
                 <Card key={tx.id}>
                   <CardContent className="flex items-center gap-4 p-4">
@@ -66,11 +70,16 @@ export default async function HistoryPage({ searchParams }: PageProps) {
                       </AvatarFallback>
                     </Avatar>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium">{t(meta.labelKey)}</p>
+                      <p className="text-sm font-medium">{t(labelKey)}</p>
                       <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                         <Calendar className="size-3" />
                         {new Date(tx.created_at).toLocaleDateString()}
                       </p>
+                      {tx.description && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {tx.description}
+                        </p>
+                      )}
                     </div>
                     <div className="text-right shrink-0">
                       <p

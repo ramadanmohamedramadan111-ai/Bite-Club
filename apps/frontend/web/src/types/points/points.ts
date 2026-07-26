@@ -46,8 +46,14 @@ export interface StreakDetails {
 export interface WalletHistory {
   id: number;
   points: number;
-  type: 'earn' | 'redeem';
-  source: 'referral' | 'redemption' | 'leaderboard' | 'weekly_streak' | 'gift';
+  type: 'earn' | 'redeem' | 'gift_sent' | 'gift_received';
+  source:
+    | 'referral'
+    | 'redemption'
+    | 'leaderboard'
+    | 'weekly_streak'
+    | 'point_gift';
+  description: string | null;
   reference_id: number;
   created_at: string;
 }

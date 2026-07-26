@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { FriendResponseType, FriendsTabType } from '@/types/social/friends';
 
 import ConfirmDialog from '@/components/shared/ConfirmationDialog';
+import SendGiftDialog from '@/components/points/SendGiftDialog';
 import { useAction } from 'next-safe-action/hooks';
 import {
   acceptFriendRequestAction,
@@ -29,6 +30,7 @@ type Action = 'removeFriend' | 'cancelRequest' | null;
 export default function UserActions({ user, tab }: Props) {
   const t = useTranslations('friends');
   const [action, setAction] = useState<Action>(null);
+  const [giftOpen, setGiftOpen] = useState(false);
 
   const actionCallbacks = {
     onSuccess: ({ data }: { data: { message: string } }) =>
@@ -111,12 +113,19 @@ export default function UserActions({ user, tab }: Props) {
   return (
     <>
       {tab === 'friends' && (
-        <Button
-          disabled={isExecutingRemoveFriend}
-          variant="destructive"
-          onClick={() => setAction('removeFriend')}>
-          {t('removeFriend')}
-        </Button>
+        <>
+          <div className="flex gap-2 items-center">
+            <Button variant="outline" onClick={() => setGiftOpen(true)}>
+              {t('sendGift')}
+            </Button>
+            <Button
+              disabled={isExecutingRemoveFriend}
+              variant="destructive"
+              onClick={() => setAction('removeFriend')}>
+              {t('removeFriend')}
+            </Button>
+          </div>
+        </>
       )}
 
       {tab === 'received' && (
@@ -164,6 +173,16 @@ export default function UserActions({ user, tab }: Props) {
           onConfirm={executeAction}
         />
       )}
+
+      <SendGiftDialog
+        open={giftOpen}
+        onOpenChange={setGiftOpen}
+        friend={{
+          id: user.id,
+          full_name: user.full_name,
+          username: user.username,
+        }}
+      />
     </>
   );
 }
