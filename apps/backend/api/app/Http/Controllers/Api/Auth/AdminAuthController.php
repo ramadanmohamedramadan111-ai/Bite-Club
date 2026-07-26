@@ -9,6 +9,9 @@ use App\DTOs\Auth\AdminLoginDto;
 use App\Http\Requests\Auth\AdminLoginRequest;
 use App\Services\Application\Auth\AdminAuthApplicationService;
 use Illuminate\Support\Facades\Log;
+use App\DTOs\Admin\UpdateAdminProfileDto;
+use App\Http\Requests\Admin\UpdateAdminProfileRequest;
+use App\Http\Resources\Admin\AdminProfileResource;
 
 class AdminAuthController extends Controller
 {
@@ -74,6 +77,22 @@ class AdminAuthController extends Controller
 
         } catch (Exception $e) {
             return $this->serverErrorResponse(trans('auth.me_failed'));
+        }
+    }
+
+    public function updateProfile(UpdateAdminProfileRequest $request): JsonResponse
+    {
+        try {
+            $dto = UpdateAdminProfileDto::fromValidatedRequest($request);
+            $admin = $this->adminAuthApplicationService->updateProfile($dto);
+
+            return $this->successResponse(
+                trans('auth.profile_update_success'),
+                new AdminProfileResource($admin)
+            );
+        } catch (Exception $e) {
+            Log::error('Admin profile update failed: ' . $e->getMessage());
+            return $this->serverErrorResponse(trans('auth.profile_update_failed') ?? 'Failed to update profile.');
         }
     }
 }

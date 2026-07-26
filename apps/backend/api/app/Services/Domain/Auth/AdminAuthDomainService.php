@@ -9,6 +9,9 @@ use PHPOpenSourceSaver\JWTAuth\JWTGuard;
 
 class AdminAuthDomainService
 {
+    public function __construct(
+        private readonly \App\Repositories\Interfaces\AdminRepositoryInterface $adminRepository
+    ) {}
     private function guard(): JWTGuard
     {
         return Auth::guard('admin');
@@ -60,5 +63,24 @@ class AdminAuthDomainService
         }
 
         return $admin;
+    }
+
+    public function updateProfile(int $adminId, ?string $name, ?string $email): Admin
+    {
+        $attributes = [];
+
+        if ($name !== null) {
+            $attributes['name'] = $name;
+        }
+
+        if ($email !== null) {
+            $attributes['email'] = $email;
+        }
+
+        if (!empty($attributes)) {
+            $this->adminRepository->update($adminId, $attributes);
+        }
+
+        return $this->adminRepository->findOrFail($adminId);
     }
 }

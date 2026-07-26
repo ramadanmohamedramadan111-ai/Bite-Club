@@ -11,4 +11,6 @@ return [
     'refresh_failed'  => 'Token refresh failed.',
     'unauthorized'    => 'Unauthenticated.',
     'me_failed'       => 'Could not fetch admin data.',
+    'profile_update_success' => 'Profile updated successfully.',
+    'profile_update_failed'  => 'Failed to update profile.',
 ];
