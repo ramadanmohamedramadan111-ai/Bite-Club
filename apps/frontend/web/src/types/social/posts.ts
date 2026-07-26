@@ -88,3 +88,18 @@ export function normalizePost(post: LegacyPost): Post {
   };
 }
 
+export interface LeaderBoardItem {
+  id: number;
+  rank: number;
+  user: {
+    id: number;
+    name: string;
+    username: string;
+    profile_image_url: string | null;
+  };
+  copies: number;
+  reward_points: number;
+  type: 'weekly';
+  period_start: string;
+  period_end: string;
+}

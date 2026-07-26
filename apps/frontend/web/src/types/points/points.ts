@@ -1,5 +1,7 @@
 export type PointsTab = 'history' | 'referrals';
 
+export type BadgeType = 'weekly_3_orders' | 'weekly_5_orders';
+
 export interface ReferralItem {
   id: number;
   referred_user: {
@@ -29,9 +31,16 @@ export interface StreakDetails {
     target_orders: number;
     orders_needed: number;
     reward_points: number;
-    badge_type: string;
+    badge_type: BadgeType | null;
   };
-  badges: [];
+  badges:
+    | {
+        id: number;
+        badge_type: BadgeType;
+        week_start_date: string;
+        created_at: string;
+      }[]
+    | [];
 }
 
 export interface WalletHistory {

@@ -1,61 +1,24 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
-import { clientFetch } from '@/utils/client-fetch';
-import { ApiResponse, PaginatedResponse } from '@/types/api/api-response';
-import { Award, Crown, Zap, Loader2 } from 'lucide-react';
+import type { LeaderBoardItem } from '@/types/social/posts';
+import { Award, Crown, Zap } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { useTranslations } from 'next-intl';
 
-interface LeaderboardUser {
-  id: number;
-  name: string;
-  username: string;
-  profile_image_url: string | null;
-}
-
-interface LeaderboardItem {
-  id: number;
-  rank: number;
-  user: LeaderboardUser;
-  copies: number;
-  reward_points: number;
-  type: string;
-  period_start: string;
-  period_end: string;
-}
-
-export default function LeaderboardFeed() {
+export default function LeaderboardFeed({
+  items,
+}: {
+  items: LeaderBoardItem[];
+}) {
   const t = useTranslations('feed');
 
-  const { data: leaderboardResponse, isLoading: isLoadingLeaderboard } =
-    useQuery<ApiResponse<PaginatedResponse<LeaderboardItem>>>({
-      queryKey: ['leaderboard', 'weekly'],
-      queryFn: () =>
-        clientFetch<ApiResponse<PaginatedResponse<LeaderboardItem>>>(
-          '/api/leaderboard?type=weekly',
-        ),
-    });
+  const top1 = items.find((item) => item.rank === 1);
+  const top2 = items.find((item) => item.rank === 2);
+  const top3 = items.find((item) => item.rank === 3);
+  const remaining = items.filter((item) => item.rank > 3);
 
-  const leaderboardItems = leaderboardResponse?.data?.items || [];
-  const top1 = leaderboardItems.find((item) => item.rank === 1);
-  const top2 = leaderboardItems.find((item) => item.rank === 2);
-  const top3 = leaderboardItems.find((item) => item.rank === 3);
-  const remainingLeaderboard = leaderboardItems.filter((item) => item.rank > 3);
-
-  if (isLoadingLeaderboard) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 gap-3">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="text-sm text-muted-foreground">
-          {t('leaderboardLoading')}
-        </p>
-      </div>
-    );
-  }
-
-  if (leaderboardItems.length === 0) {
+  if (items.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed p-16 text-center">
         <p className="text-muted-foreground">{t('noLeaderboard')}</p>
@@ -172,10 +135,10 @@ export default function LeaderboardFeed() {
         </div>
       </div>
 
-      {remainingLeaderboard.length > 0 && (
+      {remaining.length > 0 && (
         <Card className="max-w-3xl mx-auto rounded-2xl overflow-hidden border shadow-sm mt-8">
           <div className="divide-y">
-            {remainingLeaderboard.map((item) => (
+            {remaining.map((item) => (
               <div
                 key={item.id}
                 className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
