@@ -119,7 +119,6 @@ export default function GroupForm({
     {
       onSuccess: ({ data }) => {
         toast.success(data.message);
-        router.refresh();
         handleCancel();
       },
       onError: ({ error }) => {

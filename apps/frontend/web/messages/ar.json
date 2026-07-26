@@ -8,6 +8,7 @@
   },
   "common": {
     "cancel": "إلغاء",
+    "by": "بواسطة",
     "save": "حفظ التغييرات",
     "saving": "جاري الحفظ...",
     "loading": "جاري التحميل...",
@@ -518,6 +519,23 @@
           }
         }
       }
+    },
+    "sendGift": {
+      "title": "إرسال هدية",
+      "description": "أرسل نقاطاً إلى @{username} ({name})",
+      "fields": {
+        "points": {
+          "label": "النقاط",
+          "placeholder": "أضف النقاط",
+          "errors": {
+            "min": "مطلوب 10 نقاط على الأقل"
+          }
+        },
+        "note": {
+          "label": "ملاحظة (اختياري)",
+          "placeholder": "أضف رسالة شخصية..."
+        }
+      }
     }
   },
   "sidebar": {
@@ -642,6 +660,7 @@
     "blockDesc": "هل أنت متأكد من رغبتك في حظر {name}؟",
     "blockConfirm": "حظر",
     "removeFriend": "إزالة الصديق",
+    "sendGift": "إرسال هدية",
     "accept": "قبول",
     "reject": "رفض",
     "cancelRequest": "إلغاء الطلب",
@@ -673,6 +692,7 @@
     "sourceLeaderboard": "مكافأة لوحة الصدارة",
     "sourceWeeklyStreak": "مكافأة السلسلة الأسبوعية",
     "sourceGift": "هدية مستلمة",
+    "sourceGiftSent": "هدية مرسلة",
     "earned": "مكتسب",
     "redeemed": "مستبدل",
     "rewardsGifts": "المكافآت والهدايا",
@@ -844,6 +864,7 @@
     "history": "السجل",
     "settings": "الإعدادات",
     "showingMembers": "عرض {count} من {total} {members}",
+    "showingOrders": "عرض {count} من أصل {total} طلب",
     "noMembersFound": "لم يتم العثور على أعضاء.",
     "orderHistoryEmpty": "سجل الطلبات سيظهر هنا.",
     "you": "أنت",
@@ -925,7 +946,22 @@
     "ready": "جاهز",
     "groupCart": "سلة المجموعة",
     "noItemsYet": "لا توجد عناصر بعد. اختر من القائمة لإضافة عناصر.",
-    "groupOrderCodeCopied": "تم نسخ كود طلب المجموعة"
+    "groupOrderCodeCopied": "تم نسخ كود طلب المجموعة",
+    "noActiveGroupOrders": "لا توجد طلبات مجموعة نشطة",
+    "clearMyItems": "مسح عناصري",
+    "myItemsCleared": "تم مسح عناصري",
+    "unlockGroupOrder": "فتح طلب المجموعة",
+    "groupOrderUnlocked": "تم فتح طلب المجموعة",
+    "cancelGroupOrder": "إلغاء طلب المجموعة",
+    "cancelGroupOrderTitle": "إلغاء طلب المجموعة؟",
+    "cancelGroupOrderDesc": "هل أنت متأكد من رغبتك في إلغاء طلب المجموعة هذا؟ لا يمكن التراجع عن هذا الإجراء.",
+    "cancelGroupOrderConfirm": "إلغاء الطلب",
+    "locked": "مقفل",
+    "open": "مفتوح",
+    "orderActions": "إجراءات الطلب",
+    "groupOrderCancelled": "تم إلغاء طلب المجموعة",
+    "groupOrderCancelledDesc": "تم إلغاء طلب المجموعة في {restaurant}.",
+    "backToGroups": "العودة إلى المجموعات"
   },
   "userPanel": {
     "login": "تسجيل الدخول",
@@ -978,6 +1014,7 @@
     "failedToPlaceOrder": "فشل تقديم الطلب.",
     "noAddressForDelivery": "يرجى اختيار عنوان توصيل قبل تقديم الطلب.",
     "orderSummary": "ملخص الطلب",
+    "groupOrderSummary": "ملخص طلب المجموعة",
     "subtotal": "المجموع الفرعي",
     "deliveryFee": "رسوم التوصيل",
     "serviceFee": "رسوم الخدمة",
@@ -1042,3 +1079,4 @@
     }
   }
 }
+

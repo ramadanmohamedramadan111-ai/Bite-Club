@@ -8,6 +8,7 @@
   },
   "common": {
     "cancel": "Cancel",
+    "by": "by",
     "save": "Save Changes",
     "saving": "Saving...",
     "loading": "Loading...",
@@ -518,6 +519,23 @@
           }
         }
       }
+    },
+    "sendGift": {
+      "title": "Send a Gift",
+      "description": "Send points to @{username} ({name})",
+      "fields": {
+        "points": {
+          "label": "Points",
+          "placeholder": "Add points",
+          "errors": {
+            "min": "Minimum 10 points required"
+          }
+        },
+        "note": {
+          "label": "Note (optional)",
+          "placeholder": "Add a personal message..."
+        }
+      }
     }
   },
   "sidebar": {
@@ -642,6 +660,7 @@
     "blockDesc": "Are you sure you want to block {name}?",
     "blockConfirm": "Block",
     "removeFriend": "Remove Friend",
+    "sendGift": "Send Gift",
     "accept": "Accept",
     "reject": "Reject",
     "cancelRequest": "Cancel Request",
@@ -673,6 +692,7 @@
     "sourceLeaderboard": "Leaderboard Reward",
     "sourceWeeklyStreak": "Weekly Streak Reward",
     "sourceGift": "Gift Received",
+    "sourceGiftSent": "Gift Sent",
     "earned": "Earned",
     "redeemed": "Redeemed",
     "rewardsGifts": "Rewards & Gifts",
@@ -844,6 +864,7 @@
     "history": "History",
     "settings": "Settings",
     "showingMembers": "Showing {count} of {total} {members}",
+    "showingOrders": "Showing {count} of {total} orders",
     "noMembersFound": "No members found.",
     "orderHistoryEmpty": "Order history will appear here.",
     "you": "You",
@@ -925,7 +946,22 @@
     "ready": "Ready",
     "groupCart": "Group cart",
     "noItemsYet": "No items yet. Select from the menu to add items.",
-    "groupOrderCodeCopied": "Group order code copied"
+    "groupOrderCodeCopied": "Group order code copied",
+    "noActiveGroupOrders": "No active group orders",
+    "clearMyItems": "Clear my items",
+    "myItemsCleared": "My items cleared",
+    "unlockGroupOrder": "Unlock group order",
+    "groupOrderUnlocked": "Group order unlocked",
+    "cancelGroupOrder": "Cancel group order",
+    "cancelGroupOrderTitle": "Cancel group order?",
+    "cancelGroupOrderDesc": "Are you sure you want to cancel this group order? This action cannot be undone.",
+    "cancelGroupOrderConfirm": "Cancel order",
+    "locked": "Locked",
+    "open": "Open",
+    "orderActions": "Order actions",
+    "groupOrderCancelled": "Group order cancelled",
+    "groupOrderCancelledDesc": "The group order at {restaurant} has been cancelled.",
+    "backToGroups": "Back to groups"
   },
   "userPanel": {
     "login": "Login",
@@ -978,6 +1014,7 @@
     "failedToPlaceOrder": "Failed to place order.",
     "noAddressForDelivery": "Please select a delivery address before placing your order.",
     "orderSummary": "Order Summary",
+    "groupOrderSummary": "Group order summary",
     "subtotal": "Subtotal",
     "deliveryFee": "Delivery fee",
     "serviceFee": "Service fee",
@@ -1006,7 +1043,8 @@
     "requiresSubtotal": "Requires {amount} EGP subtotal",
     "notEligible": "Not eligible for this cart",
     "removeRedeem": "Remove applied redeem",
-    "reviewItems": "Review your items before checkout"
+    "reviewItems": "Review your items before checkout",
+    "groupOrderSummary": "Group order summary"
   },
   "pagination": {
     "previous": "Previous",
@@ -1042,3 +1080,4 @@
     }
   }
 }
+

@@ -17,6 +17,7 @@ class PointTransaction extends Model
         'source',
         'reference_id',
         'reference_type',
+        'description',
     ];
 
     protected $casts = [

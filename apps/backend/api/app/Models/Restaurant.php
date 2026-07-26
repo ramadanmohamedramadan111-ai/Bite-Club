@@ -113,8 +113,8 @@ class Restaurant extends Authenticatable implements JWTSubject
         $currentTime = $now->format('H:i:s');
         $currentDay = $now->dayOfWeek;
 
-        $openingHours = $this->relationLoaded('openingHours') 
-            ? $this->openingHours 
+        $openingHours = $this->relationLoaded('openingHours')
+            ? $this->openingHours
             : $this->openingHours()->get();
 
         if ($openingHours->isEmpty()) {
@@ -153,5 +153,10 @@ class Restaurant extends Authenticatable implements JWTSubject
         }
 
         return false;
+    }
+
+    public function posts(): HasMany
+    {
+        return $this->hasMany(Post::class);
     }
 }

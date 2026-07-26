@@ -10,8 +10,10 @@ use App\DTOs\User\Cart\AddItemToCartDto;
 use App\DTOs\User\Cart\GetCartDto;
 use App\DTOs\User\Cart\UpdateCartItemQuantityDto;
 use App\DTOs\User\Cart\RemoveCartItemDto;
+use App\DTOs\User\Cart\ClearCartDto;
 use App\Http\Requests\User\Cart\UpdateCartItemQuantityRequest;
 use App\Http\Requests\User\Cart\RemoveCartItemRequest;
+use App\Http\Requests\User\Cart\ClearCartRequest;
 use App\Services\Application\User\Cart\CartApplicationService;
 use App\Http\Resources\User\Cart\CartResource;
 use Exception;
@@ -84,6 +86,21 @@ class CartController extends Controller
             );
         } catch (Exception $e) {
             Log::error('Failed to remove cart item: ' . $e->getMessage());
+            return $this->errorResponse($e->getMessage(), [], 400);
+        }
+    }
+
+    public function clear(ClearCartRequest $request): JsonResponse
+    {
+        try {
+            $dto = ClearCartDto::fromValidatedRequest($request);
+            $this->cartApplicationService->clearCart($dto);
+
+            return $this->successResponse(
+                trans('cart.cleared_successfully') ?? 'Cart cleared successfully.'
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to clear cart: ' . $e->getMessage());
             return $this->errorResponse($e->getMessage(), [], 400);
         }
     }

@@ -5,6 +5,8 @@ namespace App\Services\Application\Auth;
 use App\DTOs\Auth\AdminLoginDto;
 use App\Repositories\Interfaces\AdminRepositoryInterface;
 use App\Services\Domain\Auth\AdminAuthDomainService;
+use App\DTOs\Admin\UpdateAdminProfileDto;
+use App\Models\Admin;
 
 class AdminAuthApplicationService
 {
@@ -59,5 +61,16 @@ class AdminAuthApplicationService
             'token_type'   => 'Bearer',
             'expires_in'   => config('jwt.ttl') * 60,
         ];
+    }
+
+    public function updateProfile(UpdateAdminProfileDto $dto): Admin
+    {
+        $admin = $this->adminAuthDomainService->getAuthenticatedAdmin();
+
+        return $this->adminAuthDomainService->updateProfile(
+            $admin->id,
+            $dto->getName(),
+            $dto->getEmail()
+        );
     }
 }

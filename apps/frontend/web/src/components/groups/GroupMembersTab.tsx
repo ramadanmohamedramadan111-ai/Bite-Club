@@ -42,7 +42,7 @@ export default async function GroupMembersTab({
           {t('showingMembers', { count: members.length, total: meta.total, members: meta.total !== 1 ? t('members_plural') : t('member') })}
         </p>
         <div className="flex gap-4 items-center">
-          <AppSearch route={`/groups/${group.id}`} />
+          <AppSearch route={`/groups/${group.id}/members`} />
           {group.my_role !== 'member' && (
             <AddMembersPaginatedDialog groupId={group.id} />
           )}
