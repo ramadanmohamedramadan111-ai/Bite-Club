@@ -7,11 +7,12 @@ export default async function LeaderboardPage() {
   let items: LeaderBoardItem[] = [];
 
   try {
-    const res = await serverFetch<
-      ApiResponse<{ items: LeaderBoardItem[] }>
-    >('/leaderboards?type=weekly');
+    const res = await serverFetch<ApiResponse<{ items: LeaderBoardItem[] }>>(
+      '/leaderboards?type=weekly',
+    );
     items = res.data.items;
   } catch {}
 
   return <LeaderboardFeed items={items} />;
 }
+

@@ -519,6 +519,23 @@
           }
         }
       }
+    },
+    "sendGift": {
+      "title": "Send a Gift",
+      "description": "Send points to @{username} ({name})",
+      "fields": {
+        "points": {
+          "label": "Points",
+          "placeholder": "Add points",
+          "errors": {
+            "min": "Minimum 10 points required"
+          }
+        },
+        "note": {
+          "label": "Note (optional)",
+          "placeholder": "Add a personal message..."
+        }
+      }
     }
   },
   "sidebar": {
@@ -643,6 +660,7 @@
     "blockDesc": "Are you sure you want to block {name}?",
     "blockConfirm": "Block",
     "removeFriend": "Remove Friend",
+    "sendGift": "Send Gift",
     "accept": "Accept",
     "reject": "Reject",
     "cancelRequest": "Cancel Request",
@@ -674,6 +692,7 @@
     "sourceLeaderboard": "Leaderboard Reward",
     "sourceWeeklyStreak": "Weekly Streak Reward",
     "sourceGift": "Gift Received",
+    "sourceGiftSent": "Gift Sent",
     "earned": "Earned",
     "redeemed": "Redeemed",
     "rewardsGifts": "Rewards & Gifts",
@@ -1061,3 +1080,4 @@
     }
   }
 }
+

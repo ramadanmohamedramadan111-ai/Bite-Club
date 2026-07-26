@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ApiResponse, PaginatedResponse } from '@/types/api/api-response';
 import { UserMeResponse } from '@/types/auth/auth';
 import { ReferralItem } from '@/types/points/points';
-import { buildQueryString } from '@/utils/api-helpers';
+import { buildQueryString, getUserId } from '@/utils/api-helpers';
 import { serverFetch } from '@/utils/server-fetch';
 import { getTranslations } from 'next-intl/server';
 import { Calendar } from 'lucide-react';
@@ -22,20 +22,13 @@ export default async function ReferralsPage({
   const per_page = pageParams.per_page ? parseInt(pageParams.per_page) : 10;
   const query = buildQueryString({ page, per_page });
 
-  const res = await serverFetch<ApiResponse<UserMeResponse>>(
-    '/user/me',
-    'GET',
-    {
-      skipRefresh: true,
-    },
-  );
-  const user = res.data;
+  const userId = await getUserId();
 
   const referrals = await serverFetch<
     ApiResponse<PaginatedResponse<ReferralItem>>
   >(`/wallet/referrals?${query}`, 'GET', {
     next: {
-      tags: ['referrals', `referrals-${user?.id}`],
+      tags: ['referrals', `referrals-${userId}`],
     },
   });
 
@@ -43,8 +36,6 @@ export default async function ReferralsPage({
 
   return (
     <div className="space-y-6">
-      <ReferralLinkSection referralCode={user?.referral_code} />
-
       <section className="space-y-4">
         <div>
           <h2 className="text-xl font-semibold">{t('referredUsers')}</h2>
