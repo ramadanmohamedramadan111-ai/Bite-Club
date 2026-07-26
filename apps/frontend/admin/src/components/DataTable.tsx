@@ -36,12 +36,12 @@ export function DataTable<T extends { id: string | number }>({
   emptyMessage,
   emptyAction,
 }: DataTableProps<T>) {
-  const { t, dir } = useLocale()
+  const { t } = useLocale()
 
   if (loading) {
     return <div className="skeleton-table">
       <div className="skeleton-header">
-        {columns.map((c, i) => <div key={i} className="skeleton-line skeleton-line-th" />)}
+        {columns.map((_, i) => <div key={i} className="skeleton-line skeleton-line-th" />)}
       </div>
       {Array.from({ length: 5 }).map((_, i) => (
         <div key={i} className="skeleton-row">

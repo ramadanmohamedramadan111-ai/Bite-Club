@@ -10,7 +10,6 @@ import { CategoriesPage } from './pages/Categories'
 import { OrdersPage } from './pages/Orders'
 import { PaymentsPage } from './pages/Payments'
 import { CommissionsPage } from './pages/Commissions'
-import { BadgesPage } from './pages/Badges'
 import { LeaderboardPage } from './pages/Leaderboard'
 import { FeedModerationPage } from './pages/FeedModeration'
 import { GeneralSettingsPage } from './pages/GeneralSettings'
@@ -30,7 +29,6 @@ const pageTitles: Record<NavItemId, string> = {
   orders: 'Orders',
   payments: 'Payments',
   commissions: 'Commissions',
-  badges: 'Badges',
   leaderboard: 'Leaderboard',
   feed: 'Feed Moderation',
   settings: 'General Settings',
@@ -91,7 +89,6 @@ function App() {
       case 'orders': return <OrdersPage />
       case 'payments': return <PaymentsPage />
       case 'commissions': return <CommissionsPage />
-      case 'badges': return <BadgesPage />
       case 'leaderboard': return <LeaderboardPage />
       case 'feed': return <FeedModerationPage />
       case 'settings': return <GeneralSettingsPage />

@@ -1,7 +1,7 @@
 export type NavItemId =
   | 'dashboard' | 'users' | 'blockedUsers' | 'restaurants' | 'categories'
   | 'orders' | 'payments' | 'commissions'
-  | 'badges' | 'leaderboard' | 'feed'
+  | 'leaderboard' | 'feed'
   | 'settings' | 'profile'
 
 export interface NavItem {
@@ -30,7 +30,6 @@ const I = {
   categories: <Svg d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z|M2 10h20" />,
   payments: <Svg d="M3 10h18M7 15h1m4 0h1M3 6h18a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" />,
   commissions: <Svg d="M12 20l9-16H3z|M6 9l6 6 6-6" />,
-  badges: <Svg d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke={1.6} />,
   leaderboard: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 6 9 6 9z"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 18 9 18 9z"/><path d="M4 22h16"/><path d="M10 22V2h4v20"/><circle cx="12" cy="15" r="2" fill="currentColor" opacity="0.3"/></svg>,
   feed: <Svg d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z|M9 10h6|M9 14h6" />,
   settings: <Svg d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z|M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" stroke={1.6} />,
@@ -49,7 +48,6 @@ export const NAV_ITEMS: NavItem[] = [
   { id: 'categories',    labelKey: 'categories',    icon: I.categories,  section: 'management' },
   { id: 'payments',      labelKey: 'payments',      icon: I.payments,    section: 'finance' },
   { id: 'commissions',   labelKey: 'commissions',   icon: I.commissions, section: 'finance' },
-  { id: 'badges',        labelKey: 'badges',        icon: I.badges,      section: 'engagement' },
   { id: 'leaderboard',   labelKey: 'leaderboard',   icon: I.leaderboard, section: 'engagement' },
   { id: 'feed',          labelKey: 'feed',          icon: I.feed,        section: 'moderation' },
   { id: 'settings',      labelKey: 'settings',      icon: I.settings,    section: 'system' },
