@@ -23,4 +23,5 @@ return [
     'only_host_can_cancel' => 'Only the host can cancel the group order.',
     'cannot_cancel_finished_order' => 'Cannot cancel an order that is already completed or cancelled.',
     'cancelled_successfully' => 'Group order cancelled successfully.',
+    'items_cleared_successfully' => 'Your items have been cleared from the group order successfully.',
 ];

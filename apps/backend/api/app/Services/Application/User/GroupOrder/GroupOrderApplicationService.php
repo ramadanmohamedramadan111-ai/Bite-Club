@@ -6,6 +6,7 @@ use App\DTOs\User\GroupOrder\CreateGroupOrderDto;
 use App\DTOs\User\GroupOrder\AddGroupOrderItemDto;
 use App\DTOs\User\GroupOrder\RemoveGroupOrderItemDto;
 use App\DTOs\User\GroupOrder\UpdateGroupOrderItemQuantityDto;
+use App\DTOs\User\GroupOrder\ClearGroupOrderItemsDto;
 use App\DTOs\User\GroupOrder\GetGroupOrderDto;
 use App\DTOs\User\GroupOrder\GroupOrderPreviewDto;
 use App\DTOs\User\GroupOrder\UnlockGroupOrderDto;
@@ -61,6 +62,14 @@ class GroupOrderApplicationService
             $dto->getGroupOrderId(),
             $dto->getGroupOrderItemId(),
             $dto->getQuantity()
+        );
+    }
+
+    public function clearUserItems(ClearGroupOrderItemsDto $dto): void
+    {
+        $this->groupOrderDomainService->clearUserItems(
+            $dto->getUserId(),
+            $dto->getGroupOrderId()
         );
     }
 

@@ -124,6 +124,7 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::post('/{id}/items', [GroupOrderController::class, 'addItem'])->name('items.add');
         Route::put('/{id}/items/{itemId}', [GroupOrderController::class, 'updateItemQuantity'])->name('items.update');
         Route::delete('/{id}/items/{itemId}', [GroupOrderController::class, 'removeItem'])->name('items.remove');
+        Route::delete('/{id}/items', [GroupOrderController::class, 'clearUserItems'])->name('items.clear');
     });
 });
 

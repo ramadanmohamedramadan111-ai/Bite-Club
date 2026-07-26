@@ -159,6 +159,20 @@ class GroupOrderDomainService
         $this->groupOrderItemRepo->update($groupOrderItemId, ['quantity' => $quantity]);
     }
 
+    public function clearUserItems(int $userId, int $groupOrderId): void
+    {
+        $groupOrder = $this->groupOrderRepo->findOrFail($groupOrderId);
+
+        if ($groupOrder->status !== GroupOrderStatusEnum::OPEN) {
+            throw new Exception(trans('group_order.order_not_open'));
+        }
+
+        $this->groupOrderItemRepo->query()
+            ->where('group_order_id', $groupOrderId)
+            ->where('user_id', $userId)
+            ->delete();
+    }
+
     public function getGroupOrder(int $userId, int $groupOrderId): GroupOrder
     {
         $groupOrder = $this->groupOrderRepo->findOrFail($groupOrderId);

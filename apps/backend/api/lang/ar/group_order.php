@@ -23,4 +23,5 @@ return [
     'only_host_can_cancel' => 'الهوست فقط هو من يمكنه إلغاء هذا الجروب.',
     'cannot_cancel_finished_order' => 'لا يمكن إلغاء طلب تم إكماله أو إلغاؤه بالفعل.',
     'cancelled_successfully' => 'تم إلغاء طلب المجموعة بنجاح.',
+    'items_cleared_successfully' => 'تم مسح جميع طلباتك من طلب المجموعة بنجاح.',
 ];

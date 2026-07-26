@@ -15,6 +15,7 @@ use App\DTOs\User\GroupOrder\CreateGroupOrderDto;
 use App\DTOs\User\GroupOrder\AddGroupOrderItemDto;
 use App\DTOs\User\GroupOrder\RemoveGroupOrderItemDto;
 use App\DTOs\User\GroupOrder\UpdateGroupOrderItemQuantityDto;
+use App\DTOs\User\GroupOrder\ClearGroupOrderItemsDto;
 use App\DTOs\User\GroupOrder\GetGroupOrderDto;
 use App\DTOs\User\GroupOrder\GroupOrderPreviewDto;
 use App\DTOs\User\GroupOrder\UnlockGroupOrderDto;
@@ -25,6 +26,7 @@ use App\DTOs\User\GroupOrder\ActiveGroupOrdersDto;
 use App\Http\Requests\User\GroupOrder\GroupOrderHistoryRequest;
 use App\Http\Requests\User\GroupOrder\ActiveGroupOrdersRequest;
 use App\Http\Requests\User\GroupOrder\CancelGroupOrderRequest;
+use App\Http\Requests\User\GroupOrder\ClearGroupOrderItemsRequest;
 use App\Services\Application\User\GroupOrder\GroupOrderApplicationService;
 use App\Http\Resources\User\GroupOrder\GroupOrderResource;
 use App\Http\Resources\User\GroupOrder\GroupOrderSimpleResource;
@@ -111,6 +113,22 @@ class GroupOrderController extends Controller
             );
         } catch (Exception $e) {
             Log::error('Failed to update group order item quantity: ' . $e->getMessage());
+            return $this->errorResponse($e->getMessage(), [], 400);
+        }
+    }
+
+    public function clearUserItems(ClearGroupOrderItemsRequest $request): JsonResponse
+    {
+        try {
+            $dto = ClearGroupOrderItemsDto::fromValidatedRequest($request);
+
+            $this->groupOrderApplicationService->clearUserItems($dto);
+
+            return $this->successResponse(
+                trans('group_order.items_cleared_successfully') ?? 'Your items have been cleared from the group order successfully'
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to clear user items from group order: ' . $e->getMessage());
             return $this->errorResponse($e->getMessage(), [], 400);
         }
     }
