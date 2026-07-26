@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Admin\RestaurantController;
 use App\Http\Controllers\Api\Admin\PostModerationController;
 use App\Http\Controllers\Api\Admin\UserManagement\UserController;
 use App\Http\Controllers\Api\Admin\UserManagement\UserBanController;
+use App\Http\Controllers\Api\Admin\LeaderboardDashboardController;
 
 Route::post('/login', [AdminAuthController::class, 'login'])->name('login');
 
@@ -15,6 +16,7 @@ Route::middleware('auth.admin')->group(function () {
     Route::post('/logout',  [AdminAuthController::class, 'logout'])->name('logout');
     Route::post('/refresh', [AdminAuthController::class, 'refresh'])->name('refresh');
     Route::get('/me',       [AdminAuthController::class, 'me'])->name('me');
+    Route::patch('/profile',  [AdminAuthController::class, 'updateProfile'])->name('profile.update');
 
     Route::prefix('restaurant-categories')->name('restaurant-categories.')->group(function () {
         Route::get('/', [RestaurantCategoryController::class, 'index'])->name('index')->withoutMiddleware('auth.admin');
@@ -52,6 +54,10 @@ Route::middleware('auth.admin')->group(function () {
         Route::post('/', [UserBanController::class, 'store'])->name('store');
         Route::get('/{id}', [UserBanController::class, 'show'])->name('show');
         Route::patch('/{id}/lift', [UserBanController::class, 'lift'])->name('lift');
+    });
+
+    Route::prefix('leaderboard')->name('leaderboard.')->group(function () {
+        Route::get('/dashboard', [LeaderboardDashboardController::class, 'index'])->name('dashboard');
     });
 });
 
