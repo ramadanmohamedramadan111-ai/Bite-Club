@@ -8,12 +8,15 @@ import {
   Wallet,
   AlertCircle,
   Coins,
+  X,
+  Check,
 } from 'lucide-react';
 
 import { useRouter } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { useCartStore } from '@/stores/cart';
 import { useAuthStore } from '@/stores/auth';
+import { useGamificationStore } from '@/stores/gamification';
 import type { SavedLocation } from '@/components/location/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -68,6 +71,9 @@ export default function CheckoutView({ initialLocation }: Props) {
     useState<PaymentMethod>('full_cash');
   const [error, setError] = useState<string | null>(null);
   const [orderNotes, setOrderNotes] = useState('');
+  const [pointsInput, setPointsInput] = useState('');
+  const [appliedPoints, setAppliedPoints] = useState<number | null>(null);
+  const wallet = useGamificationStore((s) => s.wallet);
   const t = useTranslations('checkout');
   const tc = useTranslations('common');
 
@@ -179,6 +185,7 @@ export default function CheckoutView({ initialLocation }: Props) {
           order_type: 'delivery',
           lat: Number(location.lat),
           long: Number(location.lng),
+          points: appliedPoints ?? undefined,
         });
       } else {
         setCheckoutPreview(null);
@@ -186,9 +193,10 @@ export default function CheckoutView({ initialLocation }: Props) {
     } else if (fulfillmentType === 'pickup') {
       previewPickupExecute({
         order_type: 'pickup',
+        points: appliedPoints ?? undefined,
       });
     }
-  }, [fulfillmentType, location, previewDeliveryExecute, previewPickupExecute]);
+  }, [fulfillmentType, location, appliedPoints, previewDeliveryExecute, previewPickupExecute]);
 
   const summary = useMemo(() => {
     if (checkoutPreview) {
@@ -196,6 +204,8 @@ export default function CheckoutView({ initialLocation }: Props) {
         subtotal: checkoutPreview.financials.subtotal,
         deliveryFee: checkoutPreview.financials.delivery_fee,
         serviceFee: checkoutPreview.financials.service_fee,
+        discountAmount: checkoutPreview.financials.discount_amount,
+        pointsRedeemed: checkoutPreview.financials.points_redeemed,
         total: checkoutPreview.financials.total,
         requiresDeposit: checkoutPreview.deposit_rules.requires_deposit,
         depositAmount: checkoutPreview.deposit_rules.deposit_amount,
@@ -206,6 +216,8 @@ export default function CheckoutView({ initialLocation }: Props) {
       subtotal: cart?.subtotal || 0,
       deliveryFee: 0,
       serviceFee: 0,
+      discountAmount: 0,
+      pointsRedeemed: 0,
       total: cart?.subtotal || 0,
       requiresDeposit: false,
       depositAmount: 0,
@@ -307,12 +319,14 @@ export default function CheckoutView({ initialLocation }: Props) {
         long: Number(location.lng),
         payment_option_id: paymentMethod,
         notes: orderNotes || undefined,
+        points: appliedPoints ?? undefined,
       });
     } else {
       placeOrderExecute({
         order_type: 'pickup',
         payment_option_id: paymentMethod,
         notes: orderNotes || undefined,
+        points: appliedPoints ?? undefined,
       });
     }
   };
@@ -405,6 +419,64 @@ export default function CheckoutView({ initialLocation }: Props) {
                 onChange={(e) => setOrderNotes(e.target.value)}
                 className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-none"
               />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">{t('redeemPoints')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {appliedPoints !== null ? (
+                <div className="flex items-center justify-between rounded-lg border border-green-500/20 bg-green-500/5 px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <Check className="size-4 text-green-500" />
+                    <span className="text-sm font-medium text-green-600 dark:text-green-400">
+                      {t('pointsApplied', { count: appliedPoints })}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAppliedPoints(null);
+                      setPointsInput('');
+                    }}
+                    className="text-sm font-medium text-destructive hover:underline"
+                  >
+                    {t('remove')}
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min={1}
+                    max={wallet?.balance ?? 0}
+                    placeholder={t('pointsPlaceholder')}
+                    value={pointsInput}
+                    onChange={(e) => setPointsInput(e.target.value)}
+                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    disabled={!pointsInput || Number(pointsInput) < 1}
+                    onClick={() => {
+                      const val = Math.floor(Number(pointsInput));
+                      if (val > 0 && (!wallet || val <= wallet.balance)) {
+                        setAppliedPoints(val);
+                      }
+                    }}
+                  >
+                    {t('apply')}
+                  </Button>
+                </div>
+              )}
+              {wallet && appliedPoints === null && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {t('availableBalance', { balance: wallet.balance.toLocaleString() })}
+                </p>
+              )}
             </CardContent>
           </Card>
 

@@ -126,7 +126,8 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
           <div>
             <h2>{t('yourCart')}</h2>
             <p className="text-xs text-muted-foreground">
-              {t('individualOrder')} {cart?.restaurant && `(${cart.restaurant.name})`}
+              {t('individualOrder')}{' '}
+              {cart?.restaurant && `(${cart.restaurant.name})`}
             </p>
           </div>
         </div>
@@ -287,8 +288,9 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
 
           <div className="flex justify-between text-sm">
             <span>{t('subtotal')}</span>
-
-            <span>{t('egp')} {cart?.subtotal.toFixed(2)}</span>
+            <span>
+              {t('egp')} {cart?.subtotal.toFixed(2)}
+            </span>
           </div>
 
           {/* <div className="flex justify-between text-sm">

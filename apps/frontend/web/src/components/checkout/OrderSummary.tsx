@@ -9,6 +9,8 @@ type Summary = {
   subtotal: number;
   deliveryFee: number;
   serviceFee: number;
+  discountAmount: number;
+  pointsRedeemed: number;
   total: number;
   requiresDeposit: boolean;
   depositAmount: number;
@@ -81,6 +83,17 @@ export default function OrderSummary({
             <div className="flex justify-between">
               <dt className="text-muted-foreground">{t('serviceFee')}</dt>
               <dd className="font-medium text-foreground">{summary.serviceFee.toFixed(2)} EGP</dd>
+            </div>
+          )}
+          {summary.discountAmount > 0 && (
+            <div className="flex justify-between text-green-600 dark:text-green-400">
+              <dt className="flex items-center gap-1.5">
+                {t('discount')}
+                <span className="text-xs text-muted-foreground font-normal">
+                  ({t('pointsRedeemed', { count: summary.pointsRedeemed })})
+                </span>
+              </dt>
+              <dd className="font-medium">-{summary.discountAmount.toFixed(2)} EGP</dd>
             </div>
           )}
         </dl>

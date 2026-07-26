@@ -1,5 +1,5 @@
-import PointsPageView from '@/components/points/PointsPageView';
+import { redirect } from 'next/navigation';
 
 export default function PointsPage() {
-  return <PointsPageView />;
+  redirect('/points/history');
 }

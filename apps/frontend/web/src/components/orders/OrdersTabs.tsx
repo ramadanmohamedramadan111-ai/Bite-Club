@@ -1,40 +1,29 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { Link, usePathname } from '@/i18n/navigation';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-export default function OrdersTabs({
-  currentTab,
-}: {
-  currentTab: 'active' | 'past';
-}) {
+export default function OrdersTabs() {
   const t = useTranslations('common');
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const pathname = usePathname();
 
   const tabs = [
     { value: 'active' as const, label: t('activeOrders') },
     { value: 'past' as const, label: t('pastOrders') },
   ];
 
-  const onTabChange = (value: string) => {
-    const params = new URLSearchParams(searchParams);
-    params.set('tab', value);
-    params.delete('page');
-    router.push(`/orders?${params.toString()}`);
-  };
+  const activeTab = tabs.find((tab) => pathname.endsWith(`/${tab.value}`))?.value ?? 'active';
 
   return (
-    <Tabs value={currentTab} onValueChange={onTabChange} className="mb-6">
-      <TabsList className=" w-full">
+    <Tabs value={activeTab} className="mb-6">
+      <TabsList className="w-full">
         {tabs.map((tab) => (
-          <TabsTrigger key={tab.value} value={tab.value}>
-            {tab.label}
+          <TabsTrigger key={tab.value} value={tab.value} asChild>
+            <Link href={`/orders/${tab.value}`}>{tab.label}</Link>
           </TabsTrigger>
         ))}
       </TabsList>
     </Tabs>
   );
 }
-

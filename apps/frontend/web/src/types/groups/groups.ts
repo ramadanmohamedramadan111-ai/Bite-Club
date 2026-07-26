@@ -29,7 +29,7 @@ export type GroupType = {
 };
 
 export type GroupTypeSimplified = {
-  id: string;
+  id: number;
   name: string;
   description: string;
   image_url?: string | null;

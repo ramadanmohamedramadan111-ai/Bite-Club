@@ -139,3 +139,105 @@
   }
 }
 
+@keyframes fire-flicker {
+  0%, 100% { opacity: 1; transform: scaleY(1) translateY(0); }
+  25% { opacity: 0.9; transform: scaleY(1.08) translateY(-1px); }
+  50% { opacity: 1; transform: scaleY(0.95) translateY(1px); }
+  75% { opacity: 0.85; transform: scaleY(1.05) translateY(-0.5px); }
+}
+
+@keyframes fire-glow {
+  0%, 100% { box-shadow: 0 0 8px hsl(25, 95%, 53%), 0 0 16px hsl(25, 95%, 53%, 0.4); }
+  33% { box-shadow: 0 0 12px hsl(35, 95%, 53%), 0 0 24px hsl(35, 95%, 53%, 0.5); }
+  66% { box-shadow: 0 0 6px hsl(15, 95%, 53%), 0 0 20px hsl(15, 95%, 53%, 0.3); }
+}
+
+@keyframes badge-glow {
+  0%, 100% { box-shadow: 0 0 8px hsl(45, 100%, 50%), 0 0 16px hsl(45, 100%, 50%, 0.3); }
+  50% { box-shadow: 0 0 16px hsl(45, 100%, 50%), 0 0 32px hsl(45, 100%, 50%, 0.5); }
+}
+
+@keyframes badge-spin {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
+}
+
+@keyframes progress-glow {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes sparkle {
+  0% { transform: scale(0) rotate(0deg); opacity: 1; }
+  50% { transform: scale(1) rotate(180deg); opacity: 0.8; }
+  100% { transform: scale(0) rotate(360deg); opacity: 0; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes reward-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes hue-pulse {
+  0% { filter: hue-rotate(-12deg); }
+  50% { filter: hue-rotate(12deg); }
+  100% { filter: hue-rotate(-12deg); }
+}
+
+@keyframes bar-sweep {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+.animate-fire-flicker {
+  animation: fire-flicker 0.8s ease-in-out infinite;
+}
+
+.animate-fire-glow {
+  animation: fire-glow 1.5s ease-in-out infinite;
+}
+
+.animate-badge-glow {
+  animation: badge-glow 2s ease-in-out infinite;
+}
+
+.animate-badge-spin {
+  animation: badge-spin 6s ease-in-out infinite;
+}
+
+.animate-progress-glow {
+  animation: progress-glow 1.5s ease-in-out infinite;
+}
+
+.animate-sparkle {
+  animation: sparkle 1.5s ease-out infinite;
+}
+
+.animate-shimmer {
+  background-size: 200% auto;
+  animation: shimmer 2s linear infinite;
+}
+
+.animate-count-up {
+  animation: count-up 0.5s ease-out forwards;
+}
+
+.animate-reward-float {
+  animation: reward-float 2s ease-in-out infinite;
+}
+
+.animate-bar-sweep {
+  background-size: 200% 100%;
+  animation: bar-sweep 3s linear infinite;
+}
+

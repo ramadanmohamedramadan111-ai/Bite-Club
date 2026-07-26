@@ -31,6 +31,7 @@ import { getLangDir } from 'rtl-detect';
 import { useCartStore } from '@/stores/cart';
 
 import { useUnreadNotificationCount } from '@/lib/const-data';
+import { useFriendsStore } from '@/stores/friends';
 
 export function AppSidebar({
   user,
@@ -45,6 +46,7 @@ export function AppSidebar({
       state.cart?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0,
   );
   const unreadNotifications = useUnreadNotificationCount();
+  const friendsRequestsCount = useFriendsStore((state) => state.count);
 
   const data = {
     projects: [
@@ -82,6 +84,7 @@ export function AppSidebar({
         name: t('friends'),
         url: '/friends',
         icon: Handshake,
+        badge: friendsRequestsCount,
       },
       {
         name: t('feed'),

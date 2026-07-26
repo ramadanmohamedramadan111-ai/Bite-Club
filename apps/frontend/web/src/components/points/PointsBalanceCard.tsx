@@ -1,13 +1,19 @@
-'use client';
-
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import { Coins } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import { usePointsStore } from '@/lib/const-data';
+import { serverFetch } from '@/utils/server-fetch';
+import { ApiResponse } from '@/types/api/api-response';
+import { WalletDetails } from '@/types/points/points';
+import { getUserId } from '@/utils/api-helpers';
 
-export default function PointsBalanceCard() {
-  const t = useTranslations('points');
-  const pointsBalance = usePointsStore((state) => state.pointsBalance);
+export default async function PointsBalanceCard() {
+  const t = await getTranslations('points');
+  const userId = await getUserId();
+  const res = await serverFetch<ApiResponse<WalletDetails>>('/wallet', 'GET', {
+    next: {
+      tags: ['wallet', `wallet-${userId}`],
+    },
+  });
 
   return (
     <Card className="border-primary/20 bg-primary/5">
@@ -17,9 +23,12 @@ export default function PointsBalanceCard() {
         </div>
         <div>
           <p className="text-sm text-muted-foreground">{t('pointsBalance')}</p>
-          <p className="text-3xl font-bold">{pointsBalance.toLocaleString()}</p>
+          <p className="text-3xl font-bold">
+            {res.data.balance.toLocaleString()}
+          </p>
         </div>
       </CardContent>
     </Card>
   );
 }
+

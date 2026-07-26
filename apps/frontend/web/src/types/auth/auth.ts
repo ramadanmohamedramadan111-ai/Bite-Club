@@ -28,3 +28,18 @@ export interface RestaurantLoginResponse {
   token_type: string;
 }
 
+export interface UserMeResponse {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  profile_image: string | null;
+  date_of_birth: string | null;
+  username: string;
+  phone_number: string | null;
+  gender: string | null;
+  status: string;
+  referral_code: string;
+  last_login_at: string | null;
+}
+

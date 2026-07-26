@@ -14,6 +14,8 @@ export const addIndividualCartItemAction = actionClient
   .action(async ({ parsedInput }) => {
     const userId = await getUserId();
 
+    console.log('AXAXAXAX');
+
     const response = await serverFetch<ApiResponse<null>>(
       '/user/cart/items',
       'POST',
@@ -21,6 +23,8 @@ export const addIndividualCartItemAction = actionClient
         body: parsedInput,
       },
     );
+
+    console.log('ZZZ');
 
     updateTag(`cart-${userId}`);
 

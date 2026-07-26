@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useRouter } from '@/i18n/navigation';
+import { useRouter, usePathname } from '@/i18n/navigation';
 import { useSearchParams } from 'next/navigation';
 
 import { SearchIcon } from 'lucide-react';
@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 export default function SearchUsers() {
   const t = useTranslations('common');
   const router = useRouter();
+  const pathname = usePathname();
 
   const searchParams = useSearchParams();
   const [value, setValue] = useState(searchParams.get('search') ?? '');
@@ -31,7 +32,7 @@ export default function SearchUsers() {
       params.delete('search');
     }
 
-    router.replace(`/friends?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString()}`);
   }, [debouncedValue]);
 
   return (
@@ -55,4 +56,3 @@ export default function SearchUsers() {
     </div>
   );
 }
-
