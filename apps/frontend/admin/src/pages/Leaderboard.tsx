@@ -1,103 +1,245 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useLocale } from '../contexts/LocaleContext'
 import { PageHeader } from '../components/PageHeader'
 import { DataTable, type Column } from '../components/DataTable'
 import { PaginationUI } from '../components/PaginationUI'
 import { Tabs } from '../components/Tabs'
-import { StatCard } from '../components/StatCard'
+import { StatsGrid } from '../components/StatsGrid'
+import { AlertBanner } from '../components/AlertBanner'
+import { LoadingState } from '../components/LoadingState'
+import api from '../lib/api'
 
-interface LeaderboardEntry {
-  id: string
-  rank: number
-  user: string
-  points: number
-  orders: number
-  reviews: number
-  badges: number
-  change: 'up' | 'down' | 'same'
+interface PostEntry {
+  id: string | number
+  image_url: string | null
+  caption: string | null
+  copy_count: number
+  created_at: string
+  user: {
+    id: string | number
+    full_name: string
+  }
+  restaurant: {
+    id: string | number
+    name: string
+  }
 }
 
-const TODAY: LeaderboardEntry[] = [
-  { id: '1', rank: 1, user: 'Nada Hassan', points: 5800, orders: 32, reviews: 18, badges: 5, change: 'up' },
-  { id: '2', rank: 2, user: 'Mona Sherif', points: 3200, orders: 45, reviews: 25, badges: 4, change: 'same' },
-  { id: '3', rank: 3, user: 'Ahmed Ramadan', points: 2450, orders: 24, reviews: 12, badges: 3, change: 'up' },
-  { id: '4', rank: 4, user: 'Layla Ahmed', points: 1800, orders: 12, reviews: 8, badges: 2, change: 'up' },
-  { id: '5', rank: 5, user: 'Sara El-Sayed', points: 1200, orders: 18, reviews: 10, badges: 3, change: 'down' },
-  { id: '6', rank: 6, user: 'Yousef Mahmoud', points: 450, orders: 3, reviews: 2, badges: 1, change: 'down' },
-  { id: '7', rank: 7, user: 'Khaled Ibrahim', points: 150, orders: 5, reviews: 1, badges: 1, change: 'same' },
-]
+interface RestaurantEntry {
+  id: string | number
+  name: string
+  posts_count: number
+  total_copies: number
+}
 
-const THIS_WEEK: LeaderboardEntry[] = [
-  { id: '1', rank: 1, user: 'Mona Sherif', points: 8900, orders: 67, reviews: 35, badges: 5, change: 'up' },
-  { id: '2', rank: 2, user: 'Nada Hassan', points: 7200, orders: 48, reviews: 22, badges: 5, change: 'down' },
-  { id: '3', rank: 3, user: 'Ahmed Ramadan', points: 5100, orders: 38, reviews: 18, badges: 4, change: 'up' },
-  { id: '4', rank: 4, user: 'Sara El-Sayed', points: 3800, orders: 29, reviews: 15, badges: 3, change: 'same' },
-  { id: '5', rank: 5, user: 'Layla Ahmed', points: 2400, orders: 18, reviews: 10, badges: 2, change: 'up' },
-]
-
-const THIS_MONTH: LeaderboardEntry[] = [
-  { id: '1', rank: 1, user: 'Mona Sherif', points: 24500, orders: 180, reviews: 95, badges: 5, change: 'up' },
-  { id: '2', rank: 2, user: 'Nada Hassan', points: 19800, orders: 142, reviews: 78, badges: 5, change: 'down' },
-  { id: '3', rank: 3, user: 'Ahmed Ramadan', points: 15200, orders: 110, reviews: 55, badges: 4, change: 'up' },
-  { id: '4', rank: 4, user: 'Sara El-Sayed', points: 9800, orders: 75, reviews: 40, badges: 3, change: 'same' },
-  { id: '5', rank: 5, user: 'Layla Ahmed', points: 6500, orders: 50, reviews: 25, badges: 2, change: 'up' },
-]
+interface DashboardData {
+  summary: {
+    total_posts: number
+    total_copies: number
+    active_users: number
+    active_restaurants: number
+  }
+  top_posts: PostEntry[]
+  top_restaurants: RestaurantEntry[]
+}
 
 const PAGE_SIZE = 5
 
 export function LeaderboardPage() {
   const { t } = useLocale()
-  const [activeTab, setActiveTab] = useState('today')
+  const [activeTab, setActiveTab] = useState<'posts' | 'restaurants'>('posts')
   const [page, setPage] = useState(1)
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
 
-  const dataMap: Record<string, LeaderboardEntry[]> = { today: TODAY, thisWeek: THIS_WEEK, thisMonth: THIS_MONTH }
-  const data = dataMap[activeTab] || []
-  const totalPages = Math.ceil(data.length / PAGE_SIZE)
-  const paged = data.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  useEffect(() => {
+    let active = true
+    const fetchDashboardData = async () => {
+      try {
+        setIsLoading(true)
+        setError('')
+        const response = await api.get('/admin/leaderboard/dashboard')
+        if (active) {
+          setDashboardData(response.data.data)
+        }
+      } catch (err: any) {
+        if (active) {
+          setError(err.response?.data?.message || 'Failed to fetch leaderboard statistics.')
+        }
+      } finally {
+        if (active) {
+          setIsLoading(false)
+        }
+      }
+    }
+    fetchDashboardData()
+    return () => {
+      active = false
+    }
+  }, [])
 
-  const changeIcon = (c: string) => {
-    if (c === 'up') return <span style={{ color: 'var(--success)' }}>▲</span>
-    if (c === 'down') return <span style={{ color: 'var(--danger)' }}>▼</span>
-    return <span style={{ color: 'var(--text-muted)' }}>—</span>
-  }
+  const stats = dashboardData ? [
+    { label: t('leaderboard.totalPosts') || 'Total Posts', value: String(dashboardData.summary.total_posts), change: '', icon: '📝', iconBg: 'var(--info-bg)' },
+    { label: t('leaderboard.totalCopies') || 'Total Copies', value: String(dashboardData.summary.total_copies), change: '', icon: '📋', iconBg: 'var(--warning-bg)' },
+    { label: t('leaderboard.activeUsers') || 'Active Users', value: String(dashboardData.summary.active_users), change: '', icon: '👥', iconBg: 'var(--success-bg)' },
+    { label: t('leaderboard.activeRestaurants') || 'Active Restaurants', value: String(dashboardData.summary.active_restaurants), change: '', icon: '🏪', iconBg: 'var(--danger-bg)' },
+  ] : []
 
-  const columns: Column<LeaderboardEntry>[] = [
-    { key: 'rank', label: t('leaderboard.fields.rank'), sortable: true, width: '60px', render: (e) => (
-      <span className={`rank-badge rank-${e.rank}`}>#{e.rank}</span>
-    ) },
-    { key: 'user', label: t('leaderboard.fields.user'), sortable: true },
-    { key: 'points', label: t('leaderboard.fields.points'), sortable: true, render: (e) => <strong>{e.points.toLocaleString()}</strong> },
-    { key: 'orders', label: t('leaderboard.fields.orders'), sortable: true },
-    { key: 'reviews', label: t('leaderboard.fields.reviews'), sortable: true },
-    { key: 'badges', label: t('leaderboard.fields.badges'), sortable: true },
-    { key: 'change', label: t('leaderboard.fields.change'), render: (e) => changeIcon(e.change) },
+  const activeData: (PostEntry | RestaurantEntry)[] = activeTab === 'posts'
+    ? (dashboardData?.top_posts || [])
+    : (dashboardData?.top_restaurants || [])
+
+  const totalPages = Math.ceil(activeData.length / PAGE_SIZE)
+  const pagedData = activeData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+
+  const columnsPosts: Column<PostEntry>[] = [
+    {
+      key: 'rank',
+      label: t('leaderboard.fields.rank'),
+      width: '60px',
+      render: (e) => {
+        const index = pagedData.indexOf(e)
+        const rank = (page - 1) * PAGE_SIZE + index + 1
+        return (
+          <span className={`rank-badge rank-${rank}`}>
+            #{rank}
+          </span>
+        )
+      },
+    },
+    {
+      key: 'image',
+      label: t('categories.fields.image') || 'Image',
+      width: '80px',
+      render: (e) =>
+        e.image_url ? (
+          <img
+            src={e.image_url}
+            alt="post"
+            style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }}
+          />
+        ) : (
+          <span style={{ fontSize: '20px' }}>🖼️</span>
+        ),
+    },
+    {
+      key: 'caption',
+      label: t('feed.fields.content') || 'Caption',
+      render: (e) => (
+        <span className="text-truncate" style={{ maxWidth: '240px', display: 'inline-block' }}>
+          {e.caption || '—'}
+        </span>
+      ),
+    },
+    {
+      key: 'user',
+      label: t('feed.fields.author') || 'User',
+      render: (e) => <span>{e.user?.full_name || '—'}</span>,
+    },
+    {
+      key: 'restaurant',
+      label: t('orders.fields.restaurant') || 'Restaurant',
+      render: (e) => <span>{e.restaurant?.name || '—'}</span>,
+    },
+    {
+      key: 'copies',
+      label: t('leaderboard.totalCopies') || 'Copies',
+      sortable: true,
+      render: (e) => <strong>{e.copy_count.toLocaleString()}</strong>,
+    },
+    {
+      key: 'created_at',
+      label: t('common.createdAt') || 'Created At',
+      render: (e) => (
+        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+          {e.created_at ? new Date(e.created_at).toLocaleDateString() : '—'}
+        </span>
+      ),
+    },
+  ]
+
+  const columnsRestaurants: Column<RestaurantEntry>[] = [
+    {
+      key: 'rank',
+      label: t('leaderboard.fields.rank'),
+      width: '60px',
+      render: (e) => {
+        const index = pagedData.indexOf(e)
+        const rank = (page - 1) * PAGE_SIZE + index + 1
+        return (
+          <span className={`rank-badge rank-${rank}`}>
+            #{rank}
+          </span>
+        )
+      },
+    },
+    {
+      key: 'name',
+      label: t('restaurants.fields.name') || 'Restaurant Name',
+    },
+    {
+      key: 'posts_count',
+      label: t('categories.fields.itemsCount') || 'Posts Count',
+      sortable: true,
+      render: (e) => <strong>{e.posts_count.toLocaleString()}</strong>,
+    },
+    {
+      key: 'total_copies',
+      label: t('leaderboard.totalCopies') || 'Copies Count',
+      sortable: true,
+      render: (e) => <strong>{e.total_copies.toLocaleString()}</strong>,
+    },
   ]
 
   return (
     <div className="page-content">
-      <PageHeader title={t('leaderboard.title')} subtitle={t('leaderboard.subtitle')}>
-        <button className="btn btn-outline btn-danger-outline" onClick={() => {}}>{t('leaderboard.resetLeaderboard')}</button>
-      </PageHeader>
+      <PageHeader title={t('leaderboard.title')} subtitle={t('leaderboard.subtitle')} />
 
-      <div className="stats-grid">
-        <StatCard label={t('loyalty.totalPointsIssued')} value="17,350" change="" icon="⭐" iconBg="var(--info-bg)" />
-        <StatCard label={t('users.totalUsers')} value="10" change="" icon="👥" iconBg="var(--success-bg)" />
-      </div>
+      {error && <AlertBanner variant="danger" message={error} onClose={() => setError('')} />}
 
-      <Tabs
-        tabs={[
-          { id: 'today', label: t('leaderboard.today') },
-          { id: 'thisWeek', label: t('leaderboard.thisWeek') },
-          { id: 'thisMonth', label: t('leaderboard.thisMonth') },
-        ]}
-        activeTab={activeTab}
-        onChange={(id) => { setActiveTab(id); setPage(1) }}
-      />
+      {isLoading ? (
+        <LoadingState message={t('common.loading') || 'Loading...'} />
+      ) : (
+        <>
+          <StatsGrid cards={stats} />
 
-      <div className="card">
-        <DataTable columns={columns} data={paged} />
-        <PaginationUI currentPage={page} totalPages={totalPages} totalItems={data.length} pageSize={PAGE_SIZE} onPageChange={setPage} />
-      </div>
+          <Tabs
+            tabs={[
+              { id: 'posts', label: t('leaderboard.topPosts') || 'Top Posts' },
+              { id: 'restaurants', label: t('leaderboard.topRestaurants') || 'Top Restaurants' },
+            ]}
+            activeTab={activeTab}
+            onChange={(id) => {
+              setActiveTab(id as any)
+              setPage(1)
+            }}
+          />
+
+          <div className="card">
+            {activeTab === 'posts' ? (
+              <DataTable
+                columns={columnsPosts}
+                data={pagedData as PostEntry[]}
+                emptyTitle={t('common.noResults') || 'No data found'}
+              />
+            ) : (
+              <DataTable
+                columns={columnsRestaurants}
+                data={pagedData as RestaurantEntry[]}
+                emptyTitle={t('common.noResults') || 'No data found'}
+              />
+            )}
+            <PaginationUI
+              currentPage={page}
+              totalPages={totalPages}
+              totalItems={activeData.length}
+              pageSize={PAGE_SIZE}
+              onPageChange={setPage}
+            />
+          </div>
+        </>
+      )}
     </div>
   )
 }

@@ -11,7 +11,7 @@ export const ar: Record<string, any> = {
     loyalty: 'نقاط الولاء',
     referrals: 'نظام الإحالة',
     badges: 'الشارات',
-    leaderboard: 'المتصدر اليومي',
+    leaderboard: 'المتصدر الأسبوعي',
     feed: 'مراجعة المحتوى',
     aiMonitoring: 'مراقبة الذكاء الاصطناعي',
     activityLogs: 'سجل النشاطات',
@@ -352,11 +352,17 @@ export const ar: Record<string, any> = {
     },
   },
   leaderboard: {
-    title: 'المتصدر اليومي',
-    subtitle: 'عرض ترتيب المتصدر اليومي',
+    title: 'المتصدر الأسبوعي',
+    subtitle: 'عرض ترتيب المتصدر الأسبوعي',
     today: 'ترتيب اليوم',
     thisWeek: 'هذا الأسبوع',
     thisMonth: 'هذا الشهر',
+    topPosts: 'المنشورات الأكثر نسخاً',
+    topRestaurants: 'المطاعم الأكثر نشاطاً',
+    totalPosts: 'إجمالي المنشورات',
+    totalCopies: 'إجمالي النسخ',
+    activeUsers: 'المستخدمين النشطين',
+    activeRestaurants: 'المطاعم النشطة',
     fields: {
       rank: 'الترتيب',
       user: 'المستخدم',
@@ -457,6 +463,7 @@ export const ar: Record<string, any> = {
     success: 'تم تحديث الإعدادات بنجاح',
   },
   profile: {
+    success: 'تم تحديث الملف الشخصي بنجاح',
     title: 'الملف الشخصي',
     subtitle: 'إدارة معلومات ملفك الشخصي',
     sections: {

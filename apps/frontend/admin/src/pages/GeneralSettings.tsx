@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useLocale } from '../contexts/LocaleContext'
 import { PageHeader } from '../components/PageHeader'
+import { AlertBanner } from '../components/AlertBanner'
+import { LoadingState } from '../components/LoadingState'
 import api from '../lib/api'
 
 export function GeneralSettingsPage() {
@@ -84,39 +86,9 @@ export function GeneralSettingsPage() {
     <div className="page-content">
       <PageHeader title={t('generalSettings.title')} subtitle={t('generalSettings.subtitle')} />
 
-      {error && (
-        <div
-          style={{
-            background: 'var(--danger-bg)',
-            border: '1px solid var(--danger)',
-            color: 'var(--danger)',
-            padding: '12px',
-            borderRadius: 'var(--radius-sm)',
-            fontSize: '13px',
-            fontWeight: '500',
-            marginBottom: '16px',
-          }}
-        >
-          {error}
-        </div>
-      )}
+      {error && <AlertBanner variant="danger" message={error} />}
 
-      {successMessage && (
-        <div
-          style={{
-            background: 'var(--success-bg)',
-            border: '1px solid var(--success)',
-            color: 'var(--success)',
-            padding: '12px',
-            borderRadius: 'var(--radius-sm)',
-            fontSize: '13px',
-            fontWeight: '500',
-            marginBottom: '16px',
-          }}
-        >
-          {successMessage}
-        </div>
-      )}
+      {successMessage && <AlertBanner variant="success" message={successMessage} />}
 
       <div className="card">
         <div className="card-header">
@@ -124,9 +96,7 @@ export function GeneralSettingsPage() {
         </div>
         
         {loading ? (
-          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
-            Loading settings...
-          </div>
+          <LoadingState message="Loading settings..." />
         ) : (
           <form onSubmit={handleSave} className="settings-form" style={{ padding: '20px' }}>
             <div className="form-grid two-col">

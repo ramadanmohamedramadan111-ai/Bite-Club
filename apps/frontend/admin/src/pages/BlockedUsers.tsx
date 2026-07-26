@@ -5,8 +5,10 @@ import { SearchBar } from '../components/SearchBar'
 import { DataTable, type Column } from '../components/DataTable'
 import { PaginationUI } from '../components/PaginationUI'
 import { Modal } from '../components/Modal'
-import { StatusBadge } from '../components/StatusBadge'
-import { StatCard } from '../components/StatCard'
+import { StatsGrid } from '../components/StatsGrid'
+import { ActionButtons } from '../components/ActionButtons'
+import { AlertBanner } from '../components/AlertBanner'
+import { LoadingState } from '../components/LoadingState'
 import api from '../lib/api'
 
 interface BanItem {
@@ -125,10 +127,10 @@ export function BlockedUsersPage() {
     { key: 'banned_by', label: t('blockedUsers.blockedBy'), render: (b) => b.banned_by?.name || 'Admin' },
     { key: 'banned_at', label: t('blockedUsers.blockedAt'), render: (b) => b.banned_at ? new Date(b.banned_at).toLocaleString() : '—' },
     { key: 'id', label: t('common.actions'), render: (b) => (
-      <div className="action-btns">
-        <button className="btn btn-sm btn-outline" onClick={(e) => { e.stopPropagation(); setShowDetails(b) }}>{t('common.view')}</button>
-        <button className="btn btn-sm btn-primary" onClick={(e) => { e.stopPropagation(); setShowUnblockModal(b) }} disabled={submitting}>{t('blockedUsers.unblock')}</button>
-      </div>
+      <ActionButtons actions={[
+        { label: t('common.view'), onClick: () => setShowDetails(b) },
+        { label: t('blockedUsers.unblock'), onClick: () => setShowUnblockModal(b), variant: 'primary', disabled: submitting },
+      ]} />
     ) },
   ]
 
@@ -136,28 +138,22 @@ export function BlockedUsersPage() {
     <div className="page-content">
       <PageHeader title={t('blockedUsers.title')} subtitle={t('blockedUsers.subtitle')} />
 
-      {error && (
-        <div className="alert alert-danger" style={{ marginBottom: '20px' }}>
-          {error}
-        </div>
-      )}
+      {error && <AlertBanner variant="danger" message={error} />}
 
-      <div className="stats-grid">
-        <StatCard label={t('blockedUsers.title')} value={totalItems.toString()} change="" icon="🚫" iconBg="var(--danger-bg)" />
-        <StatCard label={t('users.totalUsers')} value={totalUsersCount.toString()} change="" icon="👥" iconBg="var(--info-bg)" />
-      </div>
+      <StatsGrid cards={[
+        { label: t('blockedUsers.title'), value: totalItems.toString(), change: '', icon: '🚫', iconBg: 'var(--danger-bg)' },
+        { label: t('users.totalUsers'), value: totalUsersCount.toString(), change: '', icon: '👥', iconBg: 'var(--info-bg)' },
+      ]} />
 
       <div className="card">
         <div className="card-header">
           <SearchBar value={search} onChange={(v) => { setSearch(v); setPage(1) }} />
         </div>
         {loading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '40px', color: 'var(--text-muted)' }}>
-            {t('common.loading')}
-          </div>
+          <LoadingState message={t('common.loading')} />
         ) : (
           <>
-            <DataTable columns={columns} data={bans} onRowClick={(b) => setShowDetails(b)} />
+            <DataTable columns={columns} data={bans} onRowClick={(b) => setShowDetails(b)} emptyTitle="No blocked users" />
             <PaginationUI currentPage={page} totalPages={totalPages} totalItems={totalItems} pageSize={PAGE_SIZE} onPageChange={setPage} />
           </>
         )}

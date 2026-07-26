@@ -11,7 +11,7 @@ export const en = {
     loyalty: 'Loyalty Points',
     referrals: 'Referral System',
     badges: 'Badges',
-    leaderboard: 'Daily Leaderboard',
+    leaderboard: 'Weekly Leaderboard',
     feed: 'Feed Moderation',
     aiMonitoring: 'AI Monitoring',
     activityLogs: 'Activity Logs',
@@ -352,11 +352,17 @@ export const en = {
     },
   },
   leaderboard: {
-    title: 'Daily Leaderboard',
-    subtitle: 'View daily leaderboard rankings',
+    title: 'Weekly Leaderboard',
+    subtitle: 'View weekly leaderboard rankings',
     today: "Today's Rankings",
     thisWeek: 'This Week',
     thisMonth: 'This Month',
+    topPosts: 'Top Posts',
+    topRestaurants: 'Top Restaurants',
+    totalPosts: 'Total Posts',
+    totalCopies: 'Total Copies',
+    activeUsers: 'Active Users',
+    activeRestaurants: 'Active Restaurants',
     fields: {
       rank: 'Rank',
       user: 'User',
@@ -457,6 +463,7 @@ export const en = {
     success: 'Settings updated successfully',
   },
   profile: {
+    success: 'Profile updated successfully',
     title: 'Admin Profile',
     subtitle: 'Manage your profile information',
     sections: {

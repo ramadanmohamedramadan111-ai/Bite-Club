@@ -7,7 +7,10 @@ import { DataTable, type Column } from '../components/DataTable'
 import { PaginationUI } from '../components/PaginationUI'
 import { Modal } from '../components/Modal'
 import { StatusBadge } from '../components/StatusBadge'
-import { StatCard } from '../components/StatCard'
+import { StatsGrid } from '../components/StatsGrid'
+import { ActionButtons } from '../components/ActionButtons'
+import { AlertBanner } from '../components/AlertBanner'
+import { LoadingState } from '../components/LoadingState'
 import api from '../lib/api'
 
 interface UserItem {
@@ -173,12 +176,10 @@ export function UsersPage() {
     { key: 'status', label: t('common.status'), sortable: true, render: (u) => <StatusBadge status={u.status} /> },
     { key: 'created_at', label: t('users.fields.joinedDate'), render: (u) => u.created_at ? new Date(u.created_at).toLocaleDateString() : '—' },
     { key: 'id', label: t('common.actions'), render: (u) => (
-      <div className="action-btns">
-        <button className="btn btn-sm btn-outline" onClick={(e) => { e.stopPropagation(); handleOpenDetails(u) }} disabled={loadingDetails}>{t('common.view')}</button>
-        {u.status !== 'banned' && (
-          <button className="btn btn-sm btn-danger" onClick={(e) => { e.stopPropagation(); setShowBlockModal(u) }} disabled={submitting}>{t('users.banUser')}</button>
-        )}
-      </div>
+      <ActionButtons actions={[
+        { label: t('common.view'), onClick: () => handleOpenDetails(u), disabled: loadingDetails },
+        { label: t('users.banUser'), onClick: () => setShowBlockModal(u), variant: 'danger', disabled: submitting, condition: u.status !== 'banned' },
+      ]} />
     ) },
   ]
 
@@ -186,18 +187,14 @@ export function UsersPage() {
     <div className="page-content">
       <PageHeader title={t('users.title')} subtitle={t('users.subtitle')} />
 
-      {error && (
-        <div className="alert alert-danger" style={{ marginBottom: '20px' }}>
-          {error}
-        </div>
-      )}
+      {error && <AlertBanner variant="danger" message={error} />}
 
-      <div className="stats-grid">
-        <StatCard label={t('users.totalUsers')} value={stats.total_users.toString()} change="" icon="👥" iconBg="var(--info-bg)" />
-        <StatCard label={t('users.newThisMonth')} value={stats.new_users_this_month.toString()} change="" icon="📈" iconBg="var(--success-bg)" />
-        <StatCard label={t('users.verified')} value={stats.verified_users.toString()} change="" icon="✅" iconBg="var(--success-bg)" />
-        <StatCard label={t('users.unverified')} value={stats.unverified_users.toString()} change="" icon="❌" iconBg="var(--warning-bg)" />
-      </div>
+      <StatsGrid cards={[
+        { label: t('users.totalUsers'), value: stats.total_users.toString(), change: '', icon: '👥', iconBg: 'var(--info-bg)' },
+        { label: t('users.newThisMonth'), value: stats.new_users_this_month.toString(), change: '', icon: '📈', iconBg: 'var(--success-bg)' },
+        { label: t('users.verified'), value: stats.verified_users.toString(), change: '', icon: '✅', iconBg: 'var(--success-bg)' },
+        { label: t('users.unverified'), value: stats.unverified_users.toString(), change: '', icon: '❌', iconBg: 'var(--warning-bg)' },
+      ]} />
 
       <div className="card">
         <div className="card-header">
@@ -215,9 +212,7 @@ export function UsersPage() {
           </div>
         </div>
         {loading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '40px', color: 'var(--text-muted)' }}>
-            {t('common.loading')}
-          </div>
+          <LoadingState message={t('common.loading')} />
         ) : (
           <>
             <DataTable columns={columns} data={users} onRowClick={(u) => handleOpenDetails(u)} />

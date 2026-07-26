@@ -226,7 +226,7 @@
   margin-left: var(--sidebar-collapsed-width);
 }
 
-/* ─── Topbar ─── */
+/* ─── Navbar ─── */
 .topbar {
   height: var(--topbar-height);
   background: var(--bg-surface);
@@ -1089,6 +1089,22 @@ tbody td:first-child { color: var(--text-primary); font-weight: 500; }
   outline: none;
 }
 
+.file-input-brand::file-selector-button {
+  background: var(--brand-primary);
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 13px;
+  margin-right: 10px;
+}
+
+.file-input-brand::file-selector-button:hover {
+  background: var(--brand-primary-dark);
+}
+
 .form-input::placeholder {
   color: var(--text-muted);
 }
@@ -1393,12 +1409,14 @@ tbody td:first-child { color: var(--text-primary); font-weight: 500; }
   margin-left: 4px;
 }
 
-.rtl .topbar-left {
-  order: 1;
+.rtl .topbar {
+  justify-content: flex-start;
+  flex-direction: row-reverse;
 }
 
-.rtl .topbar-right {
-  order: 0;
+.rtl .file-input-brand::file-selector-button {
+  margin-right: 0;
+  margin-left: 10px;
 }
 
 .rtl .pagination-info {

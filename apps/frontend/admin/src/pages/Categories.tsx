@@ -6,7 +6,9 @@ import { DataTable, type Column } from '../components/DataTable'
 import { PaginationUI } from '../components/PaginationUI'
 import { Modal } from '../components/Modal'
 import { ConfirmDialog } from '../components/ConfirmDialog'
-import { StatCard } from '../components/StatCard'
+import { StatsGrid } from '../components/StatsGrid'
+import { ActionButtons } from '../components/ActionButtons'
+import { AlertBanner } from '../components/AlertBanner'
 import api from '../lib/api'
 
 interface Category {
@@ -246,8 +248,12 @@ export function CategoriesPage() {
           style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }}
         />
       ) : (
-        <div style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--border-color)', borderRadius: 'var(--radius-sm)', opacity: 0.5, fontSize: '18px' }}>
-          📁
+        <div style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-light)', borderRadius: 'var(--radius-sm)', border: '1px dashed var(--border-color)' }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
         </div>
       ),
     },
@@ -257,35 +263,11 @@ export function CategoriesPage() {
       key: 'id',
       label: t('common.actions'),
       render: (c) => (
-        <div className="action-btns">
-          <button
-            className="btn btn-sm btn-outline"
-            onClick={(e) => {
-              e.stopPropagation()
-              setShowDetails(c)
-            }}
-          >
-            {t('common.details')}
-          </button>
-          <button
-            className="btn btn-sm btn-outline"
-            onClick={(e) => {
-              e.stopPropagation()
-              handleOpenEdit(c)
-            }}
-          >
-            {t('common.edit')}
-          </button>
-          <button
-            className="btn btn-sm btn-danger"
-            onClick={(e) => {
-              e.stopPropagation()
-              setShowDelete(c)
-            }}
-          >
-            {t('common.delete')}
-          </button>
-        </div>
+        <ActionButtons actions={[
+          { label: t('common.details'), onClick: () => setShowDetails(c) },
+          { label: t('common.edit'), onClick: () => handleOpenEdit(c) },
+          { label: t('common.delete'), onClick: () => setShowDelete(c), variant: 'danger' },
+        ]} />
       ),
     },
   ]
@@ -298,32 +280,11 @@ export function CategoriesPage() {
         </button>
       </PageHeader>
 
-      <div className="stats-grid">
-        <StatCard
-          label={t('categories.totalCategories')}
-          value={loading ? '...' : categories.length.toString()}
-          change=""
-          icon="📂"
-          iconBg="var(--info-bg)"
-        />
-      </div>
+      <StatsGrid cards={[
+        { label: t('categories.totalCategories'), value: loading ? '...' : categories.length.toString(), change: '', icon: '📂', iconBg: 'var(--info-bg)' },
+      ]} />
 
-      {error && (
-        <div
-          style={{
-            background: 'var(--danger-bg)',
-            border: '1px solid var(--danger)',
-            color: 'var(--danger)',
-            padding: '12px',
-            borderRadius: 'var(--radius-sm)',
-            fontSize: '13px',
-            fontWeight: '500',
-            marginBottom: '16px',
-          }}
-        >
-          {error}
-        </div>
-      )}
+      {error && <AlertBanner variant="danger" message={error} />}
 
       <div className="card">
         <div className="card-header">
@@ -343,6 +304,8 @@ export function CategoriesPage() {
           onSort={handleSort}
           onRowClick={(c) => setShowDetails(c)}
           loading={loading}
+          emptyTitle="No categories found"
+          emptyAction={{ label: '+ Create Category', onClick: handleOpenCreate }}
         />
         <PaginationUI
           currentPage={page}
@@ -354,22 +317,7 @@ export function CategoriesPage() {
       </div>
 
       <Modal open={showCreate} onClose={() => setShowCreate(false)} title={t('categories.createCategory')} size="md">
-        {formError && (
-          <div
-            style={{
-              background: 'var(--danger-bg)',
-              border: '1px solid var(--danger)',
-              color: 'var(--danger)',
-              padding: '10px 14px',
-              borderRadius: 'var(--radius-md)',
-              fontSize: '13px',
-              fontWeight: '500',
-              marginBottom: '15px',
-            }}
-          >
-            {formError}
-          </div>
-        )}
+        {formError && <AlertBanner variant="danger" message={formError} />}
         <div className="form-grid two-col">
           <div className="form-group">
             <label className="form-label">{t('categories.fields.name')}</label>
@@ -396,7 +344,7 @@ export function CategoriesPage() {
             <input
               type="file"
               accept="image/*"
-              className="form-input"
+              className="form-input file-input-brand"
               onChange={handleCreateImageChange}
               disabled={saving}
             />
@@ -424,22 +372,7 @@ export function CategoriesPage() {
       <Modal open={!!showEdit} onClose={() => setShowEdit(null)} title={t('categories.editCategory')} size="md">
         {showEdit && (
           <>
-            {formError && (
-              <div
-                style={{
-                  background: 'var(--danger-bg)',
-                  border: '1px solid var(--danger)',
-                  color: 'var(--danger)',
-                  padding: '10px 14px',
-                  borderRadius: 'var(--radius-md)',
-                  fontSize: '13px',
-                  fontWeight: '500',
-                  marginBottom: '15px',
-                }}
-              >
-                {formError}
-              </div>
-            )}
+            {formError && <AlertBanner variant="danger" message={formError} />}
             <div className="form-grid two-col">
               <div className="form-group">
                 <label className="form-label">{t('categories.fields.name')}</label>
@@ -464,7 +397,7 @@ export function CategoriesPage() {
                 <input
                   type="file"
                   accept="image/*"
-                  className="form-input"
+                  className="form-input file-input-brand"
                   onChange={handleEditImageChange}
                   disabled={saving}
                 />
