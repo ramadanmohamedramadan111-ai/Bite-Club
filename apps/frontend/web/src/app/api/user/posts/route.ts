@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { serverFetch } from '@/utils/server-fetch';
-import { ApiResponse } from '@/types/api/api-response';
-import type { PostType } from '@/types/social/posts';
-import type { PaginatedResponse } from '@/types/api/api-response';
+import { ApiResponse } from '@/types/api';
+import type { PostType } from '@/types/posts';
+import type { PaginatedResponse } from '@/types/api';
 
 export async function GET(request: NextRequest) {
   try {
@@ -23,3 +23,4 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+

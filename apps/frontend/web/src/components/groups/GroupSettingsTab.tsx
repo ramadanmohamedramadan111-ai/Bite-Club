@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import type { GroupType } from '@/types/groups/groups';
+import type { GroupType } from '@/types/groups';
 import GroupForm from './GroupForm';
 import { useAction } from 'next-safe-action/hooks';
 import {
@@ -150,11 +150,7 @@ export default function GroupSettingsTab({ group, isOwner }: Props) {
         open={confirmOpen}
         onOpenChange={setConfirmOpen}
         title={isOwner ? t('deleteGroupTitle') : t('leaveGroupTitle')}
-        description={
-          isOwner
-            ? t('deleteGroupDesc')
-            : t('leaveGroupDesc')
-        }
+        description={isOwner ? t('deleteGroupDesc') : t('leaveGroupDesc')}
         confirmText={isOwner ? t('deleteConfirm') : t('leaveConfirm')}
         onConfirm={handleDelete}
       />

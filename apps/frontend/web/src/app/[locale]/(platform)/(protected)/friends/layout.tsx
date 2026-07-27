@@ -1,5 +1,5 @@
-import FriendsTabsNavigation from '@/components/social/friends/FriendsTabsNavigation';
-import SearchUsers from '@/components/social/friends/SearchUsers';
+import FriendsTabsNavigation from '@/components/friends/FriendsTabsNavigation';
+import SearchUsers from '@/components/friends/SearchUsers';
 
 export default function FriendsLayout({
   children,
@@ -14,3 +14,4 @@ export default function FriendsLayout({
     </>
   );
 }
+

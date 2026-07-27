@@ -1,11 +1,10 @@
 import { Link } from '@/i18n/navigation';
-import { ApiResponse } from '@/types/api/api-response';
-import { RestaurantCategory } from '@/types/restaurant/restaurant';
+import { ApiResponse } from '@/types/api';
+import { RestaurantCategory } from '@/types/restaurant';
 import { serverFetch } from '@/utils/server-fetch';
 import { Utensils } from 'lucide-react';
 import Image from 'next/image';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import HomeCategoriesScroll from './HomeCategoriesScroll';
 
 export default async function HomeCategories() {
   const data = await serverFetch<ApiResponse<{ items: RestaurantCategory[] }>>(
@@ -21,7 +20,7 @@ export default async function HomeCategories() {
           {categories.map((category) => (
             <Link
               key={category.id}
-              href={`/restaurants?category=${category.id}`}
+              href={`/restaurants?category=${category.name}`}
               className="group flex w-24 shrink-0 flex-col items-center text-center">
               <div className="flex size-20 items-center justify-center overflow-hidden rounded-full bg-primary/10 transition group-hover:bg-primary/20 group-hover:shadow-md">
                 {category.image_url ? (

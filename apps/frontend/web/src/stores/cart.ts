@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Cart, CartStore } from '@/types/cart/cart';
+import type { Cart, CartStore } from '@/types/cart';
 
 let tempId = 1;
 

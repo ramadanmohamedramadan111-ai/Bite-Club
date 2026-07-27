@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { serverFetch } from '@/utils/server-fetch';
-import { ApiResponse } from '@/types/api/api-response';
-import type { UserResponse } from '@/types/profile/user';
+import { ApiResponse } from '@/types/api';
+import type { UserResponse } from '@/types/user';
 
 export async function GET() {
   try {
@@ -16,3 +16,4 @@ export async function GET() {
     );
   }
 }
+

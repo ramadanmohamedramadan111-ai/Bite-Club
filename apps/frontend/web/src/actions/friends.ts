@@ -2,11 +2,11 @@
 
 import { actionClient } from '@/lib/safe-action';
 import { idSchema } from '@/schemas/common/id-schema';
-import { ApiResponse } from '@/types/api/api-response';
+import { ApiResponse } from '@/types/api';
 import {
   cancelFriendRequestResponse,
   sendFriendRequestResponse,
-} from '@/types/social/friends';
+} from '@/types/friends';
 import { getUserId } from '@/utils/api-helpers';
 import { serverFetch } from '@/utils/server-fetch';
 import { updateTag } from 'next/cache';

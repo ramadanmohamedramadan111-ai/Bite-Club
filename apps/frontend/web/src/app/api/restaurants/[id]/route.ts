@@ -1,16 +1,13 @@
 import { NextResponse } from 'next/server';
 import { serverFetch } from '@/utils/server-fetch';
-import { ApiResponse } from '@/types/api/api-response';
-import { RestaurantType } from '@/types/restaurant/restaurant';
+import { ApiResponse } from '@/types/api';
+import { RestaurantType } from '@/types/restaurant';
 
 type RouteParams = {
   params: Promise<{ id: string }>;
 };
 
-export async function GET(
-  request: Request,
-  { params }: RouteParams,
-) {
+export async function GET(request: Request, { params }: RouteParams) {
   try {
     const { id } = await params;
 
@@ -27,3 +24,4 @@ export async function GET(
     );
   }
 }
+

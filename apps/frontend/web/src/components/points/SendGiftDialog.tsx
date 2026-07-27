@@ -26,7 +26,7 @@ import {
 import { sendGiftAction } from '@/actions/points';
 import { createSendUserPointsSchema } from '@/schemas/points/send-user-points-schema';
 import type { SendUserPointsSchema } from '@/schemas/points/send-user-points-schema';
-import { mapServerFieldErrors } from '@/utils/server/map-server-field-errors';
+import { mapServerFieldErrors } from '@/utils/map-server-field-errors';
 
 type Friend = {
   id: number;

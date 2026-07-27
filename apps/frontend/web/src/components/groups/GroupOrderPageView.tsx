@@ -37,8 +37,8 @@ import {
   clearMyItemsGroupOrderAction,
   unlockGroupAction,
 } from '@/actions/group-order';
-import type { GroupOrderCartSession } from '@/types/group-order/group-order';
-import type { MenuItems } from '@/types/restaurant/restaurant';
+import type { GroupOrderCartSession } from '@/types/group-order';
+import type { MenuItems } from '@/types/restaurant';
 
 type Props = {
   sessionId: string;
@@ -257,11 +257,11 @@ export default function GroupOrderPageView({
                   {t('noItemsYet')}
                 </p>
               ) : (
-              <GroupCartItemsList
-                membersSummary={membersSummary}
-                sessionId={groupOrderId}
-                currentUserId={currentUserId}
-              />
+                <GroupCartItemsList
+                  membersSummary={membersSummary}
+                  sessionId={groupOrderId}
+                  currentUserId={currentUserId}
+                />
               )}
 
               <GroupCartTotals

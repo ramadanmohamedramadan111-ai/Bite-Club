@@ -2,7 +2,7 @@
 
 import { actionClient } from '@/lib/safe-action';
 import { createSendUserPointsSchema } from '@/schemas/points/send-user-points-schema';
-import { ApiResponse } from '@/types/api/api-response';
+import { ApiResponse } from '@/types/api';
 import { getUserId } from '@/utils/api-helpers';
 import { serverFetch } from '@/utils/server-fetch';
 import { getTranslations } from 'next-intl/server';
@@ -28,3 +28,4 @@ export const sendGiftAction = actionClient
 
     return response;
   });
+

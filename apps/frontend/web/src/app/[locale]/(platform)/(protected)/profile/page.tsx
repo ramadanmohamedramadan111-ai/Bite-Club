@@ -1,12 +1,12 @@
 import { serverFetch } from '@/utils/server-fetch';
-import type { ApiResponse } from '@/types/api/api-response';
-import type { UserResponse } from '@/types/profile/user';
+import type { ApiResponse } from '@/types/api';
+import type { UserResponse } from '@/types/user';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Edit } from 'lucide-react';
-import { UserPostsSection } from '@/components/social/posts/UserPostsSection';
+import { UserPostsSection } from '@/components/posts/UserPostsSection';
 import ReferralLinkSection from '@/components/profile/ReferralLinkSection';
 
 async function getProfile(): Promise<UserResponse | null> {

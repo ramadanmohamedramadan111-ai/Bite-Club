@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { Separator } from '@/components/ui/separator';
-import type { GroupOrderCartSession } from '@/types/group-order/group-order';
+import type { GroupOrderCartSession } from '@/types/group-order';
 
 type Props = {
   membersSummary: GroupOrderCartSession['members_summary'];
@@ -21,9 +21,7 @@ export default function GroupCartTotals({
         <p className="font-medium">{t('byMember')}</p>
         {membersSummary.map((member) => (
           <div key={member.user.id} className="flex justify-between">
-            <span className="text-muted-foreground">
-              {member.user.name}
-            </span>
+            <span className="text-muted-foreground">{member.user.name}</span>
             <span>
               {member.user_total.toFixed(2)} {t('egp')}
             </span>
@@ -42,3 +40,4 @@ export default function GroupCartTotals({
     </div>
   );
 }
+

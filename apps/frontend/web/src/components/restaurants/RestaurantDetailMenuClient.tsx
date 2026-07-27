@@ -9,7 +9,7 @@ import type {
   MenuItem,
   MenuItems,
   RestaurantType,
-} from '@/types/restaurant/restaurant';
+} from '@/types/restaurant';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import MenuItemDialog from './MenuItemDialog';

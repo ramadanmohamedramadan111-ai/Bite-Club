@@ -17,7 +17,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useCartStore } from '@/stores/cart';
-import { IndividualCartResponse } from '@/types/cart/cart';
+import { IndividualCartResponse } from '@/types/cart';
 import { useAction } from 'next-safe-action/hooks';
 import {
   clearIndividualCartAction,
@@ -274,55 +274,12 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
       {/* Footer */}
       {cartItems.length > 0 && (
         <div className="shrink-0 space-y-2 border-t border-border p-4">
-          {/* {cart?.type === 'individual' && <CartRedemptionSelector />}
-          {cart?.type === 'group' && (
-            <div className="space-y-1 pb-2 text-sm">
-              {groupCartItemsByUser(cartItems).map((group) => (
-                <div key={group.key} className="flex justify-between">
-                  <span className="text-muted-foreground">{group.name}</span>
-                  <span>EGP {group.subtotal.toFixed(2)}</span>
-                </div>
-              ))}
-            </div>
-          )} */}
-
           <div className="flex justify-between text-sm">
             <span>{t('subtotal')}</span>
             <span>
               {t('egp')} {cart?.subtotal.toFixed(2)}
             </span>
           </div>
-
-          {/* <div className="flex justify-between text-sm">
-            <span>Delivery Fee</span>
-
-            <span>EGP{summary.deliveryFee.toFixed(2)}</span>
-          </div>
-
-          <div className="flex justify-between text-sm">
-            <span>Tax</span>
-
-            <span>EGP{summary.tax.toFixed(2)}</span>
-          </div> */}
-
-          {/* {summary.discount > 0 && (
-            <div className="flex justify-between text-sm">
-              <span>
-                Discount
-                {summary.appliedRedemptionTitle
-                  ? ` (${summary.appliedRedemptionTitle})`
-                  : ''}
-              </span>
-
-              <span>EGP-{summary.discount.toFixed(2)}</span>
-            </div>
-          )} */}
-
-          {/* <div className="flex justify-between pt-2 text-lg font-semibold">
-            <span>Total</span>
-
-            <span>EGP {summary.total.toFixed(2)}</span>
-          </div> */}
 
           <GroupCartActionButton onCheckout={onClose} />
         </div>

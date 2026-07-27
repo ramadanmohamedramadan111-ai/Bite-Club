@@ -1,12 +1,36 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { useNotificationsStore } from '@/lib/const-data';
 import NotificationCard from './NotificationCard';
 import NotificationsPagination from './NotificationsPagination';
+import type { Notification } from '@/types/notification';
+
+const MOCK_NOTIFICATIONS: Notification[] = [
+  {
+    id: '1',
+    title: 'Order Ready',
+    description: 'Your order from Pizza Place is ready for pickup!',
+    read: false,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: '2',
+    title: 'New Restaurant',
+    description: 'A new restaurant just opened near you.',
+    read: false,
+    createdAt: new Date(Date.now() - 86400000).toISOString(),
+  },
+  {
+    id: '3',
+    title: 'Welcome!',
+    description: 'Welcome to Bite Club! Enjoy your first meal.',
+    read: true,
+    createdAt: new Date(Date.now() - 172800000).toISOString(),
+  },
+];
 
 const NOTIFICATIONS_PER_PAGE = 4;
 
@@ -16,9 +40,17 @@ export default function NotificationsPageView() {
   const searchParams = useSearchParams();
   const currentPage = Math.max(1, Number(searchParams.get('page') ?? '1'));
 
-  const notifications = useNotificationsStore((state) => state.notifications);
-  const markAsRead = useNotificationsStore((state) => state.markAsRead);
-  const markAllAsRead = useNotificationsStore((state) => state.markAllAsRead);
+  const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
+
+  const markAsRead = (id: string) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
+    );
+  };
+
+  const markAllAsRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  };
 
   const sortedNotifications = useMemo(
     () =>

@@ -19,8 +19,8 @@ import {
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { ScrollArea } from '../ui/scroll-area';
-import { ApiResponse, PaginatedResponse } from '@/types/api/api-response';
-import { GroupMember } from '@/types/groups/groups';
+import { ApiResponse, PaginatedResponse } from '@/types/api';
+import { GroupMember } from '@/types/groups';
 import { Checkbox } from '../ui/checkbox';
 import DialogPagination from '../shared/DialogPagination';
 import { UserPlus } from 'lucide-react';
@@ -113,9 +113,7 @@ export default function AddMembersPaginatedDialog({ groupId }: Props) {
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>{t('addMembersTitle')}</DialogTitle>
-          <DialogDescription>
-            {t('addMembersDesc')}
-          </DialogDescription>
+          <DialogDescription>{t('addMembersDesc')}</DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-2">
@@ -203,7 +201,8 @@ export default function AddMembersPaginatedDialog({ groupId }: Props) {
           <Button
             onClick={handleAddMembers}
             disabled={selectedUserIds.length === 0 || isExecuting}>
-            {t('addMembers')} {selectedUserIds.length || ''} {selectedUserIds.length === 1 ? t('member') : t('members_plural')}
+            {t('addMembers')} {selectedUserIds.length || ''}{' '}
+            {selectedUserIds.length === 1 ? t('member') : t('members_plural')}
           </Button>
         </DialogFooter>
       </DialogContent>

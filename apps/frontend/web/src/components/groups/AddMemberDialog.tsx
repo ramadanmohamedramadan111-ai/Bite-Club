@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '../ui/button';
-import { GroupType } from '@/types/groups/groups';
+import { GroupType } from '@/types/groups';
 import { UserPlus } from 'lucide-react';
 
 export default function AddMemberDialog({ group }: { group: GroupType }) {
@@ -32,7 +32,9 @@ export default function AddMemberDialog({ group }: { group: GroupType }) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t('addMember')}</DialogTitle>
-            <DialogDescription>{t('addMemberDesc', { name: group.name })}</DialogDescription>
+            <DialogDescription>
+              {t('addMemberDesc', { name: group.name })}
+            </DialogDescription>
           </DialogHeader>
 
           {/* <div className="max-h-64 space-y-2 overflow-y-auto">

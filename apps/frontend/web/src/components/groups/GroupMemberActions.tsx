@@ -2,7 +2,12 @@
 
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
-import { MoreHorizontal, ShieldCheck, ShieldAlert, UserMinus } from 'lucide-react';
+import {
+  MoreHorizontal,
+  ShieldCheck,
+  ShieldAlert,
+  UserMinus,
+} from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -19,7 +24,7 @@ import {
   demoteGroupMemberAction,
 } from '@/actions/groups';
 
-import { GroupRole } from '@/types/groups/groups';
+import { GroupRole } from '@/types/groups';
 import { useAction } from 'next-safe-action/hooks';
 import { toast } from 'sonner';
 
@@ -37,7 +42,9 @@ export default function GroupMemberActions({
   targetRole,
 }: Props) {
   const t = useTranslations('groups');
-  const [activeAction, setActiveAction] = useState<'promote' | 'demote' | 'remove' | null>(null);
+  const [activeAction, setActiveAction] = useState<
+    'promote' | 'demote' | 'remove' | null
+  >(null);
 
   const { execute: removeMember, isExecuting: isRemoving } = useAction(
     removeGroupMemberAction,
@@ -199,3 +206,4 @@ export default function GroupMemberActions({
     </>
   );
 }
+

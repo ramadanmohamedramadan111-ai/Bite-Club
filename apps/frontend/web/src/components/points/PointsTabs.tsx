@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { usePathname } from '@/i18n/navigation';
 import { Link } from '@/i18n/navigation';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { PointsTab } from '@/types/points/points';
+import type { PointsTab } from '@/types/points';
 
 const tabKeys: { value: PointsTab; labelKey: string }[] = [
   { value: 'history', labelKey: 'history' },
@@ -16,7 +16,8 @@ export default function PointsTabs() {
   const pathname = usePathname();
 
   const activeTab =
-    tabKeys.find((tab) => pathname.endsWith(`/${tab.value}`))?.value ?? 'history';
+    tabKeys.find((tab) => pathname.endsWith(`/${tab.value}`))?.value ??
+    'history';
 
   return (
     <Tabs value={activeTab}>
@@ -30,3 +31,4 @@ export default function PointsTabs() {
     </Tabs>
   );
 }
+

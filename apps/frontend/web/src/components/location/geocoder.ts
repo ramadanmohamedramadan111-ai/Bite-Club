@@ -1,5 +1,12 @@
 'use client';
 
+export type GeocodeResult = {
+  lat: number;
+  lng: number;
+  address: string;
+  type: string;
+};
+
 export async function reverseGeocode(lat: number, lng: number) {
   const response = await fetch(`/api/reverse-geocode?lat=${lat}&lng=${lng}`);
 
@@ -21,4 +28,14 @@ export async function reverseGeocode(lat: number, lng: number) {
     area,
     address: data.display_name,
   };
+}
+
+export async function searchGeocode(query: string): Promise<GeocodeResult[]> {
+  const response = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`);
+
+  if (!response.ok) {
+    throw new Error('Search failed');
+  }
+
+  return response.json();
 }

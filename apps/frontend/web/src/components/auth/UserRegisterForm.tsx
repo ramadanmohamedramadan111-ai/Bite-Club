@@ -34,13 +34,11 @@ import {
 } from '@/schemas/auth/user-register-schema';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import { useState } from 'react';
-import VerifyForm from '@/components/auth/verify-form';
 import useNavigation from '@/hooks/useNavigation';
-import { registerUserAction } from '@/actions/auth/register';
 
 import { useAction } from 'next-safe-action/hooks';
-import { mapServerFieldErrors } from '@/utils/server/map-server-field-errors';
+import { mapServerFieldErrors } from '@/utils/map-server-field-errors';
+import { registerUserAction } from '@/actions/auth';
 
 export function RegisterForm({
   className,
@@ -50,15 +48,12 @@ export function RegisterForm({
   const t = useTranslations('forms.register');
   const registerSchema = createUserRegisterSchema(t);
 
-  const [step, setStep] = useState(1);
-
   const {
     register,
     control,
     handleSubmit,
-    watch,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<UserRegisterSchema>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -67,18 +62,14 @@ export function RegisterForm({
     },
   });
 
-  const email = watch('email');
-
   const { navigate } = useNavigation();
 
   const { execute: registerUser, isExecuting } = useAction(registerUserAction, {
     onSuccess: ({ data }) => {
-      console.log('Registration successful:', data);
       toast.success(data.message || t('success'));
       navigate('/login');
     },
     onError: ({ error }) => {
-      console.error('Registration failed:', error);
       if (error.serverError?.data?.errors) {
         mapServerFieldErrors(error.serverError.data.errors, setError);
       }
@@ -88,10 +79,6 @@ export function RegisterForm({
   const onSubmit = (data: UserRegisterSchema) => {
     registerUser(data);
   };
-
-  if (step === 2) {
-    return <VerifyForm email={email} purpose="login" type="user" />;
-  }
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>

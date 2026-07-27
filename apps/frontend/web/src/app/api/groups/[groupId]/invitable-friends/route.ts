@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { serverFetch } from '@/utils/server-fetch';
-import { ApiResponse, PaginatedResponse } from '@/types/api/api-response';
-import { GroupMember } from '@/types/groups/groups';
+import { ApiResponse, PaginatedResponse } from '@/types/api';
+import { GroupMember } from '@/types/groups';
 
 export async function GET(
   request: NextRequest,
@@ -25,3 +25,4 @@ export async function GET(
 
   return NextResponse.json(response);
 }
+

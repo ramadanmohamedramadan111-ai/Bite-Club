@@ -28,9 +28,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import useNavigation from '@/hooks/useNavigation';
 
 import { useAction } from 'next-safe-action/hooks';
-import { loginUserAction } from '@/actions/auth/login';
 
-import { mapServerFieldErrors } from '@/utils/server/map-server-field-errors';
+import { mapServerFieldErrors } from '@/utils/map-server-field-errors';
 
 import {
   createLoginSchema,
@@ -38,6 +37,7 @@ import {
 } from '@/schemas/auth/restaurant-login-schema';
 
 import { toast } from 'sonner';
+import { loginUserAction } from '@/actions/auth';
 
 export default function UserLoginForm({
   className,
@@ -155,3 +155,4 @@ export default function UserLoginForm({
     </div>
   );
 }
+

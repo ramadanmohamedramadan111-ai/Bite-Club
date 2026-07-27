@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { Bike, Heart, MapPin, ShoppingBag, Star } from 'lucide-react';
-import type { RestaurantType } from '@/types/restaurant/restaurant';
+import type { RestaurantType } from '@/types/restaurant';
 import RestaurantGroupOrderActions from './RestaurantGroupOrderActions';
 
 type Props = {
@@ -107,7 +107,9 @@ export default function RestaurantDetailHeader({ restaurant }: Props) {
         <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
           {restaurant.minimum_order && (
             <span className="inline-flex items-center gap-1.5">
-              {t('minimumOrder', { amount: restaurant.minimum_order.toFixed(0) })}
+              {t('minimumOrder', {
+                amount: restaurant.minimum_order.toFixed(0),
+              })}
             </span>
           )}
         </div>

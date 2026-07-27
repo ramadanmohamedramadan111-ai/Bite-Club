@@ -667,6 +667,9 @@
     "addFriend": "إضافة صديق"
   },
   "home": {
+    "heroTitle": "اطلب الطعام الذي ستحبه",
+    "heroSubtitle": "اكتشف أفضل المطاعم القريبة منك، واطلب مع الأصدقاء، واكسب المكافآت مع كل وجبة.",
+    "heroCta": "تصفح المطاعم",
     "categories": "التصنيفات",
     "categoriesDesc": "استكشف الطعام حسب ما ترغب به",
     "topRestaurants": "أفضل المطاعم",
@@ -1050,6 +1053,17 @@
     "next": "التالي",
     "morePages": "المزيد من الصفحات",
     "pageOf": "الصفحة {current} من {total}"
+  },
+  "location": {
+    "selectLocation": "اختر موقعك",
+    "searchPlaceholder": "ابحث عن مكان...",
+    "findingAddress": "جارٍ العثور على العنوان...",
+    "clickMapInstruction": "انقر في أي مكان على الخريطة لاختيار موقع.",
+    "resetLocation": "إعادة تعيين الموقع",
+    "confirmResetTitle": "هل أنت متأكد أنك تريد إعادة تعيين موقعك؟",
+    "confirmResetDescription": "سيؤدي هذا إلى إزالة موقعك المحفوظ. ستحتاج إلى تحديد موقع مرة أخرى قبل تقديم طلب.",
+    "confirmLocation": "تأكيد الموقع",
+    "chooseLocation": "اختر موقعًا"
   },
   "gamification": {
     "signInToTrack": "سجل الدخول لتتبع مكافآتك",
