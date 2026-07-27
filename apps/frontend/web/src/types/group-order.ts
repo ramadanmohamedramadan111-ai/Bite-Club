@@ -5,7 +5,7 @@ export interface GroupOrderSessionSuccessResponse {
 
 export interface GroupOrderCartSession {
   id: number;
-  status: 'open' | 'cancelled' | 'locked';
+  status: 'open' | 'cancelled' | 'locked' | 'completed';
   restaurant: {
     id: number;
     name: string;
@@ -89,7 +89,7 @@ export interface CheckoutGroupOrderPreviewResponse {
 
 export interface GroupOrderSession {
   id: number;
-  status: 'open' | 'cancelled' | 'locked';
+  status: 'open' | 'cancelled' | 'locked' | 'completed';
   group_id: number;
   group_name: string;
   restaurant_id: number;
@@ -132,3 +132,4 @@ export interface GroupOrderHistory {
   created_at: string;
   updated_at: string;
 }
+

@@ -962,6 +962,8 @@
     "locked": "مقفل",
     "open": "مفتوح",
     "orderActions": "إجراءات الطلب",
+    "groupOrderCompleted": "تم إكمال طلب المجموعة",
+    "groupOrderCompletedDesc": "تم تقديم طلب المجموعة في {restaurant} بالفعل.",
     "groupOrderCancelled": "تم إلغاء طلب المجموعة",
     "groupOrderCancelledDesc": "تم إلغاء طلب المجموعة في {restaurant}.",
     "backToGroups": "العودة إلى المجموعات"

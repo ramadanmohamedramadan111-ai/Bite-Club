@@ -962,6 +962,8 @@
     "locked": "Locked",
     "open": "Open",
     "orderActions": "Order actions",
+    "groupOrderCompleted": "Group order completed",
+    "groupOrderCompletedDesc": "The group order at {restaurant} has already been placed.",
     "groupOrderCancelled": "Group order cancelled",
     "groupOrderCancelledDesc": "The group order at {restaurant} has been cancelled.",
     "backToGroups": "Back to groups"
