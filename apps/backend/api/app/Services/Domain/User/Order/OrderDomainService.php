@@ -348,10 +348,7 @@ class OrderDomainService
                     'status' => OrderStatusEnum::PENDING->value,
                 ]);
             } else {
-                $this->orderPaymentRepository->update($payment->id, [
-                    'status' => PaymentStatusEnum::FAILED->value,
-                    'transaction_id' => $transactionId,
-                ]);
+                Log::warning("Kashier Webhook: Received non-SUCCESS status '{$status}' for Order: {$orderId}. Leaving for cron job cleanup.");
             }
 
             DB::commit();
@@ -380,5 +377,42 @@ class OrderDomainService
         }
 
         return $order;
+    }
+
+    public function cancelExpiredUnpaidOrders(int $timeoutMinutes = 60): int
+    {
+        $orders = $this->orderRepository->getExpiredUnpaidOrders($timeoutMinutes);
+        $count = 0;
+
+        foreach ($orders as $order) {
+            try {
+                DB::transaction(function () use ($order) {
+                    $this->orderRepository->update($order->id, [
+                        'status' => OrderStatusEnum::CANCELLED->value,
+                    ]);
+
+                    $this->orderPaymentRepository->updatePendingPaymentsStatus(
+                        $order->id,
+                        PaymentStatusEnum::FAILED->value
+                    );
+
+                    $redemption = Redemption::where('order_id', $order->id)->first();
+                    if ($redemption && $redemption->points_redeemed > 0) {
+                        $this->walletDomainService->earnPoints(
+                            $order->user_id,
+                            $redemption->points_redeemed,
+                            PointTransactionSourceEnum::REFUND->value,
+                            $redemption->id,
+                            Redemption::class
+                        );
+                    }
+                });
+                $count++;
+            } catch (\Exception $e) {
+                Log::error("Failed to cancel expired order ID {$order->id}: " . $e->getMessage());
+            }
+        }
+
+        return $count;
     }
 }

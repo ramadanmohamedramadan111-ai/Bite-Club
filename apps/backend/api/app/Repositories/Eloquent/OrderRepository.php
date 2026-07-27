@@ -113,4 +113,12 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             ->with(['restaurant', 'items', 'payments'])
             ->first();
     }
+
+    public function getExpiredUnpaidOrders(int $timeoutMinutes)
+    {
+        return $this->model->where('status', OrderStatusEnum::AWAITING_PAYMENT->value)
+            ->where('created_at', '<=', now()->subMinutes($timeoutMinutes))
+            ->with(['payments', 'items'])
+            ->get();
+    }
 }

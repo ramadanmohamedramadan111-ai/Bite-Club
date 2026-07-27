@@ -64,4 +64,9 @@ class OrderApplicationService
             $dto->getUserId()
         );
     }
+
+    public function cancelExpiredUnpaidOrders(int $timeoutMinutes = 60): int
+    {
+        return $this->orderDomainService->cancelExpiredUnpaidOrders($timeoutMinutes);
+    }
 }

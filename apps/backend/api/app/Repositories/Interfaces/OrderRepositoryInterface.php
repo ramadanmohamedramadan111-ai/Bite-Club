@@ -10,4 +10,5 @@ interface OrderRepositoryInterface extends BaseRepositoryInterface
     public function getActiveOrdersForUser(int $userId);
     public function getPaginatedPastOrdersForUser(int $userId, int $page, int $perPage);
     public function findOrderForUser(int $orderId, int $userId);
+    public function getExpiredUnpaidOrders(int $timeoutMinutes);
 }

@@ -16,3 +16,5 @@ Schedule::command('loyalty:grant-weekly-rewards')->weeklyOn(2, '00:00');
 Schedule::call(function (LeaderboardApplicationService $service) {
     $service->generateWeeklyLeaderboard();
 })->weeklyOn(2, '00:00');
+
+Schedule::command('orders:cancel-expired')->everyFifteenMinutes();
