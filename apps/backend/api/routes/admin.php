@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Admin\PostModerationController;
 use App\Http\Controllers\Api\Admin\UserManagement\UserController;
 use App\Http\Controllers\Api\Admin\UserManagement\UserBanController;
 use App\Http\Controllers\Api\Admin\LeaderboardDashboardController;
+use App\Http\Controllers\Api\Admin\OrderController;
 
 Route::post('/login', [AdminAuthController::class, 'login'])->name('login');
 
@@ -30,6 +31,11 @@ Route::middleware('auth.admin')->group(function () {
         Route::get('/', [RestaurantController::class, 'index'])->name('index');
         Route::get('/{id}/available-statuses', [RestaurantController::class, 'availableTransitions'])->name('available-statuses');
         Route::put('/{id}/status', [RestaurantController::class, 'updateStatus'])->name('update-status');
+    });
+
+    Route::prefix('orders')->name('orders.')->group(function () {
+        Route::get('/', [OrderController::class, 'index'])->name('index');
+        Route::get('/{order}', [OrderController::class, 'show'])->name('show');
     });
 
     Route::prefix('general-settings')->name('general-settings.')->group(function () {
