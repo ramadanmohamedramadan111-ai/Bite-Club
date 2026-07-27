@@ -127,6 +127,10 @@ export function RestaurantsPage() {
   })
 
   filtered.sort((a, b) => {
+    const aIsPending = a.status === 'pending_approval' ? 0 : 1
+    const bIsPending = b.status === 'pending_approval' ? 0 : 1
+    if (aIsPending !== bIsPending) return aIsPending - bIsPending
+
     let aVal = ''
     let bVal = ''
     if (sortKey === 'category') {
