@@ -5,7 +5,7 @@ import { getTranslations } from 'next-intl/server';
 import { GroupOrderCartSession } from '@/types/group-order';
 import { MenuItems } from '@/types/restaurant';
 import { ApiResponse, PaginatedResponse } from '@/types/api';
-import { XCircle } from 'lucide-react';
+import { CheckCircle2, XCircle } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,6 +26,34 @@ export default async function Page({ params }: PageProps) {
       },
     },
   );
+
+  if (sessionCart.data.status === 'completed') {
+    const t = await getTranslations('groups');
+    return (
+      <div className="container mx-auto flex min-h-[60vh] items-center justify-center py-8">
+        <Card className="w-full max-w-md text-center">
+          <CardHeader>
+            <div className="mx-auto mb-2 flex size-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+              <CheckCircle2 className="size-6 text-green-600 dark:text-green-400" />
+            </div>
+            <CardTitle className="text-xl">
+              {t('groupOrderCompleted')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              {t('groupOrderCompletedDesc', {
+                restaurant: sessionCart.data.restaurant.name,
+              })}
+            </p>
+            <Button asChild variant="outline" className="gap-2">
+              <Link href="/groups">{t('backToGroups')}</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (sessionCart.data.status === 'cancelled') {
     const t = await getTranslations('groups');
