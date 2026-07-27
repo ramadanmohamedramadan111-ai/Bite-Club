@@ -232,20 +232,24 @@ class GroupOrderDomainService
             throw new Exception(trans('group_order.empty_order'));
         }
 
-        // Aggregate items (group by item_id AND notes)
+        // Aggregate items (group by item_id only and merge notes)
         $aggregatedItems = [];
         foreach ($items as $item) {
-            $key = $item->item_id . '_' . md5((string)$item->notes);
+            $key = $item->item_id;
             if (!isset($aggregatedItems[$key])) {
                 $aggregatedItems[$key] = [
                     'item_id' => $item->item_id,
                     'item_name' => $item->item_name,
                     'unit_price' => $item->unit_price,
-                    'notes' => $item->notes,
+                    'notes_list' => [],
                     'quantity' => 0,
                 ];
             }
             $aggregatedItems[$key]['quantity'] += $item->quantity;
+
+            if (!empty(trim((string) $item->notes))) {
+                $aggregatedItems[$key]['notes_list'][] = "({$item->quantity}x): " . trim((string) $item->notes);
+            }
         }
 
         // Find or create host cart
@@ -266,13 +270,15 @@ class GroupOrderDomainService
 
         // Insert new aggregated items
         foreach ($aggregatedItems as $aggItem) {
+            $notes = !empty($aggItem['notes_list']) ? implode(' | ', $aggItem['notes_list']) : null;
+
             $this->cartItemRepo->create([
                 'cart_id' => $cart->id,
                 'item_id' => $aggItem['item_id'],
                 'item_name' => $aggItem['item_name'],
                 'quantity' => $aggItem['quantity'],
                 'unit_price' => $aggItem['unit_price'],
-                'notes' => $aggItem['notes'],
+                'notes' => $notes,
             ]);
         }
     }
