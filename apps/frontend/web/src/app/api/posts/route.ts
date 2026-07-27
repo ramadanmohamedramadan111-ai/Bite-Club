@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { serverFetch } from '@/utils/server-fetch';
-import { ApiResponse, PaginatedResponse } from '@/types/api/api-response';
-import { PostType } from '@/types/social/posts';
+import { ApiResponse, PaginatedResponse } from '@/types/api';
+import { PostType } from '@/types/posts';
 
 export async function GET(request: Request) {
   try {

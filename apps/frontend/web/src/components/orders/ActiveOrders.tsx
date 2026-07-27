@@ -1,8 +1,8 @@
 import { serverFetch } from '@/utils/server-fetch';
 import { getTranslations } from 'next-intl/server';
 import { buildQueryString } from '@/utils/api-helpers';
-import type { ApiResponse } from '@/types/api/api-response';
-import type { OrderResponse } from '@/types/orders/order';
+import type { ApiResponse } from '@/types/api';
+import type { OrderResponse } from '@/types/order';
 import OrderCard from './OrderCard';
 
 export default async function ActiveOrders() {
@@ -28,7 +28,8 @@ export default async function ActiveOrders() {
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        {orders.length} {orders.length === 1 ? t('activeOrder') : t('activeOrders')}
+        {orders.length}{' '}
+        {orders.length === 1 ? t('activeOrder') : t('activeOrders')}
       </p>
       {orders.map((order) => (
         <OrderCard key={order.id} order={order} />
@@ -36,3 +37,4 @@ export default async function ActiveOrders() {
     </div>
   );
 }
+

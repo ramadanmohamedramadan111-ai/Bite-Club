@@ -41,7 +41,7 @@ export default function GroupOrderSessionsButton({ className }: Props) {
       aria-label={t('activeGroupOrders')}>
       <span className="relative inline-flex items-center justify-center">
         <ShoppingCart className="size-5" />
-        <span className="absolute -bottom-1 -right-1 flex size-3.5 items-center justify-center rounded-full bg-accent-foreground text-accent">
+        <span className="absolute -bottom-1 flex size-3.5 items-center justify-center rounded-full bg-accent-foreground text-accent ltr:-right-1 rtl:-left-1">
           <Users className="size-2.5" />
         </span>
       </span>

@@ -1,5 +1,5 @@
-import FeedHeader from '@/components/social/posts/FeedHeader';
-import FeedTabsNav from '@/components/social/posts/FeedTabsNav';
+import FeedHeader from '@/components/posts/FeedHeader';
+import FeedTabsNav from '@/components/posts/FeedTabsNav';
 
 export default async function FeedLayout({
   children,
@@ -14,3 +14,4 @@ export default async function FeedLayout({
     </div>
   );
 }
+

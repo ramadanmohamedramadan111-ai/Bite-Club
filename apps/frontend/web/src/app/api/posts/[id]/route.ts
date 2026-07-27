@@ -1,22 +1,17 @@
 import { NextResponse } from 'next/server';
 import { serverFetch } from '@/utils/server-fetch';
-import { ApiResponse } from '@/types/api/api-response';
-import { PostType } from '@/types/social/posts';
+import { ApiResponse } from '@/types/api';
+import { PostType } from '@/types/posts';
 
 type RouteParams = {
   params: Promise<{ id: string }>;
 };
 
-export async function GET(
-  request: Request,
-  { params }: RouteParams,
-) {
+export async function GET(request: Request, { params }: RouteParams) {
   try {
     const { id } = await params;
 
-    const response = await serverFetch<ApiResponse<PostType>>(
-      `/posts/${id}`,
-    );
+    const response = await serverFetch<ApiResponse<PostType>>(`/posts/${id}`);
 
     return NextResponse.json(response);
   } catch (error: any) {
@@ -27,3 +22,4 @@ export async function GET(
     );
   }
 }
+

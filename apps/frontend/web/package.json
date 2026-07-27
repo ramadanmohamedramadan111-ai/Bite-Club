@@ -6,7 +6,8 @@
     "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "routes": "node scripts/route-list.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
@@ -53,3 +54,4 @@
     "typescript": "^5"
   }
 }
+

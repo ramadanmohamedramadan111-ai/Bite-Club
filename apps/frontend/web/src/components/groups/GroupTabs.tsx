@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter, usePathname } from '@/i18n/navigation';
 
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { GroupTab } from '@/types/groups/groups';
+import type { GroupTab } from '@/types/groups';
 
 type Props = {
   groupId: number;

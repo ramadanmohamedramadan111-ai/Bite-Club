@@ -1,22 +1,20 @@
 import type { Metadata } from 'next';
 import '../globals.css';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { NextIntlClientProvider, hasLocale } from 'next-intl';
+import { NextIntlClientProvider } from 'next-intl';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { getMessages } from 'next-intl/server';
-import { Link } from '@/i18n/navigation';
 import NextTopLoader from 'nextjs-toploader';
 import { getLangDir } from 'rtl-detect';
 import NextLoader from 'nextjs-rtl-loader';
-import { Button } from '../../components/ui/button';
 import { contentFont, headFont } from '@/utils/fonts';
 import { Toaster } from '@/components/ui/sonner';
-import { QueryProvider } from '@/providers/query-provider';
-import { ThemeProvider } from '@/providers/theme-provider';
+import { QueryProvider } from '@/providers/QueryProvider';
+import { ThemeProvider } from '@/providers/ThemeProvider';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { GoogleMapsProvider } from '@/providers/google-map-provider';
-import SessionProvider from '@/providers/session-provider';
+import { GoogleMapsProvider } from '@/providers/GoogleMapProvider';
+import SessionProvider from '@/providers/SessionProvider';
 
 export const metadata: Metadata = {
   title: 'Create Next App',

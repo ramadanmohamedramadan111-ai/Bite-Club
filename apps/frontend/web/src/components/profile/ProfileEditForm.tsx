@@ -11,10 +11,10 @@ import { Link } from '@/i18n/navigation';
 import { useRouter } from '@/i18n/navigation';
 import { useAction } from 'next-safe-action/hooks';
 import { editUserAction } from '@/actions/profile';
-import { mapServerFieldErrors } from '@/utils/server/map-server-field-errors';
+import { mapServerFieldErrors } from '@/utils/map-server-field-errors';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import type { UserResponse } from '@/types/profile/user';
+import type { UserResponse } from '@/types/user';
 
 type Props = {
   user: UserResponse;
@@ -84,15 +84,12 @@ export function ProfileEditForm({ user }: Props) {
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16">
               <AvatarImage src={previewUrl} />
-              <AvatarFallback>
-                {user.first_name.charAt(0)}
-              </AvatarFallback>
+              <AvatarFallback>{user.first_name.charAt(0)}</AvatarFallback>
             </Avatar>
             <Button
               type="button"
               variant="outline"
-              onClick={() => fileInputRef.current?.click()}
-            >
+              onClick={() => fileInputRef.current?.click()}>
               {tCommon('changePhoto')}
             </Button>
             <input
@@ -161,8 +158,7 @@ export function ProfileEditForm({ user }: Props) {
           <Button
             className="flex-1"
             type="submit"
-            disabled={isSubmitting || isExecuting}
-          >
+            disabled={isSubmitting || isExecuting}>
             {isSubmitting || isExecuting ? tCommon('saving') : tCommon('save')}
           </Button>
         </div>
@@ -170,3 +166,4 @@ export function ProfileEditForm({ user }: Props) {
     </form>
   );
 }
+

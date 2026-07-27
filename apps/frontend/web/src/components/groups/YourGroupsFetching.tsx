@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
-import { ApiResponse, PaginatedResponse } from '@/types/api/api-response';
+import { ApiResponse, PaginatedResponse } from '@/types/api';
 import { SearchPaginatedType } from '@/types/common';
-import { GroupTypeSimplified } from '@/types/groups/groups';
+import { GroupTypeSimplified } from '@/types/groups';
 import { buildQueryString, getUserId } from '@/utils/api-helpers';
 import { serverFetch } from '@/utils/server-fetch';
 import React from 'react';

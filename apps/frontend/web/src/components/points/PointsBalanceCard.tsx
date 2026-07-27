@@ -2,12 +2,8 @@ import { getTranslations } from 'next-intl/server';
 import { Coins } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { serverFetch } from '@/utils/server-fetch';
-import { ApiResponse } from '@/types/api/api-response';
-import {
-  StreakDetails,
-  WalletDetails,
-  type BadgeType,
-} from '@/types/points/points';
+import { ApiResponse } from '@/types/api';
+import { StreakDetails, WalletDetails, type BadgeType } from '@/types/points';
 import { getUserId } from '@/utils/api-helpers';
 import PointsBadges from './PointsBadges';
 

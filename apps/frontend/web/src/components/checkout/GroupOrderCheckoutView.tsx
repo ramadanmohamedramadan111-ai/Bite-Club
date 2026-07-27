@@ -27,8 +27,8 @@ import {
   checkoutGroupPreviewPickupAction,
   checkoutGroupPayAction,
 } from '@/actions/group-order';
-import type { GroupOrderCartSession } from '@/types/group-order/group-order';
-import type { CheckoutPreviewResponse } from '@/types/checkout/checkout';
+import type { GroupOrderCartSession } from '@/types/group-order';
+import type { CheckoutPreviewResponse } from '@/types/checkout';
 import { Link } from '@/i18n/navigation';
 
 type Props = {
@@ -40,7 +40,9 @@ type Props = {
 type FulfillmentType = 'delivery' | 'pickup';
 type PaymentMethod = 'full_online' | 'full_cash' | 'split_payment';
 
-function getMemberTotal(member: GroupOrderCartSession['members_summary'][number]): number {
+function getMemberTotal(
+  member: GroupOrderCartSession['members_summary'][number],
+): number {
   return member.items.reduce((sum, item) => sum + item.total_price, 0);
 }
 
@@ -52,16 +54,20 @@ export default function GroupOrderCheckoutView({
   const t = useTranslations('checkout');
   const tc = useTranslations('common');
   const router = useRouter();
-  const isHost = currentUserId !== null && sessionCart.host.id === currentUserId;
+  const isHost =
+    currentUserId !== null && sessionCart.host.id === currentUserId;
   const membersSummary = sessionCart.members_summary;
   const totalItems = membersSummary.reduce((sum, m) => sum + m.items.length, 0);
 
   const [location, setLocation] = useState<SavedLocation | null>(null);
-  const [fulfillmentType, setFulfillmentType] = useState<FulfillmentType>('pickup');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('full_cash');
+  const [fulfillmentType, setFulfillmentType] =
+    useState<FulfillmentType>('pickup');
+  const [paymentMethod, setPaymentMethod] =
+    useState<PaymentMethod>('full_cash');
   const [error, setError] = useState<string | null>(null);
   const [orderNotes, setOrderNotes] = useState('');
-  const [checkoutPreview, setCheckoutPreview] = useState<CheckoutPreviewResponse | null>(null);
+  const [checkoutPreview, setCheckoutPreview] =
+    useState<CheckoutPreviewResponse | null>(null);
 
   const { execute: previewDeliveryExecute, isExecuting: isPreviewingDelivery } =
     useAction(checkoutGroupPreviewDeliveryAction, {
@@ -137,7 +143,13 @@ export default function GroupOrderCheckoutView({
         order_type: 'pickup',
       });
     }
-  }, [fulfillmentType, location, previewDeliveryExecute, previewPickupExecute, sessionId]);
+  }, [
+    fulfillmentType,
+    location,
+    previewDeliveryExecute,
+    previewPickupExecute,
+    sessionId,
+  ]);
 
   const summary = useMemo(() => {
     if (checkoutPreview) {
@@ -190,10 +202,13 @@ export default function GroupOrderCheckoutView({
     return (
       <div className="container mx-auto flex min-h-[60vh] max-w-2xl flex-col items-center justify-center text-center">
         <h1 className="text-2xl font-bold">{t('title')}</h1>
-        <p className="mt-2 text-muted-foreground">{t('subtitle', { restaurant: sessionCart.restaurant.name })}</p>
+        <p className="mt-2 text-muted-foreground">
+          {t('subtitle', { restaurant: sessionCart.restaurant.name })}
+        </p>
         <div className="mt-8 rounded-xl border bg-muted/30 p-6 text-center">
           <p className="text-sm text-muted-foreground">
-            Waiting for the host ({sessionCart.host.name}) to finalize the order.
+            Waiting for the host ({sessionCart.host.name}) to finalize the
+            order.
           </p>
         </div>
       </div>
@@ -242,37 +257,42 @@ export default function GroupOrderCheckoutView({
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">{t('deliveryOptions')}</CardTitle>
+              <CardTitle className="text-base">
+                {t('deliveryOptions')}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex gap-1 rounded-lg border bg-muted/40 p-1">
-                {([
-                  { value: 'pickup', label: t('pickup'), icon: ShoppingBag },
-                  { value: 'delivery', label: t('delivery'), icon: Bike },
-                ] as { value: FulfillmentType; label: string; icon: typeof Bike }[]).map(
-                  (option) => {
-                    const Icon = option.icon;
-                    return (
-                      <button
-                        key={option.value}
-                        type="button"
-                        onClick={() => {
-                          setFulfillmentType(option.value);
-                          setCheckoutPreview(null);
-                        }}
-                        className={cn(
-                          'flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium transition',
-                          fulfillmentType === option.value
-                            ? 'bg-background text-foreground shadow-sm'
-                            : 'text-muted-foreground hover:text-foreground',
-                        )}
-                      >
-                        <Icon className="size-4" />
-                        {option.label}
-                      </button>
-                    );
-                  },
-                )}
+                {(
+                  [
+                    { value: 'pickup', label: t('pickup'), icon: ShoppingBag },
+                    { value: 'delivery', label: t('delivery'), icon: Bike },
+                  ] as {
+                    value: FulfillmentType;
+                    label: string;
+                    icon: typeof Bike;
+                  }[]
+                ).map((option) => {
+                  const Icon = option.icon;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => {
+                        setFulfillmentType(option.value);
+                        setCheckoutPreview(null);
+                      }}
+                      className={cn(
+                        'flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium transition',
+                        fulfillmentType === option.value
+                          ? 'bg-background text-foreground shadow-sm'
+                          : 'text-muted-foreground hover:text-foreground',
+                      )}>
+                      <Icon className="size-4" />
+                      {option.label}
+                    </button>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
@@ -288,7 +308,9 @@ export default function GroupOrderCheckoutView({
             <div className="animate-in fade-in slide-in-from-top-1 flex items-start gap-3 rounded-xl border border-destructive/20 bg-destructive/10 p-4 text-destructive duration-200">
               <AlertCircle className="mt-0.5 size-5 shrink-0" />
               <div>
-                <h4 className="text-sm font-semibold">{t('deliveryAreaRestriction')}</h4>
+                <h4 className="text-sm font-semibold">
+                  {t('deliveryAreaRestriction')}
+                </h4>
                 <p className="mt-1 text-sm opacity-90">{error}</p>
               </div>
             </div>
@@ -297,11 +319,17 @@ export default function GroupOrderCheckoutView({
           {fulfillmentType === 'pickup' && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">{t('pickupLocation')}</CardTitle>
+                <CardTitle className="text-base">
+                  {t('pickupLocation')}
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">{t('pickupFrom')}</p>
-                <p className="mt-1 font-medium">{sessionCart.restaurant.name}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t('pickupFrom')}
+                </p>
+                <p className="mt-1 font-medium">
+                  {sessionCart.restaurant.name}
+                </p>
               </CardContent>
             </Card>
           )}
@@ -327,9 +355,10 @@ export default function GroupOrderCheckoutView({
             <CardContent>
               <RadioGroup
                 value={paymentMethod}
-                onValueChange={(value) => setPaymentMethod(value as PaymentMethod)}
-                className="space-y-3"
-              >
+                onValueChange={(value) =>
+                  setPaymentMethod(value as PaymentMethod)
+                }
+                className="space-y-3">
                 <div
                   className={cn(
                     'flex items-center gap-3 rounded-lg border p-4 transition-all duration-200',
@@ -338,8 +367,7 @@ export default function GroupOrderCheckoutView({
                       : paymentMethod === 'full_cash'
                         ? 'border-primary bg-primary/5 shadow-sm'
                         : 'hover:bg-muted/50',
-                  )}
-                >
+                  )}>
                   <RadioGroupItem
                     value="full_cash"
                     id="payment-full-cash"
@@ -350,12 +378,13 @@ export default function GroupOrderCheckoutView({
                     className={cn(
                       'flex flex-1 cursor-pointer items-center gap-3 font-normal',
                       summary.requiresDeposit && 'cursor-not-allowed',
-                    )}
-                  >
+                    )}>
                     <Wallet className="size-5 text-muted-foreground" />
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <p className="font-medium text-foreground">{t('fullCashOnDelivery')}</p>
+                        <p className="font-medium text-foreground">
+                          {t('fullCashOnDelivery')}
+                        </p>
                         {summary.requiresDeposit && (
                           <span className="rounded bg-destructive/10 px-2 py-0.5 text-xs font-semibold text-destructive">
                             {t('unavailable')}
@@ -363,7 +392,9 @@ export default function GroupOrderCheckoutView({
                         )}
                       </div>
                       <p className="mt-0.5 text-sm text-muted-foreground">
-                        {summary.requiresDeposit ? t('depositRequired') : t('fullCashDesc')}
+                        {summary.requiresDeposit
+                          ? t('depositRequired')
+                          : t('fullCashDesc')}
                       </p>
                     </div>
                   </Label>
@@ -375,18 +406,23 @@ export default function GroupOrderCheckoutView({
                     paymentMethod === 'full_online'
                       ? 'border-primary bg-primary/5 shadow-sm'
                       : 'hover:bg-muted/50',
-                  )}
-                >
-                  <RadioGroupItem value="full_online" id="payment-full-online" />
+                  )}>
+                  <RadioGroupItem
+                    value="full_online"
+                    id="payment-full-online"
+                  />
                   <Label
                     htmlFor="payment-full-online"
-                    className="flex flex-1 cursor-pointer items-center gap-3 font-normal"
-                  >
+                    className="flex flex-1 cursor-pointer items-center gap-3 font-normal">
                     <CreditCard className="size-5 text-muted-foreground" />
                     <div className="flex-1">
-                      <p className="font-medium text-foreground">{t('payFullOnline')}</p>
+                      <p className="font-medium text-foreground">
+                        {t('payFullOnline')}
+                      </p>
                       <p className="mt-0.5 text-sm text-muted-foreground">
-                        {t('payFullOnlineDesc', { total: summary.total.toFixed(2) })}
+                        {t('payFullOnlineDesc', {
+                          total: summary.total.toFixed(2),
+                        })}
                       </p>
                     </div>
                   </Label>
@@ -399,17 +435,20 @@ export default function GroupOrderCheckoutView({
                       paymentMethod === 'split_payment'
                         ? 'border-primary bg-primary/5 shadow-sm'
                         : 'hover:bg-muted/50',
-                    )}
-                  >
-                    <RadioGroupItem value="split_payment" id="payment-split-payment" />
+                    )}>
+                    <RadioGroupItem
+                      value="split_payment"
+                      id="payment-split-payment"
+                    />
                     <Label
                       htmlFor="payment-split-payment"
-                      className="flex flex-1 cursor-pointer items-center gap-3 font-normal"
-                    >
+                      className="flex flex-1 cursor-pointer items-center gap-3 font-normal">
                       <Coins className="size-5 text-muted-foreground" />
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
-                          <p className="font-medium text-foreground">{t('splitPayment')}</p>
+                          <p className="font-medium text-foreground">
+                            {t('splitPayment')}
+                          </p>
                           <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
                             {t('recommended')}
                           </span>
@@ -437,8 +476,7 @@ export default function GroupOrderCheckoutView({
             size="lg"
             className="w-full sm:w-auto"
             onClick={handlePlaceOrder}
-            disabled={disabledCondition}
-          >
+            disabled={disabledCondition}>
             {isPlacingOrder ? (
               t('placingOrder')
             ) : (
@@ -455,13 +493,19 @@ export default function GroupOrderCheckoutView({
 
         <Card className="sticky top-20 h-fit">
           <CardHeader>
-            <CardTitle className="text-base">{t('groupOrderSummary')}</CardTitle>
+            <CardTitle className="text-base">
+              {t('groupOrderSummary')}
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-3">
               <div>
-                <p className="text-base font-semibold">{sessionCart.restaurant.name}</p>
-                <p className="text-xs capitalize text-muted-foreground">{fulfillmentType}</p>
+                <p className="text-base font-semibold">
+                  {sessionCart.restaurant.name}
+                </p>
+                <p className="text-xs capitalize text-muted-foreground">
+                  {fulfillmentType}
+                </p>
               </div>
             </div>
 
@@ -480,7 +524,9 @@ export default function GroupOrderCheckoutView({
                     </div>
                     <div className="space-y-1.5 pl-2">
                       {member.items.map((item) => (
-                        <div key={item.id} className="flex justify-between gap-2 text-xs text-muted-foreground">
+                        <div
+                          key={item.id}
+                          className="flex justify-between gap-2 text-xs text-muted-foreground">
                           <span className="truncate">
                             {item.quantity}x {item.item.title}
                           </span>
@@ -500,18 +546,24 @@ export default function GroupOrderCheckoutView({
             <dl className="space-y-2.5 text-sm">
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">{t('subtotal')}</dt>
-                <dd className="font-medium text-foreground">{summary.subtotal.toFixed(2)} EGP</dd>
+                <dd className="font-medium text-foreground">
+                  {summary.subtotal.toFixed(2)} EGP
+                </dd>
               </div>
               {fulfillmentType === 'delivery' && (
                 <div className="flex justify-between">
                   <dt className="text-muted-foreground">{t('deliveryFee')}</dt>
-                  <dd className="font-medium text-foreground">{summary.deliveryFee.toFixed(2)} EGP</dd>
+                  <dd className="font-medium text-foreground">
+                    {summary.deliveryFee.toFixed(2)} EGP
+                  </dd>
                 </div>
               )}
               {summary.serviceFee > 0 && (
                 <div className="flex justify-between">
                   <dt className="text-muted-foreground">{t('serviceFee')}</dt>
-                  <dd className="font-medium text-foreground">{summary.serviceFee.toFixed(2)} EGP</dd>
+                  <dd className="font-medium text-foreground">
+                    {summary.serviceFee.toFixed(2)} EGP
+                  </dd>
                 </div>
               )}
               {summary.discountAmount > 0 && (
@@ -522,7 +574,9 @@ export default function GroupOrderCheckoutView({
                       ({t('pointsRedeemed', { count: summary.pointsRedeemed })})
                     </span>
                   </dt>
-                  <dd className="font-medium">-{summary.discountAmount.toFixed(2)} EGP</dd>
+                  <dd className="font-medium">
+                    -{summary.discountAmount.toFixed(2)} EGP
+                  </dd>
                 </div>
               )}
             </dl>
@@ -552,3 +606,4 @@ export default function GroupOrderCheckoutView({
     </div>
   );
 }
+

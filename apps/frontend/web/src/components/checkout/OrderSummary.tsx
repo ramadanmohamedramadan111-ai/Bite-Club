@@ -1,6 +1,6 @@
 'use client';
 
-import type { Cart } from '@/types/cart/cart';
+import type { Cart } from '@/types/cart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useTranslations } from 'next-intl';
@@ -37,7 +37,9 @@ export default function OrderSummary({
       <CardContent className="space-y-4">
         <div className="flex items-center gap-3">
           <div>
-            <p className="font-semibold text-base">{cart.restaurant?.name || 'Restaurant'}</p>
+            <p className="font-semibold text-base">
+              {cart.restaurant?.name || 'Restaurant'}
+            </p>
             <p className="text-xs text-muted-foreground capitalize">
               {fulfillmentType}
             </p>
@@ -71,18 +73,24 @@ export default function OrderSummary({
         <dl className="space-y-2.5 text-sm">
           <div className="flex justify-between">
             <dt className="text-muted-foreground">{t('subtotal')}</dt>
-            <dd className="font-medium text-foreground">{summary.subtotal.toFixed(2)} EGP</dd>
+            <dd className="font-medium text-foreground">
+              {summary.subtotal.toFixed(2)} EGP
+            </dd>
           </div>
           {fulfillmentType === 'delivery' && (
             <div className="flex justify-between">
               <dt className="text-muted-foreground">{t('deliveryFee')}</dt>
-              <dd className="font-medium text-foreground">{summary.deliveryFee.toFixed(2)} EGP</dd>
+              <dd className="font-medium text-foreground">
+                {summary.deliveryFee.toFixed(2)} EGP
+              </dd>
             </div>
           )}
           {summary.serviceFee > 0 && (
             <div className="flex justify-between">
               <dt className="text-muted-foreground">{t('serviceFee')}</dt>
-              <dd className="font-medium text-foreground">{summary.serviceFee.toFixed(2)} EGP</dd>
+              <dd className="font-medium text-foreground">
+                {summary.serviceFee.toFixed(2)} EGP
+              </dd>
             </div>
           )}
           {summary.discountAmount > 0 && (
@@ -93,7 +101,9 @@ export default function OrderSummary({
                   ({t('pointsRedeemed', { count: summary.pointsRedeemed })})
                 </span>
               </dt>
-              <dd className="font-medium">-{summary.discountAmount.toFixed(2)} EGP</dd>
+              <dd className="font-medium">
+                -{summary.discountAmount.toFixed(2)} EGP
+              </dd>
             </div>
           )}
         </dl>
@@ -121,5 +131,4 @@ export default function OrderSummary({
     </Card>
   );
 }
-
 

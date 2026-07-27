@@ -2,7 +2,7 @@
 
 import { actionClient } from '@/lib/safe-action';
 import { createEditUserSchema } from '@/schemas/profile/edit-user-schema';
-import { ApiResponse } from '@/types/api/api-response';
+import { ApiResponse } from '@/types/api';
 import { getUserId } from '@/utils/api-helpers';
 import { serverFetch } from '@/utils/server-fetch';
 import { getTranslations } from 'next-intl/server';

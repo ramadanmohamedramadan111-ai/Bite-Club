@@ -8,15 +8,15 @@ import { checkoutGroupPreviewPickupSchema } from '@/schemas/group-order/checkout
 import { createGroupOrderSessionSchema } from '@/schemas/group-order/create-group-order-session-schema';
 import { removeGroupCartItemSchema } from '@/schemas/group-order/remove-item-schema';
 import { updateGroupCartItemQuantitySchema } from '@/schemas/group-order/update-item-quantity-schema';
-import { ApiResponse } from '@/types/api/api-response';
+import { ApiResponse } from '@/types/api';
 import {
   CheckoutPaymentResponse,
   CheckoutPreviewResponse,
-} from '@/types/checkout/checkout';
+} from '@/types/checkout';
 import {
   GroupOrderCartItemResponse,
   GroupOrderSessionSuccessResponse,
-} from '@/types/group-order/group-order';
+} from '@/types/group-order';
 import { getUserId } from '@/utils/api-helpers';
 import { serverFetch } from '@/utils/server-fetch';
 import { updateTag } from 'next/cache';

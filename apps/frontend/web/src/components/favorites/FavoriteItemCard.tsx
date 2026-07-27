@@ -1,20 +1,21 @@
 import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { Card, CardContent } from '@/components/ui/card';
-import type { MenuItem } from '@/types/restaurant/restaurant';
+import type { ClientMenuItem } from '@/types/restaurant';
 
-import { getRestaurantById, getRestaurantListItemById } from '@/lib/const-data';
+const MOCK_RESTAURANTS = [
+  { id: 1, name: 'Pizza Place' },
+  { id: 2, name: 'Burger Spot' },
+  { id: 3, name: 'Sushi Bar' },
+  { id: 4, name: 'Pasta House' },
+];
 
 type Props = {
-  item: MenuItem;
+  item: ClientMenuItem;
 };
 
 function getRestaurantName(restaurantId: number) {
-  return (
-    getRestaurantById(restaurantId)?.name ??
-    getRestaurantListItemById(restaurantId)?.name ??
-    'Restaurant'
-  );
+  return MOCK_RESTAURANTS.find((r) => r.id === restaurantId)?.name ?? 'Restaurant';
 }
 
 export default function FavoriteItemCard({ item }: Props) {

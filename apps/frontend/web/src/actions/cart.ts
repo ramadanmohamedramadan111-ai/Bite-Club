@@ -4,7 +4,7 @@ import { actionClient } from '@/lib/safe-action';
 import { addCartItemSchema } from '@/schemas/cart/add-item-schema';
 import { updateCartItemQuantitySchema } from '@/schemas/cart/update-item-quantity-schema';
 import { idSchema } from '@/schemas/common/id-schema';
-import { ApiResponse } from '@/types/api/api-response';
+import { ApiResponse } from '@/types/api';
 import { getUserId } from '@/utils/api-helpers';
 import { serverFetch } from '@/utils/server-fetch';
 import { updateTag } from 'next/cache';
@@ -14,8 +14,6 @@ export const addIndividualCartItemAction = actionClient
   .action(async ({ parsedInput }) => {
     const userId = await getUserId();
 
-    console.log('AXAXAXAX');
-
     const response = await serverFetch<ApiResponse<null>>(
       '/user/cart/items',
       'POST',
@@ -23,8 +21,6 @@ export const addIndividualCartItemAction = actionClient
         body: parsedInput,
       },
     );
-
-    console.log('ZZZ');
 
     updateTag(`cart-${userId}`);
 

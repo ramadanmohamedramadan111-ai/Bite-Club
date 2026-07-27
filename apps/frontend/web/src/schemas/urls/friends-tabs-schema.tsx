@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { FRIENDS_TABS } from '@/types/social/friends';
+import { FRIENDS_TABS } from '@/types/friends';
 
 export const friendsSearchParamsSchema = z.object({
   tab: z.enum(FRIENDS_TABS).optional().default('friends'),

@@ -1,5 +1,4 @@
 import { usePathname, useRouter } from '@/i18n/navigation';
-import React from 'react';
 
 export default function useNavigation() {
   const router = useRouter();

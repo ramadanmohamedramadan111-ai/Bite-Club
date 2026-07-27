@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Gift } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { StreakDetails } from '@/types/points/points';
+import type { StreakDetails } from '@/types/points';
 
 type Props = {
   streak: StreakDetails;

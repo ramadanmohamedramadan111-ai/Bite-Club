@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { serverFetch } from '@/utils/server-fetch';
-import { ApiResponse } from '@/types/api/api-response';
+import { ApiResponse } from '@/types/api';
 
 export async function GET(request: Request) {
   try {
@@ -15,17 +15,19 @@ export async function GET(request: Request) {
     const pagination = response.data?.pagination;
     const paginatedData = {
       items: response.data?.items || [],
-      meta: pagination ? {
-        current_page: pagination.current_page,
-        last_page: pagination.last_page,
-        per_page: pagination.per_page,
-        total: pagination.total,
-      } : {
-        current_page: 1,
-        last_page: 1,
-        per_page: 10,
-        total: 0,
-      }
+      meta: pagination
+        ? {
+            current_page: pagination.current_page,
+            last_page: pagination.last_page,
+            per_page: pagination.per_page,
+            total: pagination.total,
+          }
+        : {
+            current_page: 1,
+            last_page: 1,
+            per_page: 10,
+            total: 0,
+          },
     };
 
     return NextResponse.json({
@@ -41,3 +43,4 @@ export async function GET(request: Request) {
     );
   }
 }
+

@@ -3,8 +3,8 @@
 import { actionClient } from '@/lib/safe-action';
 import { idSchema } from '@/schemas/common/id-schema';
 import { createCreateGroupSchema } from '@/schemas/groups/create-group-schema';
-import { ApiResponse } from '@/types/api/api-response';
-import { GroupType } from '@/types/groups/groups';
+import { ApiResponse } from '@/types/api';
+import { GroupType } from '@/types/groups';
 import { getUserId } from '@/utils/api-helpers';
 import { serverFetch } from '@/utils/server-fetch';
 import { getTranslations } from 'next-intl/server';

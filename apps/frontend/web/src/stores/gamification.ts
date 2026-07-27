@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { WalletDetails, StreakDetails } from '@/types/points/points';
+import type { WalletDetails, StreakDetails } from '@/types/points';
 
 type GamificationStore = {
   wallet: WalletDetails | null;
@@ -14,3 +14,4 @@ export const useGamificationStore = create<GamificationStore>((set) => ({
   setWallet: (wallet) => set({ wallet }),
   setStreak: (streak) => set({ streak }),
 }));
+

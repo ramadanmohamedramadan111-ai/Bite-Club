@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { MapPinIcon } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 
@@ -15,6 +16,7 @@ export function LocationButton({
 }: {
   initialLocation: SavedLocation | null;
 }) {
+  const t = useTranslations('location');
   const [open, setOpen] = useState(false);
   const [location, setLocation] = useState<SavedLocation | null>(
     initialLocation,
@@ -29,7 +31,7 @@ export function LocationButton({
         <MapPinIcon className="size-4 shrink-0" />
 
         <span className="hidden sm:block truncate max-w-[120px] md:max-w-[180px] lg:max-w-[240px]">
-          {location?.area ?? 'Choose a location'}
+          {location?.area ?? t('chooseLocation')}
         </span>
       </Button>
 

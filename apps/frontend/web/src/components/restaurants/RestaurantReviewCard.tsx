@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { Star } from 'lucide-react';
-import type { RestaurantReview } from '@/types/restaurant/restaurant';
+import type { RestaurantReview } from '@/types/restaurant';
 import { Card, CardContent } from '@/components/ui/card';
 import { getFormatter } from 'next-intl/server';
 

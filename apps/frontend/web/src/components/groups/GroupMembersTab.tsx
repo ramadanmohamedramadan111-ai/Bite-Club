@@ -1,10 +1,10 @@
 import { getTranslations } from 'next-intl/server';
-import { GroupMember, GroupType } from '@/types/groups/groups';
+import { GroupMember, GroupType } from '@/types/groups';
 import AddMemberDialog from './AddMemberDialog';
 import { SearchPaginatedType } from '@/types/common';
 import { buildQueryString, getUserId } from '@/utils/api-helpers';
 import { serverFetch } from '@/utils/server-fetch';
-import { ApiResponse, PaginatedResponse } from '@/types/api/api-response';
+import { ApiResponse, PaginatedResponse } from '@/types/api';
 import AppPagination from '../shared/AppPagination';
 import GroupMemberCard from './GroupMemberCard';
 import AppSearch from '../shared/AppSearch';
@@ -39,7 +39,11 @@ export default async function GroupMembersTab({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          {t('showingMembers', { count: members.length, total: meta.total, members: meta.total !== 1 ? t('members_plural') : t('member') })}
+          {t('showingMembers', {
+            count: members.length,
+            total: meta.total,
+            members: meta.total !== 1 ? t('members_plural') : t('member'),
+          })}
         </p>
         <div className="flex gap-4 items-center">
           <AppSearch route={`/groups/${group.id}/members`} />

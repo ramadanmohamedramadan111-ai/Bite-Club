@@ -1,7 +1,7 @@
 import { serverFetch } from '@/utils/server-fetch';
-import type { ApiResponse } from '@/types/api/api-response';
-import type { OrderResponse } from '@/types/orders/order';
-import { CreatePostPage } from '@/components/social/posts/CreatePostPage';
+import type { ApiResponse } from '@/types/api';
+import type { OrderResponse } from '@/types/order';
+import { CreatePostPage } from '@/components/posts/CreatePostPage';
 
 export default async function CreatePostRoute() {
   let orders: OrderResponse[] = [];
@@ -15,3 +15,4 @@ export default async function CreatePostRoute() {
 
   return <CreatePostPage orders={orders} />;
 }
+

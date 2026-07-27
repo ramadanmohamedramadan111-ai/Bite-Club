@@ -5,7 +5,7 @@ import { useCartDrawerStore } from '@/stores/cart-drawer';
 import {
   IndividualCartItemResponse,
   IndividualCartResponse,
-} from '@/types/cart/cart';
+} from '@/types/cart';
 
 export default function CartDrawerHost() {
   const open = useCartDrawerStore((state) => state.open);

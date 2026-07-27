@@ -3,7 +3,7 @@
 import { useRouter } from '@/i18n/navigation';
 import { useSearchParams } from 'next/navigation';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { FavoritesTab } from '@/types/favorites/favorites';
+import type { FavoritesTab } from '@/types/favorites';
 
 const tabs: { value: FavoritesTab; label: string }[] = [
   { value: 'restaurants', label: 'Restaurants' },
@@ -28,8 +28,7 @@ export default function FavoritesTabs() {
           <TabsTrigger
             key={tab.value}
             value={tab.value}
-            onClick={() => changeTab(tab.value)}
-          >
+            onClick={() => changeTab(tab.value)}>
             {tab.label}
           </TabsTrigger>
         ))}
@@ -37,3 +36,4 @@ export default function FavoritesTabs() {
     </Tabs>
   );
 }
+
