@@ -459,4 +459,41 @@ class OrderDomainService
 
         return $count;
     }
+
+    public function cancelOrder(int $userId, int $orderId): Order
+    {
+        $order = $this->orderRepository->findOrFail($orderId);
+
+        if ($order->user_id !== $userId) {
+            throw new Exception(trans('order.unauthorized_cancel') ?? 'You are not authorized to cancel this order.');
+        }
+
+        if (!in_array($order->status, [OrderStatusEnum::PENDING, OrderStatusEnum::AWAITING_PAYMENT], true)) {
+            throw new Exception(trans('order.cannot_cancel_status') ?? 'This order cannot be cancelled in its current status.');
+        }
+
+        return DB::transaction(function () use ($order) {
+            $this->orderRepository->update($order->id, [
+                'status' => OrderStatusEnum::CANCELLED->value,
+            ]);
+
+            $this->orderPaymentRepository->updatePendingPaymentsStatus(
+                $order->id,
+                PaymentStatusEnum::FAILED->value
+            );
+
+            $redemption = Redemption::where('order_id', $order->id)->first();
+            if ($redemption && $redemption->points_redeemed > 0) {
+                $this->walletDomainService->earnPoints(
+                    $order->user_id,
+                    $redemption->points_redeemed,
+                    PointTransactionSourceEnum::REFUND->value,
+                    $redemption->id,
+                    Redemption::class
+                );
+            }
+
+            return $order->refresh();
+        });
+    }
 }

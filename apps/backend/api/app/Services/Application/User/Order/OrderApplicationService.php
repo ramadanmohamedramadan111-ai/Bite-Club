@@ -7,6 +7,7 @@ use App\DTOs\User\Order\PlaceOrderDto;
 use App\DTOs\User\Order\ActiveOrdersDto;
 use App\DTOs\User\Order\PastOrdersDto;
 use App\DTOs\User\Order\OrderDetailsDto;
+use App\DTOs\User\Order\CancelOrderDto;
 use App\Services\Domain\User\Order\OrderDomainService;
 use App\Models\Order;
 use Illuminate\Database\Eloquent\Collection;
@@ -73,5 +74,10 @@ class OrderApplicationService
     public function cancelForgottenPendingOrders(int $timeoutMinutes = 40): int
     {
         return $this->orderDomainService->cancelForgottenPendingOrders($timeoutMinutes);
+    }
+
+    public function cancelOrder(CancelOrderDto $dto): Order
+    {
+        return $this->orderDomainService->cancelOrder($dto->getUserId(), $dto->getOrderId());
     }
 }

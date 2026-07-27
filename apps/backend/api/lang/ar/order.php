@@ -19,4 +19,7 @@ return [
     'greeting' => 'مرحباً :name،',
     'points_refunded_line' => 'تم استرداد :points نقطة ولاء وإعادتها إلى محفظتك.',
     'thank_you' => 'شكراً لاستخدامك منصتنا.',
+    'unauthorized_cancel' => 'غير مصرح لك بإلغاء هذا الطلب.',
+    'cannot_cancel_status' => 'لا يمكن إلغاء الطلب في حالته الحالية.',
+    'cancelled_successfully' => 'تم إلغاء الطلب بنجاح.',
 ];

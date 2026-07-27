@@ -8,12 +8,14 @@ use App\DTOs\User\Order\CheckoutPreviewDto;
 use App\DTOs\User\Order\OrderDetailsDto;
 use App\DTOs\User\Order\PastOrdersDto;
 use App\DTOs\User\Order\PlaceOrderDto;
+use App\DTOs\User\Order\CancelOrderDto;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\Order\ActiveOrdersRequest;
 use App\Http\Requests\User\Order\CheckoutPreviewRequest;
 use App\Http\Requests\User\Order\OrderDetailsRequest;
 use App\Http\Requests\User\Order\PastOrdersRequest;
 use App\Http\Requests\User\Order\PlaceOrderRequest;
+use App\Http\Requests\User\Order\CancelOrderRequest;
 use App\Http\Resources\User\Order\CheckoutPreviewResource;
 use App\Http\Resources\User\Order\UserOrderDetailsResource;
 use App\Http\Resources\User\Order\UserOrderResource;
@@ -136,6 +138,27 @@ class OrderController extends Controller
             );
         } catch (Exception $e) {
             Log::error('Failed to retrieve order details: ' . $e->getMessage());
+
+            if ($e instanceof NotFoundHttpException) {
+                return $this->errorResponse($e->getMessage(), [], 404);
+            }
+
+            return $this->errorResponse($e->getMessage(), [], 400);
+        }
+    }
+
+    public function cancel(CancelOrderRequest $request): JsonResponse
+    {
+        try {
+            $dto = CancelOrderDto::fromValidatedRequest($request);
+            $order = $this->orderApplicationService->cancelOrder($dto);
+
+            return $this->successResponse(
+                trans('order.cancelled_successfully') ?? 'Order cancelled successfully.',
+                new UserOrderDetailsResource($order)
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to cancel order: ' . $e->getMessage());
 
             if ($e instanceof NotFoundHttpException) {
                 return $this->errorResponse($e->getMessage(), [], 404);

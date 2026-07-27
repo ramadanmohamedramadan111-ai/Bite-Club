@@ -19,4 +19,7 @@ return [
     'greeting' => 'Hello :name,',
     'points_refunded_line' => 'We have refunded :points loyalty points back to your wallet.',
     'thank_you' => 'Thank you for using our platform.',
+    'unauthorized_cancel' => 'You are not authorized to cancel this order.',
+    'cannot_cancel_status' => 'This order cannot be cancelled in its current status.',
+    'cancelled_successfully' => 'Order cancelled successfully.',
 ];
