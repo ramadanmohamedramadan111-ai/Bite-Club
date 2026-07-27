@@ -14,12 +14,16 @@ export function Pagination({
   onPageChange,
   showingText,
 }: PaginationProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const isRtl = i18n.language === 'ar'
 
-  // Helper to generate page numbers to display
+  // Flip arrows for RTL: "previous" (go back) uses ChevronRight in Arabic layout
+  const PrevIcon = isRtl ? ChevronRight : ChevronLeft
+  const NextIcon = isRtl ? ChevronLeft : ChevronRight
+
   const getPages = () => {
     const pages: (number | string)[] = []
-    const range = 1 // number of pages to show around current page
+    const range = 1
 
     for (let i = 1; i <= totalPages; i++) {
       if (
@@ -28,9 +32,7 @@ export function Pagination({
         (i >= currentPage - range && i <= currentPage + range)
       ) {
         pages.push(i)
-      } else if (
-        pages[pages.length - 1] !== '...'
-      ) {
+      } else if (pages[pages.length - 1] !== '...') {
         pages.push('...')
       }
     }
@@ -47,8 +49,9 @@ export function Pagination({
           onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
           className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-250 text-gray-400 hover:border-brand-orange hover:text-brand-orange disabled:opacity-50 disabled:hover:border-gray-250 disabled:hover:text-gray-400 transition dark:border-slate-700"
+          aria-label={t('previousPage', 'Previous page')}
         >
-          <ChevronLeft size={13} />
+          <PrevIcon size={13} />
         </button>
 
         {getPages().map((page, idx) => {
@@ -80,8 +83,9 @@ export function Pagination({
           onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
           className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-250 text-gray-400 hover:border-brand-orange hover:text-brand-orange disabled:opacity-50 disabled:hover:border-gray-250 disabled:hover:text-gray-400 transition dark:border-slate-700"
+          aria-label={t('nextPage', 'Next page')}
         >
-          <ChevronRight size={13} />
+          <NextIcon size={13} />
         </button>
       </div>
     </div>

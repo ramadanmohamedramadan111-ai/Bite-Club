@@ -59,12 +59,12 @@ export function CategoriesPage() {
   const [form, setForm]               = useState<CategoryForm>(EMPTY_FORM)
   const [isSaving, setIsSaving]       = useState(false)
 
-  useEffect(() => { fetchCategories() }, [])
-
-  const filtered = categories.filter((c) =>
-    c.title.toLowerCase().includes(search.toLowerCase()) ||
-    c.short_description.toLowerCase().includes(search.toLowerCase())
-  )
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchCategories(search)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [search, fetchCategories])
 
   const openCreate = () => { setForm(EMPTY_FORM); setShowCreate(true) }
 
@@ -240,7 +240,7 @@ export function CategoriesPage() {
       {/* Category cards */}
       {!isLoading && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {filtered.map((cat) => (
+          {categories.map((cat) => (
             <div key={cat.id} className="rounded-xl border border-gray-100 bg-white shadow-sm p-5 hover:border-brand-orange hover:shadow-md transition dark:border-slate-700 dark:bg-slate-900">
               {/* Card header */}
               <div className="flex items-start justify-between mb-4">
@@ -283,7 +283,7 @@ export function CategoriesPage() {
           ))}
 
           {/* Empty state */}
-          {filtered.length === 0 && (
+          {categories.length === 0 && (
             <div className="col-span-full flex flex-col items-center justify-center py-16 text-gray-400">
               <p className="text-sm">{t('noCategoriesFound')}</p>
             </div>

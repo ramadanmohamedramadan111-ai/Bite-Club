@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ChevronLeft, ChevronRight, Copy, Filter, Pencil, Plus, Search, SortAsc, SortDesc, Trash2, Utensils, X } from 'lucide-react'
+import { Copy, Filter, Pencil, Plus, Search, SortAsc, SortDesc, Trash2, Utensils, X } from 'lucide-react'
+import { Pagination } from '../../components/common/Pagination'
 import { Link, useSearchParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { useDebounce } from 'use-debounce'
@@ -59,12 +60,12 @@ export function MenuPage() {
   const doFetch = useCallback(() => {
     fetchItems({
       menu_category_id: activeCatId === 'all' ? undefined : activeCatId,
-      title: debouncedSearch || undefined,
+      query: debouncedSearch || undefined,
       sort_by: sortBy,
       sort_dir: sortDir,
       page,
     })
-  }, [activeCatId, debouncedSearch, sortBy, sortDir, page])
+  }, [activeCatId, debouncedSearch, sortBy, sortDir, page, fetchItems])
 
   useEffect(() => { doFetch() }, [doFetch])
 
@@ -424,30 +425,13 @@ export function MenuPage() {
 
       {/* Pagination */}
       {!isLoading && meta.last_page > 1 && (
-        <div className="flex items-center justify-between border-t border-gray-100 pt-4 dark:border-slate-700">
-          <p className="text-sm text-gray-500 dark:text-slate-400">
-            {t('page')} {meta.current_page} {t('of')} {meta.last_page} — {meta.total} {t('items')}
-          </p>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={meta.current_page === 1}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 text-gray-500 transition hover:border-brand-orange hover:text-brand-orange disabled:opacity-40 disabled:cursor-not-allowed dark:border-slate-600 dark:text-slate-400"
-            ><ChevronLeft size={16} /></button>
-
-            {Array.from({ length: meta.last_page }, (_, i) => i + 1).map((p) => (
-              <button key={p} onClick={() => setPage(p)}
-                className={`flex h-9 w-9 items-center justify-center rounded-xl border text-sm font-semibold transition ${p === meta.current_page ? 'border-brand-orange bg-brand-orange text-white' : 'border-gray-200 text-gray-600 hover:border-brand-orange hover:text-brand-orange dark:border-slate-600 dark:text-slate-300'}`}>
-                {p}
-              </button>
-            ))}
-
-            <button
-              onClick={() => setPage((p) => Math.min(meta.last_page, p + 1))}
-              disabled={meta.current_page === meta.last_page}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 text-gray-500 transition hover:border-brand-orange hover:text-brand-orange disabled:opacity-40 disabled:cursor-not-allowed dark:border-slate-600 dark:text-slate-400"
-            ><ChevronRight size={16} /></button>
-          </div>
+        <div className="rounded-xl border border-gray-100 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <Pagination
+            currentPage={meta.current_page}
+            totalPages={meta.last_page}
+            onPageChange={setPage}
+            showingText={`${t('page')} ${meta.current_page} ${t('of')} ${meta.last_page} — ${meta.total} ${t('items')}`}
+          />
         </div>
       )}
 

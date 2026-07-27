@@ -17,84 +17,16 @@ import {
   ArrowRight,
 } from 'lucide-react'
 
-// Mock orders keyed by ID – replace with real API call
-const mockOrders: Record<string, any> = {
-  'BC-1024': {
-    id: '#BC-1024',
-    status: 'Preparing',
-    customer: {
-      name: 'Sarah Chen',
-      phone: '+20 100 293 8472',
-      type: 'Loyalty Member',
-      address: '15 Shagaret El Dor St, Zamalek, Cairo, Egypt',
-    },
-    payment: { method: 'Visa Ending in 4242', status: 'PAID', transactionId: 'TXN-9823104' },
-    items: [
-      {
-        id: 1,
-        name: 'Signature Wagyu Burger',
-        variant: 'Medium Rare • No Onions',
-        extra: '+ Extra Truffle Mayo',
-        qty: 1,
-        unitPrice: 280,
-        image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=80&h=80&fit=crop',
-      },
-      {
-        id: 2,
-        name: 'Truffle Sweet Potato Fries',
-        variant: 'Large Portion • Rosemary Salt',
-        qty: 1,
-        unitPrice: 85,
-        image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=80&h=80&fit=crop',
-      },
-      {
-        id: 3,
-        name: 'House Crafted Soda',
-        variant: 'Passion Fruit & Mint • Iced',
-        qty: 1,
-        unitPrice: 45,
-        image: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=80&h=80&fit=crop',
-      },
-    ],
-    subtotal: 410,
-    tax: 57.4,
-    deliveryFee: 25,
-    total: 450,
-    driver: 'Mohamed H.',
-    deliveryDistance: '2.4 km from Kitchen',
-    lifecycle: [
-      { key: 'placed',     label: 'Order Placed',     time: '11:30 AM', detail: 'Via Mobile App (Android)',  done: true,  current: false },
-      { key: 'accepted',   label: 'Accepted',          time: '11:35 AM', detail: 'By Kitchen Terminal 1',    done: true,  current: false },
-      { key: 'preparing',  label: 'Preparing',         time: '11:45 AM', detail: 'Estimated 12 mins left',   done: false, current: true  },
-      { key: 'ready',      label: 'Ready for Pickup',  time: '',         detail: 'Awaiting completion',       done: false, current: false },
-    ],
-  },
-  'BC-1025': {
-    id: '#BC-1025',
-    status: 'Ready',
-    customer: { name: 'Ahmed Hassan', phone: '+20 112 443 1290', type: 'Regular', address: '22 Tahrir Square, Maadi, Cairo' },
-    payment: { method: 'Cash on Delivery', status: 'UNPAID', transactionId: 'N/A' },
-    items: [
-      { id: 1, name: 'Grilled Salmon', variant: 'With Garlic Butter', qty: 2, unitPrice: 380, image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=80&h=80&fit=crop' },
-      { id: 2, name: 'Caesar Salad',   variant: 'Extra Croutons',      qty: 1, unitPrice: 120, image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=80&h=80&fit=crop'  },
-    ],
-    subtotal: 880, tax: 123.2, deliveryFee: 30, total: 1033.2,
-    driver: 'Karim A.',
-    deliveryDistance: '3.1 km from Kitchen',
-    lifecycle: [
-      { key: 'placed',    label: 'Order Placed',    time: '12:00 PM', detail: 'Via Website',           done: true,  current: false },
-      { key: 'accepted',  label: 'Accepted',         time: '12:04 PM', detail: 'By Kitchen Terminal 2', done: true,  current: false },
-      { key: 'preparing', label: 'Preparing',        time: '12:10 PM', detail: 'Done',                  done: true,  current: false },
-      { key: 'ready',     label: 'Ready for Pickup', time: '12:25 PM', detail: 'Waiting for driver',    done: false, current: true  },
-    ],
-  },
-}
+import { useOrderStore } from '../../store/orderStore'
+import { api } from '../../lib/api'
+import { useEffect } from 'react'
 
 const statusColors: Record<string, string> = {
-  Preparing: 'bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400',
-  Ready:     'bg-orange-100 text-orange-700 dark:bg-orange-950/30 dark:text-orange-400',
-  Completed: 'bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400',
-  Cancelled: 'bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400',
+  pending:   'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/30 dark:text-yellow-400',
+  preparing: 'bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400',
+  ready:     'bg-orange-100 text-orange-700 dark:bg-orange-950/30 dark:text-orange-400',
+  completed: 'bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400',
+  cancelled: 'bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400',
 }
 
 export function OrderTrackingPage() {
@@ -102,10 +34,95 @@ export function OrderTrackingPage() {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
 
-  const order = (id && mockOrders[id]) || mockOrders['BC-1024']
+  const { orders: liveOrders, historyOrders, fetchLiveOrders } = useOrderStore()
 
-  const [currentStatus, setCurrentStatus] = useState<string>(order.status)
+  const apiOrder = liveOrders.find(o => o.id.toString() === id) || historyOrders.find(o => o.id.toString() === id)
+
+  useEffect(() => {
+    if (!apiOrder && id) {
+       fetchLiveOrders()
+    }
+  }, [id, apiOrder, fetchLiveOrders])
+
+  const [currentStatus, setCurrentStatus] = useState<string>('')
+  const [availableStatuses, setAvailableStatuses] = useState<string[]>([])
+  const [isUpdating, setIsUpdating] = useState(false)
   const [kitchenView, setKitchenView] = useState(true)
+
+  useEffect(() => {
+    if (apiOrder) setCurrentStatus(apiOrder.status)
+  }, [apiOrder])
+
+  // Fetch available statuses
+  useEffect(() => {
+    if (id) {
+      api.get<{ data: string[] }>(`/restaurant/orders/${id}/available-statuses`)
+        .then(r => setAvailableStatuses(r.data.data))
+        .catch(() => setAvailableStatuses([]))
+    }
+  }, [id])
+
+  const handleStatusChange = async (newStatus: string) => {
+    if (!id || !newStatus) return
+    try {
+      setIsUpdating(true)
+      await api.patch(`/restaurant/orders/${id}/status`, { status: newStatus })
+      setCurrentStatus(newStatus)
+      // Refresh the orders store so the changes reflect globally
+      await fetchLiveOrders()
+      // Also refetch available statuses since the current one changed
+      const res = await api.get<{ data: string[] }>(`/restaurant/orders/${id}/available-statuses`)
+      setAvailableStatuses(res.data.data)
+    } catch (e) {
+      console.error('Failed to update status', e)
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
+  if (!apiOrder) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <span className="h-8 w-8 animate-spin rounded-full border-4 border-brand-orange border-t-transparent" />
+      </div>
+    )
+  }
+
+  // Map backend API data to UI structure
+  const order = {
+    id: `#${apiOrder.id}`,
+    status: apiOrder.status,
+    customer: {
+      name: apiOrder.customer?.name || 'Guest',
+      phone: apiOrder.customer?.phone_number || '-',
+      address: 'Address not provided'
+    },
+    payment: { 
+      method: apiOrder.payments?.[0]?.payment_method || 'Cash on Delivery', 
+      status: apiOrder.payments?.[0]?.status || 'UNPAID', 
+      transactionId: '-' 
+    },
+    items: apiOrder.items.map(i => ({
+      id: i.id,
+      name: i.item_name,
+      variant: i.notes || '',
+      qty: i.quantity,
+      unitPrice: i.price,
+      image: '' 
+    })),
+    subtotal: apiOrder.financials?.subtotal || 0,
+    tax: apiOrder.financials?.service_fee || 0,
+    deliveryFee: apiOrder.financials?.delivery_fee || 0,
+    total: apiOrder.financials?.total || 0,
+    driver: 'Pending',
+    deliveryDistance: '',
+    lifecycle: [
+      { key: 'placed', label: 'Order Placed', time: apiOrder.time_ago, detail: 'Via Platform', done: true, current: false },
+      { key: 'accepted', label: 'Accepted', time: '', detail: '', done: apiOrder.status !== 'pending', current: apiOrder.status === 'pending' },
+      { key: 'preparing', label: 'Preparing', time: '', detail: '', done: ['ready', 'completed'].includes(apiOrder.status), current: apiOrder.status === 'preparing' },
+      { key: 'ready', label: 'Ready/Completed', time: '', detail: '', done: apiOrder.status === 'completed', current: apiOrder.status === 'ready' },
+    ],
+  }
 
   return (
     <div className="flex flex-col gap-6 w-full">
@@ -124,8 +141,8 @@ export function OrderTrackingPage() {
           <h1 className="text-xl font-bold text-gray-900 dark:text-white truncate">
             {t('order', 'Order')} {order.id}
           </h1>
-          <span className={`shrink-0 rounded-full px-3 text-xs font-bold ${statusColors[currentStatus] ?? statusColors.Preparing}`}>
-            {currentStatus.toUpperCase()}
+          <span className={`shrink-0 rounded-full px-3 py-0.5 text-xs font-bold capitalize ${statusColors[currentStatus] || statusColors.pending}`}>
+            {currentStatus}
           </span>
         </div>
 
@@ -162,15 +179,7 @@ export function OrderTrackingPage() {
                 </p>
                 <p className="mt-0.5 text-sm font-medium text-gray-700 dark:text-slate-300">{order.customer.phone}</p>
               </div>
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">
-                  {t('type', 'Type')}
-                </p>
-                <p className="mt-0.5 flex items-center gap-1 text-sm font-bold text-brand-orange">
-                  <Star size={11} fill="currentColor" />
-                  {order.customer.type}
-                </p>
-              </div>
+             
             </div>
 
             <div>
@@ -234,15 +243,17 @@ export function OrderTrackingPage() {
           <div className="relative mb-3">
             <select
               value={currentStatus}
-              onChange={(e) => setCurrentStatus(e.target.value)}
-              className="w-full appearance-none rounded-xl border border-white/30 bg-white/20 px-4 py-3 text-sm font-semibold text-white outline-none backdrop-blur-sm cursor-pointer"
+              onChange={(e) => handleStatusChange(e.target.value)}
+              disabled={isUpdating || availableStatuses.length === 0}
+              className={`w-full appearance-none rounded-xl border border-white/30 bg-white/20 px-4 py-3 text-sm font-semibold text-white outline-none backdrop-blur-sm cursor-pointer capitalize ${isUpdating || availableStatuses.length === 0 ? 'opacity-70 cursor-not-allowed' : ''}`}
             >
-              <option value="Preparing" className="text-gray-900 bg-white">Preparing (Current)</option>
-              <option value="Ready"     className="text-gray-900 bg-white">Ready for Pickup</option>
-              <option value="Completed" className="text-gray-900 bg-white">Completed</option>
-              <option value="Cancelled" className="text-gray-900 bg-white">Cancelled</option>
+              <option value={currentStatus} className="text-gray-900 bg-white">{t(currentStatus, currentStatus.replace('_', ' '))}</option>
+              {availableStatuses.map(status => (
+                <option key={status} value={status} className="text-gray-900 bg-white">
+                  {t(status, status.replace('_', ' '))}
+                </option>
+              ))}
             </select>
-            <ChevronDown size={16} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-white/70" />
           </div>
         </div>
       </div>
@@ -261,24 +272,7 @@ export function OrderTrackingPage() {
                 {order.items.length} {t('items', 'Items')}
               </span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-gray-500 dark:text-slate-400">
-                {t('kitchenView', 'Kitchen View')}
-              </span>
-              <button
-                onClick={() => setKitchenView((v) => !v)}
-                aria-label="Toggle kitchen view"
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  kitchenView ? 'bg-brand-orange' : 'bg-gray-200 dark:bg-slate-700'
-                }`}
-              >
-                <span
-                  className={`inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${
-                    kitchenView ? 'translate-x-6' : 'translate-x-1'
-                  }`}
-                />
-              </button>
-            </div>
+           
           </div>
 
           {/* Items table */}

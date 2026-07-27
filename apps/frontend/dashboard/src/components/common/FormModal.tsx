@@ -36,7 +36,7 @@ export function FormModal({
           </button>
         </div>
         
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 [&_select]:appearance-none">
           {children}
         </div>
         

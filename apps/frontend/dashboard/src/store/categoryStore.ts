@@ -9,7 +9,7 @@ interface CategoryStore {
   isLoading: boolean
   error: string | null
 
-  fetchCategories: () => Promise<void>
+  fetchCategories: (query?: string) => Promise<void>
   addCategory: (payload: { title: string; icon_name: string; short_description: string; visibility?: 'visible' | 'hidden' }) => Promise<void>
   updateCategory: (id: number, payload: { title: string; icon_name: string; short_description: string; visibility?: 'visible' | 'hidden' }) => Promise<void>
   toggleVisibility: (id: number, current: 'visible' | 'hidden') => Promise<void>
@@ -21,10 +21,10 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
   isLoading: false,
   error: null,
 
-  fetchCategories: async () => {
+  fetchCategories: async (query?: string) => {
     set({ isLoading: true, error: null })
     try {
-      const categories = await menuCategoryService.index()
+      const categories = await menuCategoryService.index(query)
       set({ categories })
     } catch (e) {
       set({ error: e instanceof Error ? e.message : 'Failed to load categories' })
