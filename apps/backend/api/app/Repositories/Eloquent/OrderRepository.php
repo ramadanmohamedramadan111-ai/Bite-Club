@@ -5,6 +5,7 @@ namespace App\Repositories\Eloquent;
 use App\Models\Order;
 use App\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Enums\Order\OrderStatusEnum;
+use App\Enums\Payment\PaymentMethodEnum;
 use Carbon\Carbon;
 
 class OrderRepository extends BaseRepository implements OrderRepositoryInterface
@@ -26,23 +27,14 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         ];
 
         return $this->model->where('restaurant_id', $restaurantId)
-            ->whereIn('status', $visibleStatuses)
-            ->where(function ($query) {
-                $query->whereNotIn('status', [
-                    OrderStatusEnum::COMPLETED->value,
-                    OrderStatusEnum::CANCELLED->value
-                ])->orWhereDate('updated_at', Carbon::today());
-            })
-            ->with(['items', 'user:id,first_name,last_name,email,phone_number', 'payments'])
-            ->orderByRaw("CASE status
-                WHEN 'pending' THEN 1
-                WHEN 'preparing' THEN 2
-                WHEN 'ready' THEN 3
-                WHEN 'out_for_delivery' THEN 4
-                WHEN 'completed' THEN 5
-                WHEN 'cancelled' THEN 6
-                ELSE 7 END")
-            ->orderBy('created_at', 'asc')
+            ->whereIn('status', [
+                OrderStatusEnum::PENDING->value,
+                OrderStatusEnum::PREPARING->value,
+                OrderStatusEnum::READY->value,
+                OrderStatusEnum::OUT_FOR_DELIVERY->value,
+            ])
+            ->with(['items', 'payments', 'user'])
+            ->orderBy('created_at', 'desc')
             ->get();
     }
 
@@ -50,33 +42,32 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     {
         return $this->model->where('id', $orderId)
             ->where('restaurant_id', $restaurantId)
-            ->with(['payments'])
+            ->with(['items.item', 'payments', 'user', 'restaurant'])
             ->first();
     }
 
     public function getPaginatedOrderHistory(int $restaurantId, array $filters, int $page, int $perPage)
     {
         $query = $this->model->where('restaurant_id', $restaurantId)
-            ->with(['user', 'payments', 'items']);
+            ->whereIn('status', [
+                OrderStatusEnum::COMPLETED->value,
+                OrderStatusEnum::CANCELLED->value,
+            ]);
 
-        if (isset($filters['status'])) {
+        if (!empty($filters['start_date'])) {
+            $query->whereDate('created_at', '>=', Carbon::parse($filters['start_date']));
+        }
+
+        if (!empty($filters['end_date'])) {
+            $query->whereDate('created_at', '<=', Carbon::parse($filters['end_date']));
+        }
+
+        if (!empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
-        if (isset($filters['order_type'])) {
-            $query->where('order_type', $filters['order_type']);
-        }
-
-        if (isset($filters['from_date'])) {
-            $query->whereDate('created_at', '>=', $filters['from_date']);
-        }
-
-        if (isset($filters['to_date'])) {
-            $query->whereDate('created_at', '<=', $filters['to_date']);
-        }
-
-        // Order history is usually sorted by latest first
-        $query->orderBy('created_at', 'desc');
+        $query->with(['items', 'payments', 'user'])
+            ->orderBy('created_at', 'desc');
 
         return $query->paginate($perPage, ['*'], 'page', $page);
     }
@@ -84,9 +75,11 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     public function getActiveOrdersForUser(int $userId)
     {
         return $this->model->where('user_id', $userId)
-            ->whereNotIn('status', [
-                OrderStatusEnum::COMPLETED->value,
-                OrderStatusEnum::CANCELLED->value
+            ->whereIn('status', [
+                OrderStatusEnum::PENDING->value,
+                OrderStatusEnum::PREPARING->value,
+                OrderStatusEnum::READY->value,
+                OrderStatusEnum::OUT_FOR_DELIVERY->value,
             ])
             ->with(['restaurant', 'items', 'payments'])
             ->orderBy('created_at', 'desc')
@@ -97,8 +90,8 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     {
         $query = $this->model->where('user_id', $userId)
             ->whereIn('status', [
-               OrderStatusEnum::COMPLETED->value,
-               OrderStatusEnum::CANCELLED->value
+                OrderStatusEnum::COMPLETED->value,
+                OrderStatusEnum::CANCELLED->value,
             ])
             ->with(['restaurant', 'items', 'payments'])
             ->orderBy('created_at', 'desc');
@@ -119,6 +112,17 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         return $this->model->where('status', OrderStatusEnum::AWAITING_PAYMENT->value)
             ->where('created_at', '<=', now()->subMinutes($timeoutMinutes))
             ->with(['payments', 'items'])
+            ->get();
+    }
+
+    public function getForgottenPendingCashOrders(int $timeoutMinutes = 40)
+    {
+        return $this->model->where('status', OrderStatusEnum::PENDING->value)
+            ->where('created_at', '<=', now()->subMinutes($timeoutMinutes))
+            ->whereHas('payments', function ($query) {
+                $query->where('payment_method', PaymentMethodEnum::CASH->value);
+            })
+            ->with(['payments', 'items', 'user'])
             ->get();
     }
 }

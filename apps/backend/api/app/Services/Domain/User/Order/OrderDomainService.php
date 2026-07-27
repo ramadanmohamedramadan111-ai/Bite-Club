@@ -2,35 +2,36 @@
 
 namespace App\Services\Domain\User\Order;
 
-use App\Repositories\Interfaces\CartRepositoryInterface;
-use App\Repositories\Interfaces\OrderRepositoryInterface;
-use App\Repositories\Interfaces\OrderItemRepositoryInterface;
-use App\Repositories\Interfaces\OrderPaymentRepositoryInterface;
-use App\Services\Infrastructure\Payment\PaymentGatewayInterface;
-use App\Services\Domain\Loyalty\WalletDomainService;
+use App\Enums\Loyalty\PointTransactionSourceEnum;
+use App\Enums\Order\OrderStatusEnum;
+use App\Enums\Order\OrderTypeEnum;
+use App\Enums\Payment\PaymentMethodEnum;
+use App\Enums\Payment\PaymentOptionEnum;
+use App\Enums\Payment\PaymentStatusEnum;
+use App\Enums\Payment\PaymentTypeEnum;
 use App\Models\GeneralSetting;
 use App\Models\Order;
 use App\Models\Redemption;
-use App\Enums\Order\OrderTypeEnum;
-use App\Enums\Order\OrderStatusEnum;
-use App\Enums\Payment\PaymentTypeEnum;
-use App\Enums\Payment\PaymentMethodEnum;
-use App\Enums\Payment\PaymentStatusEnum;
-use App\Enums\Payment\PaymentOptionEnum;
-use App\Enums\Loyalty\PointTransactionSourceEnum;
+use App\Notifications\OrderCancelledByTimeoutNotification;
+use App\Repositories\Interfaces\CartRepositoryInterface;
+use App\Repositories\Interfaces\OrderItemRepositoryInterface;
+use App\Repositories\Interfaces\OrderPaymentRepositoryInterface;
+use App\Repositories\Interfaces\OrderRepositoryInterface;
+use App\Services\Domain\Loyalty\WalletDomainService;
+use App\Services\Domain\User\Order\Calculators\CommissionCalculator;
+use App\Services\Domain\User\Order\Calculators\DeliveryFeeCalculator;
+use App\Services\Domain\User\Order\Calculators\DepositCalculator;
+use App\Services\Domain\User\Order\Calculators\OrderCalculationContext;
+use App\Services\Domain\User\Order\Calculators\ServiceFeeCalculator;
+use App\Services\Domain\User\Order\Calculators\SubtotalCalculator;
+
+use App\Services\Infrastructure\Payment\PaymentGatewayInterface;
+use Exception;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Exception;
-
-use App\Services\Domain\User\Order\Calculators\OrderCalculationContext;
-use App\Services\Domain\User\Order\Calculators\SubtotalCalculator;
-use App\Services\Domain\User\Order\Calculators\DeliveryFeeCalculator;
-use App\Services\Domain\User\Order\Calculators\ServiceFeeCalculator;
-use App\Services\Domain\User\Order\Calculators\CommissionCalculator;
-use App\Services\Domain\User\Order\Calculators\DepositCalculator;
 
 class OrderDomainService
 {
@@ -214,7 +215,7 @@ class OrderDomainService
     public function placeOrder(int $userId, string $orderType, string $paymentOptionId, ?float $lat, ?float $long, int $points = 0, bool $isGroupOrder = false): array
     {
         $preview = $this->previewCheckout($userId, $orderType, $lat, $long, $points, $isGroupOrder);
-        
+
         $selectedOption = null;
         foreach ($preview['available_payment_options'] as $option) {
             if ($option['id'] === $paymentOptionId) {
@@ -231,8 +232,8 @@ class OrderDomainService
         $order = DB::transaction(function () use ($userId, $preview, $selectedOption, $points, $isGroupOrder) {
             $cart = $this->cartRepository->getUserCart($userId, $isGroupOrder);
 
-            $orderStatus = $selectedOption['required_now']['method'] === PaymentMethodEnum::ONLINE->value 
-                ? OrderStatusEnum::AWAITING_PAYMENT->value 
+            $orderStatus = $selectedOption['required_now']['method'] === PaymentMethodEnum::ONLINE->value
+                ? OrderStatusEnum::AWAITING_PAYMENT->value
                 : OrderStatusEnum::PENDING->value;
 
             $order = $this->orderRepository->create([
@@ -410,6 +411,49 @@ class OrderDomainService
                 $count++;
             } catch (\Exception $e) {
                 Log::error("Failed to cancel expired order ID {$order->id}: " . $e->getMessage());
+            }
+        }
+
+        return $count;
+    }
+
+    public function cancelForgottenPendingOrders(int $timeoutMinutes = 40): int
+    {
+        $orders = $this->orderRepository->getForgottenPendingCashOrders($timeoutMinutes);
+        $count = 0;
+
+        foreach ($orders as $order) {
+            try {
+                DB::transaction(function () use ($order) {
+                    $this->orderRepository->update($order->id, [
+                        'status' => OrderStatusEnum::CANCELLED->value,
+                    ]);
+
+                    $this->orderPaymentRepository->updatePendingPaymentsStatus(
+                        $order->id,
+                        PaymentStatusEnum::FAILED->value
+                    );
+
+                    $pointsRefunded = 0;
+                    $redemption = Redemption::where('order_id', $order->id)->first();
+                    if ($redemption && $redemption->points_redeemed > 0) {
+                        $pointsRefunded = $redemption->points_redeemed;
+                        $this->walletDomainService->earnPoints(
+                            $order->user_id,
+                            $pointsRefunded,
+                            PointTransactionSourceEnum::REFUND->value,
+                            $redemption->id,
+                            Redemption::class
+                        );
+                    }
+
+                    if ($order->user) {
+                        $order->user->notify(new OrderCancelledByTimeoutNotification($order, $pointsRefunded));
+                    }
+                });
+                $count++;
+            } catch (\Exception $e) {
+                Log::error("Failed to cancel forgotten pending order ID {$order->id}: " . $e->getMessage());
             }
         }
 

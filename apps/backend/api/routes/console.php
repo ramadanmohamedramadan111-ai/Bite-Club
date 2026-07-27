@@ -18,3 +18,4 @@ Schedule::call(function (LeaderboardApplicationService $service) {
 })->weeklyOn(2, '00:00');
 
 Schedule::command('orders:cancel-expired')->everyFifteenMinutes();
+Schedule::command('orders:cancel-forgotten')->everyFifteenMinutes();

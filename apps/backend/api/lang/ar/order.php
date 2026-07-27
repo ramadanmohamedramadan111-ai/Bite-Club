@@ -13,4 +13,10 @@ return [
     'statuses_retrieved_successfully' => 'تم استرجاع الحالات المتاحة بنجاح.',
     'status_updated_successfully' => 'تم تحديث حالة الطلب بنجاح.',
     'history_retrieved_successfully' => 'تم استرجاع سجل الطلبات بنجاح.',
+    'cancelled_by_timeout_title' => 'تم إلغاء الطلب - المطعم مشغول حالياً',
+    'cancelled_by_timeout_message' => 'نعتذر منك، المطعم مشغول حالياً ولم يتمكن من قبول طلبك الدفع عند الاستلام (رقم الطلب: #:order_id). تم إلغاء الطلب تلقائياً.',
+    'cancelled_by_timeout_message_db' => 'نعتذر منك، المطعم مشغول حالياً ولم يتمكن من قبول طلبك الدفع عند الاستلام. تم إلغاء الطلب تلقائياً.',
+    'greeting' => 'مرحباً :name،',
+    'points_refunded_line' => 'تم استرداد :points نقطة ولاء وإعادتها إلى محفظتك.',
+    'thank_you' => 'شكراً لاستخدامك منصتنا.',
 ];

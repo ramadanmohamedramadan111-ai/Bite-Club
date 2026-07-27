@@ -69,4 +69,9 @@ class OrderApplicationService
     {
         return $this->orderDomainService->cancelExpiredUnpaidOrders($timeoutMinutes);
     }
+
+    public function cancelForgottenPendingOrders(int $timeoutMinutes = 40): int
+    {
+        return $this->orderDomainService->cancelForgottenPendingOrders($timeoutMinutes);
+    }
 }

@@ -13,4 +13,10 @@ return [
     'statuses_retrieved_successfully' => 'Available statuses retrieved successfully.',
     'status_updated_successfully' => 'Order status updated successfully.',
     'history_retrieved_successfully' => 'Order history retrieved successfully.',
+    'cancelled_by_timeout_title' => 'Order Cancelled - Restaurant Busy',
+    'cancelled_by_timeout_message' => 'We apologize, the restaurant is currently busy and could not accept your cash order (ID: #:order_id). The order has been cancelled automatically.',
+    'cancelled_by_timeout_message_db' => 'We apologize, the restaurant is currently busy and could not accept your cash order. The order has been cancelled automatically.',
+    'greeting' => 'Hello :name,',
+    'points_refunded_line' => 'We have refunded :points loyalty points back to your wallet.',
+    'thank_you' => 'Thank you for using our platform.',
 ];
