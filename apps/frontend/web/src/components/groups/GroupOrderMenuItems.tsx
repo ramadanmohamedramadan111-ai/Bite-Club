@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils';
 import { useAction } from 'next-safe-action/hooks';
 import { addItemToGroupOrderSessionAction } from '@/actions/group-order';
 import { useRouter } from '@/i18n/navigation';
-import type { MenuItems as MenuItemsType } from '@/types/restaurant/restaurant';
+import type { MenuItems as MenuItemsType } from '@/types/restaurant';
 
 type Props = {
   sessionId: number;

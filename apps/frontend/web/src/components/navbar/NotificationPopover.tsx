@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { BellIcon } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
@@ -11,16 +11,39 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import {
-  useNotificationsStore,
-  useUnreadNotificationCount,
-} from '@/lib/const-data';
 import NotificationCard from '@/components/notifications/NotificationCard';
+import type { Notification } from '@/types/notification';
+
+const MOCK_NOTIFICATIONS: Notification[] = [
+  {
+    id: '1',
+    title: 'Order Ready',
+    description: 'Your order from Pizza Place is ready for pickup!',
+    read: false,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: '2',
+    title: 'New Restaurant',
+    description: 'A new restaurant just opened near you.',
+    read: false,
+    createdAt: new Date(Date.now() - 86400000).toISOString(),
+  },
+];
 
 export default function NotificationPopover() {
-  const unreadCount = useUnreadNotificationCount();
-  const notifications = useNotificationsStore((state) => state.notifications);
-  const markAsRead = useNotificationsStore((state) => state.markAsRead);
+  const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
+
+  const unreadCount = useMemo(
+    () => notifications.filter((n) => !n.read).length,
+    [notifications],
+  );
+
+  const markAsRead = (id: string) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
+    );
+  };
 
   const recentNotifications = useMemo(
     () =>
@@ -45,7 +68,7 @@ export default function NotificationPopover() {
         >
           <BellIcon className="size-5" />
           {unreadCount > 0 && (
-            <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
+            <span className="absolute -top-0.5 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground ltr:-right-0.5 rtl:-left-0.5">
               {unreadCount > 99 ? '99+' : unreadCount}
             </span>
           )}

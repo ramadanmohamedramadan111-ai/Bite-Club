@@ -30,7 +30,7 @@ export function Table<T>({
             {columns.map((col) => (
               <th
                 key={col.key}
-                className={`px-5 py-3.5 text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 whitespace-nowrap ${
+                className={`px-5 py-3.5 text-start text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 whitespace-nowrap ${
                   col.className || ''
                 }`}
               >

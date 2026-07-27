@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { serverFetch } from '@/utils/server-fetch';
-import { ApiResponse, PaginatedResponse } from '@/types/api/api-response';
-import { GroupTypeSimplified } from '@/types/groups/groups';
+import { ApiResponse, PaginatedResponse } from '@/types/api';
+import { GroupTypeSimplified } from '@/types/groups';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -13,10 +13,8 @@ export async function GET(request: NextRequest) {
 
   const response = await serverFetch<
     ApiResponse<PaginatedResponse<GroupTypeSimplified>>
-  >(
-    `/groups?search=${search}&page=${page}&per_page=${perPage}`,
-    'GET',
-  );
+  >(`/groups?search=${search}&page=${page}&per_page=${perPage}`, 'GET');
 
   return NextResponse.json(response);
 }
+

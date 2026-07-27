@@ -1,8 +1,8 @@
 import { serverFetch } from '@/utils/server-fetch';
 import { getTranslations } from 'next-intl/server';
 import { buildQueryString } from '@/utils/api-helpers';
-import type { ApiResponse, PaginatedResponse } from '@/types/api/api-response';
-import type { OrderResponse } from '@/types/orders/order';
+import type { ApiResponse, PaginatedResponse } from '@/types/api';
+import type { OrderResponse } from '@/types/order';
 import OrderCard from './OrderCard';
 import AppPagination from '@/components/shared/AppPagination';
 
@@ -41,7 +41,11 @@ export default async function PastOrders({ page, perPage }: PastOrdersProps) {
       {orders.map((order) => (
         <OrderCard key={order.id} order={order} />
       ))}
-      <AppPagination currentPage={meta.current_page} totalPages={meta.last_page} />
+      <AppPagination
+        currentPage={meta.current_page}
+        totalPages={meta.last_page}
+      />
     </div>
   );
 }
+

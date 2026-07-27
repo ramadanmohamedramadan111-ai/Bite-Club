@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { GroupTypeSimplified } from '@/types/groups/groups';
+import type { GroupTypeSimplified } from '@/types/groups';
 
 import GroupImage from './GroupImage';
 
@@ -31,7 +31,8 @@ export default async function GroupCard({ group }: Props) {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            {group.members_count} {group.members_count !== 1 ? t('members_plural') : t('member')}
+            {group.members_count}{' '}
+            {group.members_count !== 1 ? t('members_plural') : t('member')}
           </p>
         </CardContent>
       </Card>

@@ -3,7 +3,7 @@
 import { Swords, Crown } from 'lucide-react';
 import GamificationBadge from '@/components/gamification/GamificationBadge';
 import type { BadgeDefinition } from '@/components/gamification/GamificationBadge';
-import type { BadgeType } from '@/types/points/points';
+import type { BadgeType } from '@/types/points';
 
 const badgeDefs: Record<BadgeType, BadgeDefinition> = {
   weekly_3_orders: {
@@ -51,3 +51,4 @@ export default function PointsBadges({
     </div>
   );
 }
+

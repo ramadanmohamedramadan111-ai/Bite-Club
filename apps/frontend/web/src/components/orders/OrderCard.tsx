@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import type { OrderResponse } from '@/types/orders/order';
+import type { OrderResponse } from '@/types/order';
 import { OrderStatusBadge } from './OrderStatusBadge';
 
 function formatOrderDate(date: string) {
@@ -65,3 +65,4 @@ export default function OrderCard({ order }: { order: OrderResponse }) {
     </Card>
   );
 }
+

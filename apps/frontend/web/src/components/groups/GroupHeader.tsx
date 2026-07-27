@@ -1,6 +1,6 @@
 import React from 'react';
 import GroupImage from './GroupImage';
-import { GroupType } from '@/types/groups/groups';
+import { GroupType } from '@/types/groups';
 import GroupHeaderActiveSession from './GroupHeaderActiveSession';
 
 export default function GroupHeader({ group }: { group: GroupType }) {

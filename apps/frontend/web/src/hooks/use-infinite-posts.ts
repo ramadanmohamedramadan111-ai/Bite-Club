@@ -2,8 +2,8 @@
 
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { clientFetch } from '@/utils/client-fetch';
-import { ApiResponse, PaginatedResponse } from '@/types/api/api-response';
-import { PostType } from '@/types/social/posts';
+import { ApiResponse, PaginatedResponse } from '@/types/api';
+import { PostType } from '@/types/posts';
 
 const PAGE_SIZE = 10;
 
@@ -21,10 +21,9 @@ export function useInfinitePosts(
     queryFn: async ({ pageParam }: { pageParam: string }) => {
       const offset = parseInt(pageParam) || 0;
 
-      const response = await clientFetch<ApiResponse<PaginatedResponse<PostType>>>(
-        `${endpoint}?offset=${offset}&limit=${PAGE_SIZE}`,
-        'GET',
-      );
+      const response = await clientFetch<
+        ApiResponse<PaginatedResponse<PostType>>
+      >(`${endpoint}?offset=${offset}&limit=${PAGE_SIZE}`, 'GET');
 
       const items = response.data?.items || [];
       const meta = response.data?.meta;
@@ -32,9 +31,7 @@ export function useInfinitePosts(
 
       return {
         posts: items,
-        nextCursor: hasMore
-          ? (offset + PAGE_SIZE).toString()
-          : undefined,
+        nextCursor: hasMore ? (offset + PAGE_SIZE).toString() : undefined,
       };
     },
     getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -46,3 +43,4 @@ export function useInfinitePosts(
 export function useUserPosts(userId: string, enabled: boolean = true) {
   return useInfinitePosts(`/users/${userId}/posts`, enabled);
 }
+

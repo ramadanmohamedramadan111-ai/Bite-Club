@@ -19,7 +19,7 @@ interface MenuStore {
 
   fetchItems: (params?: {
     menu_category_id?: number
-    title?: string
+    query?: string
     sort_by?: 'title' | 'price' | 'availability'
     sort_dir?: 'asc' | 'desc'
     page?: number

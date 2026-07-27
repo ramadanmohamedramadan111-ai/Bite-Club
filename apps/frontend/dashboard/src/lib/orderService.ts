@@ -40,7 +40,41 @@ type LiveOrderListResponse = {
   data: ApiLiveOrder[]
 }
 
+type OrderHistoryResponse = {
+  success: boolean
+  data: ApiLiveOrder[]
+  meta: {
+    current_page: number
+    last_page: number
+    per_page: number
+    total: number
+  }
+}
+
+export type HistoryFilters = {
+  status?: string
+  order_type?: string
+  from_date?: string
+  to_date?: string
+  query?: string
+}
+
 export const orderService = {
-  getLiveOrders: () =>
-    api.get<LiveOrderListResponse>('/restaurant/orders/live').then((r) => r.data.data),
+  getLiveOrders: (query?: string) => {
+    const params: Record<string, string> = {}
+    if (query) params.query = query
+    return api.get<LiveOrderListResponse>('/restaurant/orders/live', { params }).then((r) => r.data.data)
+  },
+
+  getHistoryOrders: (page: number = 1, filters: HistoryFilters = {}) => {
+    // Strip out empty strings so they don't get sent as query params
+    const params: Record<string, string | number> = { page }
+    if (filters.status)     params.status     = filters.status
+    if (filters.order_type) params.order_type = filters.order_type
+    if (filters.from_date)  params.from_date  = filters.from_date
+    if (filters.to_date)    params.to_date    = filters.to_date
+    if (filters.query)      params.query      = filters.query
+    return api.get<OrderHistoryResponse>('/restaurant/orders/history', { params })
+      .then((r) => ({ items: r.data.data, meta: r.data.meta }))
+  },
 }

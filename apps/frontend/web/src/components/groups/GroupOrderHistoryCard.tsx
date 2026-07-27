@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { Clock, Users } from 'lucide-react';
 
-import type { GroupOrderHistory } from '@/types/group-order/group-order';
+import type { GroupOrderHistory } from '@/types/group-order';
 import { Card, CardHeader, CardContent } from '../ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Badge } from '../ui/badge';
@@ -22,7 +22,9 @@ export default async function GroupOrderHistoryCard({ order }: Props) {
       <CardHeader className="flex-row items-center gap-3 space-y-0 pb-3">
         <Avatar className="h-10 w-10 rounded-md">
           <AvatarImage src={order.restaurant.image_url ?? undefined} />
-          <AvatarFallback className="rounded-md">{order.restaurant.name[0]}</AvatarFallback>
+          <AvatarFallback className="rounded-md">
+            {order.restaurant.name[0]}
+          </AvatarFallback>
         </Avatar>
 
         <div className="flex flex-1 flex-col">
@@ -47,7 +49,8 @@ export default async function GroupOrderHistoryCard({ order }: Props) {
           </span>
           <span className="flex items-center gap-1">
             <Users className="h-3.5 w-3.5" />
-            {order.members_summary.length} {order.members_summary.length === 1 ? 'member' : 'members'}
+            {order.members_summary.length}{' '}
+            {order.members_summary.length === 1 ? 'member' : 'members'}
           </span>
         </div>
 
@@ -65,9 +68,13 @@ export default async function GroupOrderHistoryCard({ order }: Props) {
 
             <div className="space-y-1">
               {member.items.map((item) => (
-                <div key={item.id} className="flex items-center justify-between text-sm">
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">{item.quantity}x</span>
+                    <span className="text-muted-foreground">
+                      {item.quantity}x
+                    </span>
                     <span>{item.item.title}</span>
                   </div>
                   <span className="text-muted-foreground">
@@ -95,3 +102,4 @@ export default async function GroupOrderHistoryCard({ order }: Props) {
     </Card>
   );
 }
+

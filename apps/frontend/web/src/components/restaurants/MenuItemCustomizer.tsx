@@ -11,16 +11,13 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { useCartStore } from '@/stores/cart';
-import type {
-  ClientMenuItem,
-  RestaurantType,
-} from '@/types/restaurant/restaurant';
+import type { ClientMenuItem, RestaurantType } from '@/types/restaurant';
 
 import { Field, FieldLabel } from '../ui/field';
 import { Input } from '../ui/input';
 import { useAction } from 'next-safe-action/hooks';
 import { addIndividualCartItemAction } from '@/actions/cart';
-import { CartItem } from '@/types/cart/cart';
+import { CartItem } from '@/types/cart';
 
 export type OrderingContext = 'group-order' | 'restaurant';
 
@@ -28,8 +25,6 @@ type Props = {
   item: ClientMenuItem;
   variant?: 'dialog' | 'page';
   onAddToCart?: () => void;
-  cartType: 'individual' | 'group';
-  orderingContext?: OrderingContext;
   restaurant: RestaurantType;
   isAuthenticated: boolean;
 };
@@ -48,8 +43,6 @@ export default function MenuItemCustomizer({
   variant = 'dialog',
   restaurant,
   onAddToCart,
-  cartType = 'individual',
-  orderingContext = 'restaurant',
   isAuthenticated,
 }: Props) {
   const t = useTranslations('restaurants');
@@ -63,7 +56,6 @@ export default function MenuItemCustomizer({
   const canAddToCart = isSelectionValid(item);
 
   const cart = useCartStore((state) => state.cart);
-  const setCart = useCartStore((state) => state.setCart);
   const addItem = useCartStore((state) => state.addItem);
 
   const addItemToCart = () => {
@@ -132,8 +124,7 @@ export default function MenuItemCustomizer({
             variant === 'dialog' ? 'h-44' : 'h-56',
           )}>
           <Image
-            // src={item.image}
-            src={'/a'}
+            src={item.image}
             alt={item.name}
             fill
             className="object-cover"
@@ -241,7 +232,7 @@ export default function MenuItemCustomizer({
         onOpenChange={setReplaceCartDialogOpen}
         title={t('replaceCartTitle')}
         description={t('replaceCartDesc', {
-          current: cart?.restaurant.name,
+          current: cart?.restaurant.name || '',
           new: restaurant.name,
         })}
         confirmText={t('replaceCart')}

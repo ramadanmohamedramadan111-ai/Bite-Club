@@ -1,0 +1,19 @@
+import { useTranslations } from 'next-intl';
+import { z } from 'zod';
+
+export function createNewPasswordSchema(t: ReturnType<typeof useTranslations>) {
+  return z
+    .object({
+      password: z.string().min(8, t('fields.password.errors.minLength')),
+      password_confirmation: z.string(),
+    })
+    .refine((data) => data.password === data.password_confirmation, {
+      path: ['password_confirmation'],
+      message: t('fields.confirmPassword.errors.mismatch'),
+    });
+}
+
+export type NewPasswordSchema = z.infer<
+  ReturnType<typeof createNewPasswordSchema>
+>;
+

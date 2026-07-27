@@ -1,12 +1,18 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { ArrowLeft, CreditCard, MapPin, ShoppingBag, Wallet } from 'lucide-react';
+import {
+  ArrowLeft,
+  CreditCard,
+  MapPin,
+  ShoppingBag,
+  Wallet,
+} from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import type { OrderDetails } from '@/types/orders/order';
+import type { OrderDetails } from '@/types/order';
 import { OrderStatusBadge } from './OrderStatusBadge';
 
 function formatOrderDate(date: string) {
@@ -20,7 +26,11 @@ function formatOrderDate(date: string) {
   }).format(new Date(date));
 }
 
-export default function OrderDetailPageView({ order }: { order: OrderDetails }) {
+export default function OrderDetailPageView({
+  order,
+}: {
+  order: OrderDetails;
+}) {
   const t = useTranslations('orderDetail');
   const tc = useTranslations('common');
 
@@ -39,7 +49,9 @@ export default function OrderDetailPageView({ order }: { order: OrderDetails }) 
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold">{t('orderNumber', { id: order.id })}</h1>
+            <h1 className="text-3xl font-bold">
+              {t('orderNumber', { id: order.id })}
+            </h1>
             <p className="mt-1 text-muted-foreground">
               {formatOrderDate(order.created_at)}
             </p>
@@ -82,11 +94,15 @@ export default function OrderDetailPageView({ order }: { order: OrderDetails }) 
                 <span>{order.financials.subtotal} EGP</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">{tc('deliveryFee')}</span>
+                <span className="text-muted-foreground">
+                  {tc('deliveryFee')}
+                </span>
                 <span>{order.financials.delivery_fee} EGP</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">{tc('serviceFee')}</span>
+                <span className="text-muted-foreground">
+                  {tc('serviceFee')}
+                </span>
                 <span>{order.financials.service_fee} EGP</span>
               </div>
               <div className="flex justify-between pt-1 text-base font-semibold">
@@ -121,7 +137,9 @@ export default function OrderDetailPageView({ order }: { order: OrderDetails }) 
               ) : (
                 <ShoppingBag className="h-4 w-4" />
               )}
-              <span>{paymentLabel(order.payments[0]?.payment_method ?? 'cash')}</span>
+              <span>
+                {paymentLabel(order.payments[0]?.payment_method ?? 'cash')}
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -146,9 +164,10 @@ export default function OrderDetailPageView({ order }: { order: OrderDetails }) 
                     />
                     <span
                       className={`text-sm ${
-                        step.state === 'active' ? 'font-medium' : 'text-muted-foreground'
-                      }`}
-                    >
+                        step.state === 'active'
+                          ? 'font-medium'
+                          : 'text-muted-foreground'
+                      }`}>
                       {step.label}
                     </span>
                   </div>
@@ -161,3 +180,4 @@ export default function OrderDetailPageView({ order }: { order: OrderDetails }) 
     </div>
   );
 }
+

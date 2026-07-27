@@ -4,8 +4,8 @@ import { Button } from '../ui/button';
 import { Link } from '@/i18n/navigation';
 import { ArrowRight } from 'lucide-react';
 import { serverFetch } from '@/utils/server-fetch';
-import { ApiResponse } from '@/types/api/api-response';
-import { RestaurantType, TopRestaurant } from '@/types/restaurant/restaurant';
+import { ApiResponse } from '@/types/api';
+import { RestaurantType, TopRestaurant } from '@/types/restaurant';
 import { cookies } from 'next/headers';
 import { buildQueryString } from '@/utils/api-helpers';
 import RestaurantCard from '../restaurants/RestaurantCard';
@@ -53,9 +53,7 @@ export default async function TopRestaurants() {
             {lat && lng ? t('topRestaurantsNear') : t('topRestaurants')}
           </h2>
           <p className="mt-1 text-muted-foreground">
-            {lat && lng
-              ? t('topRestaurantsNearDesc')
-              : t('topRestaurantsDesc')}
+            {lat && lng ? t('topRestaurantsNearDesc') : t('topRestaurantsDesc')}
           </p>
         </div>
         <Button asChild variant="outline" className="w-fit gap-2">

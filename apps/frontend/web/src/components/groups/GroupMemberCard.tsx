@@ -1,6 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { cn } from '@/lib/utils';
-import { GroupMember, GroupType } from '@/types/groups/groups';
+import { GroupMember, GroupType } from '@/types/groups';
 
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Badge } from '../ui/badge';

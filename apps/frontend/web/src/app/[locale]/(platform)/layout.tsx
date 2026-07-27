@@ -4,7 +4,7 @@ import { Settings2 } from 'lucide-react';
 
 import FullSelectors from '@/components/navbar/FullSelectors';
 import SearchForm from '@/components/navbar/SearchForm';
-import { AppSidebar } from '@/components/sidebar/app-sidebar';
+import { AppSidebar } from '@/components/sidebar/AppSidebar';
 import {
   Popover,
   PopoverContent,
@@ -21,22 +21,22 @@ import CartDrawerHost from '@/components/cart/CartDrawerHost';
 import GroupOrderSessionsDrawerHost from '@/components/navbar/GroupOrderSessionsDrawerHost';
 import { serverFetch } from '@/utils/server-fetch';
 import { getUserId } from '@/utils/api-helpers';
-import { ApiResponse, PaginatedResponse } from '@/types/api/api-response';
-import { Cart, IndividualCartResponse } from '@/types/cart/cart';
-import { CartInitializer } from '@/providers/CartInitilaizer';
-import AuthInitializer from '@/providers/AuthInitializer';
-import { FriendResponseType } from '@/types/social/friends';
-import FriendsInitializer from '@/providers/FriendsInitializer';
-import { UserMeResponse } from '@/types/auth/auth';
-import type { WalletDetails, StreakDetails } from '@/types/points/points';
-import GamificationInitializer from '@/providers/GamificationInitializer';
-import GroupOrderSessionsInitializer from '@/providers/GroupOrderSessionsInitializer';
-import type { GroupOrderSession } from '@/types/group-order/group-order';
+import { ApiResponse, PaginatedResponse } from '@/types/api';
+import { Cart } from '@/types/cart';
+import AuthInitializer from '@/Initializers/AuthInitializer';
+import { FriendResponseType } from '@/types/friends';
+import FriendsInitializer from '@/Initializers/FriendsInitializer';
+import { UserMeResponse } from '@/types/auth';
+import type { WalletDetails, StreakDetails } from '@/types/points';
+import GamificationInitializer from '@/Initializers/GamificationInitializer';
+import GroupOrderSessionsInitializer from '@/Initializers/GroupOrderSessionsInitializer';
+import type { GroupOrderSession } from '@/types/group-order';
 import GamificationPopover, {
   GamificationPanel,
   MobileGamificationButton,
 } from '@/components/gamification/GamificationPopover';
 import { Link } from '@/i18n/navigation';
+import { CartInitializer } from '@/Initializers/CartInitializer';
 
 export default async function Layout({
   children,
@@ -141,14 +141,15 @@ export default async function Layout({
               <LocationButtonServer />
             </div>
 
-            <div className="min-w-0 flex-1 max-w-[100px] sm:max-w-[180px] lg:max-w-md xl:max-w-lg">
+            <div className="min-w-0 flex-1 max-w-25 sm:max-w-45 lg:max-w-md xl:max-w-lg">
               <SearchForm />
             </div>
           </div>
-          {/* Gamification Desktop */}
-          <div className="ms-1 hidden shrink-0 lg:block">
-            <GamificationPopover />
-          </div>
+          {!!userId && (
+            <div className="ms-1 hidden shrink-0 lg:block">
+              <GamificationPopover />
+            </div>
+          )}
 
           {/* Desktop */}
           <div className="hidden shrink-0 lg:block">
@@ -156,33 +157,35 @@ export default async function Layout({
           </div>
           {/* Mobile */}
           <div className="flex items-center gap-1 lg:hidden">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-8 gap-1 px-1.5">
-                  <MobileGamificationButton />
-                </Button>
-              </PopoverTrigger>
-
-              <PopoverContent
-                side="bottom"
-                align="end"
-                className="w-80 p-0"
-                sideOffset={8}>
-                <GamificationPanel />
-                <div className="border-t p-3">
+            {!!userId && (
+              <Popover>
+                <PopoverTrigger asChild>
                   <Button
                     variant="ghost"
-                    size="sm"
-                    className="w-full text-xs"
-                    asChild>
-                    <Link href="/points">{t('viewAllRewards')}</Link>
+                    size="icon"
+                    className="size-8 gap-1 px-1.5">
+                    <MobileGamificationButton />
                   </Button>
-                </div>
-              </PopoverContent>
-            </Popover>
+                </PopoverTrigger>
+
+                <PopoverContent
+                  side="bottom"
+                  align="end"
+                  className="w-80 p-0"
+                  sideOffset={8}>
+                  <GamificationPanel />
+                  <div className="border-t p-3">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full text-xs"
+                      asChild>
+                      <Link href="/points">{t('viewAllRewards')}</Link>
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            )}
 
             <Popover>
               <PopoverTrigger asChild>

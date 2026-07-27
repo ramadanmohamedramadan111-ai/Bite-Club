@@ -1,6 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 
-import type { GroupOrderHistory } from '@/types/group-order/group-order';
+import type { GroupOrderHistory } from '@/types/group-order';
 import AppPagination from '../shared/AppPagination';
 import GroupOrderHistoryCard from './GroupOrderHistoryCard';
 
@@ -15,13 +15,19 @@ type Props = {
   };
 };
 
-export default async function GroupHistoryTab({ groupId, orders, meta }: Props) {
+export default async function GroupHistoryTab({
+  groupId,
+  orders,
+  meta,
+}: Props) {
   const t = await getTranslations('groups');
 
   if (orders.length === 0) {
     return (
       <div className="flex min-h-48 items-center justify-center rounded-lg border border-dashed">
-        <p className="text-sm text-muted-foreground">{t('orderHistoryEmpty')}</p>
+        <p className="text-sm text-muted-foreground">
+          {t('orderHistoryEmpty')}
+        </p>
       </div>
     );
   }

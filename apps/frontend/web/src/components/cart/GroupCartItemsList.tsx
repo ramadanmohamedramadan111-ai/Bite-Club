@@ -12,7 +12,7 @@ import {
   removeItemFromGroupOrderSessionAction,
   updateItemQuantityGroupOrderSessionAction,
 } from '@/actions/group-order';
-import type { GroupOrderCartSession } from '@/types/group-order/group-order';
+import type { GroupOrderCartSession } from '@/types/group-order';
 
 type Props = {
   membersSummary: GroupOrderCartSession['members_summary'];
@@ -53,7 +53,12 @@ export default function GroupCartItemsList({
   return (
     <div className="space-y-4">
       {membersSummary.map((member) => (
-        <div key={member.user.id} className={cn('space-y-3 rounded-xl border p-4', member.user.id === currentUserId && 'border-primary/50')}>
+        <div
+          key={member.user.id}
+          className={cn(
+            'space-y-3 rounded-xl border p-4',
+            member.user.id === currentUserId && 'border-primary/50',
+          )}>
           <div className="flex items-center justify-between gap-3">
             <p className="font-medium">
               {member.user.name}

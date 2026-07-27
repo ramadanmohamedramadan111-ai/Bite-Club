@@ -5,11 +5,11 @@ import { checkoutPreviewDeliverySchema } from '@/schemas/checkout/checkout-previ
 import { checkoutPreviewPickupSchema } from '@/schemas/checkout/checkout-preview-pickup-schema';
 import { checkoutPaySchema } from '@/schemas/checkout/checkout-payment-schema';
 
-import { ApiResponse } from '@/types/api/api-response';
+import { ApiResponse } from '@/types/api';
 import {
   CheckoutPreviewResponse,
   CheckoutPaymentResponse,
-} from '@/types/checkout/checkout';
+} from '@/types/checkout';
 import { getUserId } from '@/utils/api-helpers';
 import { serverFetch } from '@/utils/server-fetch';
 import { updateTag } from 'next/cache';

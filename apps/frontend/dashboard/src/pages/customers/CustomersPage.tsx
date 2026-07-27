@@ -267,7 +267,7 @@ export function CustomersPage() {
           <select
             value={newCustomer.segment}
             onChange={(e) => setNewCustomer({ ...newCustomer, segment: e.target.value as 'VIP' | 'FREQUENT' | 'NEW' })}
-            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-700 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+            className="appearance-none w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-700 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
           >
             <option value="NEW">NEW</option>
             <option value="FREQUENT">FREQUENT</option>
@@ -323,7 +323,7 @@ export function CustomersPage() {
               <select
                 value={showEditModal.segment}
                 onChange={(e) => setShowEditModal({ ...showEditModal, segment: e.target.value as 'VIP' | 'FREQUENT' | 'NEW' })}
-                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-700 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+                className="appearance-none w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-700 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
               >
                 <option value="NEW">NEW</option>
                 <option value="FREQUENT">FREQUENT</option>

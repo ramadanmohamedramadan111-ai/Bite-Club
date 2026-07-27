@@ -667,6 +667,9 @@
     "addFriend": "Add as friend"
   },
   "home": {
+    "heroTitle": "Order food you\u2019ll love",
+    "heroSubtitle": "Discover top restaurants near you, order with friends, and earn rewards with every meal.",
+    "heroCta": "Browse restaurants",
     "categories": "Categories",
     "categoriesDesc": "Explore food by what you're craving",
     "topRestaurants": "Top restaurants",
@@ -1051,6 +1054,17 @@
     "next": "Next",
     "morePages": "More pages",
     "pageOf": "Page {current} of {total}"
+  },
+  "location": {
+    "selectLocation": "Select your location",
+    "searchPlaceholder": "Search for a place...",
+    "findingAddress": "Finding address...",
+    "clickMapInstruction": "Click anywhere on the map to choose a location.",
+    "resetLocation": "Reset location",
+    "confirmResetTitle": "Are you sure you want to reset your location?",
+    "confirmResetDescription": "This will remove your saved location. You will need to select a location again before placing an order.",
+    "confirmLocation": "Confirm location",
+    "chooseLocation": "Choose a location"
   },
   "gamification": {
     "signInToTrack": "Sign in to track your rewards",

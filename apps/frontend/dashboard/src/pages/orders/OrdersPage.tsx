@@ -6,11 +6,11 @@ import { Table } from '../../components/common/Table'
 import type { Column } from '../../components/common/Table'
 import { Pagination } from '../../components/common/Pagination'
 import { useOrderStore } from '../../store/orderStore'
-import type { Order } from '../../store/orderStore'
+import { api } from '../../lib/api'
 
 function statusPill(status: string) {
   switch (status.toLowerCase()) {
-    case 'preparing':  return 'bg-blue-105 text-blue-600 dark:bg-blue-950/20 dark:text-blue-500'
+    case 'preparing':  return 'bg-blue-100 text-blue-600 dark:bg-blue-950/20 dark:text-blue-500'
     case 'ready':      return 'bg-orange-50 text-brand-orange dark:bg-orange-950/20'
     case 'completed':  return 'bg-green-100 text-green-700 dark:bg-green-950/20 dark:text-green-500'
     case 'cancelled':  return 'bg-red-100 text-red-500 dark:bg-red-950/20 dark:text-red-500'
@@ -23,11 +23,12 @@ function paymentColor(p: string) {
   switch (p?.toLowerCase()) {
     case 'paid':     return 'text-green-600 dark:text-green-500'
     case 'unpaid':   return 'text-gray-400 dark:text-slate-500'
-    case 'refunded': return 'text-red-550 dark:text-red-500'
+    case 'refunded': return 'text-red-500 dark:text-red-500'
     case 'pending':  return 'text-yellow-500 dark:text-yellow-600'
     default:         return 'text-gray-400 dark:text-slate-500'
   }
 }
+
 
 export function OrdersPage() {
   const { t } = useTranslation()
@@ -35,18 +36,53 @@ export function OrdersPage() {
   const [searchParams] = useSearchParams()
   const [currentPage, setCurrentPage] = useState(1)
 
-  const { orders: liveOrders, isLoading, fetchLiveOrders } = useOrderStore()
+  const { orders: liveOrders, historyOrders, historyMeta, isLoading, fetchLiveOrders, fetchHistoryOrders } = useOrderStore()
+  const [activeTab, setActiveTab] = useState<'live' | 'history'>('live')
 
+  // History filters — only sent to the API when on the history tab
+  const [filterStatus, setFilterStatus]       = useState('')
+  const [filterType, setFilterType]           = useState('')
+  const [filterFromDate, setFilterFromDate]   = useState('')
+  const [filterToDate, setFilterToDate]       = useState('')
+
+  const query = searchParams.get('q') || ''
+
+  // Fetch live orders whenever query changes
   useEffect(() => {
-    fetchLiveOrders()
-  }, [fetchLiveOrders])
+    fetchLiveOrders(query)
+  }, [fetchLiveOrders, query])
 
-  const query = (searchParams.get('q') || '').toLowerCase()
-  const orders = liveOrders.filter(o => 
-    (o.customer?.name || '').toLowerCase().includes(query) || 
-    o.id.toString().toLowerCase().includes(query) ||
-    (o.customer?.phone_number || '').includes(query)
-  )
+  // Fetch history orders when page, tab, or query changes
+  useEffect(() => {
+    if (activeTab === 'history') {
+      fetchHistoryOrders(currentPage, {
+        status:     filterStatus || undefined,
+        order_type: filterType || undefined,
+        from_date:  filterFromDate || undefined,
+        to_date:    filterToDate || undefined,
+        query:      query || undefined,
+      })
+    }
+  }, [currentPage, activeTab, query]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleApplyFilters = () => {
+    setCurrentPage(1)
+    fetchHistoryOrders(1, {
+      status:     filterStatus || undefined,
+      order_type: filterType || undefined,
+      from_date:  filterFromDate || undefined,
+      to_date:    filterToDate || undefined,
+      query:      query || undefined,
+    })
+  }
+
+  const handleClearFilters = () => {
+    setFilterStatus(''); setFilterType(''); setFilterFromDate(''); setFilterToDate('')
+    setCurrentPage(1)
+    fetchHistoryOrders(1, { query: query || undefined })
+  }
+
+  const orders = activeTab === 'live' ? liveOrders : historyOrders
 
   const columns: Column<typeof orders[0]>[] = [
     {
@@ -67,14 +103,14 @@ export function OrdersPage() {
     {
       header: t('type', 'TYPE'),
       key: 'order_type',
-      render: (o) => <span className="capitalize">{o.order_type.replace('_', ' ')}</span>
+      render: (o) => <span className="capitalize">{(o.order_type || '').replace('_', ' ')}</span>
     },
     {
       header: t('status', 'STATUS'),
       key: 'status',
       render: (o) => (
         <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold capitalize ${statusPill(o.status)}`}>
-          {o.status.replace('_', ' ')}
+          {(o.status || '').replace('_', ' ')}
         </span>
       )
     },
@@ -82,7 +118,7 @@ export function OrdersPage() {
       header: t('payment', 'PAYMENT'),
       key: 'payment',
       render: (o) => {
-        const paymentStatus = o.payments[0]?.status || 'unpaid'
+        const paymentStatus = o.payments?.[0]?.status || 'unpaid'
         return (
           <span className={`text-sm font-semibold capitalize ${paymentColor(paymentStatus)}`}>
             {paymentStatus}
@@ -93,7 +129,7 @@ export function OrdersPage() {
     {
       header: t('total', 'TOTAL'),
       key: 'financials',
-      render: (o) => <span className="font-bold text-gray-800 dark:text-white">{o.financials.total} EGP</span>
+      render: (o) => <span className="font-bold text-gray-800 dark:text-white">{o.financials?.total || 0} EGP</span>
     },
     {
       header: t('date', 'DATE'),
@@ -105,10 +141,7 @@ export function OrdersPage() {
       key: 'action',
       render: (o) => (
         <button
-          onClick={(e) => {
-            e.stopPropagation()
-            navigate(`/orders/${o.id}`)
-          }}
+          onClick={(e) => { e.stopPropagation(); navigate(`/orders/${o.id}`) }}
           className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:border-brand-orange hover:text-brand-orange transition dark:border-slate-600 dark:text-slate-300"
         >
           {t('viewDetails')}
@@ -116,6 +149,9 @@ export function OrdersPage() {
       )
     }
   ]
+
+  const historyFrom = (historyMeta.current_page - 1) * historyMeta.per_page + 1
+  const historyTo   = Math.min(historyMeta.current_page * historyMeta.per_page, historyMeta.total)
 
   return (
     <div className="flex flex-col gap-6 mx-auto w-full">
@@ -154,47 +190,127 @@ export function OrdersPage() {
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap items-end gap-3 rounded-xl border border-gray-100 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-        <div className="flex flex-col gap-1 min-w-[160px]">
-          <label className="text-xs font-semibold text-gray-500 dark:text-slate-400">{t('branch')}</label>
-          <select className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none focus:border-brand-orange dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">
-            <option>{t('allBranches')}</option>
-            <option>Zamalek</option><option>Maadi</option><option>New Cairo</option>
-          </select>
-        </div>
-        <div className="flex flex-col gap-1 min-w-[160px]">
-          <label className="text-xs font-semibold text-gray-500 dark:text-slate-400">{t('orderStatus')}</label>
-          <select className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none focus:border-brand-orange dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">
-            <option>{t('allStatuses')}</option>
-            <option>{t('preparing')}</option><option>{t('ready')}</option>
-            <option>{t('completed')}</option><option>{t('cancelled')}</option>
-          </select>
-        </div>
-        <div className="flex flex-col gap-1 min-w-[180px]">
-          <label className="text-xs font-semibold text-gray-500 dark:text-slate-400">{t('dateRange')}</label>
-          <input type="date" defaultValue="2023-10-24"
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none focus:border-brand-orange dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200" />
-        </div>
-        <button className="ml-auto flex items-center gap-2 rounded-xl bg-brand-orange px-6 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition shadow-sm">
-          {t('applyFilters')}
+      {/* Tabs */}
+      <div className="flex gap-2 border-b border-gray-200 dark:border-slate-700 pb-0">
+        <button
+          onClick={() => { setActiveTab('live'); setCurrentPage(1) }}
+          className={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors ${
+            activeTab === 'live'
+              ? 'text-brand-orange border-brand-orange'
+              : 'text-gray-500 border-transparent hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200'
+          }`}
+        >
+          {t('liveOrders', 'Live Orders')}
+        </button>
+        <button
+          onClick={() => { setActiveTab('history'); setCurrentPage(1) }}
+          className={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors ${
+            activeTab === 'history'
+              ? 'text-brand-orange border-brand-orange'
+              : 'text-gray-500 border-transparent hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200'
+          }`}
+        >
+          {t('orderHistory', 'Order History')}
         </button>
       </div>
 
+      {/* History Filters — only shown on the History tab */}
+      {activeTab === 'history' && (
+        <div className="flex flex-wrap items-end gap-3 rounded-xl border border-gray-100 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          {/* Status */}
+          <div className="flex flex-col gap-1 min-w-[150px]">
+            <label className="text-xs font-semibold text-gray-500 dark:text-slate-400">{t('orderStatus', 'Status')}</label>
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="appearance-none rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none focus:border-brand-orange dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+            >
+              <option value="">{t('allStatuses', 'All Statuses')}</option>
+              <option value="pending">{t('pending')}</option>
+              <option value="preparing">{t('preparing')}</option>
+              <option value="ready">{t('ready')}</option>
+              <option value="completed">{t('completed')}</option>
+              <option value="cancelled">{t('cancelled')}</option>
+            </select>
+          </div>
+
+          {/* Order Type */}
+          <div className="flex flex-col gap-1 min-w-[150px]">
+            <label className="text-xs font-semibold text-gray-500 dark:text-slate-400">{t('type', 'Order Type')}</label>
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              className="appearance-none rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none focus:border-brand-orange dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+            >
+              <option value="">{t('allTypes', 'All Types')}</option>
+              <option value="delivery">{t('delivery', 'Delivery')}</option>
+              <option value="pickup">{t('pickup', 'Pickup')}</option>
+            </select>
+          </div>
+
+          {/* From Date */}
+          <div className="flex flex-col gap-1 min-w-[160px]">
+            <label className="text-xs font-semibold text-gray-500 dark:text-slate-400">{t('fromDate', 'From Date')}</label>
+            <input
+              type="date"
+              value={filterFromDate}
+              onChange={(e) => setFilterFromDate(e.target.value)}
+              className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none focus:border-brand-orange dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+            />
+          </div>
+
+          {/* To Date */}
+          <div className="flex flex-col gap-1 min-w-[160px]">
+            <label className="text-xs font-semibold text-gray-500 dark:text-slate-400">{t('toDate', 'To Date')}</label>
+            <input
+              type="date"
+              value={filterToDate}
+              onChange={(e) => setFilterToDate(e.target.value)}
+              className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none focus:border-brand-orange dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+            />
+          </div>
+
+          <div className="flex gap-2 ml-auto">
+            <button
+              onClick={handleClearFilters}
+              className="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-600 hover:border-gray-300 transition dark:border-slate-600 dark:text-slate-300"
+            >
+              {t('clear', 'Clear')}
+            </button>
+            <button
+              onClick={handleApplyFilters}
+              className="flex items-center gap-2 rounded-xl bg-brand-orange px-6 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition shadow-sm"
+            >
+              {t('applyFilters', 'Apply Filters')}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Orders table */}
       <div className="rounded-xl border border-gray-100 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900 overflow-hidden">
-        <Table
-          columns={columns}
-          data={orders}
-          keyExtractor={(row) => row.id}
-          onRowClick={(row) => navigate(`/orders/${row.id.replace('#', '')}`)}
-        />
-        <Pagination
-          currentPage={currentPage}
-          totalPages={13}
-          onPageChange={setCurrentPage}
-          showingText="Showing 1 to 4 of 128 orders"
-        />
+        {isLoading ? (
+          <div className="flex justify-center py-16">
+            <span className="h-8 w-8 animate-spin rounded-full border-4 border-brand-orange border-t-transparent" />
+          </div>
+        ) : (
+          <Table
+            columns={columns}
+            data={orders}
+            keyExtractor={(row) => row.id}
+            onRowClick={(row) => navigate(`/orders/${row.id}`)}
+          />
+        )}
+
+        {/* Only show pagination for history orders */}
+        {orders.length > 0 && activeTab === 'history' && (
+          <Pagination
+            currentPage={historyMeta.current_page}
+            totalPages={historyMeta.last_page}
+            onPageChange={setCurrentPage}
+            showingText={`Showing ${historyFrom} to ${historyTo} of ${historyMeta.total} orders`}
+          />
+        )}
       </div>
     </div>
   )

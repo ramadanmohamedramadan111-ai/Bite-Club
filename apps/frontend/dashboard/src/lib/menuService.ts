@@ -36,8 +36,10 @@ type ItemResponse     = { success: boolean; data: ApiMenuItem }
 // ─── Menu Categories ─────────────────────────────────────────────────────────
 
 export const menuCategoryService = {
-  index: () =>
-    api.get<CategoryListResponse>('/restaurant/menu-categories').then((r) => r.data.data.items),
+  index: (query?: string) =>
+    api.get<CategoryListResponse>('/restaurant/menu-categories', {
+      params: query ? { query } : {}
+    }).then((r) => r.data.data.items),
 
   store: (payload: { title: string; icon_name: string; short_description: string; visibility?: 'visible' | 'hidden' }) =>
     api.post<CategoryResponse>('/restaurant/menu-categories', payload).then((r) => r.data.data),
@@ -58,6 +60,7 @@ export const menuItemService = {
   index: (params?: {
     menu_category_id?: number
     title?: string
+    query?: string
     sort_by?: 'title' | 'price' | 'availability'
     sort_dir?: 'asc' | 'desc'
     page?: number
@@ -66,6 +69,7 @@ export const menuItemService = {
       params: {
         ...(params?.menu_category_id ? { menu_category_id: params.menu_category_id } : {}),
         ...(params?.title ? { title: params.title } : {}),
+        ...(params?.query ? { query: params.query } : {}),
         ...(params?.sort_by ? { sort_by: params.sort_by } : {}),
         ...(params?.sort_dir ? { sort_dir: params.sort_dir } : {}),
         ...(params?.page ? { page: params.page } : {}),

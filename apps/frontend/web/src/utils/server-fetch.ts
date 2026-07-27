@@ -1,3 +1,5 @@
+'use server';
+
 import { getLocale, getTranslations } from 'next-intl/server';
 import { cookies } from 'next/headers';
 

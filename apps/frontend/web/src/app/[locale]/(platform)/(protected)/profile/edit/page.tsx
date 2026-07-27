@@ -1,6 +1,6 @@
 import { serverFetch } from '@/utils/server-fetch';
-import type { ApiResponse } from '@/types/api/api-response';
-import type { UserResponse } from '@/types/profile/user';
+import type { ApiResponse } from '@/types/api';
+import type { UserResponse } from '@/types/user';
 import { getTranslations } from 'next-intl/server';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
@@ -39,9 +39,7 @@ export default async function EditProfilePage() {
         </Link>
         <div>
           <h1 className="text-3xl font-bold">{t('title')}</h1>
-          <p className="mt-1 text-muted-foreground">
-            {t('subtitle')}
-          </p>
+          <p className="mt-1 text-muted-foreground">{t('subtitle')}</p>
         </div>
       </div>
 
@@ -49,3 +47,4 @@ export default async function EditProfilePage() {
     </div>
   );
 }
+

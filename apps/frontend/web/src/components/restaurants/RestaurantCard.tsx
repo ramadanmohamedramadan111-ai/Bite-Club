@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Bike, Heart, ShoppingBag, Star } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
-import { RestaurantType } from '@/types/restaurant/restaurant';
+import { RestaurantType } from '@/types/restaurant';
 
 type Props = {
   restaurant: RestaurantType;

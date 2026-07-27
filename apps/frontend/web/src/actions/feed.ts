@@ -3,13 +3,13 @@
 import { actionClient } from '@/lib/safe-action';
 import { idSchema } from '@/schemas/common/id-schema';
 import { createOrderPostSchema } from '@/schemas/feed/create-post-schema';
-import { ApiResponse } from '@/types/api/api-response';
+import { ApiResponse } from '@/types/api';
 import { getUserId } from '@/utils/api-helpers';
 import { serverFetch } from '@/utils/server-fetch';
 import { getTranslations } from 'next-intl/server';
 import { updateTag } from 'next/cache';
 
-import { PostType } from '@/types/social/posts';
+import { PostType } from '@/types/posts';
 
 export const createPostAction = actionClient
   .inputSchema(async () => {

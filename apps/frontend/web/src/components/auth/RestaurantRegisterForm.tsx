@@ -4,7 +4,6 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { useTranslations } from 'next-intl';
-import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 import { cn } from '@/lib/utils';
@@ -38,9 +37,9 @@ import {
 } from '@/schemas/auth/restaurant-register-schema';
 import { useAction } from 'next-safe-action/hooks';
 import useNavigation from '@/hooks/useNavigation';
-import { registerRestaurantAction } from '@/actions/auth/register-restaurant';
-import { mapServerFieldErrors } from '@/utils/server/map-server-field-errors';
+import { mapServerFieldErrors } from '@/utils/map-server-field-errors';
 import { Link } from '@/i18n/navigation';
+import { registerRestaurantAction } from '@/actions/auth';
 
 export function RestaurantRegisterForm({
   className,

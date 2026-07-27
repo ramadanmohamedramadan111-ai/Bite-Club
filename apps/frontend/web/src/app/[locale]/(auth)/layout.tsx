@@ -1,11 +1,13 @@
-import Logo from '@/components/auth/logo';
+import Image from 'next/image';
+import Logo from '@/components/auth/Logo';
 import Selectors from '@/components/navbar/Selectors';
+import authBg from '@/assets/images/auth/auth-bg.jpg';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative flex min-h-svh items-center justify-center overflow-hidden p-6 md:p-10">
       {/* Background image */}
-      <div className="absolute inset-0 bg-[url('/images/auth-bg2.jpg')] bg-cover bg-center bg-no-repeat" />
+      <Image src={authBg} alt="" fill priority className="object-cover" />
 
       {/* Overlay */}
       <div className="absolute inset-0 bg-white/95 dark:bg-black/90" />

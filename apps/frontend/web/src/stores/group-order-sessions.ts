@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { GroupOrderSession } from '@/types/group-order/group-order';
+import type { GroupOrderSession } from '@/types/group-order';
 
 type GroupOrderSessionsStore = {
   sessions: GroupOrderSession[];
@@ -12,3 +12,4 @@ export const useGroupOrderSessionsStore = create<GroupOrderSessionsStore>()(
     setSessions: (sessions) => set({ sessions }),
   }),
 );
+

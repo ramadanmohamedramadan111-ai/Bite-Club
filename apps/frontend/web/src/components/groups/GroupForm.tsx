@@ -3,7 +3,7 @@ import {
   createCreateGroupSchema,
   CreateGroupSchema,
 } from '@/schemas/groups/create-group-schema';
-import { GroupType } from '@/types/groups/groups';
+import { GroupType } from '@/types/groups';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import React, { useEffect, useState } from 'react';
@@ -16,7 +16,7 @@ import { X } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
 import { createGroupAction, updateGroupAction } from '@/actions/groups';
 import { toast } from 'sonner';
-import { mapServerFieldErrors } from '@/utils/server/map-server-field-errors';
+import { mapServerFieldErrors } from '@/utils/map-server-field-errors';
 import { Dispatch, SetStateAction } from 'react';
 import { useRouter } from '@/i18n/navigation';
 
