@@ -269,7 +269,7 @@ export default function GroupOrderPageView({
                 totalAmount={sessionCart.total_amount}
               />
 
-              <GroupCartActionButton sessionId={groupOrderId} />
+              {isHost && <GroupCartActionButton sessionId={groupOrderId} />}
             </CardContent>
           </Card>
         </div>
