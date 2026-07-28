@@ -3,7 +3,6 @@
 import { actionClient } from '@/lib/safe-action';
 import { idSchema } from '@/schemas/common/id-schema';
 import { ApiResponse } from '@/types/api';
-import { GroupType } from '@/types/groups';
 import { getUserId } from '@/utils/api-helpers';
 import { serverFetch } from '@/utils/server-fetch';
 import { updateTag } from 'next/cache';
@@ -16,6 +15,22 @@ export const reOrderAction = actionClient
       `/orders/${parsedInput}/reorder`,
       'POST',
     );
+
+    updateTag(`cart-${userId}`);
+
+    return response;
+  });
+
+export const cancelOrder = actionClient
+  .inputSchema(idSchema)
+  .action(async ({ parsedInput }) => {
+    const userId = await getUserId();
+    const response = await serverFetch<ApiResponse<null>>(
+      `/user/orders/${parsedInput}/cancel`,
+      'POST',
+    );
+
+    console.log('RESPONSE', response);
 
     updateTag(`cart-${userId}`);
 
