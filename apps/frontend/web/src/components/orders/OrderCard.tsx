@@ -1,10 +1,16 @@
 'use client';
 
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { XCircle } from 'lucide-react';
+import { toast } from 'sonner';
+import { useAction } from 'next-safe-action/hooks';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import ConfirmDialog from '@/components/shared/ConfirmationDialog';
 import type { OrderResponse } from '@/types/order';
+import { cancelOrder } from '@/actions/order';
 import { OrderStatusBadge } from './OrderStatusBadge';
 
 function formatOrderDate(date: string) {
@@ -25,6 +31,26 @@ function formatItemsInline(order: OrderResponse) {
 
 export default function OrderCard({ order }: { order: OrderResponse }) {
   const t = useTranslations('common');
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+
+  const { execute: executeCancel, isExecuting: isCancelling } = useAction(
+    cancelOrder,
+    {
+      onSuccess: () => {
+        toast.success(t('orderCancelled'));
+      },
+      onError: ({ error }) => {
+        console.log('ERROR', error);
+        toast.error(error.serverError?.message ?? 'Failed to cancel order');
+      },
+    },
+  );
+
+  const isPending = order.status === 'pending';
+  const hasFullCashPayment = order.payments?.some(
+    (p) => p.payment_method === 'cash',
+  );
+  const showCancel = isPending && hasFullCashPayment;
 
   return (
     <Card className="p-4">
@@ -59,7 +85,27 @@ export default function OrderCard({ order }: { order: OrderResponse }) {
                 {t('viewDetails')}
               </Button>
             </Link>
+            {showCancel && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setCancelDialogOpen(true)}>
+                <XCircle className="mr-1 size-4" />
+                {t('cancelOrder')}
+              </Button>
+            )}
           </div>
+
+          <ConfirmDialog
+            open={cancelDialogOpen}
+            onOpenChange={setCancelDialogOpen}
+            title={t('cancelOrderTitle')}
+            description={t('cancelOrderDesc')}
+            confirmText={t('cancelOrderConfirm')}
+            cancelText={t('goBack')}
+            onConfirm={() => executeCancel(order.id)}
+            isLoading={isCancelling}
+          />
         </div>
       </div>
     </Card>
