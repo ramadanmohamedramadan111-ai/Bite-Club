@@ -30,17 +30,17 @@ export default function OrderSummary({
 }: Props) {
   const t = useTranslations('checkout');
   return (
-    <Card className="sticky top-20">
-      <CardHeader>
-        <CardTitle className="text-base">{t('orderSummary')}</CardTitle>
+    <Card className="sticky top-24 h-fit">
+      <CardHeader className="border-b border-border/30 pb-4">
+        <CardTitle className="text-base font-bold">{t('orderSummary')}</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 pt-5">
         <div className="flex items-center gap-3">
           <div>
-            <p className="font-semibold text-base">
+            <p className="font-bold text-base text-foreground leading-tight">
               {cart.restaurant?.name || 'Restaurant'}
             </p>
-            <p className="text-xs text-muted-foreground capitalize">
+            <p className="text-xs text-muted-foreground capitalize mt-0.5">
               {fulfillmentType}
             </p>
           </div>
@@ -48,20 +48,20 @@ export default function OrderSummary({
 
         <Separator />
 
-        <div className="max-h-64 space-y-3 overflow-y-auto">
+        <div className="max-h-64 space-y-3.5 overflow-y-auto pr-1">
           {cart.items.map((item) => (
             <div key={item.id} className="space-y-1 text-sm">
               <div className="flex justify-between gap-3">
-                <span className="font-medium text-foreground/90">
+                <span className="font-medium text-foreground leading-tight">
                   {item.quantity}x {item.item_name}
                 </span>
-                <span className="shrink-0 font-semibold text-foreground/90">
+                <span className="shrink-0 font-semibold text-foreground/80 text-xs">
                   {item.total_price.toFixed(2)} EGP
                 </span>
               </div>
               {item.notes && (
-                <p className="text-xs text-muted-foreground italic">
-                  Note: {item.notes}
+                <p className="text-3xs text-muted-foreground italic pl-2">
+                  Note: "{item.notes}"
                 </p>
               )}
             </div>
@@ -73,14 +73,14 @@ export default function OrderSummary({
         <dl className="space-y-2.5 text-sm">
           <div className="flex justify-between">
             <dt className="text-muted-foreground">{t('subtotal')}</dt>
-            <dd className="font-medium text-foreground">
+            <dd className="font-semibold text-foreground">
               {summary.subtotal.toFixed(2)} EGP
             </dd>
           </div>
           {fulfillmentType === 'delivery' && (
             <div className="flex justify-between">
               <dt className="text-muted-foreground">{t('deliveryFee')}</dt>
-              <dd className="font-medium text-foreground">
+              <dd className="font-semibold text-foreground">
                 {summary.deliveryFee.toFixed(2)} EGP
               </dd>
             </div>
@@ -88,7 +88,7 @@ export default function OrderSummary({
           {summary.serviceFee > 0 && (
             <div className="flex justify-between">
               <dt className="text-muted-foreground">{t('serviceFee')}</dt>
-              <dd className="font-medium text-foreground">
+              <dd className="font-semibold text-foreground">
                 {summary.serviceFee.toFixed(2)} EGP
               </dd>
             </div>
@@ -101,7 +101,7 @@ export default function OrderSummary({
                   ({t('pointsRedeemed', { count: summary.pointsRedeemed })})
                 </span>
               </dt>
-              <dd className="font-medium">
+              <dd className="font-semibold">
                 -{summary.discountAmount.toFixed(2)} EGP
               </dd>
             </div>
@@ -124,11 +124,10 @@ export default function OrderSummary({
         ) : (
           <div className="flex justify-between text-base font-bold">
             <span>{t('total')}</span>
-            <span>{summary.total.toFixed(2)} EGP</span>
+            <span className="text-primary">{summary.total.toFixed(2)} EGP</span>
           </div>
         )}
       </CardContent>
     </Card>
   );
 }
-

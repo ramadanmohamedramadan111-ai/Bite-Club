@@ -14,13 +14,12 @@ export default function FeedTabsNav() {
 
   return (
     <Tabs value={activeTab} className="w-full">
-      <TabsList className="grid w-full grid-cols-2 bg-muted/60 rounded-xl">
-        <TabsTrigger value="posts" className="rounded-lg transition-all" asChild>
+      <TabsList className="grid w-full grid-cols-2 max-w-md">
+        <TabsTrigger value="posts" asChild>
           <Link href="/feed/posts">{t('postsFeed')}</Link>
         </TabsTrigger>
         <TabsTrigger
           value="leaderboard"
-          className="rounded-lg transition-all flex items-center justify-center gap-2"
           asChild
         >
           <Link href="/feed/leaderboard">{t('leaderboard')}</Link>

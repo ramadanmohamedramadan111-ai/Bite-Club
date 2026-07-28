@@ -17,7 +17,7 @@ export default function OrdersTabs() {
 
   return (
     <Tabs value={activeTab} className="mb-6">
-      <TabsList className="w-full">
+      <TabsList className="grid w-full grid-cols-2 max-w-md">
         {tabs.map((tab) => (
           <TabsTrigger key={tab.value} value={tab.value} asChild>
             <Link href={`/orders/${tab.value}`}>{tab.label}</Link>

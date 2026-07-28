@@ -21,27 +21,42 @@ export default async function GroupMemberCard({ member, group, type }: Props) {
   return (
     <div
       className={cn(
-        'flex items-center justify-between rounded-lg border p-4 transition-colors',
-        isMe && 'border-primary bg-primary/5',
-      )}>
+        'flex items-center justify-between rounded-2xl border border-border/40 bg-card p-4 transition-all duration-300 shadow-xs hover:border-border/75 hover:shadow-sm',
+        isMe && 'border-primary/40 bg-primary/5 hover:border-primary/60',
+      )}
+    >
       <div className="flex items-center gap-3">
-        <Avatar>
-          <AvatarImage src={member.profile_image ?? undefined} />
-          <AvatarFallback>{member.full_name}</AvatarFallback>
+        <Avatar className="size-11 rounded-full border border-border/30 shadow-xs">
+          <AvatarImage src={member.profile_image ?? undefined} className="object-cover" />
+          <AvatarFallback className="font-bold text-sm bg-accent text-accent-foreground">
+            {member.full_name.charAt(0).toUpperCase()}
+          </AvatarFallback>
         </Avatar>
 
-        <div>
-          <div className="flex items-center gap-2">
-            <p className="font-medium">{member.full_name}</p>
+        <div className="space-y-0.5">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-bold text-sm sm:text-base text-foreground leading-tight">{member.full_name}</span>
 
-            {isMe && <Badge variant="secondary">{t('you')}</Badge>}
+            {isMe && (
+              <Badge className="bg-primary/10 border-primary/20 text-primary text-[10px] font-semibold px-2 py-0.5 rounded-md">
+                {t('you')}
+              </Badge>
+            )}
 
-            {isMemberOwner && <Badge variant="outline">{t('owner')}</Badge>}
+            {isMemberOwner && (
+              <Badge className="bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400 text-[10px] font-semibold px-2 py-0.5 rounded-md">
+                {t('owner')}
+              </Badge>
+            )}
 
-            {isMemberAdmin && <Badge variant="outline">{t('admin')}</Badge>}
+            {isMemberAdmin && (
+              <Badge className="bg-sky-500/10 border-sky-500/20 text-sky-600 dark:text-sky-400 text-[10px] font-semibold px-2 py-0.5 rounded-md">
+                {t('admin')}
+              </Badge>
+            )}
           </div>
 
-          <p className="text-sm text-muted-foreground">@{member.username}</p>
+          <p className="text-xs text-muted-foreground">@{member.username}</p>
         </div>
       </div>
 
@@ -56,4 +71,3 @@ export default async function GroupMemberCard({ member, group, type }: Props) {
     </div>
   );
 }
-

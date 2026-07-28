@@ -21,7 +21,7 @@ export default function LoginTabs() {
 
   return (
     <Tabs value={type} onValueChange={handleChange} className="w-full">
-      <TabsList className="grid w-full grid-cols-2">
+      <TabsList className="grid w-full grid-cols-2 max-w-md">
         <TabsTrigger value="user">User</TabsTrigger>
 
         <TabsTrigger value="restaurant">Restaurant</TabsTrigger>

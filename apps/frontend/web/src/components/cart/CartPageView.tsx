@@ -28,6 +28,7 @@ import {
 } from '@/actions/cart';
 import { toast } from 'sonner';
 import GroupCartActionButton from './GroupCartActionButton';
+import { cn } from '@/lib/utils';
 
 export default function CartPageView() {
   const t = useTranslations('common');
@@ -110,7 +111,7 @@ export default function CartPageView() {
         <p className="mt-2 text-muted-foreground">
           {t('browseRestaurantsDesc')}
         </p>
-        <Button asChild className="mt-6">
+        <Button asChild className="mt-6 rounded-xl">
           <Link href="/restaurants">{t('browseRestaurants')}</Link>
         </Button>
       </div>
@@ -118,23 +119,24 @@ export default function CartPageView() {
   }
 
   return (
-    <div className="container mx-auto max-w-6xl space-y-8 py-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="container mx-auto max-w-6xl space-y-8">
+      {/* Header section with bottom separator */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border/30 pb-6">
         <div>
-          <h1 className="text-3xl font-bold">{t('yourCart')}</h1>
-          <p className="mt-1 text-muted-foreground">
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">{t('yourCart')}</h1>
+          <p className="mt-1.5 text-sm text-muted-foreground">
             {t('reviewItems')}
           </p>
         </div>
 
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="outline" className="gap-2 text-destructive" disabled={disabledCondition}>
+            <Button variant="outline" className="gap-2 text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive rounded-xl cursor-pointer" disabled={disabledCondition}>
               <Trash2 className="size-4" />
               {t('clearCart')}
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent>
+          <AlertDialogContent className="rounded-2xl">
             <AlertDialogHeader>
               <AlertDialogTitle>{t('clearCartTitle')}</AlertDialogTitle>
               <AlertDialogDescription>
@@ -142,11 +144,11 @@ export default function CartPageView() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+              <AlertDialogCancel className="rounded-xl">{t('cancel')}</AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleClearCart}
                 disabled={disabledCondition}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl">
                 {t('clearCart')}
               </AlertDialogAction>
             </AlertDialogFooter>
@@ -157,52 +159,40 @@ export default function CartPageView() {
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-4">
           <Card>
-            <CardHeader className="flex flex-row items-center gap-3">
+            <CardHeader className="flex flex-row items-center gap-3 border-b border-border/30 pb-4">
               <div>
-                <CardTitle className="text-base">
+                <CardTitle className="text-lg font-bold text-foreground">
                   {cart.restaurant?.name || t('restaurant')}
                 </CardTitle>
-
-                  <p className="text-xs text-muted-foreground">
-                    {t('individualOrder')}
-                  </p>
-                {/* {cart.type === 'group' && (
-                  <p className="text-xs text-muted-foreground">Group order</p>
-                )} */}
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {t('individualOrder')}
+                </p>
               </div>
             </CardHeader>
-            <CardContent className="space-y-3">
-              {/* {cart.type === 'group' ? (
-                <GroupCartItemsList
-                  items={cartItems}
-                  onUpdateQuantity={updateQuantity}
-                  onRemove={removeItem}
-                />
-              ) : ( ... ) */}
+            <CardContent className="space-y-4 pt-5">
               {cartItems.map((item) => (
                 <div
                   key={item.item_id}
-                  className="space-y-2 rounded-md border p-4">
+                  className="space-y-3 rounded-2xl border border-border/40 bg-card/65 p-4 sm:p-5 transition-all duration-300 shadow-xs hover:border-border/75 hover:shadow-sm">
                   <div className="flex justify-between items-start gap-4">
-                    <div className="space-y-2">
-                      <p className="font-semibold text-base">{item.item_name}</p>
+                    <div className="space-y-2.5">
+                      <p className="font-bold text-base text-foreground leading-snug">{item.item_name}</p>
                       
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 bg-muted/40 border border-border/40 rounded-xl p-1 w-fit">
                         <button
                           onClick={() =>
                             handleUpdateCart(item.id, item.quantity - 1)
                           }
                           disabled={item.quantity <= 1 || disabledCondition}
                           className="
-                            flex h-8 w-8 items-center justify-center
-                            rounded-md border border-input bg-background
-                            hover:bg-accent hover:text-accent-foreground
-                            disabled:cursor-not-allowed disabled:opacity-50
+                            flex h-8 w-8 items-center justify-center cursor-pointer
+                            rounded-lg bg-background border border-border/30 hover:bg-accent hover:text-accent-foreground
+                            disabled:cursor-not-allowed disabled:opacity-50 transition-all font-semibold
                           ">
                           -
                         </button>
 
-                        <span className="min-w-6 text-center font-medium">
+                        <span className="min-w-8 text-center font-bold text-sm text-foreground select-none">
                           {item.quantity}
                         </span>
 
@@ -212,26 +202,25 @@ export default function CartPageView() {
                           }
                           disabled={disabledCondition}
                           className="
-                            flex h-8 w-8 items-center justify-center
-                            rounded-md border border-input bg-background
-                            hover:bg-accent hover:text-accent-foreground
-                            disabled:cursor-not-allowed disabled:opacity-50
+                            flex h-8 w-8 items-center justify-center cursor-pointer
+                            rounded-lg bg-background border border-border/30 hover:bg-accent hover:text-accent-foreground
+                            disabled:cursor-not-allowed disabled:opacity-50 transition-all font-semibold
                           ">
                           +
                         </button>
                       </div>
                     </div>
 
-                    <div className={isRtl ? 'text-left' : 'text-right'}>
-                      <p className="font-bold text-base">
-                        {t('egp')} {item.total_price.toFixed(2)}
+                    <div className={cn("flex flex-col items-end shrink-0", isRtl ? 'text-left' : 'text-right')}>
+                      <p className="font-bold text-base text-primary">
+                        {item.total_price.toFixed(2)} EGP
                       </p>
                       <button
                         onClick={() => handleRemoveItemCart(item.id)}
                         disabled={disabledCondition}
                         className="
-                          mt-2 text-sm text-destructive
-                          hover:underline hover:text-destructive/90
+                          mt-2.5 text-xs text-destructive font-semibold
+                          hover:underline hover:text-destructive/90 cursor-pointer
                         ">
                         {t('remove')}
                       </button>
@@ -239,43 +228,32 @@ export default function CartPageView() {
                   </div>
 
                   {item.notes && (
-                    <div className="text-sm text-muted-foreground border-t border-muted-foreground/5 pt-2">
-                      <p className="font-medium text-foreground">{t('note')}</p>
-                      <p>{item.notes}</p>
+                    <div className="text-xs text-muted-foreground border-t border-border/20 pt-2">
+                      <p className="font-semibold text-foreground mb-0.5">{t('note')}</p>
+                      <p className="italic">"{item.notes}"</p>
                     </div>
                   )}
-
-                  {/* {cart.type === 'group' && item.addedBy?.name && (
-                    <p className="text-xs text-muted-foreground">
-                      Added by {item.addedBy.name}
-                    </p>
-                  )} */}
                 </div>
               ))}
             </CardContent>
           </Card>
         </div>
 
-        <Card className="h-fit lg:sticky lg:top-20">
-          <CardHeader>
-            <CardTitle className="text-base">{t('orderSummary')}</CardTitle>
+        <Card className="h-fit lg:sticky lg:top-24">
+          <CardHeader className="border-b border-border/30 pb-4">
+            <CardTitle className="text-base font-bold">{t('orderSummary')}</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {/* {cart.type === 'individual' && <CartRedemptionSelector />}
-            {cart.type === 'group' ? (
-              <GroupCartTotals items={cartItems} summary={summary} />
-            ) : ( ... ) */}
-            
+          <CardContent className="space-y-6 pt-5">
             <div className="space-y-4 border-b border-border pb-4">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">{t('subtotal')}</span>
-                <span className="font-medium">{t('egp')} {cart?.subtotal.toFixed(2)}</span>
+                <span className="font-semibold text-foreground">{cart?.subtotal.toFixed(2)} EGP</span>
               </div>
             </div>
 
             <div className="flex justify-between text-lg font-bold">
               <span>{t('total')}</span>
-              <span>{t('egp')} {cart?.subtotal.toFixed(2)}</span>
+              <span className="text-primary">{cart?.subtotal.toFixed(2)} EGP</span>
             </div>
 
             <GroupCartActionButton />
@@ -285,5 +263,3 @@ export default function CartPageView() {
     </div>
   );
 }
-
-

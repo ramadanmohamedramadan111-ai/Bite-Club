@@ -65,36 +65,33 @@ export default async function Page({ searchParams }: PageProps) {
   return (
     <div className="container mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">{t('title')}</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">{t('title')}</h1>
         <p className="mt-2 text-muted-foreground">{t('subtitle')}</p>
       </div>
 
+      {/* Top Bar for Search and Sort */}
+      <div className="mb-8 flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between bg-card border border-border/40 p-4 rounded-2xl shadow-xs">
+        <div className="flex-1 max-w-lg">
+          <Suspense fallback={<div className="h-9 w-full animate-pulse rounded-xl bg-muted" />}>
+            <RestaurantSearch value={search} />
+          </Suspense>
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          <span className="text-sm font-semibold text-muted-foreground">{t('sort')}</span>
+          <Suspense fallback={<div className="h-9 w-32 animate-pulse rounded-xl bg-muted" />}>
+            <SortSelect value={sort as 'rating' | 'name'} />
+          </Suspense>
+        </div>
+      </div>
+
       <div className="flex flex-col gap-8 lg:flex-row">
+        {/* Left Sidebar: Only Filters Panel */}
         <aside className="w-full shrink-0 lg:w-72">
           <Suspense
             fallback={
-              <div className="h-96 animate-pulse rounded-xl bg-muted" />
+              <div className="h-96 animate-pulse rounded-2xl bg-muted" />
             }>
             <div className="sticky top-20 flex flex-col gap-4">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center gap-3">
-                  <Suspense
-                    fallback={
-                      <div className="h-8 w-48 animate-pulse rounded-lg bg-muted" />
-                    }>
-                    <div>{t('sort')}</div>
-                    <SortSelect value={sort as 'rating' | 'name'} />
-                  </Suspense>
-                </div>
-              </div>
-
-              <Suspense
-                fallback={
-                  <div className="h-9 max-w-md animate-pulse rounded-lg bg-muted" />
-                }>
-                <RestaurantSearch value={search} />
-              </Suspense>
-
               <RestaurantFiltersPanel
                 categories={categories.map((c) => c.name)}
                 values={{

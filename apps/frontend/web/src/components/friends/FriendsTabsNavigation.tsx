@@ -21,7 +21,7 @@ export default function FriendsTabsNavigation() {
 
   return (
     <Tabs value={activeTab}>
-      <TabsList className="w-full grid grid-cols-2 lg:grid-cols-4">
+      <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 max-w-2xl">
         {tabKeys.map((tab) => (
           <TabsTrigger key={tab.value} value={tab.value} asChild>
             <Link href={`/friends/${tab.value}`}>{t(tab.labelKey)}</Link>

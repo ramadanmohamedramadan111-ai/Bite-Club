@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import MenuItemDialog from './MenuItemDialog';
 import type { OrderingContext } from './MenuItemCustomizer';
+import { Separator } from '@/components/ui/separator';
 
 type Props = {
   restaurant: RestaurantType;
@@ -102,24 +103,26 @@ export default function RestaurantDetailMenuClient({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-6 lg:flex-row">
+    <div className="space-y-6 pt-4">
+      <div className="flex flex-col gap-8 lg:flex-row">
         {/* Sidebar Navigation */}
-        <aside className="lg:w-56 lg:shrink-0">
-          <div className="sticky top-20 space-y-1">
-            <div className="relative max-w-md mb-4">
-              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <aside className="lg:w-64 lg:shrink-0">
+          <div className="sticky top-20 space-y-4">
+            {/* Search menu items input */}
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground/80" />
               <Input
                 type="search"
                 placeholder={t('searchMenuItems')}
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                className="pl-9"
+                className="pl-9 h-10 rounded-xl"
               />
             </div>
 
-            <div className="rounded-xl border p-2">
-              <p className="px-2 py-1 text-sm font-medium">{t('categories')}</p>
+            {/* Categories sidebar layout similar to Talabat */}
+            <div className="rounded-2xl border border-border/40 bg-card/60 backdrop-blur-xs p-2 shadow-xs space-y-1">
+              <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground/80">{t('categories')}</p>
               {activeCategoriesList.length > 0 ? (
                 activeCategoriesList.map((category) => (
                   <button
@@ -127,13 +130,13 @@ export default function RestaurantDetailMenuClient({
                     type="button"
                     onClick={() => scrollToCategory(category)}
                     className={cn(
-                      'w-full rounded-lg px-3 py-2 text-left text-sm transition flex items-center justify-between',
+                      'w-full rounded-xl px-3 py-2 text-left text-sm transition flex items-center justify-between border-l-4 cursor-pointer',
                       activeCategory === category
-                        ? 'bg-primary text-primary-foreground'
-                        : 'hover:bg-muted',
+                        ? 'bg-primary/10 text-primary border-primary font-bold'
+                        : 'hover:bg-accent/40 text-muted-foreground hover:text-foreground border-transparent',
                     )}>
                     <span>{category}</span>
-                    <span className="ml-1 text-xs opacity-80">
+                    <span className="ml-1 text-xs opacity-75">
                       (
                       {filteredCategories.find((c) => c.title === category)
                         ?.items.length ?? 0}
@@ -142,7 +145,7 @@ export default function RestaurantDetailMenuClient({
                   </button>
                 ))
               ) : (
-                <p className="px-2 py-2 text-sm text-muted-foreground">
+                <p className="px-3 py-2 text-sm text-muted-foreground">
                   {t('noCategoriesFound')}
                 </p>
               )}
@@ -160,9 +163,9 @@ export default function RestaurantDetailMenuClient({
                   sectionRefs.current[category.title] = element;
                 }}
                 className="scroll-mt-24 space-y-4">
-                <h2 className="text-lg font-semibold">{category.title}</h2>
+                <h2 className="text-xl font-bold tracking-tight text-foreground px-1">{category.title}</h2>
 
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
                   {category.items.map((item) => (
                     <button
                       key={item.id}
@@ -170,34 +173,39 @@ export default function RestaurantDetailMenuClient({
                       onClick={() => handleOpenItem(item, category.title)}
                       disabled={!item.is_available}
                       className={cn(
-                        'overflow-hidden rounded-xl border text-left transition hover:border-primary/40 hover:shadow-sm',
-                        !item.is_available && 'opacity-60',
+                        'flex items-stretch justify-between overflow-hidden rounded-2xl border border-border/40 bg-card p-4 text-left transition hover:border-primary/40 hover:shadow-md w-full gap-4 group cursor-pointer',
+                        !item.is_available && 'opacity-55',
                       )}>
-                      <div className="relative h-36 w-full">
-                        <Image
-                          // src={item.image_url || '/storage/restaurants/restaurant.jpeg'}
-                          src={'/a'}
-                          alt={item.title}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-
-                      <div className="space-y-2 p-4">
-                        <div className="flex items-start justify-between gap-2">
-                          <h3 className="font-medium">{item.title}</h3>
-                          <span className="shrink-0 text-sm font-semibold">
+                      {/* Left Side: Info */}
+                      <div className="flex-1 flex flex-col justify-between space-y-2">
+                        <div>
+                          <h3 className="font-bold text-sm sm:text-base text-foreground group-hover:text-primary transition-colors leading-tight">{item.title}</h3>
+                          <p className="line-clamp-2 text-xs md:text-sm text-muted-foreground/85 mt-1 leading-normal">
+                            {item.description || ''}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-3 pt-2">
+                          <span className="text-sm sm:text-base font-bold text-foreground">
                             {item.price.toFixed(2)} EGP
                           </span>
-                        </div>
-                        <p className="line-clamp-2 text-sm text-muted-foreground">
-                          {item.description || ''}
-                        </p>
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                          <span className="inline-flex items-center gap-1">
-                            <Clock className="size-3.5" />
-                            {t('deliveryTime', { time: 15 })}
+                          <span className="inline-flex items-center gap-1 rounded bg-accent/60 px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                            <Clock className="size-3" />
+                            <span>15 min</span>
                           </span>
+                        </div>
+                      </div>
+
+                      {/* Right Side: Square Image container with overlapping add button */}
+                      <div className="relative size-24 sm:size-28 rounded-xl overflow-hidden bg-muted shrink-0 border border-border/30">
+                        <Image
+                          src={item.image_url || '/storage/restaurants/restaurant.jpeg'}
+                          alt={item.title}
+                          fill
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                        {/* Floating Add Plus Overlay like Talabat */}
+                        <div className="absolute bottom-2 right-2 flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-md transition-transform duration-150 group-hover:scale-110">
+                          <span className="text-lg font-bold leading-none">+</span>
                         </div>
                       </div>
                     </button>
@@ -206,8 +214,8 @@ export default function RestaurantDetailMenuClient({
               </section>
             ))
           ) : (
-            <div className="flex min-h-48 flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center">
-              <p className="font-medium">{t('noMenuItems')}</p>
+            <div className="flex min-h-48 flex-col items-center justify-center rounded-2xl border border-dashed border-border/60 p-8 text-center bg-card/40">
+              <p className="font-bold">{t('noMenuItems')}</p>
               <p className="mt-1 text-sm text-muted-foreground">
                 {t('tryDifferentSearch')}
               </p>
@@ -227,4 +235,3 @@ export default function RestaurantDetailMenuClient({
     </div>
   );
 }
-
