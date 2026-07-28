@@ -95,32 +95,36 @@ export function OrderTrackingPage() {
     customer: {
       name: apiOrder.customer?.name || 'Guest',
       phone: apiOrder.customer?.phone_number || '-',
-      address: 'Address not provided'
+      address: t('addressNotProvided', 'Address not provided')
     },
-    payment: { 
-      method: apiOrder.payments?.[0]?.payment_method || 'Cash on Delivery', 
-      status: apiOrder.payments?.[0]?.status || 'UNPAID', 
-      transactionId: '-' 
-    },
+    payments: apiOrder.payments?.map(p => ({
+      id: p.id,
+      method: p.payment_method || 'Cash',
+      type: p.payment_type || 'full',
+      amount: p.amount || 0,
+      status: p.status || 'pending'
+    })) || [],
     items: apiOrder.items.map(i => ({
       id: i.id,
+      itemId: i.item_id,
       name: i.item_name,
       variant: i.notes || '',
       qty: i.quantity,
       unitPrice: i.price,
-      image: '' 
+      totalPrice: i.total_price || i.price * i.quantity,
+      image: ''
     })),
     subtotal: apiOrder.financials?.subtotal || 0,
     tax: apiOrder.financials?.service_fee || 0,
     deliveryFee: apiOrder.financials?.delivery_fee || 0,
     total: apiOrder.financials?.total || 0,
-    driver: 'Pending',
+    driver: t('pending', 'Pending'),
     deliveryDistance: '',
     lifecycle: [
-      { key: 'placed', label: 'Order Placed', time: apiOrder.time_ago, detail: 'Via Platform', done: true, current: false },
-      { key: 'accepted', label: 'Accepted', time: '', detail: '', done: apiOrder.status !== 'pending', current: apiOrder.status === 'pending' },
-      { key: 'preparing', label: 'Preparing', time: '', detail: '', done: ['ready', 'completed'].includes(apiOrder.status), current: apiOrder.status === 'preparing' },
-      { key: 'ready', label: 'Ready/Completed', time: '', detail: '', done: apiOrder.status === 'completed', current: apiOrder.status === 'ready' },
+      { key: 'placed', label: t('orderPlaced', 'Order Placed'), time: apiOrder.time_ago, detail: t('viaPlatform', 'Via Platform'), done: true, current: false },
+      { key: 'accepted', label: t('accepted', 'Accepted'), time: '', detail: '', done: apiOrder.status !== 'pending', current: apiOrder.status === 'pending' },
+      { key: 'preparing', label: t('preparing', 'Preparing'), time: '', detail: '', done: ['ready', 'completed'].includes(apiOrder.status), current: apiOrder.status === 'preparing' },
+      { key: 'ready', label: t('ready', 'Ready/Completed'), time: '', detail: '', done: apiOrder.status === 'completed', current: apiOrder.status === 'ready' },
     ],
   }
 
@@ -202,31 +206,36 @@ export function OrderTrackingPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 rounded-xl border border-gray-100 dark:border-slate-800 p-3 mb-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-500 text-white">
-              <CreditCard size={18} />
+          {order.payments.length === 0 ? (
+            <p className="text-sm text-gray-400 dark:text-slate-500">No payments recorded</p>
+          ) : (
+            <div className="space-y-3">
+              {order.payments.map((payment, idx) => (
+                <div key={payment.id} className="flex items-center gap-3 rounded-xl border border-gray-100 dark:border-slate-800 p-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-500 text-white">
+                    <CreditCard size={18} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">METHOD</p>
+                    <p className="mt-0.5 text-sm font-bold text-gray-800 dark:text-white capitalize">{payment.method}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">AMOUNT</p>
+                    <p className="mt-1 text-sm font-bold text-gray-800 dark:text-white">{payment.amount} EGP</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">STATUS</p>
+                    <span className={`mt-1 inline-flex items-center gap-1.5 text-xs font-bold capitalize ${
+                      payment.status === 'paid' ? 'text-green-600' : 'text-gray-400 dark:text-slate-500'
+                    }`}>
+                      {payment.status === 'paid' && <CheckCircle size={11} />}
+                      {payment.status}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">METHOD</p>
-              <p className="mt-0.5 text-sm font-bold text-gray-800 dark:text-white">{order.payment.method}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">STATUS</p>
-              <span className={`mt-1 inline-flex items-center gap-1.5 text-sm font-bold ${
-                order.payment.status === 'PAID' ? 'text-green-600' : 'text-gray-400 dark:text-slate-500'
-              }`}>
-                <CheckCircle size={13} />
-                {order.payment.status}
-              </span>
-            </div>
-            <div className="text-right">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">TRANSACTION ID</p>
-              <p className="mt-1 text-sm font-bold text-gray-800 dark:text-white">{order.payment.transactionId}</p>
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Live Actions */}
@@ -280,52 +289,54 @@ export function OrderTrackingPage() {
             <table className="w-full text-sm">
               <thead className="border-b border-gray-50 dark:border-slate-800">
                 <tr>
-                  <th className="px-5 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">
+                  <th className="px-5 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 w-1/2">
                     {t('itemDetails', 'ITEM DETAILS')}
                   </th>
-                  <th className="px-4 py-3 text-center text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">
+                  <th className="px-4 py-3 text-center text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 w-16">
                     {t('qty', 'QTY')}
                   </th>
-                  <th className="px-4 py-3 text-right text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">
+                  <th className="px-4 py-3 text-right text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 w-24">
                     {t('unitPrice', 'UNIT PRICE')}
                   </th>
-                  <th className="px-5 py-3 text-right text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">
+                  <th className="px-5 py-3 text-right text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 w-24">
                     {t('subtotalCol', 'SUBTOTAL')}
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50 dark:divide-slate-800/50">
-                {order.items.map((item: any, idx: number) => (
+                {order.items.map((item: any) => (
                   <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/30 transition">
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
                         <div className="relative shrink-0">
-                          <img
-                            src={item.image}
-                            alt={item.name}
-                            className="h-12 w-12 rounded-xl object-cover"
-                          />
-                          <span className="absolute -top-1.5 -left-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand-orange text-[10px] font-bold text-white">
-                            {idx + 1}
-                          </span>
+                          {item.image ? (
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="h-12 w-12 rounded-xl object-cover"
+                            />
+                          ) : (
+                            <div className="h-12 w-12 rounded-xl bg-gray-100 dark:bg-slate-800 flex items-center justify-center">
+                              <span className="text-xs font-bold text-gray-400 dark:text-slate-500">#{item.itemId}</span>
+                            </div>
+                          )}
                         </div>
                         <div>
                           <p className="font-bold text-gray-900 dark:text-white">{item.name}</p>
-                          <p className="text-xs font-medium text-brand-orange">{item.variant}</p>
-                          {item.extra && (
-                            <p className="text-xs text-gray-400 dark:text-slate-500">{item.extra}</p>
+                          {item.variant && (
+                            <p className="text-xs font-medium text-brand-orange">{item.variant}</p>
                           )}
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-center font-bold text-gray-800 dark:text-white">
+                    <td className="px-4 py-4 text-center font-bold text-gray-800 dark:text-white w-16">
                       {item.qty}
                     </td>
-                    <td className="px-4 py-4 text-right text-gray-600 dark:text-slate-300">
+                    <td className="px-4 py-4 text-right text-gray-600 dark:text-slate-300 w-24">
                       {item.unitPrice} EGP
                     </td>
-                    <td className="px-5 py-4 text-right font-bold text-gray-900 dark:text-white">
-                      {item.qty * item.unitPrice} EGP
+                    <td className="px-5 py-4 text-right font-bold text-gray-900 dark:text-white w-24">
+                      {item.totalPrice} EGP
                     </td>
                   </tr>
                 ))}

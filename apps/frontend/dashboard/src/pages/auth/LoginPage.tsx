@@ -13,9 +13,10 @@ interface LoginPageProps {
   language: 'en' | 'ar'
   toggleLanguage: () => void
   onForgotPassword: () => void
+  onRegister: () => void
 }
 
-export function LoginPage({ theme, toggleTheme, language, toggleLanguage, onForgotPassword }: LoginPageProps) {
+export function LoginPage({ theme, toggleTheme, language, toggleLanguage, onForgotPassword, onRegister }: LoginPageProps) {
   const { t, i18n } = useTranslation()
   const login = useAuthStore((state) => state.login)
 
@@ -164,6 +165,14 @@ export function LoginPage({ theme, toggleTheme, language, toggleLanguage, onForg
           </form>
 
           <p className="mt-8 text-center text-sm leading-6 text-slate-500 dark:text-slate-400">{t('loginNote')}</p>
+
+          <button
+            type="button"
+            onClick={onRegister}
+            className="mt-4 w-full text-center text-sm font-medium text-slate-500  dark:text-slate-400"
+          >
+            {t('noAccount')} <span className="text-orange-600">{t('registerNow')}</span>
+          </button>
 
           <div className="mt-8 flex flex-wrap justify-center gap-4 text-center text-xs uppercase tracking-[0.24em] text-slate-400 dark:text-slate-500">
             <span>© 2026 BITECLUB</span>
