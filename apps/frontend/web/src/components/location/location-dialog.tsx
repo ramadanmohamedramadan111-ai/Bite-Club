@@ -237,7 +237,7 @@ export function LocationDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-4xl">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle>{t('selectLocation')}</DialogTitle>
         </DialogHeader>
@@ -276,7 +276,7 @@ export function LocationDialog({
           )}
         </div>
 
-        <div className="h-[500px] overflow-hidden rounded-lg border">
+        <div className="h-[300px] sm:h-[450px] overflow-hidden rounded-lg border">
           <GoogleMap value={location} onChange={handleLocationChange} />
         </div>
 

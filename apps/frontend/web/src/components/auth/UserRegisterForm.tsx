@@ -82,105 +82,109 @@ export function RegisterForm({
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('title')}</CardTitle>
-          <CardDescription>{t('subtitle')}</CardDescription>
+      <Card className="rounded-2xl border border-border bg-card/85 backdrop-blur-md shadow-md">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-2xl font-bold tracking-tight text-foreground">{t('title')}</CardTitle>
+          <CardDescription className="text-sm text-muted-foreground">{t('subtitle')}</CardDescription>
         </CardHeader>
 
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <FieldGroup>
-              <Field className="grid grid-cols-2 gap-4">
-                <Field>
-                  <FieldLabel htmlFor="first-name">
+            <FieldGroup className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <Field className="space-y-2">
+                  <FieldLabel htmlFor="first-name" className="font-semibold text-sm text-foreground">
                     {t('fields.firstName.label')}
                   </FieldLabel>
-
                   <Input
                     id="first-name"
                     disabled={isExecuting}
                     {...register('first_name')}
+                    className="rounded-xl h-10 border-border focus-visible:ring-primary/20"
                   />
-
-                  <FieldDescription className="text-destructive">
-                    {errors.first_name?.message}
-                  </FieldDescription>
+                  {errors.first_name?.message && (
+                    <FieldDescription className="text-xs text-destructive font-semibold mt-1">
+                      {errors.first_name?.message}
+                    </FieldDescription>
+                  )}
                 </Field>
 
-                <Field>
-                  <FieldLabel htmlFor="last-name">
+                <Field className="space-y-2">
+                  <FieldLabel htmlFor="last-name" className="font-semibold text-sm text-foreground">
                     {t('fields.lastName.label')}
                   </FieldLabel>
-
                   <Input
                     id="last-name"
                     disabled={isExecuting}
                     {...register('last_name')}
+                    className="rounded-xl h-10 border-border focus-visible:ring-primary/20"
                   />
-
-                  <FieldDescription className="text-destructive">
-                    {errors.last_name?.message}
-                  </FieldDescription>
+                  {errors.last_name?.message && (
+                    <FieldDescription className="text-xs text-destructive font-semibold mt-1">
+                      {errors.last_name?.message}
+                    </FieldDescription>
+                  )}
                 </Field>
-              </Field>
+              </div>
 
-              <Field>
-                <FieldLabel htmlFor="email">
+              <Field className="space-y-2">
+                <FieldLabel htmlFor="email" className="font-semibold text-sm text-foreground">
                   {t('fields.email.label')}
                 </FieldLabel>
-
                 <Input
                   id="email"
                   type="email"
                   disabled={isExecuting}
                   placeholder={t('fields.email.placeholder')}
                   {...register('email')}
+                  className="rounded-xl h-10 border-border focus-visible:ring-primary/20"
                 />
-
-                <FieldDescription className="text-destructive">
-                  {errors.email?.message}
-                </FieldDescription>
+                {errors.email?.message && (
+                  <FieldDescription className="text-xs text-destructive font-semibold mt-1">
+                    {errors.email?.message}
+                  </FieldDescription>
+                )}
               </Field>
 
-              <Field className="grid grid-cols-2 gap-4">
-                <Field>
-                  <FieldLabel htmlFor="username">
+              <div className="grid grid-cols-2 gap-4">
+                <Field className="space-y-2">
+                  <FieldLabel htmlFor="username" className="font-semibold text-sm text-foreground">
                     {t('fields.username.label')}
                   </FieldLabel>
-
                   <Input
                     id="username"
                     disabled={isExecuting}
                     {...register('username')}
+                    className="rounded-xl h-10 border-border focus-visible:ring-primary/20"
                   />
-
-                  <FieldDescription className="text-destructive">
-                    {errors.username?.message}
-                  </FieldDescription>
+                  {errors.username?.message && (
+                    <FieldDescription className="text-xs text-destructive font-semibold mt-1">
+                      {errors.username?.message}
+                    </FieldDescription>
+                  )}
                 </Field>
 
-                <Field>
-                  <FieldLabel htmlFor="mobile-number">
+                <Field className="space-y-2">
+                  <FieldLabel htmlFor="mobile-number" className="font-semibold text-sm text-foreground">
                     {t('fields.phoneNumber.label')}
                   </FieldLabel>
-
                   <Input
                     id="mobile-number"
                     disabled={isExecuting}
                     {...register('phone_number')}
+                    className="rounded-xl h-10 border-border focus-visible:ring-primary/20"
                   />
-
-                  <FieldDescription className="text-destructive">
-                    {errors.phone_number?.message}
-                  </FieldDescription>
+                  {errors.phone_number?.message && (
+                    <FieldDescription className="text-xs text-destructive font-semibold mt-1">
+                      {errors.phone_number?.message}
+                    </FieldDescription>
+                  )}
                 </Field>
-              </Field>
+              </div>
 
-              <Field className="grid grid-cols-2 gap-4">
-                <Field>
-                  <FieldLabel>{t('fields.gender.label')}</FieldLabel>
-
+              <div className="grid grid-cols-2 gap-4">
+                <Field className="space-y-2">
+                  <FieldLabel className="font-semibold text-sm text-foreground">{t('fields.gender.label')}</FieldLabel>
                   <Controller
                     control={control}
                     name="gender"
@@ -189,100 +193,104 @@ export function RegisterForm({
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}>
-                        <SelectTrigger className="w-full">
+                        <SelectTrigger className="w-full rounded-xl h-10 border-border focus-visible:ring-primary/20">
                           <SelectValue
                             placeholder={t('fields.gender.placeholder')}
                           />
                         </SelectTrigger>
-
-                        <SelectContent>
-                          <SelectItem value="male">
+                        <SelectContent className="rounded-xl p-1">
+                          <SelectItem value="male" className="rounded-lg">
                             {t('fields.gender.options.male')}
                           </SelectItem>
-
-                          <SelectItem value="female">
+                          <SelectItem value="female" className="rounded-lg">
                             {t('fields.gender.options.female')}
                           </SelectItem>
                         </SelectContent>
                       </Select>
                     )}
                   />
-
-                  <FieldDescription className="text-destructive">
-                    {errors.gender?.message}
-                  </FieldDescription>
+                  {errors.gender?.message && (
+                    <FieldDescription className="text-xs text-destructive font-semibold mt-1">
+                      {errors.gender?.message}
+                    </FieldDescription>
+                  )}
                 </Field>
 
-                <Field>
-                  <FieldLabel htmlFor="dob">
+                <Field className="space-y-2">
+                  <FieldLabel htmlFor="dob" className="font-semibold text-sm text-foreground">
                     {t('fields.dateOfBirth.label')}
                   </FieldLabel>
-
                   <Input
                     id="dob"
                     type="date"
                     disabled={isExecuting}
                     {...register('date_of_birth')}
+                    className="rounded-xl h-10 border-border focus-visible:ring-primary/20"
                   />
-
-                  <FieldDescription className="text-destructive">
-                    {errors.date_of_birth?.message}
-                  </FieldDescription>
+                  {errors.date_of_birth?.message && (
+                    <FieldDescription className="text-xs text-destructive font-semibold mt-1">
+                      {errors.date_of_birth?.message}
+                    </FieldDescription>
+                  )}
                 </Field>
-              </Field>
+              </div>
 
-              <Field className="grid grid-cols-2 gap-4">
-                <Field>
-                  <FieldLabel htmlFor="password">
+              <div className="grid grid-cols-2 gap-4">
+                <Field className="space-y-2">
+                  <FieldLabel htmlFor="password" className="font-semibold text-sm text-foreground">
                     {t('fields.password.label')}
                   </FieldLabel>
-
                   <Input
                     id="password"
                     disabled={isExecuting}
                     type="password"
                     {...register('password')}
+                    className="rounded-xl h-10 border-border focus-visible:ring-primary/20"
                   />
-
-                  <FieldDescription className="text-destructive">
-                    {errors.password?.message}
-                  </FieldDescription>
+                  {errors.password?.message && (
+                    <FieldDescription className="text-xs text-destructive font-semibold mt-1">
+                      {errors.password?.message}
+                    </FieldDescription>
+                  )}
                 </Field>
 
-                <Field>
-                  <FieldLabel htmlFor="confirm-password">
+                <Field className="space-y-2">
+                  <FieldLabel htmlFor="confirm-password" className="font-semibold text-sm text-foreground">
                     {t('fields.confirmPassword.label')}
                   </FieldLabel>
-
                   <Input
                     id="confirm-password"
                     type="password"
                     disabled={isExecuting}
                     {...register('password_confirmation')}
+                    className="rounded-xl h-10 border-border focus-visible:ring-primary/20"
                   />
-
-                  <FieldDescription className="text-destructive">
-                    {errors.password_confirmation?.message}
-                  </FieldDescription>
+                  {errors.password_confirmation?.message && (
+                    <FieldDescription className="text-xs text-destructive font-semibold mt-1">
+                      {errors.password_confirmation?.message}
+                    </FieldDescription>
+                  )}
                 </Field>
-              </Field>
+              </div>
 
-              <Field>
-                <Button type="submit" disabled={isExecuting} className="w-full">
+              <Field className="space-y-3.5 pt-2">
+                <Button type="submit" disabled={isExecuting} className="w-full rounded-xl h-11 font-bold text-sm shadow-sm cursor-pointer">
                   {isExecuting
                     ? t('submitButton.loadingText')
                     : t('submitButton.text')}
                 </Button>
 
-                <FieldDescription className="text-center">
+                <FieldDescription className="text-center text-xs text-muted-foreground">
                   {t('loginLink.text')}{' '}
-                  <Link href="/login">{t('loginLink.linkText')}</Link>
+                  <Link href="/login" className="font-bold text-primary hover:underline">
+                    {t('loginLink.linkText')}
+                  </Link>
                 </FieldDescription>
 
                 <Button
                   type="button"
                   variant="ghost"
-                  className="mt-2 w-full"
+                  className="w-full rounded-xl h-10 font-bold text-xs text-muted-foreground hover:text-foreground cursor-pointer"
                   onClick={() => navigate('/')}>
                   Continue as guest
                 </Button>
@@ -294,4 +302,3 @@ export function RegisterForm({
     </div>
   );
 }
-

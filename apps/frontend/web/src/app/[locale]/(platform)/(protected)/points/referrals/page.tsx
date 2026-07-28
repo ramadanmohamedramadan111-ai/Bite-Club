@@ -10,6 +10,7 @@ import { getTranslations } from 'next-intl/server';
 import { Calendar } from 'lucide-react';
 import { parseSearchParams, PaginatedParams } from '@/utils/validate-search-params';
 import InvalidSearchParams from '@/components/errors/InvalidSearchParams';
+import { cn } from '@/lib/utils';
 
 export default async function ReferralsPage({
   searchParams,
@@ -51,36 +52,36 @@ export default async function ReferralsPage({
           </div>
         ) : (
           <>
-            <div className="space-y-3">
+            <div className="space-y-3.5">
               {items.map((referral) => (
-                <Card key={referral.id}>
-                  <CardContent className="flex items-center justify-between ">
-                    <div className="flex items-center gap-3">
-                      <Avatar>
+                <Card key={referral.id} className="rounded-2xl border border-border/60 bg-card p-0 transition-all duration-300 shadow-3xs overflow-hidden">
+                  <CardContent className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5">
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <Avatar className="h-10 w-10 border border-border/30 shrink-0">
                         <AvatarImage
                           src={
                             referral.referred_user.profile_image_url ??
                             undefined
                           }
                         />
-                        <AvatarFallback>
-                          {referral.referred_user.name.charAt(0)}
+                        <AvatarFallback className="font-bold text-sm bg-muted/40">
+                          {referral.referred_user.name.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      <div>
-                        <p className="font-medium">
+                      <div className="min-w-0">
+                        <p className="font-bold text-sm text-foreground leading-tight truncate">
                           {referral.referred_user.name}
                         </p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs text-muted-foreground mt-0.5 truncate">
                           @{referral.referred_user.username}
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-4">
-                      <div className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
+                    <div className="flex items-center justify-between sm:justify-start gap-4 border-t border-border/10 pt-3 sm:border-t-0 sm:pt-0 w-full sm:w-auto">
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <Calendar className="h-3.5 w-3.5" />
-                        {new Date(referral.created_at).toLocaleDateString()}
+                        <span>{new Date(referral.created_at).toLocaleDateString()}</span>
                       </div>
 
                       <Badge
@@ -89,11 +90,12 @@ export default async function ReferralsPage({
                             ? 'default'
                             : 'secondary'
                         }
-                        className={
+                        className={cn(
+                          "rounded-xl px-2.5 py-0.5 text-xs font-bold shadow-3xs border",
                           referral.status === 'completed'
-                            ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-300'
-                            : 'bg-amber-100 text-amber-800 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-300'
-                        }>
+                            ? 'bg-emerald-100/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+                            : 'bg-amber-100/10 border-amber-500/20 text-amber-600 dark:text-amber-400'
+                        )}>
                         {referral.status === 'completed'
                           ? t('referralCompleted')
                           : t('referralPending')}
@@ -114,4 +116,3 @@ export default async function ReferralsPage({
     </div>
   );
 }
-

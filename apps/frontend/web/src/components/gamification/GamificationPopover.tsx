@@ -241,7 +241,7 @@ export default function GamificationPopover() {
       <PopoverContent
         side="bottom"
         align="end"
-        className="w-80 p-0"
+        className="w-80 p-0 max-h-[80vh] overflow-y-auto scrollbar-none"
         sideOffset={8}>
         <GamificationPanel />
 

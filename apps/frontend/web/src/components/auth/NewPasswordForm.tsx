@@ -74,17 +74,17 @@ export default function NewPasswordForm({
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('title')}</CardTitle>
-          <CardDescription>{t('subtitle', { email })}</CardDescription>
+      <Card className="rounded-2xl border border-border bg-card/85 backdrop-blur-md shadow-md">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-2xl font-bold tracking-tight text-foreground">{t('title')}</CardTitle>
+          <CardDescription className="text-sm text-muted-foreground">{t('subtitle', { email })}</CardDescription>
         </CardHeader>
 
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="password">
+            <FieldGroup className="space-y-4">
+              <Field className="space-y-2">
+                <FieldLabel htmlFor="password" className="font-semibold text-sm text-foreground">
                   {t('fields.password.label')}
                 </FieldLabel>
 
@@ -93,17 +93,18 @@ export default function NewPasswordForm({
                   type="password"
                   disabled={isExecuting}
                   {...register('password')}
+                  className="rounded-xl h-10 border-border focus-visible:ring-primary/20"
                 />
 
                 {errors.password && (
-                  <FieldDescription className="text-destructive">
+                  <FieldDescription className="text-xs text-destructive font-semibold mt-1">
                     {errors.password.message}
                   </FieldDescription>
                 )}
               </Field>
 
-              <Field>
-                <FieldLabel htmlFor="confirmPassword">
+              <Field className="space-y-2">
+                <FieldLabel htmlFor="confirmPassword" className="font-semibold text-sm text-foreground">
                   {t('fields.confirmPassword.label')}
                 </FieldLabel>
 
@@ -112,17 +113,18 @@ export default function NewPasswordForm({
                   type="password"
                   disabled={isExecuting}
                   {...register('password_confirmation')}
+                  className="rounded-xl h-10 border-border focus-visible:ring-primary/20"
                 />
 
                 {errors.password_confirmation && (
-                  <FieldDescription className="text-destructive">
+                  <FieldDescription className="text-xs text-destructive font-semibold mt-1">
                     {errors.password_confirmation.message}
                   </FieldDescription>
                 )}
               </Field>
 
-              <Field>
-                <Button type="submit" disabled={isExecuting}>
+              <Field className="space-y-3.5 pt-2">
+                <Button type="submit" disabled={isExecuting} className="w-full rounded-xl h-11 font-bold text-sm shadow-sm cursor-pointer">
                   {isExecuting
                     ? t('submitButton.loadingText')
                     : t('submitButton.text')}
@@ -135,4 +137,3 @@ export default function NewPasswordForm({
     </div>
   );
 }
-

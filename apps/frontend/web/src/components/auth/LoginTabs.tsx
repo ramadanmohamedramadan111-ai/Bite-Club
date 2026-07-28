@@ -21,10 +21,13 @@ export default function LoginTabs() {
 
   return (
     <Tabs value={type} onValueChange={handleChange} className="w-full">
-      <TabsList className="grid w-full grid-cols-2 max-w-md">
-        <TabsTrigger value="user">User</TabsTrigger>
-
-        <TabsTrigger value="restaurant">Restaurant</TabsTrigger>
+      <TabsList className="grid w-full grid-cols-2 gap-2 bg-muted/45 border border-border/40 p-1.5 rounded-2xl h-auto mb-4">
+        <TabsTrigger value="user" className="rounded-xl py-2 px-4 text-sm font-bold transition-all duration-300">
+          User
+        </TabsTrigger>
+        <TabsTrigger value="restaurant" className="rounded-xl py-2 px-4 text-sm font-bold transition-all duration-300">
+          Restaurant
+        </TabsTrigger>
       </TabsList>
 
       <TabsContent value="user">
@@ -37,4 +40,3 @@ export default function LoginTabs() {
     </Tabs>
   );
 }
-

@@ -281,9 +281,9 @@ export default function GroupOrderMenuItems({ sessionId, menuGroups }: Props) {
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
                 <h2 className="text-xl font-semibold">{selectedItem?.title}</h2>
-                <div className="text-right">
+                <div className="text-left sm:text-right">
                   <p className="text-lg font-semibold">
                     {selectedItem?.price.toFixed(2)} EGP
                   </p>
@@ -319,8 +319,8 @@ export default function GroupOrderMenuItems({ sessionId, menuGroups }: Props) {
 
             <Separator />
 
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2 rounded-lg border p-1">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              <div className="flex items-center justify-between sm:justify-start gap-2 rounded-xl border border-border/60 p-1 w-full sm:w-auto">
                 <Button
                   type="button"
                   variant="ghost"
@@ -346,7 +346,7 @@ export default function GroupOrderMenuItems({ sessionId, menuGroups }: Props) {
 
               <Button
                 type="button"
-                className="flex-1"
+                className="w-full sm:flex-1 rounded-xl h-11 font-bold text-sm shadow-sm cursor-pointer"
                 disabled={disabledConditions}
                 onClick={handleAdd}>
                 {t('addToCart', { total: total.toFixed(2) })}

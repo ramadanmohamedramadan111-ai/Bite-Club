@@ -13,10 +13,10 @@ export default async function FriendsLayout({
     <div className="container mx-auto space-y-8">
       {/* Page Title & Subtitle */}
       <div>
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">{t('title')}</h1>
-        <p className="mt-1.5 text-sm text-muted-foreground">
-          {t('subtitle')}
-        </p>
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
+          {t('title')}
+        </h1>
+        <p className="mt-1.5 text-sm text-muted-foreground">{t('subtitle')}</p>
       </div>
 
       {/* Top Header Row for Navigation and Search */}
@@ -30,9 +30,8 @@ export default async function FriendsLayout({
       </div>
 
       {/* Inner page content */}
-      <div className="min-w-0">
-        {children}
-      </div>
+      <div className="min-w-0">{children}</div>
     </div>
   );
 }
+

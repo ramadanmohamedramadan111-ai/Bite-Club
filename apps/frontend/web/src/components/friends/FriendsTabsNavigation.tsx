@@ -21,9 +21,14 @@ export default function FriendsTabsNavigation() {
 
   return (
     <Tabs value={activeTab}>
-      <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 max-w-2xl">
+      <TabsList className="flex items-center gap-1.5 w-full overflow-x-auto scrollbar-none p-1.5 bg-muted/45 border border-border/40 rounded-2xl h-auto flex-nowrap justify-start max-w-2xl">
         {tabKeys.map((tab) => (
-          <TabsTrigger key={tab.value} value={tab.value} asChild>
+          <TabsTrigger 
+            key={tab.value} 
+            value={tab.value} 
+            className="rounded-xl py-2 px-3.5 text-xs sm:text-sm font-bold transition-all duration-300 shrink-0 cursor-pointer"
+            asChild
+          >
             <Link href={`/friends/${tab.value}`}>{t(tab.labelKey)}</Link>
           </TabsTrigger>
         ))}
@@ -31,4 +36,3 @@ export default function FriendsTabsNavigation() {
     </Tabs>
   );
 }
-

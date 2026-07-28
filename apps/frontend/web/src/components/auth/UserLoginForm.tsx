@@ -87,7 +87,7 @@ export default function UserLoginForm({
           <form onSubmit={handleSubmit(onSubmit)}>
             <FieldGroup className="space-y-4">
               <Field className="space-y-2">
-                <FieldLabel className="font-bold text-xs text-foreground uppercase tracking-wider">{t('fields.email.label')}</FieldLabel>
+                <FieldLabel className="font-semibold text-sm text-foreground">{t('fields.email.label')}</FieldLabel>
                 <Input
                   type="email"
                   disabled={isExecuting}
@@ -103,7 +103,7 @@ export default function UserLoginForm({
 
               <Field className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <FieldLabel className="font-bold text-xs text-foreground uppercase tracking-wider">{t('fields.password.label')}</FieldLabel>
+                  <FieldLabel className="font-semibold text-sm text-foreground">{t('fields.password.label')}</FieldLabel>
                   <Link
                     href="/forget-password"
                     className="text-xs font-bold text-primary hover:underline">

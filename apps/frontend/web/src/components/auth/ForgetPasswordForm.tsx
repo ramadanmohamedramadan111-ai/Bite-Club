@@ -68,17 +68,17 @@ export function ForgotPasswordForm({
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('title')}</CardTitle>
-          <CardDescription>{t('subtitle')}</CardDescription>
+      <Card className="rounded-2xl border border-border bg-card/85 backdrop-blur-md shadow-md">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-2xl font-bold tracking-tight text-foreground">{t('title')}</CardTitle>
+          <CardDescription className="text-sm text-muted-foreground">{t('subtitle')}</CardDescription>
         </CardHeader>
 
         <CardContent>
           <form onSubmit={handleSubmit((data) => sendOtp(data))}>
-            <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="email">
+            <FieldGroup className="space-y-4">
+              <Field className="space-y-2">
+                <FieldLabel htmlFor="email" className="font-semibold text-sm text-foreground">
                   {t('fields.email.label')}
                 </FieldLabel>
 
@@ -87,25 +87,28 @@ export function ForgotPasswordForm({
                   type="email"
                   disabled={isExecuting}
                   {...register('email')}
+                  className="rounded-xl h-10 border-border focus-visible:ring-primary/20"
                 />
 
-                <FieldDescription className="text-destructive">
-                  {errors.email?.message}
-                </FieldDescription>
+                {errors.email?.message && (
+                  <FieldDescription className="text-xs text-destructive font-semibold mt-1">
+                    {errors.email?.message}
+                  </FieldDescription>
+                )}
               </Field>
 
-              <Field>
-                <Button type="submit" disabled={isExecuting}>
+              <Field className="space-y-3.5 pt-2">
+                <Button type="submit" disabled={isExecuting} className="w-full rounded-xl h-11 font-bold text-sm shadow-sm cursor-pointer">
                   {isExecuting
                     ? t('submitButton.loadingText')
                     : t('submitButton.text')}
                 </Button>
 
-                <FieldDescription className="text-center">
+                <FieldDescription className="text-center text-xs text-muted-foreground">
                   {t('loginLink.text')}{' '}
                   <Link
                     href="/login"
-                    className="text-sm font-medium underline-offset-4 hover:underline">
+                    className="font-bold text-primary hover:underline">
                     {t('loginLink.linkText')}
                   </Link>
                 </FieldDescription>
@@ -117,4 +120,3 @@ export function ForgotPasswordForm({
     </div>
   );
 }
-

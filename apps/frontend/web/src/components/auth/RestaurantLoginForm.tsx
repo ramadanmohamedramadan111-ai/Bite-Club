@@ -20,23 +20,22 @@ export default function RestaurantLoginForm({
 
   return (
     <div className={cn('flex flex-col gap-6', className)}>
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('title')}</CardTitle>
-
-          <CardDescription>{t('subtitle')}</CardDescription>
+      <Card className="rounded-2xl border border-border bg-card/85 backdrop-blur-md shadow-md">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-2xl font-bold tracking-tight text-foreground">{t('title')}</CardTitle>
+          <CardDescription className="text-sm text-muted-foreground">{t('subtitle')}</CardDescription>
         </CardHeader>
 
-        <CardContent className="flex flex-col gap-4">
+        <CardContent className="flex flex-col gap-3.5">
           <Link
             href="http://dashboard.biteclub.test:8080"
-            className="flex h-10 w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+            className="flex h-11 w-full items-center justify-center rounded-xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground hover:bg-primary/95 shadow-sm transition-colors duration-200">
             {t('dashboardLink.text')}
           </Link>
 
           <Link
             href="/restaurant-register"
-            className="flex h-10 w-full items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
+            className="flex h-11 w-full items-center justify-center rounded-xl border border-border bg-background/50 px-4 py-2 text-sm font-bold text-foreground hover:bg-accent/40 hover:text-foreground shadow-3xs transition-colors duration-200">
             {t('registerLink.text')}
           </Link>
         </CardContent>

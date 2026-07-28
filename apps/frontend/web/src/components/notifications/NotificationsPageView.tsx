@@ -75,17 +75,21 @@ export default function NotificationsPageView() {
   const hasUnread = notifications.some((notification) => !notification.read);
 
   return (
-    <div className="container mx-auto max-w-3xl space-y-6">
+    <div className="w-full space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">{t('title')}</h1>
-          <p className="mt-2 text-muted-foreground">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">{t('title')}</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
             {t('subtitle')}
           </p>
         </div>
 
         {hasUnread && (
-          <Button variant="outline" onClick={markAllAsRead}>
+          <Button 
+            variant="outline" 
+            className="rounded-xl font-bold text-xs h-9 cursor-pointer border-border bg-background/50 hover:bg-accent/40 shadow-3xs"
+            onClick={markAllAsRead}
+          >
             {t('markAllAsRead')}
           </Button>
         )}

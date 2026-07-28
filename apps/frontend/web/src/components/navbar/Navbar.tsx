@@ -125,6 +125,7 @@ export default function Navbar({
           { name: tSidebar('orders'), url: '/orders' },
           { name: tSidebar('groups'), url: '/groups' },
           { name: tSidebar('feed'), url: '/feed' },
+          { name: tSidebar('profile'), url: '/profile' },
         ]
       : []),
   ];
@@ -151,6 +152,7 @@ export default function Navbar({
           { name: tSidebar('orders'), url: '/orders', icon: Logs },
           { name: tSidebar('groups'), url: '/groups', icon: Users },
           { name: tSidebar('feed'), url: '/feed', icon: Newspaper },
+          { name: tSidebar('profile'), url: '/profile', icon: CircleUserRound },
           {
             name: tSidebar('friends'),
             url: '/friends',

@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/input-otp';
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { useState } from 'react';
-import NewPasswordForm from '@/components/auth/new-password-form';
+import NewPasswordForm from '@/components/auth/NewPasswordForm';
 import { toast } from 'sonner';
 import { useAction } from 'next-safe-action/hooks';
 import {
@@ -152,19 +152,21 @@ export default function VerifyForm({
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
-      <Card>
-        <CardHeader>
-          <CardTitle>
+      <Card className="rounded-2xl border border-border bg-card/85 backdrop-blur-md shadow-md">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-2xl font-bold tracking-tight text-foreground">
             {purpose === 'forgot-password' ? t('title2') : t('title')}
           </CardTitle>
-          <CardDescription>{t('subtitle', { email })}</CardDescription>
+          <CardDescription className="text-sm text-muted-foreground">{t('subtitle', { email })}</CardDescription>
         </CardHeader>
 
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <FieldGroup>
-              <Field>
-                <FieldLabel>{t('fields.verificationCode.label')}</FieldLabel>
+            <FieldGroup className="space-y-4">
+              <Field className="space-y-2.5 flex flex-col items-center">
+                <FieldLabel className="font-semibold text-sm text-foreground self-start">
+                  {t('fields.verificationCode.label')}
+                </FieldLabel>
 
                 <Controller
                   name="otp"
@@ -180,17 +182,17 @@ export default function VerifyForm({
                         value={field.value}
                         onChange={field.onChange}
                         disabled={isPending}>
-                        <InputOTPGroup>
-                          <InputOTPSlot index={0} />
-                          <InputOTPSlot index={1} />
-                          <InputOTPSlot index={2} />
-                          <InputOTPSlot index={3} />
-                          <InputOTPSlot index={4} />
-                          <InputOTPSlot index={5} />
+                        <InputOTPGroup className="gap-1.5 sm:gap-2">
+                          <InputOTPSlot index={0} className="rounded-xl border border-border" />
+                          <InputOTPSlot index={1} className="rounded-xl border border-border" />
+                          <InputOTPSlot index={2} className="rounded-xl border border-border" />
+                          <InputOTPSlot index={3} className="rounded-xl border border-border" />
+                          <InputOTPSlot index={4} className="rounded-xl border border-border" />
+                          <InputOTPSlot index={5} className="rounded-xl border border-border" />
                         </InputOTPGroup>
                       </InputOTP>
                       {errors.otp && (
-                        <FieldDescription className="text-destructive">
+                        <FieldDescription className="text-xs text-destructive font-semibold mt-1">
                           {errors.otp.type === 'required'
                             ? t('fields.verificationCode.errors.required')
                             : t('fields.verificationCode.errors.invalid')}
@@ -201,8 +203,8 @@ export default function VerifyForm({
                 />
               </Field>
 
-              <Field>
-                <Button type="submit" disabled={isSubmitting || isPending}>
+              <Field className="space-y-3 pt-2">
+                <Button type="submit" disabled={isSubmitting || isPending} className="w-full rounded-xl h-11 font-bold text-sm shadow-sm cursor-pointer">
                   {isSubmitting || isPending
                     ? t('submitButton.loadingText')
                     : t('submitButton.text')}
@@ -212,14 +214,15 @@ export default function VerifyForm({
                   type="button"
                   variant="link"
                   onClick={handleResend}
-                  disabled={isResending}>
+                  disabled={isResending}
+                  className="w-full text-xs font-bold text-primary hover:underline cursor-pointer">
                   {isResending
                     ? t('resendLink.loadingText')
                     : t('resendLink.linkText')}
                 </Button>
 
                 {errorMessage && (
-                  <FieldDescription className="text-destructive">
+                  <FieldDescription className="text-xs text-destructive font-semibold text-center mt-1">
                     {errorMessage}
                   </FieldDescription>
                 )}
@@ -231,4 +234,3 @@ export default function VerifyForm({
     </div>
   );
 }
-
