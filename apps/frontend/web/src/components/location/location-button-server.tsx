@@ -16,7 +16,7 @@ function LocationButtonSkeleton() {
   return (
     <div className="flex items-center gap-2 px-3">
       <div className="size-4 rounded-full bg-muted" />
-      <div className="hidden sm:block h-4 w-24 rounded bg-muted" />
+      <div className="h-4 w-24 rounded bg-muted" />
     </div>
   );
 }

@@ -646,6 +646,8 @@
     "leaderboardLoading": "Loading leaderboard rankings..."
   },
   "friends": {
+    "title": "Friends",
+    "subtitle": "Manage your connections, pending requests, and discover new members in your area.",
     "friends": "Friends",
     "receivedRequests": "Received Requests",
     "sentRequests": "Sent Requests",

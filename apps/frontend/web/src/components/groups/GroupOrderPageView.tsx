@@ -105,72 +105,83 @@ export default function GroupOrderPageView({
   );
 
   return (
-    <div className="container mx-auto max-w-7xl space-y-8 py-8">
-      <div className="flex items-start gap-4">
-        {restaurant.image_url && (
-          <div className="relative size-16 overflow-hidden rounded-xl">
-            <Image
-              src={restaurant.image_url}
-              alt={restaurant.name}
-              fill
-              className="object-cover"
-            />
+    <div className="container mx-auto max-w-7xl space-y-8">
+      {/* Title & Info Section with bottom separator */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/30 pb-6">
+        <div className="flex items-start gap-4">
+          {restaurant.image_url && (
+            <div className="relative size-16 overflow-hidden rounded-2xl border border-border/30 shadow-xs shrink-0 select-none">
+              <Image
+                src={restaurant.image_url}
+                alt={restaurant.name}
+                fill
+                className="object-cover"
+              />
+            </div>
+          )}
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">{t('groupOrder')}</h1>
+              
+              {/* Locked vs Open Badge style */}
+              <span
+                className={cn(
+                  'inline-flex items-center gap-1.5 rounded-md border px-2.5 py-0.5 text-xs font-semibold shadow-xs select-none',
+                  sessionCart.status === 'locked'
+                    ? 'bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400'
+                    : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400',
+                )}>
+                {sessionCart.status === 'locked' ? (
+                  <Lock className="size-3" />
+                ) : (
+                  <CheckCircle2 className="size-3" />
+                )}
+                {sessionCart.status === 'locked' ? t('locked') : t('open')}
+              </span>
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">{restaurant.name}</p>
           </div>
-        )}
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-3xl font-bold">{t('groupOrder')}</h1>
-            <span
-              className={cn(
-                'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium',
-                sessionCart.status === 'locked'
-                  ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-                  : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-              )}>
-              {sessionCart.status === 'locked' ? (
-                <Lock className="size-3" />
-              ) : (
-                <CheckCircle2 className="size-3" />
-              )}
-              {sessionCart.status === 'locked' ? t('locked') : t('open')}
-            </span>
-          </div>
-          <p className="mt-1 text-muted-foreground">{restaurant.name}</p>
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
-            <span className="inline-flex items-center gap-1 rounded-full bg-muted px-3 py-1">
-              <Users className="size-3.5" />
-              {t('host')}: {sessionCart.host.name}
-            </span>
-          </div>
+        </div>
+
+        {/* Member tags & Info details */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-border/40 bg-accent/30 px-3 py-1.5 text-xs font-semibold text-muted-foreground">
+            <Users className="size-3.5 text-primary" />
+            <span>{t('host')}: {sessionCart.host.name}</span>
+          </span>
         </div>
       </div>
 
+      {/* Members summary block */}
       {membersSummary.length > 0 && (
         <Card>
-          <CardHeader>
-            <CardTitle className="text-base">{t('members')}</CardTitle>
+          <CardHeader className="border-b border-border/30 pb-4">
+            <CardTitle className="text-base font-bold flex items-center gap-2">
+              <Users className="size-4.5 text-primary" />
+              <span>{t('members')}</span>
+            </CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-wrap gap-3">
+          <CardContent className="flex flex-wrap gap-2.5 pt-5">
             {membersSummary.map((member) => (
               <div
                 key={member.user.id}
-                className="flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm">
-                <Avatar className="size-6">
-                  <AvatarFallback className="text-xs">
-                    {member.user.name[0]}
+                className="flex items-center gap-2 rounded-xl border border-border/40 bg-accent/20 px-3.5 py-1.5 text-xs font-semibold text-foreground">
+                <Avatar className="size-5 rounded-full">
+                  <AvatarFallback className="text-[10px] font-bold bg-primary/10 text-primary">
+                    {member.user.name[0].toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <span>
                   {member.user.name}
                   {currentUserId !== null &&
                     member.user.id === currentUserId && (
-                      <span className="ms-1 text-xs text-muted-foreground">
-                        {tc('you')}
+                      <span className="ms-1 text-[10px] font-medium text-muted-foreground">
+                        ({tc('you')})
                       </span>
                     )}
                   {member.user.id === sessionCart.host.id && (
-                    <span className="ms-1 text-xs text-muted-foreground">
-                      {t('host')}
+                    <span className="ms-1 text-[10px] font-medium text-amber-500">
+                      ({t('host')})
                     </span>
                   )}
                 </span>
@@ -180,6 +191,7 @@ export default function GroupOrderPageView({
         </Card>
       )}
 
+      {/* Grid container layout */}
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="min-w-0">
           <GroupOrderMenuItems
@@ -190,11 +202,11 @@ export default function GroupOrderPageView({
 
         <div className="space-y-4">
           {isHost && (
-            <>
+            <div className="space-y-2.5">
               {sessionCart.status === 'locked' && (
                 <Button
                   variant="outline"
-                  className="w-full gap-2"
+                  className="w-full gap-2 rounded-xl h-10 border-border/60 hover:bg-accent/40 cursor-pointer font-bold text-sm"
                   disabled={isUnlocking}
                   onClick={() => unlockOrder(groupOrderId)}>
                   <Lock className="size-4" />
@@ -206,13 +218,13 @@ export default function GroupOrderPageView({
                 <AlertDialogTrigger asChild>
                   <Button
                     variant="destructive"
-                    className="w-full gap-2"
+                    className="w-full gap-2 rounded-xl h-10 cursor-pointer font-bold text-sm"
                     disabled={isCancelling}>
                     <XCircle className="size-4" />
                     {t('cancelGroupOrder')}
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent>
+                <AlertDialogContent className="rounded-2xl">
                   <AlertDialogHeader>
                     <AlertDialogTitle>
                       {t('cancelGroupOrderTitle')}
@@ -222,27 +234,27 @@ export default function GroupOrderPageView({
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>{tc('cancel')}</AlertDialogCancel>
+                    <AlertDialogCancel className="rounded-xl">{tc('cancel')}</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={() => cancelOrder(groupOrderId)}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl">
                       {t('cancelGroupOrderConfirm')}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
-            </>
+            </div>
           )}
 
-          <Card className="h-fit xl:sticky xl:top-20">
-            <CardHeader>
-              <CardTitle className="text-base">{t('groupCart')}</CardTitle>
+          <Card className="h-fit xl:sticky xl:top-24">
+            <CardHeader className="border-b border-border/30 pb-4">
+              <CardTitle className="text-base font-bold">{t('groupCart')}</CardTitle>
               {totalItems > 0 && (
                 <CardAction>
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="gap-1.5 text-xs"
+                    className="gap-1.5 text-xs text-destructive hover:bg-destructive/10 rounded-lg cursor-pointer"
                     disabled={isClearing}
                     onClick={() => clearMyItems(groupOrderId)}>
                     <Trash2 className="size-3.5" />
@@ -251,9 +263,9 @@ export default function GroupOrderPageView({
                 </CardAction>
               )}
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 pt-5">
               {totalItems === 0 ? (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground italic">
                   {t('noItemsYet')}
                 </p>
               ) : (
@@ -277,4 +289,3 @@ export default function GroupOrderPageView({
     </div>
   );
 }
-

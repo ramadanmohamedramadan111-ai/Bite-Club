@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/select';
 import { useRestaurantSearchParams } from './useRestaurantSearchParams';
 
-type SortValue = (typeof sortOptions)[number]['value'];
+type SortValue = 'rating' | 'name';
 
 type Props = {
   value: SortValue;

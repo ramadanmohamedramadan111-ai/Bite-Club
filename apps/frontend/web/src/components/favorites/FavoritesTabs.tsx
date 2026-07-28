@@ -23,7 +23,7 @@ export default function FavoritesTabs() {
 
   return (
     <Tabs value={activeTab}>
-      <TabsList className="grid w-full grid-cols-2">
+      <TabsList className="grid w-full grid-cols-2 max-w-md">
         {tabs.map((tab) => (
           <TabsTrigger
             key={tab.value}

@@ -46,18 +46,18 @@ export default async function TopRestaurants() {
   }));
 
   return (
-    <section className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <section className="space-y-6 pt-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between border-b border-border/30 pb-5">
         <div>
-          <h2 className="text-2xl font-bold">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
             {lat && lng ? t('topRestaurantsNear') : t('topRestaurants')}
           </h2>
-          <p className="mt-1 text-muted-foreground">
+          <p className="mt-1.5 text-sm text-muted-foreground">
             {lat && lng ? t('topRestaurantsNearDesc') : t('topRestaurantsDesc')}
           </p>
         </div>
-        <Button asChild variant="outline" className="w-fit gap-2">
-          <Link href="/restaurants">
+        <Button asChild variant="outline" className="w-fit gap-2 rounded-xl bg-background/50 border-border/60 hover:bg-background">
+          <Link href="/restaurants" className="cursor-pointer">
             {t('viewAll')}
             <ArrowRight className="size-4" />
           </Link>
