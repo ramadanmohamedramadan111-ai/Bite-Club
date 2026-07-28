@@ -241,3 +241,8 @@
   animation: bar-sweep 3s linear infinite;
 }
 
+.bg-dot-pattern {
+  background-image: radial-gradient(color-mix(in oklch, var(--border) 35%, transparent) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+

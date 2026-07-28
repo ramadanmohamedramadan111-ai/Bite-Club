@@ -86,7 +86,7 @@ export default function Navbar({
   const router = useRouter();
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
-  
+
   const t = useTranslations('userPanel');
   const tSidebar = useTranslations('sidebar');
 
@@ -131,7 +131,12 @@ export default function Navbar({
 
   const secondaryLinks = user
     ? [
-        { name: tSidebar('friends'), url: '/friends', icon: Handshake, badge: friendsRequestsCount },
+        {
+          name: tSidebar('friends'),
+          url: '/friends',
+          icon: Handshake,
+          badge: friendsRequestsCount,
+        },
         { name: tSidebar('favorites'), url: '/favorites', icon: Heart },
         { name: tSidebar('points'), url: '/points', icon: Coins },
         { name: tSidebar('settings'), url: '/settings', icon: Settings },
@@ -146,14 +151,28 @@ export default function Navbar({
           { name: tSidebar('orders'), url: '/orders', icon: Logs },
           { name: tSidebar('groups'), url: '/groups', icon: Users },
           { name: tSidebar('feed'), url: '/feed', icon: Newspaper },
-          { name: tSidebar('friends'), url: '/friends', icon: Handshake, badge: friendsRequestsCount },
+          {
+            name: tSidebar('friends'),
+            url: '/friends',
+            icon: Handshake,
+            badge: friendsRequestsCount,
+          },
           { name: tSidebar('favorites'), url: '/favorites', icon: Heart },
           { name: tSidebar('points'), url: '/points', icon: Coins },
-          { name: tSidebar('notifications'), url: '/notifications', icon: BellIcon },
+          {
+            name: tSidebar('notifications'),
+            url: '/notifications',
+            icon: BellIcon,
+          },
         ]
       : []),
     { name: tSidebar('settings'), url: '/settings', icon: Settings },
-    { name: tSidebar('cart'), url: '/cart', icon: ShoppingCartIcon, badge: itemCount },
+    {
+      name: tSidebar('cart'),
+      url: '/cart',
+      icon: ShoppingCartIcon,
+      badge: itemCount,
+    },
   ];
 
   const secondaryActive = secondaryLinks.some((link) => isActive(link.url));
@@ -171,20 +190,18 @@ export default function Navbar({
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur-md shadow-[0_2px_20px_-10px_rgba(0,0,0,0.03)] transition-all duration-300">
-      
+    <header className="sticky top-0 z-40 w-full relative bg-gradient-to-b from-background via-background/98 to-primary/[0.02] backdrop-blur-md shadow-[0_2px_20px_-10px_rgba(0,0,0,0.03)] transition-all duration-300">
+      {/* Top glowing separator border */}
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/45 to-transparent" />
       {/* LEVEL 1: Main Branding & Top level Navigation */}
-      <div className="flex h-16 w-full items-center justify-between px-4 sm:px-6 md:px-8 xl:px-12 gap-2 sm:gap-4">
-        
+      <div className="max-w-7xl mx-auto flex h-16 w-full items-center justify-between px-4 sm:px-6 md:px-8 xl:px-12 gap-2 sm:gap-4">
         {/* Desktop Level 1 */}
         <div className="hidden xl:flex w-full items-center justify-between">
-          
           {/* Brand Logo & Nav Links */}
           <div className="flex items-center gap-8">
-            <Link 
-              href="/" 
-              className="flex items-center gap-2.5 transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0"
-            >
+            <Link
+              href="/"
+              className="flex items-center gap-2.5 transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0">
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-orange-600 text-primary-foreground shadow-[0_3px_10px_-3px_var(--color-primary)]">
                 <Bold className="size-4" />
               </div>
@@ -205,8 +222,7 @@ export default function Navbar({
                       active
                         ? 'text-primary font-semibold'
                         : 'text-muted-foreground hover:text-foreground',
-                    )}
-                  >
+                    )}>
                     {link.name}
                     {active && (
                       <span className="absolute bottom-0 left-2 right-2 h-[3px] bg-primary rounded-t-full shadow-[0_-2px_8px_var(--color-primary)] animate-pulse" />
@@ -222,8 +238,7 @@ export default function Navbar({
                       className={cn(
                         'relative flex items-center gap-1.5 px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg hover:bg-accent/40 text-muted-foreground hover:text-foreground cursor-pointer focus:outline-none',
                         secondaryActive && 'text-primary font-semibold',
-                      )}
-                    >
+                      )}>
                       <span>{moreText}</span>
                       <ChevronDown className="size-4 opacity-70 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                       {friendsRequestsCount > 0 && (
@@ -234,9 +249,14 @@ export default function Navbar({
                       )}
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-52 p-1.5 backdrop-blur-md bg-background/95 border border-border shadow-xl rounded-xl">
+                  <DropdownMenuContent
+                    align="start"
+                    className="w-52 p-1.5 backdrop-blur-md bg-background/95 border border-border shadow-xl rounded-xl">
                     {secondaryLinks.map((link) => (
-                      <DropdownMenuItem key={link.url} asChild className="rounded-lg">
+                      <DropdownMenuItem
+                        key={link.url}
+                        asChild
+                        className="rounded-lg">
                         <Link
                           href={link.url}
                           className={cn(
@@ -244,8 +264,7 @@ export default function Navbar({
                             isActive(link.url)
                               ? 'bg-primary/10 text-primary font-semibold hover:bg-primary/15'
                               : 'text-muted-foreground hover:bg-accent hover:text-foreground',
-                          )}
-                        >
+                          )}>
                           <div className="flex items-center gap-2.5">
                             <link.icon className="size-4 opacity-85" />
                             <span>{link.name}</span>
@@ -266,16 +285,19 @@ export default function Navbar({
 
           {/* Right Action panel */}
           <div className="flex items-center gap-4">
-            
             {/* Collapse Toggle Button for Level 2 */}
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setIsLevelTwoOpen(!isLevelTwoOpen)}
               title={isLevelTwoOpen ? 'Collapse options' : 'Expand options'}
-              className="h-9 w-9 rounded-lg cursor-pointer text-muted-foreground hover:text-foreground hover:bg-accent/60"
-            >
-              <ChevronDown className={cn("size-4 transition-transform duration-200", isLevelTwoOpen && "rotate-180")} />
+              className="h-9 w-9 rounded-lg cursor-pointer text-muted-foreground hover:text-foreground hover:bg-accent/60">
+              <ChevronDown
+                className={cn(
+                  'size-4 transition-transform duration-200',
+                  isLevelTwoOpen && 'rotate-180',
+                )}
+              />
             </Button>
 
             {/* Icons, Buttons & Toggles */}
@@ -294,8 +316,7 @@ export default function Navbar({
                 variant="ghost"
                 size="sm"
                 onClick={handleLocaleToggle}
-                className="h-9 px-3 rounded-lg font-bold text-xs uppercase text-muted-foreground hover:text-foreground hover:bg-accent/60"
-              >
+                className="h-9 px-3 rounded-lg font-bold text-xs uppercase text-muted-foreground hover:text-foreground hover:bg-accent/60">
                 {locale === 'ar' ? 'EN' : 'العربية'}
               </Button>
 
@@ -304,8 +325,7 @@ export default function Navbar({
                 variant="ghost"
                 size="icon"
                 onClick={handleThemeToggle}
-                className="relative h-9 w-9 rounded-lg cursor-pointer hover:bg-accent/60"
-              >
+                className="relative h-9 w-9 rounded-lg cursor-pointer hover:bg-accent/60">
                 <Sun className="h-4.5 w-4.5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-muted-foreground hover:text-foreground" />
                 <Moon className="absolute h-4.5 w-4.5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-muted-foreground hover:text-foreground" />
                 <span className="sr-only">Toggle Theme</span>
@@ -316,7 +336,9 @@ export default function Navbar({
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-9 w-9 rounded-full cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all p-0">
+                  <Button
+                    variant="ghost"
+                    className="relative h-9 w-9 rounded-full cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all p-0">
                     <Avatar className="h-9 w-9 rounded-full border border-border">
                       <AvatarImage
                         src={user.profile_image ?? undefined}
@@ -331,7 +353,10 @@ export default function Navbar({
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-60 p-1.5 backdrop-blur-md bg-background/95 border border-border shadow-xl rounded-xl" align="end" forceMount>
+                <DropdownMenuContent
+                  className="w-60 p-1.5 backdrop-blur-md bg-background/95 border border-border shadow-xl rounded-xl"
+                  align="end"
+                  forceMount>
                   <DropdownMenuLabel className="font-normal p-2.5">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-semibold leading-none text-foreground">
@@ -344,14 +369,22 @@ export default function Navbar({
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup className="p-1">
-                    <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
-                      <Link href="/profile" className="flex items-center gap-2.5">
+                    <DropdownMenuItem
+                      asChild
+                      className="rounded-lg cursor-pointer">
+                      <Link
+                        href="/profile"
+                        className="flex items-center gap-2.5">
                         <CircleUserRound className="size-4 text-muted-foreground" />
                         <span>{t('profile')}</span>
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
-                      <Link href="/notifications" className="flex items-center gap-2.5">
+                    <DropdownMenuItem
+                      asChild
+                      className="rounded-lg cursor-pointer">
+                      <Link
+                        href="/notifications"
+                        className="flex items-center gap-2.5">
                         <CircleUserRound className="size-4 text-muted-foreground" />
                         <span>{t('notifications')}</span>
                       </Link>
@@ -361,41 +394,49 @@ export default function Navbar({
                   <DropdownMenuItem
                     className="m-1 rounded-lg cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
                     disabled={isExecuting}
-                    onClick={() => logout()}
-                  >
+                    onClick={() => logout()}>
                     <LogOutIcon className="mr-2 size-4" />
                     <span>{isExecuting ? t('loggingOut') : t('logout')}</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button asChild size="sm" className="cursor-pointer bg-gradient-to-r from-primary to-orange-600 text-white shadow-md hover:shadow-lg transition-all rounded-lg">
+              <Button
+                asChild
+                size="sm"
+                className="cursor-pointer bg-gradient-to-r from-primary to-orange-600 text-white shadow-md hover:shadow-lg transition-all rounded-lg">
                 <Link href="/login">
                   <User className="mr-2 size-4" />
                   <span>{t('login')}</span>
                 </Link>
               </Button>
             )}
-
           </div>
         </div>
 
         {/* Mobile Level 1 Display */}
         <div className="flex xl:hidden w-full items-center justify-between gap-2.5">
-          
           {/* Mobile Left: Hamburger and Logo */}
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             <Sheet open={isOpenMobile} onOpenChange={setIsOpenMobile}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="size-8.5 sm:size-9 cursor-pointer hover:bg-accent/60">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8.5 sm:size-9 cursor-pointer hover:bg-accent/60">
                   <Menu className="size-4.5 sm:size-5" />
                   <span className="sr-only">Toggle Menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side={isRtl ? 'right' : 'left'} className="w-[310px] flex flex-col p-0 bg-background border-r border-border">
+              <SheetContent
+                side={isRtl ? 'right' : 'left'}
+                className="w-[310px] flex flex-col p-0 bg-background border-r border-border">
                 <SheetHeader className="p-5 border-b border-border">
                   <SheetTitle className="text-start">
-                    <Link href="/" className="flex items-center gap-2.5" onClick={() => setIsOpenMobile(false)}>
+                    <Link
+                      href="/"
+                      className="flex items-center gap-2.5"
+                      onClick={() => setIsOpenMobile(false)}>
                       <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-orange-600 text-primary-foreground shadow-[0_2px_8px_-2px_var(--color-primary)]">
                         <Bold className="size-4" />
                       </div>
@@ -431,7 +472,10 @@ export default function Navbar({
                       </div>
                     </div>
                   ) : (
-                    <Button asChild className="w-full cursor-pointer bg-gradient-to-r from-primary to-orange-600 text-white rounded-xl shadow-md" onClick={() => setIsOpenMobile(false)}>
+                    <Button
+                      asChild
+                      className="w-full cursor-pointer bg-gradient-to-r from-primary to-orange-600 text-white rounded-xl shadow-md"
+                      onClick={() => setIsOpenMobile(false)}>
                       <Link href="/login">
                         <User className="mr-2 size-4" />
                         <span>{t('login')}</span>
@@ -450,8 +494,7 @@ export default function Navbar({
                           isActive(link.url)
                             ? 'bg-primary/10 text-primary font-semibold border-primary/10'
                             : 'text-muted-foreground hover:bg-accent hover:text-foreground',
-                        )}
-                      >
+                        )}>
                         <div className="flex items-center gap-3.5">
                           <link.icon className="size-5 opacity-80" />
                           <span>{link.name}</span>
@@ -470,15 +513,16 @@ export default function Navbar({
                   {/* Settings toggles directly in Mobile Drawer */}
                   <div className="space-y-3 px-1">
                     <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                      {locale === 'ar' ? 'الإعدادات والمظهر' : 'Settings & Appearance'}
+                      {locale === 'ar'
+                        ? 'الإعدادات والمظهر'
+                        : 'Settings & Appearance'}
                     </h4>
                     <div className="flex items-center gap-2">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={handleLocaleToggle}
-                        className="h-10 px-4 rounded-xl font-bold text-xs uppercase border-border text-muted-foreground hover:text-foreground"
-                      >
+                        className="h-10 px-4 rounded-xl font-bold text-xs uppercase border-border text-muted-foreground hover:text-foreground">
                         {locale === 'ar' ? 'English (EN)' : 'العربية (AR)'}
                       </Button>
 
@@ -486,8 +530,7 @@ export default function Navbar({
                         variant="outline"
                         size="icon"
                         onClick={handleThemeToggle}
-                        className="relative h-10 w-10 rounded-xl border-border cursor-pointer"
-                      >
+                        className="relative h-10 w-10 rounded-xl border-border cursor-pointer">
                         <Sun className="h-4.5 w-4.5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-muted-foreground" />
                         <Moon className="absolute h-4.5 w-4.5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-muted-foreground" />
                       </Button>
@@ -504,8 +547,7 @@ export default function Navbar({
                       onClick={() => {
                         setIsOpenMobile(false);
                         logout();
-                      }}
-                    >
+                      }}>
                       <LogOutIcon className="size-4" />
                       <span>{isExecuting ? t('loggingOut') : t('logout')}</span>
                     </Button>
@@ -539,8 +581,7 @@ export default function Navbar({
               variant="ghost"
               size="sm"
               onClick={handleLocaleToggle}
-              className="h-8.5 px-1 rounded-lg font-bold text-2xs sm:text-xs uppercase text-muted-foreground hover:text-foreground"
-            >
+              className="h-8.5 px-1 rounded-lg font-bold text-2xs sm:text-xs uppercase text-muted-foreground hover:text-foreground">
               {locale === 'ar' ? 'EN' : 'AR'}
             </Button>
 
@@ -549,8 +590,7 @@ export default function Navbar({
               variant="ghost"
               size="icon"
               onClick={handleThemeToggle}
-              className="relative h-8.5 w-8.5 rounded-lg hover:bg-accent/60 cursor-pointer"
-            >
+              className="relative h-8.5 w-8.5 rounded-lg hover:bg-accent/60 cursor-pointer">
               <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-muted-foreground" />
               <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-muted-foreground" />
               <span className="sr-only">Toggle Theme</span>
@@ -561,43 +601,42 @@ export default function Navbar({
               variant="ghost"
               size="icon"
               onClick={() => setIsLevelTwoOpen(!isLevelTwoOpen)}
-              className="h-8.5 w-8.5 rounded-lg cursor-pointer text-muted-foreground hover:bg-accent/60"
-            >
-              <ChevronDown className={cn("size-3.5 transition-transform duration-200", isLevelTwoOpen && "rotate-180")} />
+              className="h-8.5 w-8.5 rounded-lg cursor-pointer text-muted-foreground hover:bg-accent/60">
+              <ChevronDown
+                className={cn(
+                  'size-3.5 transition-transform duration-200',
+                  isLevelTwoOpen && 'rotate-180',
+                )}
+              />
             </Button>
           </div>
-
         </div>
-
       </div>
 
-      {/* LEVEL 2: Collapsible Selector, Search, and Points Bar */}
       {isLevelTwoOpen && (
-        <div className="border-t border-border bg-muted/20 px-4 py-3 sm:px-6 md:px-8 xl:px-12 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 transition-all duration-300 animate-in fade-in slide-in-from-top-2">
-          
-          {/* Left Side: Location & Search bar (NEXT to location, not in the middle) */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 flex-1">
-            {/* Location Selector (Doesn't shrink) */}
-            <div className="shrink-0 flex-shrink-0">
-              {locationButton}
+        <div className="relative w-full border-t border-border bg-gradient-to-r from-muted/50 via-primary/[0.03] to-orange-500/[0.03]">
+          {/* Top glowing separator border inside level 2 */}
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+          <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 md:px-8 xl:px-12 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 transition-all duration-300 animate-in fade-in slide-in-from-top-2">
+            {/* Left Side: Location & Search bar (NEXT to location, not in the middle) */}
+            <div className=" flex flex-col sm:flex-row items-stretch sm:items-center gap-4 flex-1">
+              {/* Location Selector (Doesn't shrink) */}
+              <div className="shrink-0 flex-shrink-0">{locationButton}</div>
+
+              {/* Search Bar next to location */}
+              {searchForm && (
+                <div className="w-full sm:max-w-md">{searchForm}</div>
+              )}
             </div>
-            
-            {/* Search Bar next to location */}
-            {searchForm && (
-              <div className="w-full sm:max-w-md">
-                {searchForm}
-              </div>
-            )}
-          </div>
 
-          {/* Right Side: Points Display (Gamification Popover) */}
-          <div className="flex items-center shrink-0 justify-end">
-            {gamificationPopover}
+            {/* Right Side: Points Display (Gamification Popover) */}
+            <div className="flex items-center shrink-0 justify-end">
+              {gamificationPopover}
+            </div>
           </div>
-
         </div>
       )}
-
     </header>
   );
 }
+
