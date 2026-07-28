@@ -38,7 +38,7 @@ class UserRegisterRequest extends FormRequest
             'date_of_birth' => [
                 'required',
                 'date',
-                'before:today',
+                'before:12 years ago',
             ],
 
             'username' => [

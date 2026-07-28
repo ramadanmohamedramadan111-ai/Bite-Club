@@ -220,7 +220,8 @@
           "label": "Date of Birth",
           "placeholder": "Select your date of birth",
           "errors": {
-            "required": "Date of birth is required"
+            "required": "Date of birth is required",
+            "minAge": "You must be at least 14 years old"
           }
         }
       },

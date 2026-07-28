@@ -52,16 +52,16 @@ class UserAuthController extends Controller
             $this->userAuthApplicationService->verifyEmail(
                 (int) $id,
                 (string) $hash,
-                $request->hasValidSignature()
+                $request->hasValidSignature(false)
             );
 
-            return redirect('http://web.localhost:8080/en/login?status=success');
+            return redirect(env('FRONTEND_URL', 'http://web.localhost:8080') . '/en/login?status=success');
         } catch (Exception $e) {
             Log::error('Email verification failed: ' . $e->getMessage(), [
                 'id' => $id,
             ]);
 
-            return redirect('http://web.localhost:8080/en/login?status=failed');
+            return redirect(env('FRONTEND_URL', 'http://web.localhost:8080') . '/en/login?status=failed');
         }
     }
 

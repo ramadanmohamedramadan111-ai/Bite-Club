@@ -11,20 +11,17 @@ class EmailVerificationService
 {
     public function generateSignedUrl(User $user): string
     {
-        $url = URL::temporarySignedRoute(
+        $relativeUrl = URL::temporarySignedRoute(
             'user.verification.verify',
             now()->addMinutes(60),
             [
                 'id'   => $user->id,
                 'hash' => sha1($user->email),
-            ]
+            ],
+            false
         );
 
-        return str_replace(
-            ['http://localhost', 'http://api.localhost'],
-            'http://api.localhost:8080',
-            $url
-        );
+        return config('app.url') . $relativeUrl;
     }
 
     public function sendVerificationEmail(User $user): void
