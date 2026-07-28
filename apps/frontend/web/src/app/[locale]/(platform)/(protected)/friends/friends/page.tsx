@@ -1,7 +1,10 @@
 import { Suspense } from 'react';
 import { Spinner } from '@/components/ui/spinner';
 import FriendsTab from '@/components/friends/FriendsTab';
-import { parseSearchParams, SearchPaginatedParams } from '@/utils/validate-search-params';
+import {
+  parseSearchParams,
+  SearchPaginatedParams,
+} from '@/utils/validate-search-params';
 import InvalidSearchParams from '@/components/errors/InvalidSearchParams';
 
 type Props = {
@@ -16,7 +19,7 @@ export default async function FriendsTabPage({ searchParams }: Props) {
   const raw = await searchParams;
   const parsed = parseSearchParams(SearchPaginatedParams, raw);
   if (!parsed.success) return <InvalidSearchParams />;
-  const { search, page = '1', per_page = '1' } = parsed.data;
+  const { search, page = '1', per_page = '10' } = parsed.data;
 
   return (
     <Suspense fallback={<Spinner />}>

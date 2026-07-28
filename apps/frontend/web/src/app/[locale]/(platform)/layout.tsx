@@ -20,6 +20,7 @@ import type { GroupOrderSession } from '@/types/group-order';
 import GamificationPopover from '@/components/gamification/GamificationPopover';
 import { CartInitializer } from '@/Initializers/CartInitializer';
 import Navbar from '@/components/navbar/Navbar';
+import Footer from '@/components/footer/Footer';
 
 export default async function Layout({
   children,
@@ -108,7 +109,7 @@ export default async function Layout({
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-background bg-dot-pattern">
       <CartInitializer cart={cart} />
       <AuthInitializer isAuthenticated={!!userId} />
       <FriendsInitializer count={friendsRequestsCount} />
@@ -123,9 +124,11 @@ export default async function Layout({
         gamificationPopover={!!userId ? <GamificationPopover /> : null}
       />
 
-      <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+      <main className="flex-1 px-4 sm:px-6 md:px-8 xl:px-12 py-6 max-w-7xl mx-auto w-full">
         {children}
       </main>
+
+      <Footer />
 
       <CartDrawerHost />
       <GroupOrderSessionsDrawerHost />

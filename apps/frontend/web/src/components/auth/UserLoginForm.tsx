@@ -77,64 +77,64 @@ export default function UserLoginForm({
 
   return (
     <div className={cn('flex flex-col gap-6', className)}>
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('title')}</CardTitle>
-
-          <CardDescription>{t('subtitle')}</CardDescription>
+      <Card className="rounded-2xl border border-border bg-card/85 backdrop-blur-md shadow-md">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-2xl font-bold tracking-tight text-foreground">{t('title')}</CardTitle>
+          <CardDescription className="text-sm text-muted-foreground">{t('subtitle')}</CardDescription>
         </CardHeader>
 
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <FieldGroup>
-              <Field>
-                <FieldLabel>{t('fields.email.label')}</FieldLabel>
-
+            <FieldGroup className="space-y-4">
+              <Field className="space-y-2">
+                <FieldLabel className="font-bold text-xs text-foreground uppercase tracking-wider">{t('fields.email.label')}</FieldLabel>
                 <Input
                   type="email"
                   disabled={isExecuting}
                   {...register('email')}
+                  className="rounded-xl h-10 border-border focus-visible:ring-primary/20"
                 />
-
-                <FieldDescription className="text-destructive">
-                  {errors.email?.message}
-                </FieldDescription>
+                {errors.email?.message && (
+                  <FieldDescription className="text-xs text-destructive font-semibold mt-1">
+                    {errors.email?.message}
+                  </FieldDescription>
+                )}
               </Field>
 
-              <Field>
-                <FieldLabel>{t('fields.password.label')}</FieldLabel>
-
+              <Field className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <FieldLabel className="font-bold text-xs text-foreground uppercase tracking-wider">{t('fields.password.label')}</FieldLabel>
+                  <Link
+                    href="/forget-password"
+                    className="text-xs font-bold text-primary hover:underline">
+                    {t('forgotPasswordLink.text')}
+                  </Link>
+                </div>
                 <Input
                   type="password"
                   disabled={isExecuting}
                   {...register('password')}
+                  className="rounded-xl h-10 border-border focus-visible:ring-primary/20"
                 />
-
-                <FieldDescription className="text-destructive">
-                  {errors.password?.message}
-                </FieldDescription>
-
-                <div className="text-right">
-                  <Link
-                    href="/forget-password"
-                    className="text-sm text-primary hover:underline">
-                    {t('forgotPasswordLink.text')}
-                  </Link>
-                </div>
+                {errors.password?.message && (
+                  <FieldDescription className="text-xs text-destructive font-semibold mt-1">
+                    {errors.password?.message}
+                  </FieldDescription>
+                )}
               </Field>
 
-              <Field>
-                <Button type="submit" disabled={isExecuting} className="w-full">
+              <Field className="space-y-3.5 pt-2">
+                <Button type="submit" disabled={isExecuting} className="w-full rounded-xl h-11 font-bold text-sm shadow-sm cursor-pointer">
                   {isExecuting
                     ? t('submitButton.loadingText')
                     : t('submitButton.text')}
                 </Button>
 
-                <FieldDescription className="text-center">
+                <FieldDescription className="text-center text-xs text-muted-foreground">
                   {t('registerLink.text')}{' '}
                   <Link
                     href="/register"
-                    className="text-primary hover:underline">
+                    className="font-bold text-primary hover:underline">
                     {t('registerLink.linkText')}
                   </Link>
                 </FieldDescription>
@@ -142,7 +142,7 @@ export default function UserLoginForm({
                 <Button
                   type="button"
                   variant="ghost"
-                  className="mt-2 w-full"
+                  className="w-full rounded-xl h-10 font-bold text-xs text-muted-foreground hover:text-foreground cursor-pointer"
                   disabled={isExecuting}
                   onClick={() => navigate('/')}>
                   {t('guestLoginButton.text')}
@@ -155,4 +155,3 @@ export default function UserLoginForm({
     </div>
   );
 }
-
