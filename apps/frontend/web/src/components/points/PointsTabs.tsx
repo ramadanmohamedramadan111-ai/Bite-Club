@@ -21,7 +21,7 @@ export default function PointsTabs() {
 
   return (
     <Tabs value={activeTab}>
-      <TabsList className="grid h-auto w-full grid-cols-2 gap-1">
+      <TabsList className="grid w-full grid-cols-2 max-w-md">
         {tabKeys.map((tab) => (
           <TabsTrigger key={tab.value} value={tab.value} asChild>
             <Link href={`/points/${tab.value}`}>{t(tab.labelKey)}</Link>

@@ -25,7 +25,7 @@ export default function GroupTabs({ groupId }: Props) {
 
   return (
     <Tabs value={activeTab}>
-      <TabsList className="grid w-full grid-cols-3">
+      <TabsList className="grid w-full grid-cols-3 max-w-md">
         {tabs.map((tab) => (
           <TabsTrigger
             key={tab.value}

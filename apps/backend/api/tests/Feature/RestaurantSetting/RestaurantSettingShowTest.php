@@ -35,6 +35,9 @@ class RestaurantSettingShowTest extends RestaurantAuthTest
                 'deposit_threshold',
                 'deposit_percentage',
                 'min_price_order',
+                'kashier_api_key',
+                'kashier_merchant_id',
+                'kashier_webhook_secret',
                 'updated_at'
             ]
         ]);

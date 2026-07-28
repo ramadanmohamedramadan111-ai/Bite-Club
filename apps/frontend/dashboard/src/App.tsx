@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import i18next from './i18n'
 import { LoginPage } from './pages/auth/LoginPage'
+import { RegisterPage } from './pages/auth/RegisterPage'
 import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage'
 import { ResetPasswordPage } from './pages/auth/ResetPasswordPage'
 import { DashboardPage } from './pages/dashboard/DashboardPage'
@@ -20,7 +21,7 @@ import { AppShell } from './components/layout/AppShell'
 
 type ThemeMode = 'light' | 'dark'
 type LanguageMode = 'en' | 'ar'
-type AuthScreen = 'login' | 'forgot' | 'reset'
+type AuthScreen = 'login' | 'register' | 'forgot' | 'reset'
 
 export type ShellProps = {
   theme: ThemeMode
@@ -39,7 +40,7 @@ function App() {
     window.localStorage.getItem('biteclub-language') === 'ar' ? 'ar' : 'en'
   )
 
-  // Auth screen state machine: login → forgot → reset → login
+  // Auth screen state machine: login ↔ register → forgot → reset → login
   const [authScreen, setAuthScreen] = useState<AuthScreen>('login')
   const [resetEmail, setResetEmail] = useState('')
 
@@ -59,6 +60,18 @@ function App() {
 
   if (!isAuthenticated) {
     const sharedPageProps = { ...shellProps }
+
+    if (authScreen === 'register') {
+      return (
+        <>
+          <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+          <RegisterPage
+            {...sharedPageProps}
+            onBackToLogin={() => setAuthScreen('login')}
+          />
+        </>
+      )
+    }
 
     if (authScreen === 'forgot') {
       return (
@@ -96,6 +109,7 @@ function App() {
         <LoginPage
           {...sharedPageProps}
           onForgotPassword={() => setAuthScreen('forgot')}
+          onRegister={() => setAuthScreen('register')}
         />
       </>
     )

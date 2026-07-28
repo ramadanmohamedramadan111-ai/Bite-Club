@@ -132,6 +132,7 @@ Route::prefix('user')->name('user.')->group(function () {
             Route::get('active', [UserOrderController::class, 'activeOrders'])->name('active');
             Route::get('past', [UserOrderController::class, 'pastOrders'])->name('past');
             Route::get('{orderId}', [UserOrderController::class, 'show'])->name('show');
+            Route::post('{orderId}/cancel', [UserOrderController::class, 'cancel'])->name('cancel');
         });
     });
 

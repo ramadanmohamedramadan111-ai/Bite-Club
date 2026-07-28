@@ -23,23 +23,24 @@ export default async function EditProfilePage() {
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center py-12 text-muted-foreground">
+      <div className="flex items-center justify-center py-12 text-muted-foreground font-medium">
         {tc('failedToLoad')}
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto space-y-6">
-      <div className="flex items-center gap-4">
-        <Link href="/profile">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-5 w-5" />
+    <div className="container mx-auto space-y-8">
+      {/* Back navigation and header text */}
+      <div className="flex items-center gap-4 border-b border-border/30 pb-6">
+        <Link href="/profile" className="cursor-pointer shrink-0">
+          <Button variant="outline" size="icon" className="rounded-xl border-border/50 bg-background/50 hover:bg-background shadow-xs cursor-pointer">
+            <ArrowLeft className="h-5 w-5 text-foreground" />
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold">{t('title')}</h1>
-          <p className="mt-1 text-muted-foreground">{t('subtitle')}</p>
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">{t('title')}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t('subtitle')}</p>
         </div>
       </div>
 
@@ -47,4 +48,3 @@ export default async function EditProfilePage() {
     </div>
   );
 }
-

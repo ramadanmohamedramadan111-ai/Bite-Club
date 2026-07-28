@@ -113,6 +113,8 @@ export const registerUserAction = actionClient
       },
     );
 
+    console.log('RESPONSE', response);
+
     return response;
   });
 

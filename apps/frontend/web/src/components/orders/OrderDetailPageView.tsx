@@ -1,19 +1,27 @@
 'use client';
 
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   ArrowLeft,
   CreditCard,
-  MapPin,
   ShoppingBag,
   Wallet,
+  XCircle,
+  Clock,
+  ReceiptText,
 } from 'lucide-react';
+import { toast } from 'sonner';
+import { useAction } from 'next-safe-action/hooks';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import ConfirmDialog from '@/components/shared/ConfirmationDialog';
 import type { OrderDetails } from '@/types/order';
+import { cancelOrder } from '@/actions/order';
 import { OrderStatusBadge } from './OrderStatusBadge';
+import { cn } from '@/lib/utils';
 
 function formatOrderDate(date: string) {
   return new Intl.DateTimeFormat('en-US', {
@@ -33,151 +41,240 @@ export default function OrderDetailPageView({
 }) {
   const t = useTranslations('orderDetail');
   const tc = useTranslations('common');
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+
+  const { execute: executeCancel, isExecuting: isCancelling } = useAction(
+    cancelOrder,
+    {
+      onSuccess: () => {
+        toast.success(tc('orderCancelled'));
+      },
+      onError: ({ error }) => {
+        toast.error(error.serverError?.message ?? 'Failed to cancel order');
+      },
+    },
+  );
+
+  const isPending = order.status === 'pending';
+  const hasFullCashPayment = order.payments?.some(
+    (p) => p.payment_method === 'cash',
+  );
+  const showCancel = isPending && hasFullCashPayment;
 
   function paymentLabel(method: string) {
     if (method === 'visa') return tc('visaCard');
     return tc('cashOnDelivery');
   }
 
+  const initials = order.restaurant.name.charAt(0).toUpperCase();
+
   return (
-    <div className="container mx-auto space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div className="container mx-auto space-y-8">
+      {/* Title & Actions Bar */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border/30 pb-6">
         <div className="flex items-center gap-4">
-          <Link href="/orders">
-            <Button variant="ghost" size="icon">
+          <Link href="/orders" className="cursor-pointer">
+            <Button variant="outline" size="icon" className="rounded-xl border-border/50 bg-background/50 hover:bg-background">
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
               {t('orderNumber', { id: order.id })}
             </h1>
-            <p className="mt-1 text-muted-foreground">
-              {formatOrderDate(order.created_at)}
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1 flex items-center gap-1.5 font-medium">
+              <Clock className="size-4" />
+              <span>{formatOrderDate(order.created_at)}</span>
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <OrderStatusBadge status={order.status} />
+          <OrderStatusBadge status={order.status} className="px-3.5 py-1 text-sm" />
+          {showCancel && (
+            <Button
+              variant="destructive"
+              size="sm"
+              className="gap-1.5 rounded-xl cursor-pointer"
+              onClick={() => setCancelDialogOpen(true)}
+            >
+              <XCircle className="size-4" />
+              {tc('cancelOrder')}
+            </Button>
+          )}
         </div>
       </div>
 
-      <div className="mx-auto grid max-w-4xl gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">{t('orderSummary')}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-              <span className="rounded-md bg-secondary px-2 py-0.5 capitalize">
-                {order.order_type}
-              </span>
-            </div>
-
-            <div className="space-y-2">
-              {order.items.map((item) => (
-                <div key={item.id} className="flex justify-between text-sm">
-                  <span>
-                    {item.quantity}x {item.item_name}
-                  </span>
-                  <span>{Number(item.price) * item.quantity} EGP</span>
+      {/* Main Grid Layout split into details + checkout parameters */}
+      <div className="grid gap-8 lg:grid-cols-12 items-start">
+        
+        {/* Left Column: Tracking and Items details */}
+        <div className="lg:col-span-8 space-y-6">
+          {/* Tracking Timeline */}
+          {order.tracking && (
+            <Card className="border-border/40 shadow-xs">
+              <CardHeader className="border-b border-border/30">
+                <CardTitle className="text-base font-bold flex items-center gap-2">
+                  <Clock className="size-4.5 text-primary" />
+                  <span>{t('tracking')}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="relative pl-6 space-y-6 after:absolute after:inset-y-1 after:left-1.5 after:w-0.5 after:bg-border/40">
+                  {order.tracking.steps.map((step) => (
+                    <div key={step.status} className="relative flex items-start gap-4">
+                      {/* Outer pulse effect if active */}
+                      <div
+                        className={cn(
+                          "absolute -left-5 z-10 flex size-3.5 items-center justify-center rounded-full border-2",
+                          step.state === 'active'
+                            ? 'bg-primary border-primary animate-ping opacity-75'
+                            : step.state === 'completed'
+                              ? 'bg-emerald-500 border-emerald-500'
+                              : 'bg-background border-border/80'
+                        )}
+                      />
+                      {/* Solid indicator dot overlay */}
+                      <div
+                        className={cn(
+                          "absolute -left-5 z-10 size-3.5 rounded-full border-2",
+                          step.state === 'active'
+                            ? 'bg-primary border-primary'
+                            : step.state === 'completed'
+                              ? 'bg-emerald-500 border-emerald-500'
+                              : 'bg-background border-border/85'
+                        )}
+                      />
+                      <div className="flex flex-col gap-0.5">
+                        <span
+                          className={cn(
+                            "text-sm font-bold transition-colors",
+                            step.state === 'active'
+                              ? 'text-primary'
+                              : step.state === 'completed'
+                                ? 'text-foreground/90'
+                                : 'text-muted-foreground'
+                          )}
+                        >
+                          {step.label}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </CardContent>
+            </Card>
+          )}
 
-            <Separator />
-
-            <div className="space-y-1 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">{tc('subtotal')}</span>
-                <span>{order.financials.subtotal} EGP</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">
-                  {tc('deliveryFee')}
-                </span>
-                <span>{order.financials.delivery_fee} EGP</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">
-                  {tc('serviceFee')}
-                </span>
-                <span>{order.financials.service_fee} EGP</span>
-              </div>
-              <div className="flex justify-between pt-1 text-base font-semibold">
-                <span>{tc('total')}</span>
-                <span>{order.financials.total} EGP</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">{t('restaurant')}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div>
-              <p className="font-medium">{order.restaurant.name}</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">{t('payment')}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2 text-sm">
-              {order.payments[0]?.payment_method === 'visa' ? (
-                <CreditCard className="h-4 w-4" />
-              ) : order.order_type === 'delivery' ? (
-                <Wallet className="h-4 w-4" />
-              ) : (
-                <ShoppingBag className="h-4 w-4" />
-              )}
-              <span>
-                {paymentLabel(order.payments[0]?.payment_method ?? 'cash')}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-
-        {order.tracking && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">{t('tracking')}</CardTitle>
+          {/* Restaurant details */}
+          <Card className="border-border/40 shadow-xs">
+            <CardHeader className="border-b border-border/30">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <ShoppingBag className="size-4.5 text-primary" />
+                <span>{t('restaurant')}</span>
+              </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-5 flex items-center gap-4">
+              <div className="flex size-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/10 to-orange-500/10 text-primary font-bold text-2xl border border-primary/20 shrink-0 shadow-xs select-none">
+                {initials}
+              </div>
+              <div>
+                <h4 className="font-bold text-lg text-foreground leading-tight">{order.restaurant.name}</h4>
+                <span className="inline-flex rounded bg-secondary px-2 py-0.5 text-xs font-semibold text-muted-foreground capitalize mt-2">
+                  {order.order_type}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Column: Pricing Summary & Payment */}
+        <div className="lg:col-span-4 space-y-6">
+          {/* Order Summary & Financials */}
+          <Card className="border-border/40 shadow-xs">
+            <CardHeader className="border-b border-border/30">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <ReceiptText className="size-4.5 text-primary" />
+                <span>{t('orderSummary')}</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6 space-y-5">
               <div className="space-y-3">
-                {order.tracking.steps.map((step) => (
-                  <div key={step.status} className="flex items-center gap-3">
-                    <div
-                      className={`h-2.5 w-2.5 rounded-full ${
-                        step.state === 'active'
-                          ? 'bg-primary'
-                          : step.state === 'completed'
-                            ? 'bg-emerald-500'
-                            : 'bg-gray-300'
-                      }`}
-                    />
-                    <span
-                      className={`text-sm ${
-                        step.state === 'active'
-                          ? 'font-medium'
-                          : 'text-muted-foreground'
-                      }`}>
-                      {step.label}
+                {order.items.map((item) => (
+                  <div key={item.id} className="flex justify-between text-sm items-start gap-4">
+                    <span className="font-medium text-foreground/90">
+                      {item.quantity}x {item.item_name}
+                    </span>
+                    <span className="font-semibold text-foreground/80 shrink-0">
+                      {Number(item.price) * item.quantity} EGP
                     </span>
                   </div>
                 ))}
               </div>
+
+              <Separator className="border-border/30" />
+
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">{tc('subtotal')}</span>
+                  <span className="font-semibold">{order.financials.subtotal} EGP</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">{tc('deliveryFee')}</span>
+                  <span className="font-semibold">{order.financials.delivery_fee} EGP</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">{tc('serviceFee')}</span>
+                  <span className="font-semibold">{order.financials.service_fee} EGP</span>
+                </div>
+              </div>
+
+              <div className="bg-primary/5 border border-primary/10 rounded-2xl p-4 flex justify-between items-center text-lg font-bold text-primary shadow-xs">
+                <span>{tc('total')}</span>
+                <span>{order.financials.total} EGP</span>
+              </div>
             </CardContent>
           </Card>
-        )}
+
+          {/* Payment Block */}
+          <Card className="border-border/40 shadow-xs">
+            <CardHeader className="border-b border-border/30">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <Wallet className="size-4.5 text-primary" />
+                <span>{t('payment')}</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-5">
+              <div className="flex items-center gap-3 text-sm font-semibold text-foreground/90">
+                <div className="flex size-9 items-center justify-center rounded-lg bg-accent text-muted-foreground border border-border/30 shrink-0">
+                  {order.payments[0]?.payment_method === 'visa' ? (
+                    <CreditCard className="h-4.5 w-4.5" />
+                  ) : order.order_type === 'delivery' ? (
+                    <Wallet className="h-4.5 w-4.5" />
+                  ) : (
+                    <ShoppingBag className="h-4.5 w-4.5" />
+                  )}
+                </div>
+                <span>
+                  {paymentLabel(order.payments[0]?.payment_method ?? 'cash')}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
       </div>
+
+      <ConfirmDialog
+        open={cancelDialogOpen}
+        onOpenChange={setCancelDialogOpen}
+        title={tc('cancelOrderTitle')}
+        description={tc('cancelOrderDesc')}
+        confirmText={tc('cancelOrderConfirm')}
+        cancelText={tc('goBack')}
+        onConfirm={() => executeCancel(order.id)}
+        isLoading={isCancelling}
+      />
     </div>
   );
 }
-

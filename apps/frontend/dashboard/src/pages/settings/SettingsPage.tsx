@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useEffect, useRef, useState } from 'react'
 import {
-  Store, Briefcase, Clock, Bell, Upload, CheckCircle, MapPin, Truck, Percent,
+  Store, Briefcase, Clock, Bell, Upload, CheckCircle, MapPin, Truck, Percent, Eye, EyeOff,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { LocationMap } from '../../components/common/LocationMap'
@@ -142,6 +142,11 @@ export function SettingsPage() {
   const [depositPercentage, setDepositPercentage] = useState('')
   const [lat, setLat]                         = useState(30.0444)
   const [lng, setLng]                         = useState(31.2357)
+  const [kashierApiKey, setKashierApiKey] = useState('')
+  const [kashierMerchantId, setKashierMerchantId] = useState('')
+  const [kashierWebhookSecret, setKashierWebhookSecret] = useState('')
+  const [showApiKey, setShowApiKey] = useState(false)
+  const [showWebhookSecret, setShowWebhookSecret] = useState(false)
 
   useEffect(() => {
     setSettingsLoading(true)
@@ -157,6 +162,9 @@ export function SettingsPage() {
         setDepositPercentage(data.deposit_percentage)
         setLat(parseFloat(data.latitude))
         setLng(parseFloat(data.longitude))
+        setKashierApiKey(data.kashier_api_key ?? '')
+        setKashierMerchantId(data.kashier_merchant_id ?? '')
+        setKashierWebhookSecret(data.kashier_webhook_secret ?? '')
       })
       .catch(() => toast.error(t('errorOccurred')))
       .finally(() => setSettingsLoading(false))
@@ -176,6 +184,9 @@ export function SettingsPage() {
         deposit_percentage: depositPercentage,
         latitude: String(lat),
         longitude: String(lng),
+        kashier_api_key: kashierApiKey || null,
+        kashier_merchant_id: kashierMerchantId || null,
+        kashier_webhook_secret: kashierWebhookSecret || null,
       })
       toast.success(t('settingsSaved'))
     } catch (e) {
@@ -505,8 +516,10 @@ export function SettingsPage() {
           )}
         </div>
 
-        {/* ── Working Hours (real API) ── */}
-        <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 flex flex-col gap-5">
+        {/* ── Bottom Row: Working Hours & Payment ── */}
+        <div className="md:col-span-2 lg:col-span-3 grid gap-6 md:grid-cols-2 items-start">
+          {/* ── Working Hours (real API) ── */}
+          <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 flex flex-col gap-5 h-full">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-50 dark:border-slate-800">
             <div className="flex items-center gap-2">
               <Clock className="text-brand-orange h-5 w-5" />
@@ -579,9 +592,63 @@ export function SettingsPage() {
           )}
         </div>
 
-      
+        {/* ── Payment Settings ── */}
+        <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 flex flex-col gap-5 h-full">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-50 dark:border-slate-800">
+            <div className="flex items-center gap-2">
+              <Briefcase className="text-brand-orange h-5 w-5" />
+              <h2 className="text-base font-bold text-gray-900 dark:text-white">{t('paymentSettings', 'Payment Settings')}</h2>
+            </div>
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0 self-start">
+              <button
+                onClick={handleSaveSettings}
+                disabled={settingsSaving || settingsLoading}
+                className="flex items-center gap-1.5 rounded-xl bg-brand-orange px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90 transition disabled:opacity-50"
+              >
+                {settingsSaving
+                  ? <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  : <CheckCircle size={12} />}
+                {t('save')}
+              </button>
+            </div>
+          </div>
 
+          {settingsLoading ? (
+            <div className="flex justify-center py-6">
+              <span className="h-6 w-6 animate-spin rounded-full border-4 border-brand-orange border-t-transparent" />
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-gray-500 dark:text-slate-400">Kashier Merchant ID</label>
+                <input type="text" value={kashierMerchantId} onChange={(e) => setKashierMerchantId(e.target.value)} className={inputCls} placeholder="e.g. MID-1234-5678" />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-gray-500 dark:text-slate-400">Kashier API Key</label>
+                <div className="relative">
+                  <input type={showApiKey ? "text" : "password"} value={kashierApiKey} onChange={(e) => setKashierApiKey(e.target.value)} className={`${inputCls} w-full`} placeholder="api_key_..." />
+                  <button type="button" onClick={() => setShowApiKey(!showApiKey)} className="absolute inset-y-0 end-0 pe-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    {showApiKey ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-gray-500 dark:text-slate-400">Kashier Webhook Secret</label>
+                <div className="relative">
+                  <input type={showWebhookSecret ? "text" : "password"} value={kashierWebhookSecret} onChange={(e) => setKashierWebhookSecret(e.target.value)} className={`${inputCls} w-full`} placeholder="whsec_..." />
+                  <button type="button" onClick={() => setShowWebhookSecret(!showWebhookSecret)} className="absolute inset-y-0 end-0 pe-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    {showWebhookSecret ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+              <p className="text-xs text-gray-400 dark:text-slate-500">
+                {t('kashierDesc', 'Configure your Kashier API credentials to accept online payments for delivery and pickup orders.')}
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
+  </div>
   )
 }

@@ -8,6 +8,7 @@ import { usePathname, useRouter } from '@/i18n/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { cn } from '@/lib/utils';
 
 export default function SettingsPageView() {
   const { theme, setTheme } = useTheme();
@@ -32,37 +33,52 @@ export default function SettingsPageView() {
   }
 
   return (
-    <div className="container mx-auto max-w-2xl space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">{t('title')}</h1>
-        <p className="mt-2 text-muted-foreground">
-          {t('subtitle')}
-        </p>
+    <div className="container mx-auto space-y-8">
+      {/* Title & Description Header */}
+      <div className="border-b border-border pb-6">
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
+          {t('title')}
+        </h1>
+        <p className="mt-1.5 text-sm text-muted-foreground">{t('subtitle')}</p>
       </div>
 
+      {/* Theme Card Options */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">{t('theme')}</CardTitle>
+          <CardTitle className="text-base font-bold">{t('theme')}</CardTitle>
         </CardHeader>
         <CardContent>
           <RadioGroup
             value={theme ?? 'system'}
             onValueChange={setTheme}
-            className="space-y-3"
-          >
+            className="grid grid-cols-3 gap-4">
             {themeOptions.map((option) => {
               const Icon = option.icon;
               const id = `theme-${option.value}`;
+              const isSelected = (theme ?? 'system') === option.value;
 
               return (
-                <div key={option.value} className="flex items-center gap-3">
-                  <RadioGroupItem value={option.value} id={id} />
+                <div key={option.value} className="relative">
+                  <RadioGroupItem
+                    value={option.value}
+                    id={id}
+                    className="peer sr-only"
+                  />
                   <Label
                     htmlFor={id}
-                    className="flex flex-1 cursor-pointer items-center gap-2 font-normal"
-                  >
-                    <Icon className="size-4 text-muted-foreground" />
-                    {option.label}
+                    className={cn(
+                      'flex flex-col items-center justify-center gap-3 rounded-2xl border p-5 text-center cursor-pointer transition-all duration-300 select-none hover:bg-accent/40 font-semibold',
+                      isSelected
+                        ? 'border-primary bg-primary/5 text-primary shadow-xs'
+                        : 'border-border text-muted-foreground hover:text-foreground',
+                    )}>
+                    <Icon
+                      className={cn(
+                        'size-6',
+                        isSelected ? 'text-primary' : 'text-muted-foreground',
+                      )}
+                    />
+                    <span className="text-xs sm:text-sm">{option.label}</span>
                   </Label>
                 </div>
               );
@@ -71,24 +87,39 @@ export default function SettingsPageView() {
         </CardContent>
       </Card>
 
+      {/* Language Card Options */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">{t('language')}</CardTitle>
+          <CardTitle className="text-base font-bold">{t('language')}</CardTitle>
         </CardHeader>
         <CardContent>
           <RadioGroup
             value={locale}
             onValueChange={(value) => changeLanguage(value as 'en' | 'ar')}
-            className="space-y-3"
-          >
+            className="grid grid-cols-2 gap-4">
             {languageOptions.map((option) => {
               const id = `language-${option.value}`;
+              const isSelected = locale === option.value;
 
               return (
-                <div key={option.value} className="flex items-center gap-3">
-                  <RadioGroupItem value={option.value} id={id} />
-                  <Label htmlFor={id} className="cursor-pointer font-normal">
-                    {option.label}
+                <div key={option.value} className="relative">
+                  <RadioGroupItem
+                    value={option.value}
+                    id={id}
+                    className="peer sr-only"
+                  />
+                  <Label
+                    htmlFor={id}
+                    className={cn(
+                      'flex flex-col items-center justify-center gap-2 rounded-2xl border p-5 text-center cursor-pointer transition-all duration-300 select-none hover:bg-accent/40 font-semibold',
+                      isSelected
+                        ? 'border-primary bg-primary/5 text-primary shadow-xs'
+                        : 'border-border text-muted-foreground hover:text-foreground',
+                    )}>
+                    <span className="text-lg font-bold">
+                      {option.value === 'ar' ? 'عربي' : 'EN'}
+                    </span>
+                    <span className="text-xs sm:text-sm">{option.label}</span>
                   </Label>
                 </div>
               );
@@ -99,3 +130,4 @@ export default function SettingsPageView() {
     </div>
   );
 }
+

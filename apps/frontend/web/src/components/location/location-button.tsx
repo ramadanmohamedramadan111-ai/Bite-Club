@@ -30,7 +30,7 @@ export function LocationButton({
         className="min-w-0 gap-2 px-2 sm:px-3">
         <MapPinIcon className="size-4 shrink-0" />
 
-        <span className="hidden sm:block truncate max-w-[120px] md:max-w-[180px] lg:max-w-[240px]">
+        <span className="truncate max-w-[120px] sm:max-w-[180px] md:max-w-[240px]">
           {location?.area ?? t('chooseLocation')}
         </span>
       </Button>

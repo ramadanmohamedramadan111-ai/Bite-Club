@@ -2,9 +2,10 @@
 
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import { Bike, Heart, MapPin, ShoppingBag, Star } from 'lucide-react';
+import { Bike, Heart, MapPin, ShoppingBag, Star, Clock } from 'lucide-react';
 import type { RestaurantType } from '@/types/restaurant';
 import RestaurantGroupOrderActions from './RestaurantGroupOrderActions';
+import { Separator } from '@/components/ui/separator';
 
 type Props = {
   restaurant: RestaurantType;
@@ -13,26 +14,29 @@ type Props = {
 export default function RestaurantDetailHeader({ restaurant }: Props) {
   const t = useTranslations('restaurants');
   return (
-    <div className="overflow-hidden rounded-xl border bg-card">
-      <div className="relative h-48 w-full sm:h-56">
+    <div className="overflow-hidden rounded-2xl border border-border/40 bg-card shadow-sm transition-all duration-300">
+      {/* Cover Image */}
+      <div className="relative h-48 w-full sm:h-64 md:h-72 bg-muted">
         <Image
-          src={restaurant.cover_image_url}
+          src={restaurant.cover_image_url || restaurant.logo_url}
           alt={`${restaurant.name} cover`}
           fill
           className="object-cover"
           priority
         />
         {!restaurant.is_open_now && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-            <span className="rounded-full bg-background px-4 py-2 text-sm font-medium">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-10">
+            <span className="rounded-full bg-background/95 backdrop-blur-xs px-4 py-2 text-sm font-semibold shadow-md text-foreground">
               {t('currentlyUnavailable')}
             </span>
           </div>
         )}
       </div>
 
-      <div className="relative px-4 pb-5 pt-14 sm:px-6">
-        <div className="absolute -top-10 left-4 size-20 overflow-hidden rounded-xl border-4 border-card bg-card shadow-sm sm:left-6 sm:size-24">
+      {/* Info Panel */}
+      <div className="relative px-4 pb-6 pt-16 sm:px-6 md:px-8">
+        {/* Floating Logo Badge */}
+        <div className="absolute -top-12 left-4 size-24 overflow-hidden rounded-2xl border-4 border-card bg-background shadow-lg sm:left-6 sm:-top-16 sm:size-28">
           <Image
             src={restaurant.logo_url}
             alt={restaurant.name}
@@ -41,80 +45,89 @@ export default function RestaurantDetailHeader({ restaurant }: Props) {
           />
         </div>
 
-        <div className="flex items-start justify-between gap-4 mt-4">
-          <div className="min-w-0 space-y-2">
-            <div className="flex gap-2 items-center">
-              <h1 className="text-2xl font-bold">{restaurant.name}</h1>
-              <Heart
-                className={`size-6 shrink-0 ${
-                  false ? 'fill-red-500 text-red-500' : 'text-muted-foreground'
-                }`}
-              />
+        {/* Header Header Action Details */}
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mt-2">
+          <div className="min-w-0 space-y-3">
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">{restaurant.name}</h1>
+              <button 
+                type="button"
+                className="flex size-9 items-center justify-center rounded-full bg-accent/40 text-muted-foreground hover:text-red-500 transition-colors cursor-pointer"
+              >
+                <Heart className="size-5" />
+              </button>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-              <span className="inline-flex items-center gap-1">
-                <Star className="size-4 fill-yellow-400 text-yellow-400" />
-                <span className="font-medium text-foreground">
-                  {restaurant.average_rating}
+            <div className="flex flex-wrap items-center gap-4 text-xs md:text-sm text-muted-foreground">
+              {/* Star Rating */}
+              <span className="inline-flex items-center gap-1.5 font-semibold text-foreground/90">
+                <Star className="size-4.5 fill-amber-400 text-amber-400" />
+                <span>{restaurant.average_rating.toFixed(1)}</span>
+                <span className="font-normal text-muted-foreground">
+                  {t('reviewsCount', { count: restaurant.reviews_count })}
                 </span>
-                {t('reviewsCount', { count: restaurant.reviews_count })}
               </span>
 
-              <span className="inline-flex items-center gap-1">
-                <MapPin className="size-4" />
-                {restaurant.address}
+              {/* Location Address */}
+              {restaurant.address && (
+                <span className="inline-flex items-center gap-1.5">
+                  <MapPin className="size-4.5 text-muted-foreground" />
+                  <span className="truncate max-w-[200px] sm:max-w-xs">{restaurant.address}</span>
+                </span>
+              )}
+
+              {/* Delivery Time Estimate Badge */}
+              <span className="inline-flex items-center gap-1 rounded-md bg-accent/60 px-2 py-0.5 text-xs font-semibold text-muted-foreground">
+                <Clock className="size-3.5" />
+                <span>25-35 min</span>
               </span>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 pt-1">
               {restaurant.category && (
                 <span
                   key={restaurant.category.id}
-                  className="rounded-full bg-muted px-2.5 py-1 text-xs">
+                  className="rounded-full bg-muted border border-border/30 px-3 py-1 text-xs font-medium text-foreground/80"
+                >
                   {restaurant.category.name}
                 </span>
               )}
             </div>
           </div>
 
-          <div className="flex gap-2 items-center">
+          {/* Group order actions button aligned properly */}
+          <div className="flex items-center shrink-0 pt-2 md:pt-0">
             <RestaurantGroupOrderActions restaurant={restaurant} />
           </div>
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+        <Separator className="my-5 border-border/30" />
+
+        {/* Badges footer row containing delivery fee details */}
+        <div className="flex flex-wrap items-center gap-6 text-xs md:text-sm">
           {restaurant.delivery_enabled && (
-            <span className="inline-flex items-center gap-1.5">
-              <Bike className="size-4" />
-              {t('delivery')}
-            </span>
+            <div className="flex items-center gap-2 text-foreground/80 font-medium">
+              <Bike className="size-4.5 text-primary" />
+              <span>
+                {restaurant.delivery_fee_per_km && restaurant.delivery_fee_per_km > 0 
+                  ? `${t('delivery')}: EGP ${restaurant.delivery_fee_per_km}/km` 
+                  : `${t('delivery')}: Free`}
+              </span>
+            </div>
           )}
           {restaurant.pickup_enabled && (
-            <span className="inline-flex items-center gap-1.5">
-              <ShoppingBag className="size-4" />
-              {t('pickup')}
-            </span>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <ShoppingBag className="size-4.5" />
+              <span>{t('pickup')} Available</span>
+            </div>
           )}
-          {/* {restaurant.creditCard && (
-            <span className="inline-flex items-center gap-1.5">
-              <CreditCard className="size-4" />
-              Credit Card
-            </span>
-          )} */}
-        </div>
-
-        <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
           {restaurant.minimum_order && (
-            <span className="inline-flex items-center gap-1.5">
-              {t('minimumOrder', {
-                amount: restaurant.minimum_order.toFixed(0),
-              })}
-            </span>
+            <div className="flex items-center gap-1.5 text-muted-foreground border-l border-border/40 pl-6">
+              <span>{t('minimumOrder', { amount: restaurant.minimum_order.toFixed(0) })}</span>
+            </div>
           )}
         </div>
       </div>
     </div>
   );
 }
-
