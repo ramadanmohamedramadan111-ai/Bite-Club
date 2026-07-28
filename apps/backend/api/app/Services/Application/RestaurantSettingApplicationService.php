@@ -42,6 +42,9 @@ class RestaurantSettingApplicationService
             'deposit_threshold'   => $setting->deposit_threshold,
             'deposit_percentage'  => $setting->deposit_percentage,
             'min_price_order'     => $setting->min_price_order,
+            'kashier_api_key'     => $setting->kashier_api_key,
+            'kashier_merchant_id' => $setting->kashier_merchant_id,
+            'kashier_webhook_secret' => $setting->kashier_webhook_secret,
             'updated_at'          => $setting->updated_at ? $setting->updated_at->toIso8601String() : null,
         ];
     }
