@@ -1,0 +1,10 @@
+on_http_request:
+  - actions:
+      - type: remove-headers
+        config:
+          headers:
+            - Host
+      - type: add-headers
+        config:
+          headers:
+            Host: "api.localhost"

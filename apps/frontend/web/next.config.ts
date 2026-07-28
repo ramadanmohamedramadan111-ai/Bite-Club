@@ -40,7 +40,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'eraser-pediatric-tablet.ngrok-free.dev',
+        hostname: 'stretch-tutu-freeway.ngrok-free.dev',
         pathname: '/**',
       },
     ],
