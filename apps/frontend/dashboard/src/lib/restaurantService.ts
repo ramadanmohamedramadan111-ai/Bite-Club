@@ -31,6 +31,9 @@ export type RestaurantSettings = {
   delivery_fee_per_km: string
   deposit_threshold: string
   deposit_percentage: string
+  kashier_api_key: string | null
+  kashier_merchant_id: string | null
+  kashier_webhook_secret: string | null
   updated_at: string
 }
 
