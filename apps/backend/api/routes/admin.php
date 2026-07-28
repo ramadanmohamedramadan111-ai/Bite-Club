@@ -10,10 +10,12 @@ use App\Http\Controllers\Api\Admin\UserManagement\UserController;
 use App\Http\Controllers\Api\Admin\UserManagement\UserBanController;
 use App\Http\Controllers\Api\Admin\LeaderboardDashboardController;
 use App\Http\Controllers\Api\Admin\OrderController;
+use App\Http\Controllers\Api\Admin\AdminDashboardController;
 
 Route::post('/login', [AdminAuthController::class, 'login'])->name('login');
 
 Route::middleware('auth.admin')->group(function () {
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::post('/logout',  [AdminAuthController::class, 'logout'])->name('logout');
     Route::post('/refresh', [AdminAuthController::class, 'refresh'])->name('refresh');
     Route::get('/me',       [AdminAuthController::class, 'me'])->name('me');
