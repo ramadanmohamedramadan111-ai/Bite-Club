@@ -23,6 +23,9 @@ class RestaurantSettingUpdateTest extends RestaurantAuthTest
             'deposit_threshold'   => 300.00,
             'deposit_percentage'  => 40.00,
             'min_price_order'     => 50.00,
+            'kashier_api_key'     => 'test_api_key_123',
+            'kashier_merchant_id' => 'test_merchant_456',
+            'kashier_webhook_secret' => 'test_secret_789',
         ];
 
         // Act
@@ -45,6 +48,9 @@ class RestaurantSettingUpdateTest extends RestaurantAuthTest
         $this->assertEquals(15.5, $response->json('data.delivery_radius'));
         $this->assertEquals(40.00, $response->json('data.deposit_percentage'));
         $this->assertEquals(50.00, $response->json('data.min_price_order'));
+        $this->assertEquals('test_api_key_123', $response->json('data.kashier_api_key'));
+        $this->assertEquals('test_merchant_456', $response->json('data.kashier_merchant_id'));
+        $this->assertEquals('test_secret_789', $response->json('data.kashier_webhook_secret'));
         
         // Verify in DB
         $this->assertDatabaseHas('restaurant_settings', [
@@ -52,6 +58,9 @@ class RestaurantSettingUpdateTest extends RestaurantAuthTest
             'is_open' => false,
             'delivery_radius' => 15.50,
             'min_price_order' => 50.00,
+            'kashier_api_key' => 'test_api_key_123',
+            'kashier_merchant_id' => 'test_merchant_456',
+            'kashier_webhook_secret' => 'test_secret_789',
         ]);
     }
     
