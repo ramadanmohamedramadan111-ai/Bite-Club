@@ -39,7 +39,7 @@ export const menuCategoryService = {
   index: (query?: string) =>
     api.get<CategoryListResponse>('/restaurant/menu-categories', {
       params: query ? { query } : {}
-    }).then((r) => r.data.data.items),
+    }).then((r) => r.data.data.items || []),
 
   store: (payload: { title: string; icon_name: string; short_description: string; visibility?: 'visible' | 'hidden' }) =>
     api.post<CategoryResponse>('/restaurant/menu-categories', payload).then((r) => r.data.data),
@@ -74,7 +74,7 @@ export const menuItemService = {
         ...(params?.sort_dir ? { sort_dir: params.sort_dir } : {}),
         ...(params?.page ? { page: params.page } : {}),
       },
-    }).then((r) => ({ items: r.data.data.items, meta: r.data.data.meta })),
+    }).then((r) => ({ items: r.data.data.items || [], meta: r.data.data.meta })),
 
   store: (payload: {
     title: string
