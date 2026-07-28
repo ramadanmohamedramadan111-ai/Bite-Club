@@ -45,7 +45,7 @@ interface FeedItem {
   authorUsername?: string
 }
 
-const PAGE_SIZE = 5
+const PAGE_SIZE = 15
 
 export function FeedModerationPage() {
   const { t } = useLocale()
@@ -190,6 +190,11 @@ export function FeedModerationPage() {
       (f) => f.author.toLowerCase().includes(q) || f.content.toLowerCase().includes(q)
     )
   }
+  displayedPosts = [...displayedPosts].sort((a, b) => {
+    const aIsPending = a.status === 'pending' ? 0 : 1
+    const bIsPending = b.status === 'pending' ? 0 : 1
+    return aIsPending - bIsPending
+  })
 
   const columns: Column<FeedItem>[] = [
     { key: 'author', label: t('feed.fields.author'), sortable: true },
