@@ -21,5 +21,6 @@ return [
     'thank_you' => 'Thank you for using our platform.',
     'unauthorized_cancel' => 'You are not authorized to cancel this order.',
     'cannot_cancel_status' => 'This order cannot be cancelled in its current status.',
+    'cannot_cancel_paid_online' => 'Cannot cancel an order after online payment is completed; please contact restaurant support.',
     'cancelled_successfully' => 'Order cancelled successfully.',
 ];

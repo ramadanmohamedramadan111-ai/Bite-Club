@@ -472,6 +472,10 @@ class OrderDomainService
             throw new Exception(trans('order.cannot_cancel_status') ?? 'This order cannot be cancelled in its current status.');
         }
 
+        if ($order->status === OrderStatusEnum::PENDING && $this->orderPaymentRepository->hasOnlinePayment($order->id)) {
+            throw new Exception(trans('order.cannot_cancel_paid_online') ?? 'Cannot cancel an order after online payment is completed; please contact restaurant support.');
+        }
+
         return DB::transaction(function () use ($order) {
             $this->orderRepository->update($order->id, [
                 'status' => OrderStatusEnum::CANCELLED->value,

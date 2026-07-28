@@ -150,4 +150,32 @@ class CancelOrderTest extends TestCase
         Notification::assertNothingSent();
         Mail::assertNothingSent();
     }
+
+    public function test_user_cannot_cancel_pending_order_with_online_payment()
+    {
+        [$user, $token] = $this->loginUser();
+        $restaurant = Restaurant::factory()->create();
+
+        $order = Order::factory()->create([
+            'user_id' => $user->id,
+            'restaurant_id' => $restaurant->id,
+            'status' => OrderStatusEnum::PENDING->value,
+        ]);
+
+        OrderPayment::factory()->create([
+            'order_id' => $order->id,
+            'payment_method' => PaymentMethodEnum::ONLINE->value,
+            'status' => PaymentStatusEnum::PENDING->value,
+        ]);
+
+        $response = $this->withToken($token)->postJson("/api/user/orders/{$order->id}/cancel");
+
+        $response->assertStatus(400);
+        $response->assertJsonPath('success', false);
+
+        $this->assertDatabaseHas('orders', [
+            'id' => $order->id,
+            'status' => OrderStatusEnum::PENDING->value,
+        ]);
+    }
 }
