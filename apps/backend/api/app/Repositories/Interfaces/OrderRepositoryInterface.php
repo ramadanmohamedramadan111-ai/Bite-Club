@@ -12,4 +12,6 @@ interface OrderRepositoryInterface extends BaseRepositoryInterface
     public function findOrderForUser(int $orderId, int $userId);
     public function getAdminOrders(array $filters, int $page, int $perPage);
     public function getAdminOrderStats(array $dateFilter): array;
+    public function getExpiredUnpaidOrders(int $timeoutMinutes);
+    public function getForgottenPendingCashOrders(int $timeoutMinutes = 40);
 }

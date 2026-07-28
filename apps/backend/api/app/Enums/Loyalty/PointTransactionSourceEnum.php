@@ -9,6 +9,7 @@ enum PointTransactionSourceEnum: string
     case LEADERBOARD   = 'leaderboard';
     case REDEMPTION    = 'redemption';
     case POINT_GIFT    = 'point_gift';
+    case REFUND        = 'refund';
 
     public static function values(): array
     {

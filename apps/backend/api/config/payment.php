@@ -7,5 +7,6 @@ return [
         'merchant_id' => env('KASHIER_MERCHANT_ID'),
         'webhook_secret' => env('KASHIER_WEBHOOK_SECRET'),
         'currency' => env('KASHIER_CURRENCY', 'EGP'),
+        'session_timeout_minutes' => (int) env('KASHIER_SESSION_TIMEOUT_MINUTES', 60),
     ]
 ];

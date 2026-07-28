@@ -39,7 +39,7 @@ class KashierPaymentGateway implements PaymentGatewayInterface
                 'type' => 'one-time',
                 'allowedMethods' => 'card,wallet',
                 'merchantRedirect' => env('FRONTEND_URL', 'https://example.com') . '/payment-callback',
-                'expireAt' => now()->addHours(24)->toIso8601ZuluString(),
+                'expireAt' => now()->addMinutes((int) config('payment.kashier.session_timeout_minutes', 60))->toIso8601ZuluString(),
                 'maxFailureAttempts' => 3,
                 'display' => app()->getLocale() === 'ar' ? 'ar' : 'en',
                 'serverWebhook' => rtrim(config('app.url'), '/') . '/api/user/webhooks/kashier',
