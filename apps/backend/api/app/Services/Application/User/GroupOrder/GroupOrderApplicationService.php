@@ -2,18 +2,19 @@
 
 namespace App\Services\Application\User\GroupOrder;
 
-use App\DTOs\User\GroupOrder\CreateGroupOrderDto;
-use App\DTOs\User\GroupOrder\AddGroupOrderItemDto;
-use App\DTOs\User\GroupOrder\RemoveGroupOrderItemDto;
-use App\DTOs\User\GroupOrder\UpdateGroupOrderItemQuantityDto;
-use App\DTOs\User\GroupOrder\ClearGroupOrderItemsDto;
-use App\DTOs\User\GroupOrder\GetGroupOrderDto;
-use App\DTOs\User\GroupOrder\GroupOrderPreviewDto;
-use App\DTOs\User\GroupOrder\UnlockGroupOrderDto;
-use App\DTOs\User\GroupOrder\CancelGroupOrderDto;
-use App\DTOs\User\GroupOrder\PlaceGroupOrderDto;
-use App\DTOs\User\GroupOrder\GroupOrderHistoryDto;
 use App\DTOs\User\GroupOrder\ActiveGroupOrdersDto;
+use App\DTOs\User\GroupOrder\AddGroupOrderItemDto;
+use App\DTOs\User\GroupOrder\CancelGroupOrderDto;
+use App\DTOs\User\GroupOrder\ClearGroupOrderItemsDto;
+use App\DTOs\User\GroupOrder\CreateGroupOrderDto;
+use App\DTOs\User\GroupOrder\GetGroupOrderDto;
+use App\DTOs\User\GroupOrder\GroupOrderHistoryDto;
+use App\DTOs\User\GroupOrder\GroupOrderPreviewDto;
+use App\DTOs\User\GroupOrder\PlaceGroupOrderDto;
+use App\DTOs\User\GroupOrder\RemoveGroupOrderItemDto;
+use App\DTOs\User\GroupOrder\UnlockGroupOrderDto;
+use App\DTOs\User\GroupOrder\UpdateGroupOrderItemQuantityDto;
+use App\Events\GroupOrderItemAdded;
 use App\Models\GroupOrder;
 use App\Models\GroupOrderItem;
 use App\Services\Domain\User\GroupOrder\GroupOrderDomainService;
@@ -37,13 +38,17 @@ class GroupOrderApplicationService
 
     public function addItem(AddGroupOrderItemDto $dto): GroupOrderItem
     {
-        return $this->groupOrderDomainService->addItem(
+        $item = $this->groupOrderDomainService->addItem(
             $dto->getUserId(),
             $dto->getGroupOrderId(),
             $dto->getItemId(),
             $dto->getQuantity(),
             $dto->getNotes()
         );
+
+        broadcast(new GroupOrderItemAdded($item, $dto->getGroupOrderId()));
+
+        return $item;
     }
 
     public function removeItem(RemoveGroupOrderItemDto $dto): void

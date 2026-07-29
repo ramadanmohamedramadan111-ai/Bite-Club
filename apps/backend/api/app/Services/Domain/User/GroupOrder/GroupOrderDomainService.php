@@ -32,6 +32,20 @@ class GroupOrderDomainService
         private readonly OrderApplicationService $orderApplicationService
     ) {}
 
+    public function isGroupOrderMember(int $userId, int $groupOrderId): bool
+    {
+        $groupOrder = $this->groupOrderRepo->find($groupOrderId);
+        
+        if (!$groupOrder) {
+            return false;
+        }
+
+        return $this->groupMemberRepo->query()
+            ->where('group_id', $groupOrder->group_id)
+            ->where('user_id', $userId)
+            ->exists();
+    }
+
     public function createGroupOrder(int $hostId, int $groupId, int $restaurantId): GroupOrder
     {
         // 1. Check if the host is a member of the group
