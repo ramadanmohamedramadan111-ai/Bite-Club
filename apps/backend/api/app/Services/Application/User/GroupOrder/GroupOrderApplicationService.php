@@ -4,6 +4,7 @@ namespace App\Services\Application\User\GroupOrder;
 
 use \App\Events\GroupOrderPlaced;
 use \App\Events\GroupOrderUnlocked;
+use \App\Events\GroupOrderUserItemsCleared;
 use App\DTOs\User\GroupOrder\ActiveGroupOrdersDto;
 use App\DTOs\User\GroupOrder\AddGroupOrderItemDto;
 use App\DTOs\User\GroupOrder\CancelGroupOrderDto;
@@ -89,6 +90,11 @@ class GroupOrderApplicationService
             $dto->getUserId(),
             $dto->getGroupOrderId()
         );
+
+        broadcast(new GroupOrderUserItemsCleared(
+            $dto->getUserId(),
+            $dto->getGroupOrderId()
+        ));
     }
 
     public function getGroupOrder(GetGroupOrderDto $dto): GroupOrder
