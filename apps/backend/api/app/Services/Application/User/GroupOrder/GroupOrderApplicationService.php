@@ -2,6 +2,9 @@
 
 namespace App\Services\Application\User\GroupOrder;
 
+use \App\Events\GroupOrderPlaced;
+use \App\Events\GroupOrderUnlocked;
+use \App\Events\GroupOrderUserItemsCleared;
 use App\DTOs\User\GroupOrder\ActiveGroupOrdersDto;
 use App\DTOs\User\GroupOrder\AddGroupOrderItemDto;
 use App\DTOs\User\GroupOrder\CancelGroupOrderDto;
@@ -14,7 +17,11 @@ use App\DTOs\User\GroupOrder\PlaceGroupOrderDto;
 use App\DTOs\User\GroupOrder\RemoveGroupOrderItemDto;
 use App\DTOs\User\GroupOrder\UnlockGroupOrderDto;
 use App\DTOs\User\GroupOrder\UpdateGroupOrderItemQuantityDto;
+use App\Events\GroupOrderCancelled;
 use App\Events\GroupOrderItemAdded;
+use App\Events\GroupOrderItemQuantityUpdated;
+use App\Events\GroupOrderItemRemoved;
+use App\Events\GroupOrderLocked;
 use App\Models\GroupOrder;
 use App\Models\GroupOrderItem;
 use App\Services\Domain\User\GroupOrder\GroupOrderDomainService;
@@ -58,16 +65,23 @@ class GroupOrderApplicationService
             $dto->getGroupOrderId(),
             $dto->getGroupOrderItemId()
         );
+
+        broadcast(new GroupOrderItemRemoved(
+            $dto->getGroupOrderItemId(),
+            $dto->getGroupOrderId()
+        ));
     }
 
     public function updateItemQuantity(UpdateGroupOrderItemQuantityDto $dto): void
     {
-        $this->groupOrderDomainService->updateItemQuantity(
+        $item = $this->groupOrderDomainService->updateItemQuantity(
             $dto->getUserId(),
             $dto->getGroupOrderId(),
             $dto->getGroupOrderItemId(),
             $dto->getQuantity()
         );
+
+        broadcast(new GroupOrderItemQuantityUpdated($item, $dto->getGroupOrderId()));
     }
 
     public function clearUserItems(ClearGroupOrderItemsDto $dto): void
@@ -76,6 +90,11 @@ class GroupOrderApplicationService
             $dto->getUserId(),
             $dto->getGroupOrderId()
         );
+
+        broadcast(new GroupOrderUserItemsCleared(
+            $dto->getUserId(),
+            $dto->getGroupOrderId()
+        ));
     }
 
     public function getGroupOrder(GetGroupOrderDto $dto): GroupOrder
@@ -88,13 +107,17 @@ class GroupOrderApplicationService
 
     public function previewCheckout(GroupOrderPreviewDto $dto): array
     {
-        return $this->groupOrderDomainService->previewCheckout(
+        $result = $this->groupOrderDomainService->previewCheckout(
             $dto->getUserId(),
             $dto->getGroupOrderId(),
             $dto->getOrderType(),
             $dto->getLat(),
             $dto->getLong()
         );
+
+        broadcast(new GroupOrderLocked($dto->getGroupOrderId()));
+
+        return $result;
     }
 
     public function unlock(UnlockGroupOrderDto $dto): void
@@ -103,6 +126,8 @@ class GroupOrderApplicationService
             $dto->getUserId(),
             $dto->getGroupOrderId()
         );
+
+        broadcast(new GroupOrderUnlocked($dto->getGroupOrderId()));
     }
 
     public function cancel(CancelGroupOrderDto $dto): void
@@ -111,11 +136,13 @@ class GroupOrderApplicationService
             $dto->getUserId(),
             $dto->getGroupOrderId()
         );
+
+        broadcast(new GroupOrderCancelled($dto->getGroupOrderId()));
     }
 
     public function placeOrder(PlaceGroupOrderDto $dto): array
     {
-        return $this->groupOrderDomainService->placeOrder(
+        $result = $this->groupOrderDomainService->placeOrder(
             $dto->getUserId(),
             $dto->getGroupOrderId(),
             $dto->getOrderType(),
@@ -123,6 +150,13 @@ class GroupOrderApplicationService
             $dto->getLat(),
             $dto->getLong()
         );
+
+        broadcast(new GroupOrderPlaced(
+            $dto->getGroupOrderId(),
+            $result['order_id'] ?? null
+        ));
+
+        return $result;
     }
 
     public function getHistory(GroupOrderHistoryDto $dto): LengthAwarePaginator
