@@ -642,7 +642,7 @@ export function SettingsPage() {
                 </div>
               </div>
               <p className="text-xs text-gray-400 dark:text-slate-500">
-                {t('kashierDesc', 'Configure your Kashier API credentials to accept online payments for delivery and pickup orders.')}
+                {t('kashierDesc', 'أدخل بيانات الاعتماد الخاصة بـ Kashier لقبول الدفع عبر الإنترنت لطلبات التوصيل والاستلام.')}
               </p>
             </div>
           )}
