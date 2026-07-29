@@ -14,6 +14,7 @@ use App\DTOs\User\GroupOrder\PlaceGroupOrderDto;
 use App\DTOs\User\GroupOrder\RemoveGroupOrderItemDto;
 use App\DTOs\User\GroupOrder\UnlockGroupOrderDto;
 use App\DTOs\User\GroupOrder\UpdateGroupOrderItemQuantityDto;
+use App\Events\GroupOrderCancelled;
 use App\Events\GroupOrderItemAdded;
 use App\Events\GroupOrderItemQuantityUpdated;
 use App\Events\GroupOrderItemRemoved;
@@ -120,6 +121,8 @@ class GroupOrderApplicationService
             $dto->getUserId(),
             $dto->getGroupOrderId()
         );
+
+        broadcast(new GroupOrderCancelled($dto->getGroupOrderId()));
     }
 
     public function placeOrder(PlaceGroupOrderDto $dto): array
