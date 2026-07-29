@@ -27,7 +27,7 @@ class AiInternalToolController extends Controller
 
         $categories = MenuCategory::query()
             ->where('restaurant_id', $restaurant->id)
-            ->with(['items' => fn ($query) => $query->orderBy('title')])
+            ->with(['items' => fn ($query) => $query->where('availability', 'available')->orderBy('title')])
             ->orderBy('title')
             ->get()
             ->map(fn (MenuCategory $category) => [
@@ -220,6 +220,25 @@ class AiInternalToolController extends Controller
         ]);
     }
 
+    public function reviews(Request $request): JsonResponse
+    {
+        $reviewIds = $request->input('review_ids', []);
+        
+        $reviews = RestaurantReview::query()
+            ->whereIn('id', $reviewIds)
+            ->get(['id', 'restaurant_id', 'rating', 'comment'])
+            ->map(fn($r) => [
+                'id' => $r->id,
+                'restaurant_id' => $r->restaurant_id,
+                'rating' => (float) $r->rating,
+                'comment' => $r->comment,
+            ]);
+
+        return response()->json([
+            'reviews' => $reviews,
+        ]);
+    }
+
     public function userHistory(Request $request): JsonResponse
     {
         $restaurant = $this->validatedRestaurant($request);
@@ -278,5 +297,64 @@ class AiInternalToolController extends Controller
     private function limit(Request $request): int
     {
         return min(max((int) $request->input('limit', 20), 1), 100);
+    }
+
+    public function filteredRestaurants(Request $request): JsonResponse
+    {
+        $lat = $request->input('latitude');
+        $lng = $request->input('longitude');
+
+        $restaurants = Restaurant::query()
+            ->where('status', 'active')
+            ->with(['setting', 'openingHours', 'category'])
+            ->get()
+            ->filter(function ($restaurant) {
+                if (!$restaurant->setting || !$restaurant->setting->is_open || !$restaurant->setting->accept_orders) {
+                    return false;
+                }
+                return $restaurant->isOpenNow();
+            })
+            ->map(function ($restaurant) use ($lat, $lng) {
+                $distance = null;
+                if ($lat !== null && $lng !== null && $restaurant->setting->latitude && $restaurant->setting->longitude) {
+                    $distance = $this->calculateDistance($lat, $lng, $restaurant->setting->latitude, $restaurant->setting->longitude);
+                }
+
+                $now = now();
+                $currentDay = $now->dayOfWeek;
+                $todayRecord = $restaurant->openingHours->firstWhere('day_of_week', $currentDay);
+                
+                return [
+                    'id' => $restaurant->id,
+                    'name' => $restaurant->name,
+                    'category' => $restaurant->category?->name,
+                    'distance_km' => $distance !== null ? round($distance, 2) : null,
+                    'is_open_now' => true,
+                    'closing_time' => $todayRecord ? $todayRecord->closes_at : null,
+                ];
+            });
+
+        if ($lat !== null && $lng !== null) {
+            $restaurants = $restaurants->sortBy('distance_km');
+        }
+
+        $restaurants = $restaurants->values();
+
+        return response()->json([
+            'restaurants' => $restaurants,
+        ]);
+    }
+
+    private function calculateDistance($lat1, $lon1, $lat2, $lon2): float
+    {
+        $theta = $lon1 - $lon2;
+        $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+        if ($dist > 1) {
+            $dist = 1; // avoid precision issues causing NaN
+        }
+        $dist = acos($dist);
+        $dist = rad2deg($dist);
+        $miles = $dist * 60 * 1.1515;
+        return $miles * 1.609344;
     }
 }

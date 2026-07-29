@@ -4,11 +4,15 @@ from review_rag.models import ReviewEmbedding
 
 
 class VectorSearchService:
-    def search(self, restaurant_id, query_embedding, limit=5):
-        rows = ReviewEmbedding.objects.filter(restaurant_id=restaurant_id)
+    def search(self, restaurant_ids, query_embedding, limit=5):
+        if isinstance(restaurant_ids, int):
+            restaurant_ids = [restaurant_ids]
+
+        rows = ReviewEmbedding.objects.filter(restaurant_id__in=restaurant_ids)
         scored = [
             {
                 "review_id": row.review_id,
+                "restaurant_id": row.restaurant_id,
                 "score": self._cosine_similarity(query_embedding, row.embedding),
             }
             for row in rows

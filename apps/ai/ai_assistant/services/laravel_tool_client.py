@@ -10,9 +10,10 @@ class LaravelToolClient:
         self.internal_api_key = os.getenv("AI_INTERNAL_API_KEY", "")
         self.timeout = int(os.getenv("LARAVEL_API_TIMEOUT", "30"))
 
-    def call(self, tool_name, arguments, restaurant_id):
+    def call(self, tool_name, arguments, restaurant_id=None):
         payload = dict(arguments or {})
-        payload["restaurant_id"] = restaurant_id
+        if restaurant_id is not None:
+            payload["restaurant_id"] = restaurant_id
 
         request = urllib.request.Request(
             f"{self.base_url}/api/internal/ai/tools/{tool_name}",

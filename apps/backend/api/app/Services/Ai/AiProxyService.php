@@ -25,19 +25,21 @@ class AiProxyService
         return $response->json();
     }
 
-    public function sendSmartWaiterChatMessage(Restaurant $restaurant, array $payload): array
+    public function sendSmartWaiterChatMessage(array $payload): array
     {
         $response = Http::timeout(config('services.ai.timeout'))
             ->withHeaders($this->internalHeaders())
             ->acceptJson()
             ->post($this->url('/api/v1/smart-waiter/chat/'), [
                 'message' => $payload['message'],
-                'restaurant_id' => $restaurant->id,
                 'user_id' => $payload['user_id'] ?? null,
                 'budget' => $payload['budget'] ?? null,
                 'group_size' => $payload['group_size'] ?? 1,
                 'locale' => $payload['locale'] ?? app()->getLocale(),
                 'conversation_id' => $payload['conversation_id'] ?? null,
+                'conversation' => $payload['conversation'] ?? [],
+                'latitude' => $payload['latitude'] ?? null,
+                'longitude' => $payload['longitude'] ?? null,
             ]);
 
         $response->throw();

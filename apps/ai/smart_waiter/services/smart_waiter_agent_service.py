@@ -5,7 +5,8 @@ import urllib.request
 
 from ai_assistant.services.laravel_tool_client import LaravelToolClient
 from .smart_waiter_prompt_builder import SmartWaiterPromptBuilder
-
+from review_rag.services.embedding_service import EmbeddingService
+from review_rag.services.vector_search_service import VectorSearchService
 
 class SmartWaiterAgentService:
     def __init__(self):
@@ -16,66 +17,77 @@ class SmartWaiterAgentService:
         self.max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", "1200"))
         self.prompt_builder = SmartWaiterPromptBuilder()
         self.tool_client = LaravelToolClient()
+        self.embedding_service = EmbeddingService()
+        self.vector_search = VectorSearchService()
 
     def chat(self, payload):
         if not self.api_key:
             return {"error": "AI service is not configured."}
 
-        restaurant_id = payload["restaurant_id"]
-        user_id = payload.get("user_id")
+        message = payload.get("message", "")
 
-        # Collect tool context from Laravel backend
+        # 1. Backend Filtering: Get nearby/open restaurants
         tool_results = {}
+        filtered_restaurants = []
         try:
-            tool_results["restaurant"] = self.tool_client.call("restaurant", {}, restaurant_id)
+            filter_payload = {}
+            if payload.get("latitude"): filter_payload["latitude"] = payload["latitude"]
+            if payload.get("longitude"): filter_payload["longitude"] = payload["longitude"]
+            
+            res = self.tool_client.call("filtered-restaurants", filter_payload)
+            filtered_restaurants = res.get("restaurants", [])
+            tool_results["filtered_restaurants"] = filtered_restaurants
         except Exception as e:
-            tool_results["restaurant"] = {"error": str(e)}
+            tool_results["filtered_restaurants"] = {"error": str(e)}
 
-        try:
-            tool_results["menu"] = self.tool_client.call("menu", {}, restaurant_id)
-        except Exception as e:
-            tool_results["menu"] = {"error": str(e)}
+        restaurant_ids = [r["id"] for r in filtered_restaurants] if filtered_restaurants else []
 
-        try:
-            tool_results["orders"] = self.tool_client.call("orders", {"limit": 10}, restaurant_id)
-        except Exception as e:
-            tool_results["orders"] = {"error": str(e)}
-
-        if user_id:
+        # 2. Dynamic Data Loading (Menus of top 3 open restaurants)
+        target_restaurant_ids = restaurant_ids[:3]
+        tool_results["menus"] = {}
+        for rid in target_restaurant_ids:
             try:
-                tool_results["user_history"] = self.tool_client.call("user-history", {"user_id": user_id}, restaurant_id)
-            except Exception as e:
-                tool_results["user_history"] = {"error": str(e)}
+                menu_data = self.tool_client.call("menu", {}, rid)
+                tool_results["menus"][rid] = menu_data.get("categories", [])
+            except Exception:
+                pass
 
+        # 3. Review RAG
+        if restaurant_ids:
+            try:
+                query_emb = self.embedding_service.embed_text(message)
+                rag_results = self.vector_search.search(restaurant_ids, query_emb, limit=5)
+                review_ids = [r["review_id"] for r in rag_results]
+                
+                if review_ids:
+                    reviews_data = self.tool_client.call("reviews", {"review_ids": review_ids})
+                    tool_results["relevant_reviews"] = reviews_data.get("reviews", [])
+            except Exception as e:
+                tool_results["relevant_reviews"] = {"error": str(e)}
+
+        # 4. Generate Final Recommendation
         system_prompt = self.prompt_builder.build(payload)
 
+        history = payload.get("conversation", [])
+        history_text = "\n".join([f"{msg['role'].capitalize()}: {msg['content']}" for msg in history])
+        if history_text:
+            history_text = f"\nRecent Conversation History:\n{history_text}\n"
+
         user_content = (
-            f"Customer Request: \"{payload.get('message')}\"\n\n"
-            f"Context Data for Restaurant #{restaurant_id}:\n"
+            f"{history_text}\n"
+            f"Customer Request: \"{message}\"\n\n"
+            f"Context Data (Filtered Restaurants, Menus, Reviews):\n"
             f"{json.dumps(tool_results, indent=2)}\n\n"
-            "Analyze the customer request and menu data, apply budget/group/flavor constraints, "
-            "and generate the response strictly in the specified JSON format. "
-            "IMPORTANT: Always include restaurant_id and restaurant_name in the output."
+            "Analyze the request and data. Apply budget/group constraints if any. "
+            "Generate the response strictly in the specified JSON format. "
+            "Include recommended_restaurant_id and recommended_menu_item_ids if you recommend an item."
         )
 
         messages = [{"role": "user", "content": user_content}]
 
         final = self._completion(messages, system_prompt=system_prompt)
+        cleaned_message = self._extract_message(final)
 
-        try:
-            if "output_text" in final:
-                message = final.get("output_text", "")
-            else:
-                choice = final.get("response", {})
-                content_blocks = choice.get("content", [])
-                if isinstance(content_blocks, list) and len(content_blocks) > 0:
-                    message = content_blocks[0].get("text", "")
-                else:
-                    message = choice.get("content", "")
-        except Exception:
-            message = str(final)
-
-        cleaned_message = message.strip()
         if cleaned_message.startswith("```"):
             lines = cleaned_message.splitlines()
             if len(lines) >= 2:
@@ -89,25 +101,34 @@ class SmartWaiterAgentService:
             res = json.loads(cleaned_message)
         except Exception:
             try:
-                res = json.loads(message)
+                res = json.loads(self._extract_message(final))
             except Exception:
                 return {
                     "error": "Failed to parse Smart Waiter AI response as JSON.",
-                    "raw_response": message
+                    "raw_response": cleaned_message
                 }
-
-        if isinstance(res, dict):
-            res.setdefault("restaurant_id", restaurant_id)
-            if "restaurant" in tool_results and "name" in tool_results["restaurant"]:
-                res.setdefault("restaurant_name", tool_results["restaurant"]["name"])
 
         return res
 
-    def _completion(self, messages, system_prompt=None):
+    def _extract_message(self, final):
+        try:
+            if "output_text" in final:
+                return final.get("output_text", "")
+            else:
+                choice = final.get("response", {})
+                content_blocks = choice.get("content", [])
+                if isinstance(content_blocks, list) and len(content_blocks) > 0:
+                    return content_blocks[0].get("text", "")
+                else:
+                    return choice.get("content", "")
+        except Exception:
+            return str(final)
+
+    def _completion(self, messages, system_prompt=None, max_tokens=None):
         body = {
             "model_id": self.model,
             "messages": messages,
-            "max_tokens": self.max_tokens,
+            "max_tokens": max_tokens or self.max_tokens,
         }
         if system_prompt:
             body["system_prompt"] = system_prompt
