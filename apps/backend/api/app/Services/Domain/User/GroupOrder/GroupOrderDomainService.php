@@ -149,7 +149,7 @@ class GroupOrderDomainService
         $this->groupOrderItemRepo->delete($groupOrderItemId);
     }
 
-    public function updateItemQuantity(int $userId, int $groupOrderId, int $groupOrderItemId, int $quantity): void
+    public function updateItemQuantity(int $userId, int $groupOrderId, int $groupOrderItemId, int $quantity): GroupOrderItem
     {
         $groupOrder = $this->groupOrderRepo->findOrFail($groupOrderId);
 
@@ -171,6 +171,8 @@ class GroupOrderDomainService
         }
 
         $this->groupOrderItemRepo->update($groupOrderItemId, ['quantity' => $quantity]);
+        
+        return $this->groupOrderItemRepo->findOrFail($groupOrderItemId);
     }
 
     public function clearUserItems(int $userId, int $groupOrderId): void
