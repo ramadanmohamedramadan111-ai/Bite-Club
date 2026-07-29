@@ -1,12 +1,17 @@
-import { getTranslations, getLocale } from 'next-intl/server';
+'use client';
+
+import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '../ui/button';
 import { Link } from '@/i18n/navigation';
-import Image from 'next/image';
-import { Star, ShieldCheck, Flame } from 'lucide-react';
+import { Flame, Sparkles } from 'lucide-react';
 
-export default async function Hero() {
-  const t = await getTranslations('home');
-  const locale = await getLocale();
+export default function Hero() {
+  const t = useTranslations('home');
+  const locale = useLocale();
+
+  const handleOpenAiChat = () => {
+    window.dispatchEvent(new CustomEvent('open-ai-chat'));
+  };
 
   return (
     <section className="relative overflow-hidden rounded-3xl border border-border/40 bg-gradient-to-br from-primary/10 via-background to-orange-500/5 px-6 py-12 sm:px-12 sm:py-16 md:py-20 lg:px-16 shadow-[0_4px_30px_rgba(0,0,0,0.02)] mb-12">
@@ -18,42 +23,49 @@ export default async function Hero() {
         {/* Left Column: Text Content */}
         <div className="space-y-6 lg:col-span-7 text-left max-w-2xl">
           {/* Tagline Badge */}
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3.5 py-1 text-xs font-bold text-primary">
-            <Flame className="size-3.5 fill-current" />
-            <span>
-              {locale === 'ar' ? 'أفضل طعام في المدينة' : 'Best food in town'}
-            </span>
-          </div>
 
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl leading-[1.1] text-foreground">
-            {t('heroTitle')}
+          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl leading-[1.1] text-foreground text-left">
+            {locale === 'ar'
+              ? 'اطلب طعاماً ستحبه مع مساعدنا الذكي'
+              : 'Order food you’ll love with our AI assistant'}
           </h1>
 
-          <p className="text-base sm:text-lg text-muted-foreground/90 leading-relaxed">
-            {t('heroSubtitle')}
+          <p className="text-base sm:text-lg text-muted-foreground/90 leading-relaxed text-left">
+            {locale === 'ar'
+              ? 'اكتشف أفضل المطاعم القريبة منك، واطلب مع أصدقائك، وجرب مساعد الذكاء الاصطناعي للحصول على توصيات وتجربة طلب ممتعة وسريعة!'
+              : 'Discover top restaurants, order with friends, and try out our smart AI Food Assistant to get personalized dish suggestions instantly!'}
           </p>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2">
+            <Button
+              onClick={handleOpenAiChat}
+              size="lg"
+              className="h-11 sm:h-12 px-6 rounded-xl text-base shadow-lg shadow-primary/15 bg-gradient-to-r from-primary to-orange-500 hover:from-primary hover:to-orange-600 border-0 text-white cursor-pointer font-bold gap-2">
+              <Sparkles className="size-4 animate-pulse" />
+              <span>
+                {locale === 'ar' ? 'جرب المساعد الذكي' : 'Try AI Assistant'}
+              </span>
+            </Button>
             <Button
               asChild
+              variant="outline"
               size="lg"
-              className="h-11 sm:h-12 px-6 rounded-xl text-base shadow-lg shadow-primary/10 cursor-pointer">
+              className="h-11 sm:h-12 px-6 rounded-xl text-base cursor-pointer font-semibold border-border hover:bg-accent/40 shadow-3xs">
               <Link href="/restaurants">{t('heroCta')}</Link>
             </Button>
           </div>
         </div>
 
-        {/* Right Column: Hero Image Showcase */}
-        <div className="lg:col-span-5 relative flex justify-center">
-          <div className="relative w-full aspect-video sm:aspect-[4/3] lg:aspect-square rounded-2xl sm:rounded-3xl overflow-hidden border border-border/40 shadow-xl bg-card hover:scale-[1.01] transition-transform duration-300">
-            <Image
-              src="/delicious_food_hero.jpg"
-              alt="Delicious gourmet food selection"
-              fill
-              className="object-cover"
-              sizes="(max-w-720px) 100vw, 500px"
-              priority
-            />
+        {/* Right Column: Hero Logo Showcase */}
+        <div className="lg:col-span-5 relative flex justify-center items-center">
+          <div className="relative w-full aspect-video sm:aspect-[4/3] lg:aspect-square rounded-2xl sm:rounded-3xl border border-border/40 shadow-xl bg-gradient-to-br from-primary/10 via-card to-orange-500/5 hover:scale-[1.01] transition-transform duration-300 flex flex-col items-center justify-center gap-4 p-8">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent opacity-60 blur-2xl rounded-full pointer-events-none" />
+            <div className="flex size-24 items-center justify-center rounded-3xl bg-gradient-to-br from-primary to-orange-600 text-primary-foreground shadow-[0_10px_30px_-5px_rgba(249,115,22,0.4)] animate-pulse">
+              <span className="text-5xl font-extrabold select-none">B</span>
+            </div>
+            <span className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-primary via-orange-500 to-amber-500 bg-clip-text text-transparent select-none">
+              BiteClub
+            </span>
           </div>
         </div>
       </div>
