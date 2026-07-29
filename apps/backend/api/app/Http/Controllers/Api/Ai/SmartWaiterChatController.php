@@ -3,9 +3,7 @@
 namespace App\Http\Controllers\Api\Ai;
 
 use App\Http\Controllers\Controller;
-use App\Models\Cart;
-use App\Models\Order;
-use App\Models\Restaurant;
+use App\Models\Conversation;
 use App\Services\Ai\AiProxyService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
@@ -27,10 +25,12 @@ class SmartWaiterChatController extends Controller
         try {
             $validated = $request->validate([
                 'message' => ['required', 'string', 'max:8000'],
-                'restaurant_id' => ['nullable', 'integer', 'exists:restaurants,id'],
+                'conversation_id' => ['nullable', 'integer', 'exists:conversations,id'],
+                'new_chat' => ['nullable', 'boolean'],
+                'latitude' => ['nullable', 'numeric'],
+                'longitude' => ['nullable', 'numeric'],
                 'budget' => ['nullable', 'numeric', 'min:0'],
                 'group_size' => ['nullable', 'integer', 'min:1'],
-                'conversation_id' => ['nullable', 'string', 'max:255'],
                 'locale' => ['nullable', 'string', 'max:10'],
             ]);
         } catch (ValidationException $exception) {
@@ -42,39 +42,55 @@ class SmartWaiterChatController extends Controller
             return $this->unauthorizedResponse('Unauthenticated user. Bearer token is required.');
         }
 
-        // Automatically bind authenticated user_id
         $validated['user_id'] = $user->id;
 
-        // Resolve restaurant_id if not explicitly provided in payload
-        $restaurantId = $validated['restaurant_id'] ?? null;
-
-        if (!$restaurantId) {
-            // Check user's active cart
-            $restaurantId = Cart::where('user_id', $user->id)->value('restaurant_id');
+        $isNewChat = $validated['new_chat'] ?? false;
+        $conversationId = $validated['conversation_id'] ?? null;
+        
+        if ($isNewChat || !$conversationId) {
+            $conversation = Conversation::create(['user_id' => $user->id]);
+            $conversationId = $conversation->id;
+        } else {
+            $conversation = Conversation::where('user_id', $user->id)->find($conversationId);
+            if (!$conversation) {
+                $conversation = Conversation::create(['user_id' => $user->id]);
+                $conversationId = $conversation->id;
+            }
         }
 
-        if (!$restaurantId) {
-            // Check user's latest order
-            $restaurantId = Order::where('user_id', $user->id)->latest()->value('restaurant_id');
-        }
+        $validated['conversation_id'] = $conversationId;
 
-        if (!$restaurantId) {
-            // Fallback to active restaurant
-            $restaurantId = Restaurant::query()->where('status', 'active')->value('id') ?? Restaurant::query()->value('id');
-        }
+        $conversation->messages()->create([
+            'role' => 'user',
+            'content' => $validated['message'],
+        ]);
 
-        $restaurant = Restaurant::find($restaurantId);
-        if (!$restaurant) {
-            return $this->notFoundResponse('Restaurant not found');
-        }
+        // Get History (Latest 10 messages)
+        $history = $conversation->messages()
+            ->latest()
+            ->take(10)
+            ->get()
+            ->reverse()
+            ->map(fn($msg) => [
+                'role' => $msg->role,
+                'content' => $msg->content,
+            ])
+            ->values()
+            ->toArray();
+
+        $validated['conversation'] = $history;
 
         try {
-            $response = $this->aiProxyService->sendSmartWaiterChatMessage($restaurant, $validated);
+            $response = $this->aiProxyService->sendSmartWaiterChatMessage($validated);
 
-            if (is_array($response)) {
-                $response['restaurant_id'] = $restaurant->id;
-                $response['restaurant_name'] = $restaurant->name;
+            if (is_array($response) && isset($response['reply'])) {
+                $conversation->messages()->create([
+                    'role' => 'assistant',
+                    'content' => $response['reply'],
+                ]);
             }
+            
+            $response['conversation_id'] = $conversationId;
 
             return $this->successResponse('Smart Waiter recommendation generated successfully', $response);
         } catch (Throwable $exception) {
@@ -84,3 +100,4 @@ class SmartWaiterChatController extends Controller
         }
     }
 }
+

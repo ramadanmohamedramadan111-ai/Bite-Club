@@ -21,7 +21,7 @@ class SmartWaiterChatView(View):
         except json.JSONDecodeError:
             return JsonResponse({"error": "Invalid JSON payload"}, status=400)
 
-        missing = [field for field in ("message", "restaurant_id") if not payload.get(field)]
+        missing = [field for field in ("message",) if not payload.get(field)]
         if missing:
             return JsonResponse({"error": "Missing required fields", "fields": missing}, status=422)
 

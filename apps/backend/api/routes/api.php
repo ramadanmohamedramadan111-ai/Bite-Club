@@ -37,12 +37,14 @@ Route::middleware('ai.internal')
     ->prefix('internal/ai/tools')
     ->name('internal.ai.tools.')
     ->group(function () {
+        Route::post('/filtered-restaurants', [AiInternalToolController::class, 'filteredRestaurants'])->name('filtered-restaurants');
         Route::post('/menu', [AiInternalToolController::class, 'menu'])->name('menu');
         Route::post('/dashboard', [AiInternalToolController::class, 'dashboard'])->name('dashboard');
         Route::post('/orders', [AiInternalToolController::class, 'orders'])->name('orders');
         Route::post('/revenue', [AiInternalToolController::class, 'revenue'])->name('revenue');
         Route::post('/customers', [AiInternalToolController::class, 'customers'])->name('customers');
         Route::post('/restaurant', [AiInternalToolController::class, 'restaurant'])->name('restaurant');
+        Route::post('/reviews', [AiInternalToolController::class, 'reviews'])->name('reviews');
         Route::post('/reviews-summary', [AiInternalToolController::class, 'reviewsSummary'])->name('reviews-summary');
         Route::post('/user-history', [AiInternalToolController::class, 'userHistory'])->name('user-history');
     });

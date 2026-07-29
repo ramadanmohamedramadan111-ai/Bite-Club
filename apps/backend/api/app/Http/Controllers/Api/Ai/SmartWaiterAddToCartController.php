@@ -68,11 +68,9 @@ class SmartWaiterAddToCartController extends Controller
             ['restaurant_id' => $restaurant->id]
         );
 
-        // Switch cart restaurant if necessary
-        if ($cart->restaurant_id !== $restaurant->id) {
-            $cart->items()->delete();
-            $cart->update(['restaurant_id' => $restaurant->id]);
-        }
+        // Always replace the cart completely with the AI's recommendations
+        $cart->items()->delete();
+        $cart->update(['restaurant_id' => $restaurant->id]);
 
         $addedItems = [];
         $totalPrice = 0.0;
