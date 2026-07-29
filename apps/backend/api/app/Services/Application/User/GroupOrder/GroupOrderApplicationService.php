@@ -2,6 +2,7 @@
 
 namespace App\Services\Application\User\GroupOrder;
 
+use \App\Events\GroupOrderPlaced;
 use \App\Events\GroupOrderUnlocked;
 use App\DTOs\User\GroupOrder\ActiveGroupOrdersDto;
 use App\DTOs\User\GroupOrder\AddGroupOrderItemDto;
@@ -135,7 +136,7 @@ class GroupOrderApplicationService
 
     public function placeOrder(PlaceGroupOrderDto $dto): array
     {
-        return $this->groupOrderDomainService->placeOrder(
+        $result = $this->groupOrderDomainService->placeOrder(
             $dto->getUserId(),
             $dto->getGroupOrderId(),
             $dto->getOrderType(),
@@ -143,6 +144,13 @@ class GroupOrderApplicationService
             $dto->getLat(),
             $dto->getLong()
         );
+
+        broadcast(new GroupOrderPlaced(
+            $dto->getGroupOrderId(),
+            $result['order_id'] ?? null
+        ));
+
+        return $result;
     }
 
     public function getHistory(GroupOrderHistoryDto $dto): LengthAwarePaginator
