@@ -1,401 +1,338 @@
 import { useTranslation } from 'react-i18next'
-import { useState, useEffect } from 'react'
 import {
-  BarChart3,
-  Calendar,
-  Download,
-  ArrowUpRight,
-  ArrowDownRight,
-  Percent,
-  Users,
+  Sparkles,
+  TrendingUp,
+  UtensilsCrossed,
+  Star,
+  AlertTriangle,
+  CheckCircle2,
+  ListChecks,
+  RefreshCw,
+  ShoppingBag,
   DollarSign,
-  Filter,
-  Loader2,
-  X,
+  Clock,
+  BarChart2,
+  ThumbsUp,
+  ThumbsDown,
+  Zap,
 } from 'lucide-react'
-import { Table } from '../../components/common/Table'
-import type { Column } from '../../components/common/Table'
-
-// Dummy Data
-const topMenuItems = [
-  {
-    name: 'Bacon Burger',
-    sold: '1,240 sold',
-    revenue: '185,000 EGP',
-    change: '+14%',
-    up: true,
-    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=100&h=100&fit=crop',
-  },
-  {
-    name: 'Truffle Pizza',
-    sold: '982 sold',
-    revenue: '152,000 EGP',
-    change: '+9%',
-    up: true,
-    image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=100&h=100&fit=crop',
-  },
-  {
-    name: 'Salmon Bowl',
-    sold: '845 sold',
-    revenue: '128,000 EGP',
-    change: '-3%',
-    up: false,
-    image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&h=100&fit=crop',
-  },
-]
-
-const customerRetention = [
-  {
-    segment: 'Platinum Members',
-    badge: 'VIP',
-    orders: '1,420',
-    spend: '428,000 EGP',
-    frequency: '4.2x / mo',
-    retention: 92,
-    status: 'GROWING',
-    statusClass: 'bg-green-105 text-green-700 dark:bg-green-950/20 dark:text-green-500',
-    barColor: 'bg-green-500',
-  },
-  {
-    segment: 'First-Time Users',
-    badge: 'NEW',
-    orders: '854',
-    spend: '224,100 EGP',
-    frequency: '1.0x / mo',
-    retention: 45,
-    status: 'ACQUISITION',
-    statusClass: 'bg-yellow-105 text-yellow-700 dark:bg-yellow-950/20 dark:text-yellow-500',
-    barColor: 'bg-yellow-500',
-  },
-  {
-    segment: 'Regular Diners',
-    badge: 'REG',
-    orders: '2,547',
-    spend: '773,700 EGP',
-    frequency: '2.8x / mo',
-    retention: 78,
-    status: 'STABLE',
-    statusClass: 'bg-blue-105 text-blue-700 dark:bg-blue-950/20 dark:text-blue-500',
-    barColor: 'bg-blue-500',
-  },
-]
+import { useAiStore } from '../../store/aiStore'
+// ── Severity config ───────────────────────────────────────────────────────────
+const SEVERITY: Record<string, { label: string; cls: string; dot: string }> = {
+  high:   { label: 'High',   cls: 'bg-red-50    dark:bg-red-950/30  border-red-200    dark:border-red-800/40  text-red-700    dark:text-red-400',   dot: 'bg-red-500'    },
+  medium: { label: 'Medium', cls: 'bg-yellow-50 dark:bg-yellow-950/30 border-yellow-200 dark:border-yellow-800/40 text-yellow-700 dark:text-yellow-400', dot: 'bg-yellow-500' },
+  low:    { label: 'Low',    cls: 'bg-blue-50   dark:bg-blue-950/30  border-blue-200   dark:border-blue-800/40  text-blue-700   dark:text-blue-400',   dot: 'bg-blue-400'   },
+}
 
 export function ReportsPage() {
   const { t } = useTranslation()
-  const [timeframe, setTimeframe] = useState<'daily' | 'weekly' | 'monthly'>('monthly')
-  const [showToast, setShowToast] = useState(true)
+  const { report, isLoading, error, generate } = useAiStore()
 
-  // Auto-dismiss the report toast after 8 seconds
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowToast(false)
-    }, 8000)
-    return () => clearTimeout(timer)
-  }, [])
-
-  const columns: Column<typeof customerRetention[0]>[] = [
-    {
-      header: t('customerSegmentCol', 'Customer Segment'),
-      key: 'segment',
-      render: (row) => (
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-extrabold text-brand-orange bg-orange-50 dark:bg-orange-950/20 px-2 py-0.5 rounded-full shrink-0">
-            {row.badge}
-          </span>
-          <span className="font-bold text-gray-800 dark:text-white">
-            {row.segment}
-          </span>
-        </div>
-      ),
-    },
-    {
-      header: t('totalOrdersCol', 'Total Orders'),
-      key: 'orders',
-      render: (row) => row.orders,
-    },
-    {
-      header: t('totalSpendCol', 'Total Spend'),
-      key: 'spend',
-      render: (row) => row.spend,
-    },
-    {
-      header: t('avgFrequencyCol', 'Avg. Frequency'),
-      key: 'frequency',
-      render: (row) => row.frequency,
-    },
-    {
-      header: t('retentionRateCol', 'Retention Rate'),
-      key: 'retention',
-      render: (row) => (
-        <div className="flex flex-col gap-1.5 min-w-[120px]">
-          <span className="font-bold text-gray-850 dark:text-white">
-            {row.retention}%
-          </span>
-          <div className="h-1.5 w-full rounded-full bg-gray-100 dark:bg-slate-800 overflow-hidden">
-            <div
-              className={`h-full rounded-full ${row.barColor}`}
-              style={{ width: `${row.retention}%` }}
-            />
-          </div>
-        </div>
-      ),
-    },
-    {
-      header: t('statusCol', 'Status'),
-      key: 'status',
-      render: (row) => (
-        <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${row.statusClass}`}>
-          {row.status}
-        </span>
-      ),
-    },
-  ]
+  // ── Score colour band ─────────────────────────────────────────────────────
+  const scoreColor = (s: number) =>
+    s >= 80 ? 'text-emerald-500' : s >= 60 ? 'text-yellow-500' : 'text-red-500'
+  const scoreBg = (s: number) =>
+    s >= 80 ? 'from-emerald-500 to-teal-400' : s >= 60 ? 'from-yellow-400 to-amber-400' : 'from-red-500 to-orange-400'
+  const scoreLabel = (s: number) =>
+    s >= 80 ? t('excellent') : s >= 60 ? t('good') : t('needsWork')
+  const sevLabel = (sev: string) =>
+    sev === 'high' ? t('highSeverity') : sev === 'medium' ? t('mediumSeverity') : t('lowSeverity')
 
   return (
-    <div className="flex flex-col gap-6 mx-auto w-full relative">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            {t('reportsInsights', 'Reports & Insights')}
-          </h1>
-          <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">
-            {t('reportsSubtitle', 'Performance monitoring and trend analysis for BiteClub (Main Branch).')}
-          </p>
-        </div>
+    <div className="flex flex-col gap-8 mx-auto w-full">
 
-        <div className="flex flex-wrap items-center gap-3 shrink-0 self-start sm:self-auto">
-          {/* Timeframe selector */}
-          <div className="flex rounded-xl border border-gray-200 bg-white p-0.5 dark:border-slate-700 dark:bg-slate-800">
-            {['daily', 'weekly', 'monthly'].map((type) => (
-              <button
-                key={type}
-                onClick={() => setTimeframe(type as any)}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg capitalize transition ${
-                  timeframe === type
-                    ? 'bg-brand-orange text-white'
-                    : 'text-gray-500 hover:text-gray-700 dark:text-slate-450 dark:hover:text-slate-200'
-                }`}
-              >
-                {t(type, type)}
-              </button>
+      {/* ── Hero Header ──────────────────────────────────────────────────── */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-50 via-white to-orange-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 p-8 shadow-sm border border-orange-100 dark:border-slate-700/40">
+        {/* Background glow */}
+        <div className="pointer-events-none absolute -top-20 -right-20 h-72 w-72 rounded-full bg-brand-orange/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-brand-orange/5 blur-3xl" />
+
+        <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-orange/20">
+                <Sparkles className="text-brand-orange" size={18} />
+              </div>
+              <span className="text-xs font-bold uppercase tracking-widest text-brand-orange">{t('aiPowered')}</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white leading-tight">
+              {t('aiReports')}
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-slate-400 max-w-md">
+              {t('aiReportsSubtitle')}
+            </p>
+          </div>
+
+          <button
+            onClick={generate}
+            disabled={isLoading}
+            className="group relative shrink-0 flex items-center gap-2.5 rounded-2xl bg-brand-orange px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-brand-orange/30 hover:opacity-90 hover:shadow-brand-orange/50 hover:shadow-xl transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {isLoading
+              ? <RefreshCw size={16} className="animate-spin" />
+              : <Zap size={16} className="group-hover:scale-110 transition-transform" />
+            }
+            {isLoading ? t('analyzing') : report ? t('regenerateReport') : t('generateAiReport')}
+          </button>
+        </div>
+      </div>
+
+      {/* ── Error ────────────────────────────────────────────────────────── */}
+      {error && (
+        <div className="flex items-center gap-3 rounded-2xl border border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-950/20 px-5 py-4">
+          <AlertTriangle size={18} className="text-red-500 shrink-0" />
+          <p className="text-sm font-semibold text-red-600 dark:text-red-400">{error}</p>
+        </div>
+      )}
+
+      {/* ── Loading skeleton ─────────────────────────────────────────────── */}
+      {isLoading && (
+        <div className="flex flex-col items-center justify-center gap-6 py-24">
+          <div className="relative flex h-24 w-24 items-center justify-center">
+            <div className="absolute inset-0 rounded-full border-4 border-brand-orange/20" />
+            <div className="absolute inset-0 rounded-full border-4 border-t-brand-orange animate-spin" />
+            <Sparkles size={32} className="text-brand-orange animate-pulse" />
+          </div>
+          <div className="flex flex-col items-center gap-1.5">
+            <p className="text-base font-bold text-gray-800 dark:text-white">{t('analyzingRestaurant')}</p>
+            <p className="text-sm text-gray-400 dark:text-slate-500">{t('analyzingDesc')}</p>
+          </div>
+          {/* Skeleton cards */}
+          <div className="w-full max-w-3xl grid gap-4 sm:grid-cols-2 mt-4">
+            {[1,2,3,4].map(i => (
+              <div key={i} className="h-28 rounded-2xl bg-gray-100 dark:bg-slate-800 animate-pulse" />
             ))}
           </div>
-
-          {/* Date Picker Button */}
-          <button className="flex items-center gap-2 rounded-xl border border-gray-255 bg-white px-3.5 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
-            <Calendar size={14} />
-            <span>Oct 2023 - Nov 2023</span>
-          </button>
-
-          {/* Export Button */}
-          <button className="flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white hover:bg-slate-850 dark:bg-brand-orange dark:hover:opacity-90 transition">
-            <Download size={14} />
-            {t('exportBtn', 'Export')}
-          </button>
         </div>
-      </div>
+      )}
 
-      {/* Metrics Row */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          {
-            label: t('grossRevenue', 'Gross Revenue'),
-            value: '142,580.00 EGP',
-            change: '+12.5%',
-            up: true,
-            icon: DollarSign,
-          },
-          {
-            label: t('totalOrdersCol', 'Total Orders'),
-            value: '4,821',
-            change: '+8.2%',
-            up: true,
-            icon: BarChart3,
-          },
-          {
-            label: t('newCustomersProm', 'New Customers'),
-            value: '1,204',
-            change: '-2.4%',
-            up: false,
-            icon: Users,
-          },
-          {
-            label: t('avgOrderValueReport', 'Avg. Order Value'),
-            value: '295.70 EGP',
-            change: '+5.1%',
-            up: true,
-            icon: Percent,
-          },
-        ].map((m) => {
-          const Icon = m.icon
-          return (
-            <div
-              key={m.label}
-              className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
-            >
-              <div className="flex items-center justify-between mb-2.5">
-                <p className="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider">
-                  {m.label}
-                </p>
-                <span
-                  className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] font-extrabold ${
-                    m.up
-                      ? 'bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-500'
-                      : 'bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-500'
-                  }`}
-                >
-                  {m.up ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}
-                  {m.change}
-                </span>
+      {/* ── Empty state ──────────────────────────────────────────────────── */}
+      {!report && !isLoading && !error && (
+        <div className="flex flex-col items-center justify-center gap-5 py-28 text-center">
+          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30">
+            <BarChart2 size={36} className="text-brand-orange/50" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className="text-base font-bold text-gray-700 dark:text-slate-200">{t('noReportYet')}</p>
+            <p className="text-sm text-gray-400 dark:text-slate-500">{t('noReportYetDesc')}</p>
+          </div>
+        </div>
+      )}
+
+      {/* ── Report Content ───────────────────────────────────────────────── */}
+      {report && !isLoading && (
+        <div className="flex flex-col gap-6">
+
+          {/* Score + Summary row */}
+          <div className="grid gap-4 sm:grid-cols-3">
+            {/* Score card */}
+            <div className="relative overflow-hidden sm:col-span-1 flex flex-col items-center justify-center rounded-2xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm gap-3">
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-orange/5 to-transparent" />
+              <p className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-slate-500">{t('healthScore')}</p>
+              <div className="relative flex h-28 w-28 items-center justify-center">
+                {/* SVG ring */}
+                <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="44" fill="none" strokeWidth="10" className="stroke-gray-100 dark:stroke-slate-800" />
+                  <circle
+                    cx="50" cy="50" r="44" fill="none" strokeWidth="10"
+                    strokeLinecap="round"
+                    className={`transition-all duration-1000 ${report.overall_score >= 80 ? 'stroke-emerald-500' : report.overall_score >= 60 ? 'stroke-yellow-400' : 'stroke-red-500'}`}
+                    strokeDasharray={`${2 * Math.PI * 44 * report.overall_score / 100} ${2 * Math.PI * 44}`}
+                  />
+                </svg>
+                <span className={`text-4xl font-black ${scoreColor(report.overall_score)}`}>{report.overall_score}</span>
               </div>
-              <p className="text-2xl font-extrabold text-gray-900 dark:text-white mt-1">
-                {m.value}
-              </p>
+              <div className={`text-xs font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-gradient-to-r ${scoreBg(report.overall_score)} text-white`}>
+                {scoreLabel(report.overall_score)}
+              </div>
             </div>
-          )
-        })}
-      </div>
 
-      {/* Charts / Top Items Grid */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Sales Revenue Trend Chart */}
-        <div className="lg:col-span-2 rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-gray-900 dark:text-white">
-              {t('salesRevenueTrend', 'Sales Revenue Trend')}
-            </h2>
-            <div className="flex items-center gap-4 text-xs font-bold text-gray-500 dark:text-slate-400">
-              <span className="flex items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-full bg-brand-orange inline-block" />
-                {t('currentPeriod', 'Current Period')}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-full bg-blue-400 inline-block" />
-                {t('lastPeriod', 'Last Period')}
-              </span>
+            {/* Summary card */}
+            <div className="sm:col-span-2 flex flex-col gap-3 rounded-2xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm">
+              <div className="flex items-center gap-2">
+                <Sparkles size={15} className="text-brand-orange" />
+                <span className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-slate-500">{t('executiveSummary')}</span>
+              </div>
+              <p className="text-sm text-gray-700 dark:text-slate-300 leading-relaxed flex-1">{report.summary}</p>
             </div>
           </div>
 
-          <div className="rounded-lg bg-gray-50 dark:bg-slate-800/40 p-4">
-            <div className="flex items-end gap-3 h-44">
-              {[
-                { day: 'Mon', curr: 45, prev: 30 },
-                { day: 'Tue', curr: 55, prev: 40 },
-                { day: 'Wed', curr: 38, prev: 48 },
-                { day: 'Thu', curr: 62, prev: 50 },
-                { day: 'Fri', curr: 85, prev: 72 },
-                { day: 'Sat', curr: 92, prev: 80 },
-                { day: 'Sun', curr: 75, prev: 65 },
-              ].map((item) => (
-                <div key={item.day} className="flex-1 flex flex-col justify-end h-full gap-1 items-center">
-                  <div className="w-full flex gap-1 justify-center items-end h-full">
-                    {/* Previous period bar */}
-                    <div
-                      className="w-2.5 rounded-t bg-blue-300 dark:bg-blue-900/50"
-                      style={{ height: `${item.prev}%` }}
-                    />
-                    {/* Current period bar */}
-                    <div
-                      className="w-2.5 rounded-t bg-brand-orange"
-                      style={{ height: `${item.curr}%` }}
-                    />
+          {/* Sales + Customer satisfaction */}
+          <div className="grid gap-4 sm:grid-cols-2">
+
+            {/* Sales */}
+            <div className="rounded-2xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/20">
+                  <TrendingUp size={15} className="text-blue-500" />
+                </div>
+                <h2 className="text-sm font-bold text-gray-900 dark:text-white">{t('salesPerformance')}</h2>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { icon: DollarSign, label: t('aiRevenue'),    value: `${report.sales_performance.revenue} EGP`, color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/20' },
+                  { icon: ShoppingBag, label: t('aiOrders'),    value: String(report.sales_performance.orders),  color: 'text-blue-500 bg-blue-50 dark:bg-blue-950/20' },
+                  { icon: TrendingUp, label: t('aiGrowth'),     value: report.sales_performance.growth,          color: 'text-purple-500 bg-purple-50 dark:bg-purple-950/20' },
+                  { icon: Clock, label: t('aiPeakHours'),       value: report.sales_performance.peak_hours,      color: 'text-amber-500 bg-amber-50 dark:bg-amber-950/20' },
+                ].map(({ icon: Icon, label, value, color }) => (
+                  <div key={label} className="flex items-start gap-3 rounded-xl bg-gray-50 dark:bg-slate-800/40 p-3">
+                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${color}`}>
+                      <Icon size={13} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">{label}</p>
+                      <p className="text-sm font-extrabold text-gray-800 dark:text-white mt-0.5">{value}</p>
+                    </div>
                   </div>
-                  <span className="text-[10px] font-bold text-gray-400 dark:text-slate-550 mt-1 uppercase tracking-wider">
-                    {t(item.day.toLowerCase(), item.day)}
-                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Customer Satisfaction */}
+            <div className="rounded-2xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-yellow-50 dark:bg-yellow-950/20">
+                  <Star size={15} className="text-yellow-500" />
+                </div>
+                <h2 className="text-sm font-bold text-gray-900 dark:text-white">{t('customerSatisfaction')}</h2>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-5xl font-black text-gray-900 dark:text-white">{report.customer_satisfaction.average_rating}</span>
+                  <div className="flex gap-0.5">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star key={i} size={13} className={i < Math.round(report.customer_satisfaction.average_rating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200 dark:text-slate-700'} />
+                    ))}
+                  </div>
+                  <span className="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider">{t('outOf5')}</span>
+                </div>
+                <div className="flex-1 flex flex-col gap-2">
+                  {report.customer_satisfaction.positive_feedback.length > 0 && (
+                    <div className="flex flex-col gap-1.5">
+                      <p className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                        <ThumbsUp size={10} /> {t('positiveLabel')}
+                      </p>
+                      {report.customer_satisfaction.positive_feedback.map((f, i) => (
+                        <p key={i} className="text-xs text-gray-600 dark:text-slate-400 bg-emerald-50 dark:bg-emerald-950/20 rounded-xl px-3 py-2 italic leading-relaxed">"{f}"</p>
+                      ))}
+                    </div>
+                  )}
+                  {report.customer_satisfaction.negative_feedback.length > 0 && (
+                    <div className="flex flex-col gap-1.5 mt-1">
+                      <p className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-red-500 dark:text-red-400">
+                        <ThumbsDown size={10} /> {t('negativeLabel')}
+                      </p>
+                      {report.customer_satisfaction.negative_feedback.map((f, i) => (
+                        <p key={i} className="text-xs text-gray-600 dark:text-slate-400 bg-red-50 dark:bg-red-950/20 rounded-xl px-3 py-2 italic leading-relaxed">"{f}"</p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Menu Performance */}
+          <div className="rounded-2xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-5">
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-orange-50 dark:bg-orange-950/20">
+                <UtensilsCrossed size={15} className="text-brand-orange" />
+              </div>
+              <h2 className="text-sm font-bold text-gray-900 dark:text-white">{t('menuPerformance')}</h2>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {[
+                { emoji: '🏆', label: t('bestSellers'),  items: report.menu_performance.best_selling_items,  pill: 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400', border: 'border-emerald-100 dark:border-emerald-900/30' },
+                { emoji: '🐢', label: t('slowMoving'),   items: report.menu_performance.slow_selling_items,   pill: 'bg-yellow-100  dark:bg-yellow-950/40  text-yellow-700  dark:text-yellow-400',  border: 'border-yellow-100  dark:border-yellow-900/30'  },
+                { emoji: '📉', label: t('worstSellers'), items: report.menu_performance.worst_selling_items, pill: 'bg-red-100    dark:bg-red-950/40    text-red-600    dark:text-red-400',    border: 'border-red-100    dark:border-red-900/30'    },
+              ].map(({ emoji, label, items, pill, border }) => (
+                <div key={label} className={`rounded-xl border ${border} bg-gray-50 dark:bg-slate-800/30 p-4 flex flex-col gap-2`}>
+                  <p className="text-xs font-bold text-gray-500 dark:text-slate-400">{emoji} {label}</p>
+                  {items.length === 0
+                    ? <span className="text-xs text-gray-300 dark:text-slate-600">{t('noneLabel')}</span>
+                    : items.map((item) => (
+                      <span key={item} className={`inline-block rounded-lg px-3 py-1.5 text-xs font-semibold ${pill}`}>{item}</span>
+                    ))
+                  }
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-
-        {/* Top Menu Items */}
-        <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-gray-900 dark:text-white">
-              {t('topMenuItemsTitle', 'Top Menu Items')}
-            </h2>
-            <button className="text-xs font-bold text-brand-orange hover:underline">
-              {t('viewAll', 'View All')}
-            </button>
-          </div>
-
-          <div className="flex flex-col gap-3.5">
-            {topMenuItems.map((item) => (
-              <div
-                key={item.name}
-                className="flex items-center gap-3 py-1 border-b border-gray-50 dark:border-slate-800/40 last:border-0 last:pb-0"
-              >
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="h-10 w-10 rounded-xl object-cover shrink-0"
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-bold text-gray-800 dark:text-white truncate">
-                    {item.name}
-                  </p>
-                  <p className="text-xs text-gray-405 dark:text-slate-500 mt-0.5">
-                    {item.sold}
-                  </p>
-                </div>
-                <div className="text-right shrink-0">
-                  <p className="text-sm font-extrabold text-gray-900 dark:text-white">
-                    {item.revenue}
-                  </p>
-                  <span
-                    className={`text-[10px] font-extrabold ${
-                      item.up ? 'text-green-600' : 'text-red-500'
-                    }`}
-                  >
-                    {item.change}
-                  </span>
+            {report.menu_performance.suggested_promotions.length > 0 && (
+              <div className="border-t border-gray-50 dark:border-slate-800 pt-4">
+                <p className="text-xs font-bold uppercase tracking-wider text-brand-orange mb-3">💡 Suggested Promotions</p>
+                <div className="flex flex-wrap gap-2">
+                  {report.menu_performance.suggested_promotions.map((p, i) => (
+                    <span key={i} className="rounded-xl bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 px-4 py-2 text-xs font-semibold text-brand-orange">{p}</span>
+                  ))}
                 </div>
               </div>
-            ))}
+            )}
           </div>
-        </div>
-      </div>
 
-      {/* Customer Retention & Orders Table */}
-      <div className="rounded-xl border border-gray-100 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50 dark:border-slate-800">
-          <h2 className="text-base font-bold text-gray-900 dark:text-white">
-            {t('customerRetentionOrders', 'Customer Retention & Orders')}
-          </h2>
-          <button className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition">
-            <Filter size={15} />
-          </button>
-        </div>
+          {/* Operational Issues */}
+          {report.operational_issues.length > 0 && (
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-red-50 dark:bg-red-950/20">
+                  <AlertTriangle size={15} className="text-red-500" />
+                </div>
+                <h2 className="text-sm font-bold text-gray-900 dark:text-white">{t('operationalIssues')}</h2>
+              </div>
+              <div className="flex flex-col gap-3">
+                {report.operational_issues.map((issue, i) => {
+                  const sev = SEVERITY[issue.severity] ?? SEVERITY.low
+                  return (
+                    <div key={i} className={`rounded-2xl border p-4 flex flex-col gap-2 ${sev.cls}`}>
+                      <div className="flex items-center gap-2">
+                        <span className={`h-2 w-2 rounded-full shrink-0 ${sev.dot}`} />
+                        <span className="text-[10px] font-extrabold uppercase tracking-wider opacity-70">{sevLabel(issue.severity)} {t('severityLabel')}</span>
+                      </div>
+                      <p className="text-sm font-semibold">{issue.explanation}</p>
+                      <p className="text-xs opacity-80">💡 {issue.suggested_solution}</p>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
 
-        <Table
-          columns={columns}
-          data={customerRetention}
-          keyExtractor={(row) => row.segment}
-        />
-      </div>
+          {/* Recommendations + Action Plan */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="rounded-2xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-purple-50 dark:bg-purple-950/20">
+                  <CheckCircle2 size={15} className="text-purple-500" />
+                </div>
+                <h2 className="text-sm font-bold text-gray-900 dark:text-white">{t('recommendations')}</h2>
+              </div>
+              <ul className="flex flex-col gap-3">
+                {report.recommendations.map((r, i) => (
+                  <li key={i} className="flex gap-3 text-sm text-gray-600 dark:text-slate-400">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-950/40 text-[10px] font-extrabold text-purple-600 dark:text-purple-400">{i + 1}</span>
+                    {r}
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-      {/* Floating Generating Report Toast */}
-      {showToast && (
-        <div className="fixed bottom-6 right-6 z-55 rounded-2xl bg-slate-900 p-4 text-white shadow-xl dark:bg-slate-800 border border-slate-700/50 flex items-center justify-between gap-4 animate-bounce max-w-sm">
-          <div className="flex items-center gap-3">
-            <Loader2 className="animate-spin text-brand-orange" size={20} />
-            <div className="min-w-0">
-              <p className="text-xs font-extrabold uppercase tracking-widest text-slate-400">
-                {t('generatingReport', 'Generating Report...')}
-              </p>
-              <p className="text-xs font-medium text-white truncate mt-0.5">
-                Monthly_Sales_Oct_2023.pdf
-              </p>
+            <div className="rounded-2xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-teal-50 dark:bg-teal-950/20">
+                  <ListChecks size={15} className="text-teal-500" />
+                </div>
+                <h2 className="text-sm font-bold text-gray-900 dark:text-white">{t('actionPlan')}</h2>
+              </div>
+              <ul className="flex flex-col gap-3">
+                {report.action_plan.map((a, i) => (
+                  <li key={i} className="flex gap-3 text-sm text-gray-600 dark:text-slate-400">
+                    <CheckCircle2 size={15} className="text-teal-500 shrink-0 mt-0.5" />
+                    {a}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
-          <button
-            onClick={() => setShowToast(false)}
-            className="text-slate-400 hover:text-white transition shrink-0"
-          >
-            <X size={16} />
-          </button>
+
         </div>
       )}
     </div>
