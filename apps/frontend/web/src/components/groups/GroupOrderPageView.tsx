@@ -32,10 +32,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { useEffect } from 'react';
+import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
 import {
   cancelGroupAction,
   clearMyItemsGroupOrderAction,
   unlockGroupAction,
+  revalidateGroupOrderSessionAction,
 } from '@/actions/group-order';
 import type { GroupOrderCartSession } from '@/types/group-order';
 import type { MenuItems } from '@/types/restaurant';
@@ -45,6 +49,7 @@ type Props = {
   sessionCart: GroupOrderCartSession;
   sessionMenu: MenuItems[];
   currentUserId: number | null;
+  token: string | null;
 };
 
 export default function GroupOrderPageView({
@@ -52,12 +57,80 @@ export default function GroupOrderPageView({
   sessionCart,
   sessionMenu,
   currentUserId,
+  token,
 }: Props) {
   const t = useTranslations('groups');
   const tc = useTranslations('common');
   const router = useRouter();
   const restaurant = sessionCart.restaurant;
   const membersSummary = sessionCart.members_summary;
+
+  const { execute: revalidateSession } = useAction(
+    revalidateGroupOrderSessionAction,
+    {
+      onSuccess: () => {},
+    },
+  );
+
+  // Laravel Echo WebSocket Listener
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    // Attach Pusher to window so Laravel Echo can find it
+    (window as any).Pusher = Pusher;
+
+    const wsHost =
+      typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+    const reverbKey = process.env.NEXT_PUBLIC_REVERB_APP_KEY || '7shjlvmsslgdjgltf46x';
+
+    const echo = new Echo({
+      broadcaster: 'reverb',
+      key: reverbKey,
+      wsHost: wsHost,
+      wsPort: 8081,
+      wssPort: 8081,
+      forceTLS: false,
+      enabledTransports: ['ws', 'wss'],
+      authEndpoint: '/api/broadcasting/auth',
+      auth: {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : '',
+          Accept: 'application/json',
+        },
+      },
+    });
+
+    const channelName = `group-order.${sessionId}`;
+    console.log(`[Echo] Joining presence channel: ${channelName}`);
+
+    const channel = echo.join(channelName);
+
+    channel.here((users: any[]) => {
+      console.log('[Echo] Present users:', users);
+    });
+
+    channel.joining((user: any) => {
+      console.log('[Echo] User joined:', user);
+    });
+
+    channel.leaving((user: any) => {
+      console.log('[Echo] User left:', user);
+    });
+
+    channel.listen('.item.added', (data: any) => {
+      console.log('[Echo] Group order item added event received:', data);
+
+      // Trigger cache revalidation on the server and page refresh
+      revalidateSession({ sessionId });
+    });
+
+    return () => {
+      console.log(`[Echo] Leaving presence channel: ${channelName}`);
+      echo.leave(channelName);
+      echo.disconnect();
+    };
+  }, [sessionId, revalidateSession]);
+
   const totalItems = membersSummary.reduce((sum, m) => sum + m.items.length, 0);
   const isHost =
     currentUserId !== null && sessionCart.host.id === currentUserId;
@@ -121,8 +194,10 @@ export default function GroupOrderPageView({
           )}
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-3xl font-bold tracking-tight text-foreground">{t('groupOrder')}</h1>
-              
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">
+                {t('groupOrder')}
+              </h1>
+
               {/* Locked vs Open Badge style */}
               <span
                 className={cn(
@@ -139,7 +214,9 @@ export default function GroupOrderPageView({
                 {sessionCart.status === 'locked' ? t('locked') : t('open')}
               </span>
             </div>
-            <p className="mt-1 text-sm text-muted-foreground">{restaurant.name}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {restaurant.name}
+            </p>
           </div>
         </div>
 
@@ -147,7 +224,9 @@ export default function GroupOrderPageView({
         <div className="flex flex-wrap items-center gap-2.5">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-border/40 bg-accent/30 px-3 py-1.5 text-xs font-semibold text-muted-foreground">
             <Users className="size-3.5 text-primary" />
-            <span>{t('host')}: {sessionCart.host.name}</span>
+            <span>
+              {t('host')}: {sessionCart.host.name}
+            </span>
           </span>
         </div>
       </div>
@@ -234,7 +313,9 @@ export default function GroupOrderPageView({
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel className="rounded-xl">{tc('cancel')}</AlertDialogCancel>
+                    <AlertDialogCancel className="rounded-xl">
+                      {tc('cancel')}
+                    </AlertDialogCancel>
                     <AlertDialogAction
                       onClick={() => cancelOrder(groupOrderId)}
                       className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl">
@@ -248,7 +329,9 @@ export default function GroupOrderPageView({
 
           <Card className="h-fit xl:sticky xl:top-24">
             <CardHeader className="border-b border-border/30 pb-4">
-              <CardTitle className="text-base font-bold">{t('groupCart')}</CardTitle>
+              <CardTitle className="text-base font-bold">
+                {t('groupCart')}
+              </CardTitle>
               {totalItems > 0 && (
                 <CardAction>
                   <Button
@@ -289,3 +372,4 @@ export default function GroupOrderPageView({
     </div>
   );
 }
+
