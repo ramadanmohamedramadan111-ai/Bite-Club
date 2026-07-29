@@ -71,6 +71,14 @@ class SmartWaiterChatController extends Controller
         try {
             $response = $this->aiProxyService->sendSmartWaiterChatMessage($restaurant, $validated);
 
+            if (isset($response['error'])) {
+                return $this->errorResponse(
+                    $response['error'],
+                    ['upstream' => $response['body'] ?? null, 'status' => $response['status'] ?? null],
+                    502
+                );
+            }
+
             if (is_array($response)) {
                 $response['restaurant_id'] = $restaurant->id;
                 $response['restaurant_name'] = $restaurant->name;
@@ -80,7 +88,9 @@ class SmartWaiterChatController extends Controller
         } catch (Throwable $exception) {
             report($exception);
 
-            return $this->serverErrorResponse('Smart Waiter AI service is unavailable');
+            return $this->serverErrorResponse(
+                'Smart Waiter AI service is unavailable: ' . $exception->getMessage()
+            );
         }
     }
 }

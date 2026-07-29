@@ -40,9 +40,15 @@ class AiProxyService
                 'conversation_id' => $payload['conversation_id'] ?? null,
             ]);
 
-        $response->throw();
+        if ($response->successful()) {
+            return $response->json();
+        }
 
-        return $response->json();
+        return [
+            'error' => 'Smart Waiter AI request failed.',
+            'status' => $response->status(),
+            'body' => $response->json() ?? $response->body(),
+        ];
     }
 
     private function url(string $path): string

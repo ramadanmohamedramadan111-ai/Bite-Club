@@ -31,6 +31,7 @@ def load_env_file(path):
 
 
 load_env_file(BASE_DIR / ".env")
+load_env_file(BASE_DIR / "backend" / "api" / ".env")
 
 
 # Quick-start development settings - unsuitable for production
@@ -100,15 +101,18 @@ DATABASES = {
     }
 }
 
-if os.getenv("AI_DB_ENGINE") == "mysql":
+db_engine = (os.getenv("AI_DB_ENGINE") or os.getenv("DB_CONNECTION") or "").lower()
+
+if db_engine == "mysql":
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'HOST': os.getenv('AI_DB_HOST', 'db'),
-            'PORT': os.getenv('AI_DB_PORT', '3306'),
-            'NAME': os.getenv('AI_DB_DATABASE', 'laravel'),
-            'USER': os.getenv('AI_DB_USERNAME', 'laravel'),
-            'PASSWORD': os.getenv('AI_DB_PASSWORD', 'secret'),
+            'HOST': os.getenv('AI_DB_HOST') or os.getenv('DB_HOST', 'db'),
+            'PORT': os.getenv('AI_DB_PORT') or os.getenv('DB_PORT', '3306'),
+            'NAME': os.getenv('AI_DB_DATABASE') or os.getenv('DB_DATABASE', 'laravel'),
+            'USER': os.getenv('AI_DB_USERNAME') or os.getenv('DB_USERNAME', 'laravel'),
+            'PASSWORD': os.getenv('AI_DB_PASSWORD') or os.getenv('DB_PASSWORD', 'secret'),
+            'OPTIONS': {},
         }
     }
 

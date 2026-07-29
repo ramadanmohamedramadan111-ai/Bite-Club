@@ -21,11 +21,24 @@ class SmartWaiterChatView(View):
         except json.JSONDecodeError:
             return JsonResponse({"error": "Invalid JSON payload"}, status=400)
 
-        missing = [field for field in ("message", "restaurant_id") if not payload.get(field)]
+        missing = [field for field in ("message", "user_id") if not payload.get(field)]
         if missing:
             return JsonResponse({"error": "Missing required fields", "fields": missing}, status=422)
+
+        if payload.get("latitude") is not None:
+            try:
+                payload["latitude"] = float(payload["latitude"])
+            except (TypeError, ValueError):
+                return JsonResponse({"error": "Invalid latitude"}, status=422)
+
+        if payload.get("longitude") is not None:
+            try:
+                payload["longitude"] = float(payload["longitude"])
+            except (TypeError, ValueError):
+                return JsonResponse({"error": "Invalid longitude"}, status=422)
 
         service = SmartWaiterAgentService()
         response = service.chat(payload)
 
-        return JsonResponse(response)
+        status = 200 if "error" not in response else 400
+        return JsonResponse(response, status=status)
