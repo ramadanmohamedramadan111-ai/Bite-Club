@@ -1,5 +1,6 @@
 'use server';
 import { actionClient } from '@/lib/safe-action';
+import { z } from 'zod';
 import { idSchema } from '@/schemas/common/id-schema';
 import { addGroupCartItemSchema } from '@/schemas/group-order/add-item-schema';
 import { checkoutGroupPaySchema } from '@/schemas/group-order/checkout-payment-schema';
@@ -204,5 +205,13 @@ export const clearMyItemsGroupOrderAction = actionClient
     updateTag(`groups-sessions-${userId}`);
 
     return response;
+  });
+
+export const revalidateGroupOrderSessionAction = actionClient
+  .inputSchema(z.object({ sessionId: z.string() }))
+  .action(async ({ parsedInput }) => {
+    const { sessionId } = parsedInput;
+    updateTag(`group-order-session-${sessionId}`);
+    return { success: true };
   });
 

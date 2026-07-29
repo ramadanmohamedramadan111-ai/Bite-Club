@@ -2,6 +2,7 @@ import GroupOrderPageView from '@/components/groups/GroupOrderPageView';
 import { serverFetch } from '@/utils/server-fetch';
 import { getUserId } from '@/utils/api-helpers';
 import { getTranslations } from 'next-intl/server';
+import { cookies } from 'next/headers';
 import { GroupOrderCartSession } from '@/types/group-order';
 import { MenuItems } from '@/types/restaurant';
 import { ApiResponse, PaginatedResponse } from '@/types/api';
@@ -92,6 +93,8 @@ export default async function Page({ params }: PageProps) {
   });
 
   const currentUserId = await getUserId();
+  const cookieStore = await cookies();
+  const token = cookieStore.get('accessToken')?.value || null;
 
   return (
     <GroupOrderPageView
@@ -99,6 +102,7 @@ export default async function Page({ params }: PageProps) {
       sessionCart={sessionCart.data}
       sessionMenu={sessionMenu.data.items}
       currentUserId={currentUserId}
+      token={token}
     />
   );
 }
