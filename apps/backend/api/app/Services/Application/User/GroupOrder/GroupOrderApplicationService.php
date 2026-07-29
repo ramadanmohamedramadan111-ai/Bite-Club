@@ -18,6 +18,7 @@ use App\Events\GroupOrderCancelled;
 use App\Events\GroupOrderItemAdded;
 use App\Events\GroupOrderItemQuantityUpdated;
 use App\Events\GroupOrderItemRemoved;
+use App\Events\GroupOrderLocked;
 use App\Models\GroupOrder;
 use App\Models\GroupOrderItem;
 use App\Services\Domain\User\GroupOrder\GroupOrderDomainService;
@@ -98,13 +99,17 @@ class GroupOrderApplicationService
 
     public function previewCheckout(GroupOrderPreviewDto $dto): array
     {
-        return $this->groupOrderDomainService->previewCheckout(
+        $result = $this->groupOrderDomainService->previewCheckout(
             $dto->getUserId(),
             $dto->getGroupOrderId(),
             $dto->getOrderType(),
             $dto->getLat(),
             $dto->getLong()
         );
+
+        broadcast(new GroupOrderLocked($dto->getGroupOrderId()));
+
+        return $result;
     }
 
     public function unlock(UnlockGroupOrderDto $dto): void
