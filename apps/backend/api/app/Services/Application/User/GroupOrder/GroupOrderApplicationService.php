@@ -16,6 +16,7 @@ use App\DTOs\User\GroupOrder\UnlockGroupOrderDto;
 use App\DTOs\User\GroupOrder\UpdateGroupOrderItemQuantityDto;
 use App\Events\GroupOrderItemAdded;
 use App\Events\GroupOrderItemQuantityUpdated;
+use App\Events\GroupOrderItemRemoved;
 use App\Models\GroupOrder;
 use App\Models\GroupOrderItem;
 use App\Services\Domain\User\GroupOrder\GroupOrderDomainService;
@@ -59,6 +60,11 @@ class GroupOrderApplicationService
             $dto->getGroupOrderId(),
             $dto->getGroupOrderItemId()
         );
+
+        broadcast(new GroupOrderItemRemoved(
+            $dto->getGroupOrderItemId(),
+            $dto->getGroupOrderId()
+        ));
     }
 
     public function updateItemQuantity(UpdateGroupOrderItemQuantityDto $dto): void
