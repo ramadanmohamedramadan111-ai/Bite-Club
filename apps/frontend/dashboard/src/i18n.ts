@@ -467,6 +467,12 @@ const resources = {
       viewMap: 'View Map',
       lifeCycle: 'Life-cycle',
       liveTracking: 'Live Tracking',
+
+       // payment settings
+      paymentSettings: 'Payment Settings',
+      kashierDesc: "Configure your Kashier API credentials to accept online payments for delivery and pickup orders.",
+     
+      
     },
   },
 
@@ -933,6 +939,12 @@ const resources = {
       viewMap: 'عرض الخريطة',
       lifeCycle: 'دورة حياة الطلب',
       liveTracking: 'تتبع مباشر',
+
+      // payment settings
+      paymentSettings: 'إعدادات الدفع',
+      kashierDesc: "أدخل بيانات الاعتماد الخاصة بـ Kashier لقبول الدفع عبر الإنترنت لطلبات التوصيل والاستلام.",
+     
+      
     },
   },
 }
