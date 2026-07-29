@@ -25,6 +25,20 @@ services:
     networks:
       - app_net
 
+  reverb:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    command: php artisan reverb:start --host="0.0.0.0" --port=8080
+    volumes:
+      - ./apps/backend/api:/var/www/api
+    ports:
+      - "8081:8080"
+    depends_on:
+      - db
+    networks:
+      - app_net
+
   db:
     image: mysql:8.0
     environment:
