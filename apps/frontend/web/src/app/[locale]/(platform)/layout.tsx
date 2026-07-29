@@ -21,6 +21,7 @@ import GamificationPopover from '@/components/gamification/GamificationPopover';
 import { CartInitializer } from '@/Initializers/CartInitializer';
 import Navbar from '@/components/navbar/Navbar';
 import Footer from '@/components/footer/Footer';
+import AIChat from '@/components/ai/AIChat';
 
 export default async function Layout({
   children,
@@ -126,6 +127,7 @@ export default async function Layout({
 
       <main className="flex-1 px-4 sm:px-6 md:px-8 xl:px-12 py-6 max-w-7xl mx-auto w-full">
         {children}
+        <AIChat />
       </main>
 
       <Footer />
