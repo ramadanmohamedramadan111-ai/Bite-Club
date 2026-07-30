@@ -24,6 +24,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 const hiddenRoutes = [
   /^\/group-order\/[^/]+$/,
@@ -69,6 +75,7 @@ export default function AIChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [conversationId, setConversationId] = useState<number | undefined>(undefined);
+  const [selectedItem, setSelectedItem] = useState<SuggestionItem | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -106,7 +113,10 @@ export default function AIChat() {
                   restaurant_id: Number(result.recommended_restaurant_id || 0),
                   restaurant_name: String(result.restaurant_name || ''),
                   items: mappedItems,
-                  total_price: Number(result.total_price || 0),
+                  total_price: mappedItems.reduce(
+                    (sum, item) => sum + item.price * item.quantity,
+                    0,
+                  ),
                   status: 'pending',
                 }
               : undefined,
@@ -387,7 +397,11 @@ export default function AIChat() {
                             </span>
                             <div className="space-y-2">
                               {msg.suggestion.items.map((item) => (
-                                <div key={item.id} className="flex gap-3 border-b border-border/10 pb-2 last:border-0 last:pb-0">
+                                <div
+                                  key={item.id}
+                                  onClick={() => setSelectedItem(item)}
+                                  className="flex gap-3 border-b border-border/10 pb-2 last:border-0 last:pb-0 cursor-pointer hover:bg-muted/30 p-1.5 rounded-xl transition-all duration-200"
+                                >
                                   <div className="size-9 rounded-lg bg-muted/60 border border-border/50 flex items-center justify-center shrink-0 text-muted-foreground">
                                     <UtensilsCrossed className="size-4" />
                                   </div>
@@ -494,6 +508,47 @@ export default function AIChat() {
           </form>
         </Card>
       )}
+
+      <Dialog open={selectedItem !== null} onOpenChange={(open) => !open && setSelectedItem(null)}>
+        <DialogContent className="sm:max-w-md rounded-2xl border border-border/80 bg-card p-5 shadow-lg animate-in fade-in zoom-in-95 duration-200">
+          <DialogHeader className="pb-3 border-b border-border/10">
+            <DialogTitle className="text-base font-bold text-foreground flex items-center gap-2">
+              <UtensilsCrossed className="size-4.5 text-primary" />
+              <span>{selectedItem?.name}</span>
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 pt-4">
+            <div className="flex items-center justify-between bg-muted/40 rounded-xl p-3 border border-border/40">
+              <div className="flex flex-col gap-0.5">
+                <span className="text-3xs font-bold text-muted-foreground uppercase">{locale === 'ar' ? 'سعر الوحدة' : 'Unit Price'}</span>
+                <span className="text-sm font-bold text-foreground">{selectedItem?.price.toFixed(2)} EGP</span>
+              </div>
+              <div className="flex flex-col gap-0.5 text-right">
+                <span className="text-3xs font-bold text-muted-foreground uppercase">{locale === 'ar' ? 'الكمية' : 'Quantity'}</span>
+                <span className="text-sm font-extrabold text-primary">x{selectedItem?.quantity}</span>
+              </div>
+              <div className="flex flex-col gap-0.5 text-right">
+                <span className="text-3xs font-bold text-muted-foreground uppercase">{locale === 'ar' ? 'الإجمالي' : 'Subtotal'}</span>
+                <span className="text-sm font-bold text-foreground">{((selectedItem?.price ?? 0) * (selectedItem?.quantity ?? 0)).toFixed(2)} EGP</span>
+              </div>
+            </div>
+
+            {selectedItem?.why && (
+              <div className="space-y-1.5">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
+                  {locale === 'ar' ? 'لماذا نقترح هذا؟' : 'Why suggest this?'}
+                </span>
+                <div className="bg-primary/3 dark:bg-primary/1 rounded-xl p-3 border border-primary/10">
+                  <p className="text-xs text-foreground leading-relaxed italic">
+                    "{selectedItem.why}"
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
