@@ -72,6 +72,10 @@ class RestaurantCategoryUpdateTest extends AdminAuthTest
         $response->assertOk();
         
         $imageUrl = $response->json('data.image_url');
-        Storage::disk('public')->assertExists(str_replace('/storage/', '', $imageUrl));
+        $path = ltrim(parse_url($imageUrl, PHP_URL_PATH) ?? $imageUrl, '/');
+        if (str_starts_with($path, 'storage/')) {
+            $path = substr($path, 8);
+        }
+        Storage::disk('public')->assertExists($path);
     }
 }

@@ -4,22 +4,15 @@ namespace App\Http\Resources\User;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Traits\UrlFormatterTrait;
 
 class UserResource extends JsonResource
 {
+    use UrlFormatterTrait;
+
     public function toArray(Request $request): array
     {
-        $profileImageUrl = $this->profile_image_url;
-        if ($profileImageUrl) {
-            $parsedUrl = parse_url($profileImageUrl);
-            if (isset($parsedUrl['path'])) {
-                $host = request()->header('host') ?: request()->getHttpHost();
-                if (($host === 'api.localhost' || $host === 'localhost') && !str_contains($host, ':')) {
-                    $host .= ':8080';
-                }
-                $profileImageUrl = request()->getScheme() . '://' . $host . '/' . ltrim($parsedUrl['path'], '/');
-            }
-        }
+        $profileImageUrl = $this->formatImageUrl($this->profile_image_url);
 
         return [
             'id'            => $this->id,
