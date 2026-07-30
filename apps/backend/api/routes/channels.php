@@ -1,6 +1,7 @@
 <?php
 
 use App\Services\Domain\User\GroupOrder\GroupOrderDomainService;
+use App\Services\Domain\User\Order\OrderDomainService;
 use Illuminate\Support\Facades\Broadcast;
 
 
@@ -19,4 +20,9 @@ Broadcast::channel('group-order.{groupId}', function ($user, $groupId) {
     }
 
     return false;
+});
+
+Broadcast::channel('order.{orderId}', function ($user, $orderId) {
+    $domainService = app(OrderDomainService::class);
+    return $domainService->isOrderOwner($user->id, $orderId);
 });

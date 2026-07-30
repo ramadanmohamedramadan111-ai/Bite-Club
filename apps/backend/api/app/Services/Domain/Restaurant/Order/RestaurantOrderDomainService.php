@@ -2,6 +2,7 @@
 
 namespace App\Services\Domain\Restaurant\Order;
 
+use \App\Events\OrderStatusUpdated;
 use App\Enums\Order\OrderStatusEnum;
 use App\Enums\Payment\PaymentStatusEnum;
 use App\Models\Order;
@@ -67,7 +68,11 @@ class RestaurantOrderDomainService
         });
 
         // Refresh the order to return updated data
-        return $this->orderRepository->findOrderForRestaurant($orderId, $restaurantId);
+        $updatedOrder = $this->orderRepository->findOrderForRestaurant($orderId, $restaurantId);
+
+        broadcast(new OrderStatusUpdated($updatedOrder));
+
+        return $updatedOrder;
     }
 
     public function getOrderHistory(int $restaurantId, array $filters, int $page, int $perPage): LengthAwarePaginator

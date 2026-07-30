@@ -500,4 +500,10 @@ class OrderDomainService
             return $order->refresh();
         });
     }
+
+    public function isOrderOwner(int $userId, int $orderId): bool
+    {
+        $order = $this->orderRepository->find($orderId);
+        return $order && (int) $order->user_id === $userId;
+    }
 }
