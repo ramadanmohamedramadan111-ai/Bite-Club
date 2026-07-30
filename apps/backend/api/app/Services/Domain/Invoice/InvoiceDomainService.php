@@ -122,7 +122,7 @@ class InvoiceDomainService
     {
         $invoice = $this->getRestaurantInvoiceDetails($id, $restaurantId);
 
-        if ($invoice->status === InvoiceStatusEnum::PAID->value) {
+        if ($invoice->status === InvoiceStatusEnum::PAID) {
             throw new \DomainException(trans('invoice.already_paid') ?? 'Invoice is already paid.');
         }
 
@@ -156,7 +156,7 @@ class InvoiceDomainService
             return;
         }
 
-        if ($status === 'SUCCESS' && $invoice->status !== InvoiceStatusEnum::PAID->value) {
+        if ($status === 'SUCCESS' && $invoice->status !== InvoiceStatusEnum::PAID) {
             DB::transaction(function () use ($invoice, $transactionId) {
                 // 1. Mark Invoice as PAID
                 $this->invoiceRepository->update($invoice->id, [
