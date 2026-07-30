@@ -2,12 +2,13 @@
 
 namespace App\Services\Domain\Invoice;
 
-use App\Enums\Invoice\PlatformDueStatusEnum;
+use \App\Models\Invoice;
 use App\Enums\Invoice\InvoiceStatusEnum;
+use App\Enums\Invoice\PlatformDueStatusEnum;
 use App\Models\Order;
-use App\Repositories\Interfaces\PlatformDueRepositoryInterface;
 use App\Repositories\Interfaces\GeneralSettingRepositoryInterface;
 use App\Repositories\Interfaces\InvoiceRepositoryInterface;
+use App\Repositories\Interfaces\PlatformDueRepositoryInterface;
 use App\Repositories\Interfaces\RestaurantRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -83,7 +84,7 @@ class InvoiceDomainService
     public function checkAndProcessOverdueInvoices(): int
     {
         $overdueInvoices = $this->invoiceRepository->getUnpaidOverdueInvoices();
-        
+
         if ($overdueInvoices->isEmpty()) {
             return 0;
         }
@@ -102,5 +103,16 @@ class InvoiceDomainService
     public function getRestaurantInvoices(int $restaurantId, array $filters, int $perPage = 15): array
     {
         return $this->invoiceRepository->getForRestaurant($restaurantId, $filters, $perPage);
+    }
+
+    public function getRestaurantInvoiceDetails(int $id, int $restaurantId): Invoice
+    {
+        $invoice = $this->invoiceRepository->findByIdForRestaurant($id, $restaurantId);
+
+        if (!$invoice) {
+            throw new \DomainException(trans('invoice.not_found') ?? 'Invoice not found.');
+        }
+
+        return $invoice;
     }
 }

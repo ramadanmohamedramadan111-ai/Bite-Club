@@ -6,6 +6,7 @@ use \App\Enums\Invoice\InvoiceStatusEnum;
 use \Illuminate\Pagination\LengthAwarePaginator;
 use \Illuminate\Support\Collection;
 use App\Models\Invoice;
+use App\Repositories\Eloquent\BaseRepository;
 use App\Repositories\Interfaces\InvoiceRepositoryInterface;
 
 class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInterface
@@ -49,5 +50,13 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
                 'total'        => $paginator->total(),
             ],
         ];
+    }
+
+    public function findByIdForRestaurant(int $id, int $restaurantId): ?Invoice
+    {
+        return $this->model->with(['platformDues.order'])
+            ->where('id', $id)
+            ->where('restaurant_id', $restaurantId)
+            ->first();
     }
 }

@@ -60,5 +60,6 @@ Route::middleware('auth.restaurant')->group(function () {
 
     Route::prefix('invoices')->name('invoices.')->group(function () {
         Route::get('/', [InvoiceController::class, 'index'])->name('index');
+        Route::get('/{id}', [InvoiceController::class, 'show'])->name('show');
     });
 });

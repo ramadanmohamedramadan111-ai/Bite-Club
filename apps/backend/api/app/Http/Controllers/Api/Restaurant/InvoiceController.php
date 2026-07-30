@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Api\Restaurant;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Restaurant\Invoice\ListInvoicesRequest;
+use App\Http\Requests\Restaurant\Invoice\ShowInvoiceRequest;
 use App\DTOs\Restaurant\Invoice\ListInvoicesDto;
+use App\DTOs\Restaurant\Invoice\ShowInvoiceDto;
 use App\Services\Application\Restaurant\Invoice\RestaurantInvoiceApplicationService;
 use App\Http\Resources\Restaurant\InvoiceResource;
+use App\Http\Resources\Restaurant\InvoiceDetailsResource;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
 
@@ -33,5 +36,21 @@ class InvoiceController extends Controller
             trans('invoice.retrieved_successfully') ?? 'Invoices retrieved successfully',
             $paginatedData
         );
+    }
+
+    public function show(ShowInvoiceRequest $request): JsonResponse
+    {
+        $dto = ShowInvoiceDto::fromValidatedRequest($request);
+
+        try {
+            $invoice = $this->applicationService->getInvoiceDetails($dto);
+
+            return $this->successResponse(
+                trans('invoice.retrieved_successfully') ?? 'Invoice details retrieved successfully',
+                new InvoiceDetailsResource($invoice)
+            );
+        } catch (\DomainException $e) {
+            return $this->errorResponse($e->getMessage(), null, 404);
+        }
     }
 }
