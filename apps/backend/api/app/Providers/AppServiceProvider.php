@@ -61,6 +61,8 @@ use App\Models\User;
 use App\Observers\UserObserver;
 use App\Models\Order;
 use App\Observers\OrderObserver;
+use App\Models\MenuItem;
+use App\Observers\MenuItemObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -173,5 +175,6 @@ class AppServiceProvider extends ServiceProvider
         RestaurantReview::observe(RestaurantReviewObserver::class);
         User::observe(UserObserver::class);
         Order::observe(OrderObserver::class);
+        MenuItem::observe(MenuItemObserver::class);
     }
 }
