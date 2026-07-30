@@ -64,7 +64,7 @@ class SmartWaiterAddToCartController extends Controller
         }
 
         $cart = Cart::firstOrCreate(
-            ['user_id' => $user->id],
+            ['user_id' => $user->id, 'group_order_id' => null],
             ['restaurant_id' => $restaurant->id]
         );
 
