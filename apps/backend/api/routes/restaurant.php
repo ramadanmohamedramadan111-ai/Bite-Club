@@ -11,6 +11,8 @@ use App\Http\Controllers\Api\RestaurantCategoryController;
 use App\Http\Controllers\Api\MenuCategoryController;
 use App\Http\Controllers\Api\MenuItemController;
 use App\Http\Controllers\Api\Restaurant\OrderController;
+use App\Http\Controllers\Api\Restaurant\RestaurantDashboardController;
+use App\Http\Controllers\Api\Restaurant\RestaurantReviewController;
 
 Route::post('/register', [RestaurantAuthController::class, 'register'])->name('register');
 Route::post('/login',    [RestaurantAuthController::class, 'login'])->name('login');
@@ -20,6 +22,9 @@ Route::post('/reset-password', [RestaurantPasswordResetController::class, 'reset
 Route::get('/categories', [RestaurantCategoryController::class, 'index'])->name('categories.index');
 
 Route::middleware('auth.restaurant')->group(function () {
+    Route::get('/dashboard', [RestaurantDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/reviews', [RestaurantReviewController::class, 'index'])->name('reviews');
+
     Route::post('/logout',  [RestaurantAuthController::class, 'logout'])->name('logout');
     Route::post('/refresh', [RestaurantAuthController::class, 'refresh'])->name('refresh');
     Route::get('/me',       [RestaurantAuthController::class, 'me'])->name('me');
