@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Repositories\Interfaces\OrderPaymentRepositoryInterface;
 use App\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Services\Domain\Restaurant\Order\Support\OrderStatusTransition;
+use App\Services\Domain\Invoice\InvoiceDomainService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +20,8 @@ class RestaurantOrderDomainService
     public function __construct(
         private readonly OrderRepositoryInterface $orderRepository,
         private readonly OrderStatusTransition $statusTransition,
-        private readonly OrderPaymentRepositoryInterface $paymentRepository
+        private readonly OrderPaymentRepositoryInterface $paymentRepository,
+        private readonly InvoiceDomainService $invoiceDomainService
     ) {
     }
 
@@ -62,6 +64,10 @@ class RestaurantOrderDomainService
             // Handle payments logic based on status
             if ($statusEnum === OrderStatusEnum::COMPLETED) {
                 $this->paymentRepository->updatePendingPaymentsStatus($order->id, PaymentStatusEnum::PAID->value);
+
+                // Capture Platform Dues 
+                $this->invoiceDomainService->capturePlatformDue($order);
+
             } elseif ($statusEnum === OrderStatusEnum::CANCELLED) {
                 $this->paymentRepository->updatePendingPaymentsStatus($order->id, PaymentStatusEnum::FAILED->value);
             }
