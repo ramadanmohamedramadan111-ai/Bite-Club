@@ -11,8 +11,10 @@ import {
   Sparkles, 
   Check, 
   Plus, 
-  UtensilsCrossed 
+  UtensilsCrossed,
+  RotateCcw
 } from 'lucide-react';
+import { getCookie } from 'cookies-next';
 import { useCartStore } from '@/stores/cart';
 import { useAuthStore } from '@/stores/auth';
 import { useAction } from 'next-safe-action/hooks';
@@ -66,16 +68,22 @@ export default function AIChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
+  const [conversationId, setConversationId] = useState<number | undefined>(undefined);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const addItem = useCartStore((state) => state.addItem);
 
-  // 1. smartWaiterSendChatAction hook
   const { execute: sendChat, isExecuting: isSending } = useAction(smartWaiterSendChatAction, {
     onSuccess: ({ data }) => {
       if (data?.success && data.data) {
         const result = data.data; // SmartWaiterResponse
+        
+        // Save the conversation ID returned from the server
+        if (result.conversation_id) {
+          setConversationId(result.conversation_id);
+        }
+
         const rawItems = (result.items || []) as any[];
         const mappedItems: SuggestionItem[] = rawItems.map((item) => ({
           id: Number(item.id),
@@ -95,8 +103,8 @@ export default function AIChat() {
             text: result.reply,
             suggestion: hasItems
               ? {
-                  restaurant_id: Number(result.restaurant_id),
-                  restaurant_name: String(result.restaurant_name),
+                  restaurant_id: Number(result.recommended_restaurant_id || 0),
+                  restaurant_name: String(result.restaurant_name || ''),
                   items: mappedItems,
                   total_price: Number(result.total_price || 0),
                   status: 'pending',
@@ -201,11 +209,27 @@ export default function AIChat() {
 
     setInputValue('');
 
-    // 3. Trigger the server action with dynamic locale
+    // 3. Get latitude and longitude from location cookies or default
+    const latVal = getCookie('lat');
+    const lngVal = getCookie('lng');
+    const latitude = latVal ? Number(latVal) : 30.0444;
+    const longitude = lngVal ? Number(lngVal) : 31.2357;
+
+    // 4. Trigger the server action with dynamic locale and location details
     sendChat({
+      conversation_id: conversationId,
       message: text,
       locale: (locale === 'ar' || locale === 'en' ? locale : 'en') as 'ar' | 'en',
+      latitude,
+      longitude,
     });
+  };
+
+  const handleNewChat = () => {
+    setMessages([]);
+    setConversationId(undefined);
+    setInputValue('');
+    toast.success(locale === 'ar' ? 'تم بدء محادثة جديدة' : 'Started a new conversation');
   };
 
   const handleAccept = (msgId: string, suggestion: Suggestion) => {
@@ -311,11 +335,21 @@ export default function AIChat() {
               </div>
             </div>
 
-            <button
-              onClick={() => setIsOpen(false)}
-              className="p-1.5 rounded-full hover:bg-white/10 transition-colors text-white cursor-pointer">
-              <X className="size-4" />
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={handleNewChat}
+                title={locale === 'ar' ? 'محادثة جديدة' : 'New Chat'}
+                className="p-1.5 rounded-full hover:bg-white/10 transition-colors text-white cursor-pointer"
+              >
+                <RotateCcw className="size-4" />
+              </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-1.5 rounded-full hover:bg-white/10 transition-colors text-white cursor-pointer"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
           </div>
 
           {/* Messages area */}
