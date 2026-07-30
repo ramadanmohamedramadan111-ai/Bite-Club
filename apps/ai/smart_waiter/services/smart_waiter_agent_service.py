@@ -108,6 +108,39 @@ class SmartWaiterAgentService:
                     "raw_response": cleaned_message
                 }
 
+        # Fix total price hallucination
+        rec_restaurant_id = res.get("recommended_restaurant_id")
+        items = res.get("items", [])
+        
+        if not rec_restaurant_id and items:
+            res["items"] = []
+            res["total_price"] = 0.0
+            res["recommended_menu_item_ids"] = []
+        elif rec_restaurant_id and items:
+            actual_total = 0.0
+            menu_categories = tool_results.get("menus", {}).get(rec_restaurant_id, [])
+            
+            for item in items:
+                item_id = item.get("id")
+                quantity = item.get("quantity", 1)
+                real_price = None
+                
+                for cat in menu_categories:
+                    for menu_item in cat.get("items", []):
+                        if menu_item.get("id") == item_id:
+                            real_price = menu_item.get("price")
+                            break
+                    if real_price is not None:
+                        break
+                        
+                if real_price is not None:
+                    item["price"] = float(real_price)
+                    actual_total += float(real_price) * quantity
+                else:
+                    actual_total += float(item.get("price", 0)) * quantity
+                    
+            res["total_price"] = actual_total
+
         return res
 
     def _extract_message(self, final):

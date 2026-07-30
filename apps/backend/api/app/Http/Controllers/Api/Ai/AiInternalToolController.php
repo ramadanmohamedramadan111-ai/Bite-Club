@@ -335,7 +335,9 @@ class AiInternalToolController extends Controller
             });
 
         if ($lat !== null && $lng !== null) {
-            $restaurants = $restaurants->sortBy('distance_km');
+            $restaurants = $restaurants->sortBy(function($restaurant) {
+                return $restaurant['distance_km'] ?? 999999;
+            });
         }
 
         $restaurants = $restaurants->values();
