@@ -87,7 +87,7 @@ class KashierPaymentGateway implements PaymentGatewayInterface
                 'merchantId' => $merchantId,
                 'amount' => (string) $invoice->amount,
                 'currency' => $currency,
-                'order' => 'INV-' . $invoice->id,
+                'order' => 'INV-' . $invoice->id . '-' . time(),
                 'paymentType' => 'credit',
                 'type' => 'one-time',
                 'allowedMethods' => 'card,wallet',

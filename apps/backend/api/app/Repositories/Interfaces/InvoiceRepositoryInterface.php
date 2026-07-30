@@ -11,4 +11,5 @@ interface InvoiceRepositoryInterface extends BaseRepositoryInterface
     public function markAsOverdue(array $invoiceIds): void;
     public function getForRestaurant(int $restaurantId, array $filters, int $perPage = 15): array;
     public function findByIdForRestaurant(int $id, int $restaurantId): ?Invoice;
+    public function hasOverdueInvoices(int $restaurantId): bool;
 }

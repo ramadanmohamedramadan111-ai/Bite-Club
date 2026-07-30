@@ -57,7 +57,7 @@ class InvoiceDomainService
                     // Assume billing cycle is the previous month
                     $startDate = now()->subMonth()->startOfMonth()->toDateString();
                     $endDate = now()->subMonth()->endOfMonth()->toDateString();
-                    $dueDate = now()->addDays(5)->toDateString(); // Due in 5 days
+                    $dueDate =  now()->subMonth()->endOfMonth()->toDateString(); // Due in 5 days
 
                     // Create the Invoice
                     $invoice = $this->invoiceRepository->create([
@@ -133,5 +133,44 @@ class InvoiceDomainService
         }
 
         return $sessionUrl;
+    }
+
+    public function handlePaymentWebhook(string $orderId, string $status, ?string $transactionId = null): void
+    {
+        // $orderId looks like "INV-1-1701234567"
+        if (str_starts_with($orderId, 'INV-')) {
+            $parts = explode('-', $orderId);
+            if (count($parts) >= 2) {
+                $invoiceId = (int) $parts[1];
+            } else {
+                return;
+            }
+        } else {
+            return;
+        }
+
+        $invoice = $this->invoiceRepository->find($invoiceId);
+
+        if (!$invoice) {
+            Log::error("Invoice Webhook Error: Invoice not found for ID: {$invoiceId}");
+            return;
+        }
+
+        if ($status === 'SUCCESS' && $invoice->status !== InvoiceStatusEnum::PAID->value) {
+            DB::transaction(function () use ($invoice, $transactionId) {
+                // 1. Mark Invoice as PAID
+                $this->invoiceRepository->update($invoice->id, [
+                    'status' => InvoiceStatusEnum::PAID->value,
+                    'payment_gateway_ref' => $transactionId ?? 'Kashier_Webhook',
+                    'paid_at' => now(),
+                ]);
+
+                // 2. Check if the restaurant has ANY other overdue invoices
+                if (!$this->invoiceRepository->hasOverdueInvoices($invoice->restaurant_id)) {
+                    // Unsuspend restaurant
+                    $this->restaurantRepository->activateRestaurant($invoice->restaurant_id);
+                }
+            });
+        }
     }
 }

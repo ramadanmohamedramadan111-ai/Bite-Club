@@ -59,4 +59,12 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
             ->where('restaurant_id', $restaurantId)
             ->first();
     }
+
+    public function hasOverdueInvoices(int $restaurantId): bool
+    {
+        return $this->model
+            ->where('restaurant_id', $restaurantId)
+            ->where('status', InvoiceStatusEnum::OVERDUE->value)
+            ->exists();
+    }
 }

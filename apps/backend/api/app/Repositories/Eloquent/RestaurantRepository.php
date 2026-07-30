@@ -145,7 +145,7 @@ class RestaurantRepository extends BaseRepository implements RestaurantRepositor
             ->update(['status' => RestaurantStatusEnum::SUSPENDED->value]);
     }
 
-    public function findPendingRestaurants(): Collection
+    public function findPendingRestaurants():  \Illuminate\Database\Eloquent\Collection
     {
         return $this->model->where('status', RestaurantStatusEnum::PENDING_APPROVAL->value)->get();
     }
@@ -153,6 +153,13 @@ class RestaurantRepository extends BaseRepository implements RestaurantRepositor
     public function approveRestaurant(int $id): bool
     {
         return $this->update($id, ['status' => RestaurantStatusEnum::ACTIVE->value]);
+    }
+
+    public function activateRestaurant(int $restaurantId): bool
+    {
+        return (bool) $this->model->where('id', $restaurantId)->update([
+            'status' => RestaurantStatusEnum::ACTIVE->value
+        ]);
     }
 
     public function findForUser(int $id): ?Restaurant
