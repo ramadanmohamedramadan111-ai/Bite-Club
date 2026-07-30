@@ -1103,6 +1103,36 @@
         "desc": "Place {count} orders"
       }
     }
+  },
+  "reviews": {
+    "rating": {
+      "min": "Rating must be at least 1 star",
+      "max": "Rating cannot exceed 5 stars"
+    },
+    "comment": {
+      "required": "Review comment is required"
+    },
+    "restaurantId": {
+      "positive": "Invalid restaurant ID"
+    },
+    "myReview": "Your Review",
+    "editReview": "Edit Review",
+    "deleteReview": "Delete Review",
+    "writeReview": "Write a Review",
+    "ratingLabel": "Rating",
+    "commentLabel": "Comment",
+    "commentPlaceholder": "Share your experience with this restaurant...",
+    "submit": "Submit Review",
+    "cancel": "Cancel",
+    "update": "Update Review",
+    "deleteConfirmTitle": "Delete Review?",
+    "deleteConfirmDesc": "Are you sure you want to delete your review? This action cannot be undone.",
+    "addReviewSuccess": "Review posted successfully!",
+    "updateReviewSuccess": "Review updated successfully!",
+    "deleteReviewSuccess": "Review deleted successfully!",
+    "ratingRequired": "Please select a rating",
+    "averageRating": "Average Rating",
+    "reviewPlaceholder": "No comment provided."
   }
 }
 
