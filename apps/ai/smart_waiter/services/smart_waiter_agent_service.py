@@ -2,11 +2,12 @@ import json
 import os
 import urllib.error
 import urllib.request
+from django.core.cache import cache
 
 from ai_assistant.services.laravel_tool_client import LaravelToolClient
 from .smart_waiter_prompt_builder import SmartWaiterPromptBuilder
-from review_rag.services.embedding_service import EmbeddingService
-from review_rag.services.vector_search_service import VectorSearchService
+from review_rag.services.review_rag_orchestrator import ReviewRagOrchestrator
+from review_rag.services.menu_rag_orchestrator import MenuRagOrchestrator
 
 class SmartWaiterAgentService:
     def __init__(self):
@@ -17,8 +18,8 @@ class SmartWaiterAgentService:
         self.max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", "1200"))
         self.prompt_builder = SmartWaiterPromptBuilder()
         self.tool_client = LaravelToolClient()
-        self.embedding_service = EmbeddingService()
-        self.vector_search = VectorSearchService()
+        self.rag_orchestrator = ReviewRagOrchestrator()
+        self.menu_rag_orchestrator = MenuRagOrchestrator()
 
     def chat(self, payload):
         if not self.api_key:
@@ -31,8 +32,8 @@ class SmartWaiterAgentService:
         filtered_restaurants = []
         try:
             filter_payload = {}
-            if payload.get("latitude"): filter_payload["latitude"] = payload["latitude"]
-            if payload.get("longitude"): filter_payload["longitude"] = payload["longitude"]
+            if payload.get("latitude"): filter_payload["latitude"] = payload.get("latitude")
+            if payload.get("longitude"): filter_payload["longitude"] = payload.get("longitude")
             
             res = self.tool_client.call("filtered-restaurants", filter_payload)
             filtered_restaurants = res.get("restaurants", [])
@@ -42,28 +43,15 @@ class SmartWaiterAgentService:
 
         restaurant_ids = [r["id"] for r in filtered_restaurants] if filtered_restaurants else []
 
-        # 2. Dynamic Data Loading (Menus of top 3 open restaurants)
-        target_restaurant_ids = restaurant_ids[:3]
-        tool_results["menus"] = {}
-        for rid in target_restaurant_ids:
-            try:
-                menu_data = self.tool_client.call("menu", {}, rid)
-                tool_results["menus"][rid] = menu_data.get("categories", [])
-            except Exception:
-                pass
+        # 2. Dynamic Data Loading (Relevant Menus via RAG)
+        tool_results["relevant_menu_items"] = self.menu_rag_orchestrator.get_relevant_menu_items(
+            message, 
+            restaurant_ids[:3], 
+            limit=10
+        )
 
         # 3. Review RAG
-        if restaurant_ids:
-            try:
-                query_emb = self.embedding_service.embed_text(message)
-                rag_results = self.vector_search.search(restaurant_ids, query_emb, limit=5)
-                review_ids = [r["review_id"] for r in rag_results]
-                
-                if review_ids:
-                    reviews_data = self.tool_client.call("reviews", {"review_ids": review_ids})
-                    tool_results["relevant_reviews"] = reviews_data.get("reviews", [])
-            except Exception as e:
-                tool_results["relevant_reviews"] = {"error": str(e)}
+        tool_results["relevant_reviews"] = self.rag_orchestrator.get_relevant_reviews(message, restaurant_ids, limit=5)
 
         # 4. Generate Final Recommendation
         system_prompt = self.prompt_builder.build(payload)
@@ -117,20 +105,21 @@ class SmartWaiterAgentService:
             res["total_price"] = 0.0
             res["recommended_menu_item_ids"] = []
         elif rec_restaurant_id and items:
-            actual_total = 0.0
-            menu_categories = tool_results.get("menus", {}).get(rec_restaurant_id, [])
+            # Filter out any hallucinated items with null IDs to protect the frontend
+            valid_items = [item for item in items if item.get("id") is not None]
+            res["items"] = valid_items
             
-            for item in items:
+            actual_total = 0.0
+            relevant_items = tool_results.get("relevant_menu_items", [])
+            
+            for item in valid_items:
                 item_id = item.get("id")
                 quantity = item.get("quantity", 1)
                 real_price = None
                 
-                for cat in menu_categories:
-                    for menu_item in cat.get("items", []):
-                        if menu_item.get("id") == item_id:
-                            real_price = menu_item.get("price")
-                            break
-                    if real_price is not None:
+                for r_item in relevant_items:
+                    if r_item.get("restaurant_id") == rec_restaurant_id and r_item.get("item", {}).get("id") == item_id:
+                        real_price = r_item.get("item", {}).get("price")
                         break
                         
                 if real_price is not None:
