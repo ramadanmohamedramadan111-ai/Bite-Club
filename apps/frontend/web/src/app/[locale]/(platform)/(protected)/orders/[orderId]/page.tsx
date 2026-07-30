@@ -1,5 +1,6 @@
 import { serverFetch } from '@/utils/server-fetch';
 import { getTranslations } from 'next-intl/server';
+import { cookies } from 'next/headers';
 import type { ApiResponse } from '@/types/api';
 import type { OrderDetails } from '@/types/order';
 import OrderDetailPageView from '@/components/orders/OrderDetailPageView';
@@ -19,6 +20,12 @@ export default async function OrderDetailPage({
 
   const response = await serverFetch<ApiResponse<OrderDetails>>(
     `/user/orders/${orderId}`,
+    'GET',
+    {
+      next: {
+        tags: [`order-details-${orderId}`],
+      },
+    },
   );
 
   const order = response.data;
@@ -37,6 +44,9 @@ export default async function OrderDetailPage({
     );
   }
 
-  return <OrderDetailPageView order={order} />;
+  const cookieStore = await cookies();
+  const token = cookieStore.get('accessToken')?.value || null;
+
+  return <OrderDetailPageView order={order} token={token} />;
 }
 

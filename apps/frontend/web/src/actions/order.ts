@@ -1,6 +1,7 @@
 'use server';
 
 import { actionClient } from '@/lib/safe-action';
+import { z } from 'zod';
 import { idSchema } from '@/schemas/common/id-schema';
 import { ApiResponse } from '@/types/api';
 import { getUserId } from '@/utils/api-helpers';
@@ -35,5 +36,13 @@ export const cancelOrder = actionClient
     updateTag(`cart-${userId}`);
 
     return response;
+  });
+
+export const revalidateOrderDetailsAction = actionClient
+  .inputSchema(z.object({ orderId: z.string() }))
+  .action(async ({ parsedInput }) => {
+    const { orderId } = parsedInput;
+    updateTag(`order-details-${orderId}`);
+    return { success: true };
   });
 

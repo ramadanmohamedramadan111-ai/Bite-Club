@@ -1,7 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useState, useEffect } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
+import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
+import { useRouter } from '@/i18n/navigation';
 import {
   ArrowLeft,
   CreditCard,
@@ -19,7 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import ConfirmDialog from '@/components/shared/ConfirmationDialog';
 import type { OrderDetails } from '@/types/order';
-import { cancelOrder } from '@/actions/order';
+import { cancelOrder, revalidateOrderDetailsAction } from '@/actions/order';
 import { OrderStatusBadge } from './OrderStatusBadge';
 import { cn } from '@/lib/utils';
 
@@ -36,12 +39,78 @@ function formatOrderDate(date: string) {
 
 export default function OrderDetailPageView({
   order,
+  token,
 }: {
   order: OrderDetails;
+  token: string | null;
 }) {
   const t = useTranslations('orderDetail');
   const tc = useTranslations('common');
+  const locale = useLocale();
+  const router = useRouter();
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+
+  const { execute: revalidateOrder } = useAction(
+    revalidateOrderDetailsAction,
+    {
+      onSuccess: () => {
+        router.refresh();
+      },
+    },
+  );
+
+  // Laravel Echo WebSocket Listener for order status updates
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    // Attach Pusher to window so Laravel Echo can find it
+    (window as any).Pusher = Pusher;
+
+    const wsHost = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+    const reverbKey = process.env.NEXT_PUBLIC_REVERB_APP_KEY || '7shjlvmsslgdjgltf46x';
+
+    const echo = new Echo({
+      broadcaster: 'reverb',
+      key: reverbKey,
+      wsHost: wsHost,
+      wsPort: 8081,
+      wssPort: 8081,
+      forceTLS: false,
+      enabledTransports: ['ws', 'wss'],
+      authEndpoint: '/api/broadcasting/auth',
+      auth: {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : '',
+          Accept: 'application/json',
+        },
+      },
+    });
+
+    const channelName = `order.${order.id}`;
+    console.log(`[Echo] Joining private channel: ${channelName}`);
+
+    const channel = echo.private(channelName);
+
+    channel.listen('.order.status.updated', (data: any) => {
+      console.log('[Echo] Order status updated event received:', data);
+      
+      // Toast message
+      toast.success(
+        locale === 'ar' 
+          ? 'تم تحديث حالة الطلب بنجاح!' 
+          : 'Order status has been updated successfully!'
+      );
+
+      // Revalidate fetching of order status
+      revalidateOrder({ orderId: String(order.id) });
+    });
+
+    return () => {
+      console.log(`[Echo] Leaving private channel: ${channelName}`);
+      echo.leave(channelName);
+      echo.disconnect();
+    };
+  }, [order.id, token, locale, revalidateOrder]);
 
   const { execute: executeCancel, isExecuting: isCancelling } = useAction(
     cancelOrder,
@@ -123,37 +192,38 @@ export default function OrderDetailPageView({
                 <div className="relative pl-6 space-y-6 after:absolute after:inset-y-1 after:left-1.5 after:w-0.5 after:bg-border/40">
                   {order.tracking.steps.map((step) => (
                     <div key={step.status} className="relative flex items-start gap-4">
-                      {/* Outer pulse effect if active */}
-                      <div
-                        className={cn(
-                          "absolute -left-5 z-10 flex size-3.5 items-center justify-center rounded-full border-2",
-                          step.state === 'active'
-                            ? 'bg-primary border-primary animate-ping opacity-75'
-                            : step.state === 'completed'
-                              ? 'bg-emerald-500 border-emerald-500'
-                              : 'bg-background border-border/80'
-                        )}
-                      />
+                      {/* Outer pulse effect if active and not cancelled/completed */}
+                      {step.state === 'active' && !order.tracking.is_cancelled && order.status !== 'completed' && (
+                        <div className="absolute -left-5 z-10 flex size-3.5 items-center justify-center rounded-full border-2 bg-emerald-500 border-emerald-500 animate-ping opacity-75" />
+                      )}
                       {/* Solid indicator dot overlay */}
                       <div
                         className={cn(
                           "absolute -left-5 z-10 size-3.5 rounded-full border-2",
-                          step.state === 'active'
-                            ? 'bg-primary border-primary'
-                            : step.state === 'completed'
-                              ? 'bg-emerald-500 border-emerald-500'
-                              : 'bg-background border-border/85'
+                          order.status === 'completed'
+                            ? 'bg-emerald-500 border-emerald-500'
+                            : step.state === 'active'
+                              ? order.tracking.is_cancelled
+                                ? 'bg-rose-500 border-rose-500'
+                                : 'bg-emerald-500 border-emerald-500'
+                              : step.state === 'completed'
+                                ? 'bg-emerald-500 border-emerald-500'
+                                : 'bg-background border-border/85'
                         )}
                       />
                       <div className="flex flex-col gap-0.5">
                         <span
                           className={cn(
                             "text-sm font-bold transition-colors",
-                            step.state === 'active'
-                              ? 'text-primary'
-                              : step.state === 'completed'
-                                ? 'text-foreground/90'
-                                : 'text-muted-foreground'
+                            order.status === 'completed'
+                              ? 'text-emerald-600 dark:text-emerald-400'
+                              : step.state === 'active'
+                                ? order.tracking.is_cancelled
+                                  ? 'text-rose-600 dark:text-rose-400'
+                                  : 'text-emerald-600 dark:text-emerald-400'
+                                : step.state === 'completed'
+                                  ? 'text-emerald-600 dark:text-emerald-400'
+                                  : 'text-muted-foreground'
                           )}
                         >
                           {step.label}
