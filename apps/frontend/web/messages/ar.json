@@ -1102,6 +1102,36 @@
         "desc": "قم بـ {count} طلبات"
       }
     }
+  },
+  "reviews": {
+    "rating": {
+      "min": "يجب أن يكون التقييم نجمة واحدة على الأقل",
+      "max": "لا يمكن أن يتجاوز التقييم 5 نجوم"
+    },
+    "comment": {
+      "required": "تعليق التقييم مطلوب"
+    },
+    "restaurantId": {
+      "positive": "معرف المطعم غير صالح"
+    },
+    "myReview": "تقييمك",
+    "editReview": "تعديل التقييم",
+    "deleteReview": "حذف التقييم",
+    "writeReview": "اكتب تقييماً",
+    "ratingLabel": "التقييم",
+    "commentLabel": "التعليق",
+    "commentPlaceholder": "شارك تجربتك مع هذا المطعم...",
+    "submit": "إرسال التقييم",
+    "cancel": "إلغاء",
+    "update": "تحديث التقييم",
+    "deleteConfirmTitle": "حذف التقييم؟",
+    "deleteConfirmDesc": "هل أنت متأكد من أنك تريد حذف تقييمك؟ لا يمكن التراجع عن هذا الإجراء.",
+    "addReviewSuccess": "تم نشر التقييم بنجاح!",
+    "updateReviewSuccess": "تم تحديث التقييم بنجاح!",
+    "deleteReviewSuccess": "تم حذف التقييم بنجاح!",
+    "ratingRequired": "يرجى تحديد التقييم",
+    "averageRating": "متوسط التقييم",
+    "reviewPlaceholder": "لا يوجد تعليق."
   }
 }
 

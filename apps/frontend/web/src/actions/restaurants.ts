@@ -1,0 +1,63 @@
+'use server';
+
+import { actionClient } from '@/lib/safe-action';
+import { idSchema } from '@/schemas/common/id-schema';
+import { createReviewSchema } from '@/schemas/restaurants/create-review-schema';
+import { ApiResponse } from '@/types/api';
+import { RestaurantReviewCreateResponse } from '@/types/restaurant';
+import { getUserId } from '@/utils/api-helpers';
+import { serverFetch } from '@/utils/server-fetch';
+import { getTranslations } from 'next-intl/server';
+import { updateTag } from 'next/cache';
+
+export const createReviewAction = actionClient
+  .inputSchema(async () => {
+    const t = await getTranslations('reviews');
+    return createReviewSchema(t);
+  })
+  .action(async ({ parsedInput }) => {
+    const { restaurant_id, ...body } = parsedInput;
+    const userId = await getUserId();
+    const response = await serverFetch<
+      ApiResponse<RestaurantReviewCreateResponse>
+    >(`/user/restaurants/${restaurant_id}/reviews`, 'POST', {
+      body: body,
+    });
+
+    updateTag(`groups-${userId}`);
+
+    return response;
+  });
+
+export const updateReviewAction = actionClient
+  .inputSchema(async () => {
+    const t = await getTranslations('reviews');
+    return createReviewSchema(t);
+  })
+  .action(async ({ parsedInput }) => {
+    const { restaurant_id, ...body } = parsedInput;
+    const userId = await getUserId();
+    const response = await serverFetch<
+      ApiResponse<RestaurantReviewCreateResponse>
+    >(`/user/restaurants/${restaurant_id}/reviews`, 'PUT', {
+      body: body,
+    });
+
+    updateTag(`groups-${userId}`);
+
+    return response;
+  });
+
+export const deleteReviewAction = actionClient
+  .inputSchema(idSchema)
+  .action(async ({ parsedInput }) => {
+    const userId = await getUserId();
+    const response = await serverFetch<
+      ApiResponse<RestaurantReviewCreateResponse>
+    >(`/user/restaurants/${parsedInput}/reviews`, 'DELETE');
+
+    updateTag(`groups-${userId}`);
+
+    return response;
+  });
+

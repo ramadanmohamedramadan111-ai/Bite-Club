@@ -10,6 +10,17 @@ export type RestaurantReview = {
   created_at: string;
 };
 
+export interface RestaurantReviewCreateResponse {
+  id: number;
+  rating: number;
+  comment: string;
+  created_at: string;
+}
+
+export interface RestaurantReviewUser extends RestaurantReviewCreateResponse {
+  updated_at: string;
+}
+
 export interface RestaurantCategory {
   id: number;
   name: string;
