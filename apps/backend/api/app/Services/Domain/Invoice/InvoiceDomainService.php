@@ -3,6 +3,7 @@
 namespace App\Services\Domain\Invoice;
 
 use \App\Models\Invoice;
+use \App\Services\Infrastructure\Payment\KashierPaymentGateway;
 use App\Enums\Invoice\InvoiceStatusEnum;
 use App\Enums\Invoice\PlatformDueStatusEnum;
 use App\Models\Order;
@@ -19,7 +20,8 @@ class InvoiceDomainService
         private PlatformDueRepositoryInterface $platformDueRepository,
         private GeneralSettingRepositoryInterface $generalSettingRepository,
         private InvoiceRepositoryInterface $invoiceRepository,
-        private RestaurantRepositoryInterface $restaurantRepository
+        private RestaurantRepositoryInterface $restaurantRepository,
+        private KashierPaymentGateway $kashierPaymentGateway
     ) {}
 
     public function capturePlatformDue(Order $order): void
@@ -114,5 +116,22 @@ class InvoiceDomainService
         }
 
         return $invoice;
+    }
+
+    public function payInvoice(int $id, int $restaurantId): string
+    {
+        $invoice = $this->getRestaurantInvoiceDetails($id, $restaurantId);
+
+        if ($invoice->status === InvoiceStatusEnum::PAID->value) {
+            throw new \DomainException(trans('invoice.already_paid') ?? 'Invoice is already paid.');
+        }
+
+        $sessionUrl = $this->kashierPaymentGateway->createInvoicePaymentSession($invoice);
+
+        if (!$sessionUrl) {
+            throw new \DomainException(trans('invoice.payment_failed') ?? 'Failed to initialize payment session.');
+        }
+
+        return $sessionUrl;
     }
 }
