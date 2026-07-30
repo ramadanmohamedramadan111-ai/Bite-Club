@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\RestaurantCategoryController;
 use App\Http\Controllers\Api\MenuCategoryController;
 use App\Http\Controllers\Api\MenuItemController;
 use App\Http\Controllers\Api\Restaurant\OrderController;
+use App\Http\Controllers\Api\Restaurant\InvoiceController;
 
 Route::post('/register', [RestaurantAuthController::class, 'register'])->name('register');
 Route::post('/login',    [RestaurantAuthController::class, 'login'])->name('login');
@@ -55,5 +56,9 @@ Route::middleware('auth.restaurant')->group(function () {
         Route::get('/history', [OrderController::class, 'history'])->name('history');
         Route::get('/{orderId}/available-statuses', [OrderController::class, 'availableStatuses'])->name('available-statuses');
         Route::patch('/{orderId}/status', [OrderController::class, 'updateStatus'])->name('update-status');
+    });
+
+    Route::prefix('invoices')->name('invoices.')->group(function () {
+        Route::get('/', [InvoiceController::class, 'index'])->name('index');
     });
 });

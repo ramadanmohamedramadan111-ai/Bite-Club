@@ -98,4 +98,9 @@ class InvoiceDomainService
 
         return count($invoiceIds);
     }
+
+    public function getRestaurantInvoices(int $restaurantId, array $filters, int $perPage = 15): array
+    {
+        return $this->invoiceRepository->getForRestaurant($restaurantId, $filters, $perPage);
+    }
 }
