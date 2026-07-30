@@ -19,3 +19,6 @@ Schedule::call(function (LeaderboardApplicationService $service) {
 
 Schedule::command('orders:cancel-expired')->everyFifteenMinutes();
 Schedule::command('orders:cancel-forgotten')->everyFifteenMinutes();
+
+// Generate platform invoices on the 1st day of every month at midnight
+Schedule::command('invoices:generate')->monthlyOn(1, '00:00');
