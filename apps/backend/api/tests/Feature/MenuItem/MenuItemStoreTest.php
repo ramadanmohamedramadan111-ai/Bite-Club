@@ -45,7 +45,11 @@ class MenuItemStoreTest extends RestaurantAuthTest
         
         // Assert file was uploaded
         $imageUrl = $response->json('data.image_url');
-        Storage::disk('public')->assertExists(str_replace('/storage/', '', $imageUrl));
+        $path = ltrim(parse_url($imageUrl, PHP_URL_PATH) ?? $imageUrl, '/');
+        if (str_starts_with($path, 'storage/')) {
+            $path = substr($path, 8);
+        }
+        Storage::disk('public')->assertExists($path);
     }
 
     public function test_restaurant_cannot_create_duplicate_menu_item_in_same_category(): void

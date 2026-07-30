@@ -4,8 +4,12 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
+use App\Traits\UrlFormatterTrait;
+
 class RestaurantProfileResource extends JsonResource
 {
+    use UrlFormatterTrait;
+
     public function toArray($request): array
     {
         return [
@@ -14,8 +18,8 @@ class RestaurantProfileResource extends JsonResource
             'description'     => $this->description,
             'phone_number'    => $this->phone_number,
             'address'         => $this->address,
-            'logo_url'        => $this->logo_url ? url($this->logo_url) : config('app.url') . '/storage/restaurants/restaurant.jpeg',
-            'cover_image_url' => $this->cover_image_url ? url($this->cover_image_url) : config('app.url') . '/storage/restaurants/restaurant.jpeg',
+            'logo_url'        => $this->formatImageUrl($this->logo_url) ?? $this->formatImageUrl('storage/restaurants/restaurant.jpeg'),
+            'cover_image_url' => $this->formatImageUrl($this->cover_image_url) ?? $this->formatImageUrl('storage/restaurants/restaurant.jpeg'),
             'category_id'     => $this->category_id ? (int) $this->category_id : null,
         ];
     }

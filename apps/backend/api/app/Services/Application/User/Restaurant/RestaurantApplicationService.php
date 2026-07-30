@@ -8,8 +8,12 @@ use App\Services\Domain\User\Restaurant\RestaurantDomainService;
 use App\Http\Resources\User\Restaurant\RestaurantResource;
 use App\Http\Resources\User\Restaurant\RestaurantDetailResource;
 
+use App\Traits\UrlFormatterTrait;
+
 class RestaurantApplicationService
 {
+    use UrlFormatterTrait;
+
     public function __construct(
         private RestaurantDomainService $restaurantDomainService
     ) {}
@@ -47,8 +51,8 @@ class RestaurantApplicationService
                 'id'              => $restaurant->id,
                 'name'            => $restaurant->name,
                 'description'     => $restaurant->description,
-                'logo_url'        => $restaurant->logo_url ? url($restaurant->logo_url) : config('app.url') . '/storage/restaurants/restaurant.jpeg',
-                'cover_image_url' => $restaurant->cover_image_url ? url($restaurant->cover_image_url) : config('app.url') . '/storage/restaurants/restaurant.jpeg',
+                'logo_url'        => $this->formatImageUrl($restaurant->logo_url) ?? $this->formatImageUrl('storage/restaurants/restaurant.jpeg'),
+                'cover_image_url' => $this->formatImageUrl($restaurant->cover_image_url) ?? $this->formatImageUrl('storage/restaurants/restaurant.jpeg'),
                 'distance'        => isset($restaurant->distance) ? round($restaurant->distance, 2) : null,
                 'average_rating'  => $restaurant->average_rating,
                 'reviews_count'   => $restaurant->reviews_count,

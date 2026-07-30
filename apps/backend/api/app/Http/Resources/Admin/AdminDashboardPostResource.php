@@ -4,27 +4,16 @@ namespace App\Http\Resources\Admin;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Traits\UrlFormatterTrait;
 
 class AdminDashboardPostResource extends JsonResource
 {
+    use UrlFormatterTrait;
+
     public function toArray(Request $request): array
     {
         $firstImage = $this->images->first();
-        $imageUrl = null;
-        if ($firstImage && $firstImage->image_url) {
-            $imageUrl = $firstImage->image_url;
-            $path = parse_url($imageUrl, PHP_URL_PATH) ?? '';
-            if ($path) {
-                $scheme = $request->getScheme();
-                $host = $request->header('host') ?? $request->getHost();
-
-                if (str_contains($host, 'localhost') && !str_contains($host, ':')) {
-                    $host .= ':8080';
-                }
-
-                $imageUrl = "{$scheme}://{$host}{$path}";
-            }
-        }
+        $imageUrl = $firstImage ? $this->formatImageUrl($firstImage->image_url) : null;
 
         return [
             'id'          => $this->id,
