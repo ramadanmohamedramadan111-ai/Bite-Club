@@ -22,6 +22,6 @@ enum RestaurantStatusEnum: string
 
     public function canLogin(): bool
     {
-        return $this === self::ACTIVE;
+        return in_array($this, [self::ACTIVE, self::SUSPENDED]);
     }
 }

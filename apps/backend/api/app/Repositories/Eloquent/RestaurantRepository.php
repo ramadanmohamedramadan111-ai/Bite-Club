@@ -138,6 +138,13 @@ class RestaurantRepository extends BaseRepository implements RestaurantRepositor
         ];
     }
 
+    public function suspendRestaurants(array $restaurantIds): void
+    {
+        $this->model
+            ->whereIn('id', $restaurantIds)
+            ->update(['status' => RestaurantStatusEnum::SUSPENDED->value]);
+    }
+
     public function findForUser(int $id): ?Restaurant
     {
         return $this->query()

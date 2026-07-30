@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Repositories\Interfaces\PlatformDueRepositoryInterface;
 use App\Repositories\Interfaces\GeneralSettingRepositoryInterface;
 use App\Repositories\Interfaces\InvoiceRepositoryInterface;
+use App\Repositories\Interfaces\RestaurantRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -16,7 +17,8 @@ class InvoiceDomainService
     public function __construct(
         private PlatformDueRepositoryInterface $platformDueRepository,
         private GeneralSettingRepositoryInterface $generalSettingRepository,
-        private InvoiceRepositoryInterface $invoiceRepository
+        private InvoiceRepositoryInterface $invoiceRepository,
+        private RestaurantRepositoryInterface $restaurantRepository
     ) {}
 
     public function capturePlatformDue(Order $order): void
@@ -76,5 +78,24 @@ class InvoiceDomainService
         }
 
         return $invoicesCreatedCount;
+    }
+
+    public function checkAndProcessOverdueInvoices(): int
+    {
+        $overdueInvoices = $this->invoiceRepository->getUnpaidOverdueInvoices();
+        
+        if ($overdueInvoices->isEmpty()) {
+            return 0;
+        }
+
+        $invoiceIds = $overdueInvoices->pluck('id')->toArray();
+        $restaurantIds = $overdueInvoices->pluck('restaurant_id')->unique()->toArray();
+
+        DB::transaction(function () use ($invoiceIds, $restaurantIds) {
+            $this->invoiceRepository->markAsOverdue($invoiceIds);
+            $this->restaurantRepository->suspendRestaurants($restaurantIds);
+        });
+
+        return count($invoiceIds);
     }
 }
