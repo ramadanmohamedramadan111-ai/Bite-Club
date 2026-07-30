@@ -1,6 +1,6 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
 import { Users, Trash2, Lock, XCircle, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -61,6 +61,7 @@ export default function GroupOrderPageView({
 }: Props) {
   const t = useTranslations('groups');
   const tc = useTranslations('common');
+  const locale = useLocale();
   const router = useRouter();
   const restaurant = sessionCart.restaurant;
   const membersSummary = sessionCart.members_summary;
@@ -81,7 +82,8 @@ export default function GroupOrderPageView({
 
     const wsHost =
       typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-    const reverbKey = process.env.NEXT_PUBLIC_REVERB_APP_KEY || '7shjlvmsslgdjgltf46x';
+    const reverbKey =
+      process.env.NEXT_PUBLIC_REVERB_APP_KEY || '7shjlvmsslgdjgltf46x';
 
     const echo = new Echo({
       broadcaster: 'reverb',
@@ -118,9 +120,39 @@ export default function GroupOrderPageView({
     });
 
     channel.listen('.item.added', (data: any) => {
-      console.log('[Echo] Group order item added event received:', data);
-
-      // Trigger cache revalidation on the server and page refresh
+      revalidateSession({ sessionId });
+    });
+    channel.listen('.item.quantity.updated', (data: any) => {
+      revalidateSession({ sessionId });
+    });
+    channel.listen('.item.removed', (data: any) => {
+      revalidateSession({ sessionId });
+    });
+    channel.listen('.user.items.cleared', (data: any) => {
+      revalidateSession({ sessionId });
+    });
+    channel.listen('.order.locked', (data: any) => {
+      toast.warning(
+        locale === 'ar' ? 'تم قفل الطلب الجماعي.' : 'The group order has been locked.'
+      );
+      revalidateSession({ sessionId });
+    });
+    channel.listen('.order.unlocked', (data: any) => {
+      toast.success(
+        locale === 'ar' ? 'تم إلغاء قفل الطلب الجماعي.' : 'The group order has been unlocked.'
+      );
+      revalidateSession({ sessionId });
+    });
+    channel.listen('.order.cancelled', (data: any) => {
+      toast.error(
+        locale === 'ar' ? 'تم إلغاء الطلب الجماعي.' : 'The group order has been cancelled.'
+      );
+      revalidateSession({ sessionId });
+    });
+    channel.listen('.order.placed', (data: any) => {
+      toast.success(
+        locale === 'ar' ? 'تم تقديم الطلب الجماعي بنجاح!' : 'The group order has been placed successfully!'
+      );
       revalidateSession({ sessionId });
     });
 
