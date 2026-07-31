@@ -65,4 +65,27 @@ class OrderPaymentRepository extends BaseRepository implements OrderPaymentRepos
             ]
         ];
     }
+
+    public function getRestaurantStatistics(int $restaurantId): array
+    {
+        $stats = $this->model->whereHas('order', function ($q) use ($restaurantId) {
+            $q->where('restaurant_id', $restaurantId);
+        })
+        ->selectRaw("
+            SUM(CASE WHEN status = ? THEN amount ELSE 0 END) as total_paid,
+            SUM(CASE WHEN status = ? THEN amount ELSE 0 END) as total_pending,
+            SUM(CASE WHEN status = ? THEN amount ELSE 0 END) as total_failed
+        ", [
+            PaymentStatusEnum::PAID->value,
+            PaymentStatusEnum::PENDING->value,
+            PaymentStatusEnum::FAILED->value
+        ])
+        ->first();
+
+        return [
+            'total_paid' => (float) ($stats->total_paid ?? 0),
+            'total_pending' => (float) ($stats->total_pending ?? 0),
+            'total_failed' => (float) ($stats->total_failed ?? 0),
+        ];
+    }
 }

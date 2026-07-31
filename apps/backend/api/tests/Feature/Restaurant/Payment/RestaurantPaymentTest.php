@@ -81,4 +81,25 @@ class RestaurantPaymentTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonCount(1, 'data.data');
     }
+
+    public function test_restaurant_can_get_payment_statistics(): void
+    {
+        OrderPayment::factory()->create([
+            'order_id' => Order::factory()->create(['restaurant_id' => $this->restaurant->id])->id,
+            'status' => PaymentStatusEnum::PENDING->value,
+            'amount' => 50.0,
+        ]);
+
+        $response = $this->actingAs($this->restaurant, 'restaurant')->getJson('/api/restaurant/payments/statistics');
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'data' => [
+                    'total_paid' => 100.0,
+                    'total_pending' => 50.0,
+                    'total_failed' => 0.0,
+                ]
+            ]);
+    }
 }

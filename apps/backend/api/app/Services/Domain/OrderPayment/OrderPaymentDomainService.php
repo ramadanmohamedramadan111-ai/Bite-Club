@@ -14,4 +14,9 @@ class OrderPaymentDomainService
     {
         return $this->orderPaymentRepository->listRestaurantPayments($restaurantId, $filters, $perPage);
     }
+
+    public function getRestaurantStatistics(int $restaurantId): array
+    {
+        return $this->orderPaymentRepository->getRestaurantStatistics($restaurantId);
+    }
 }

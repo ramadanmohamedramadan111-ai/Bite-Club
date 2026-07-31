@@ -67,5 +67,6 @@ Route::middleware('auth.restaurant')->group(function () {
 
     Route::prefix('payments')->name('payments.')->group(function () {
         Route::get('/', [OrderPaymentController::class, 'index'])->name('index');
+        Route::get('/statistics', [OrderPaymentController::class, 'statistics'])->name('statistics');
     });
 });
