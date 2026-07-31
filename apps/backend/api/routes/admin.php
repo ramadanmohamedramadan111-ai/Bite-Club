@@ -72,6 +72,7 @@ Route::middleware('auth.admin')->group(function () {
 
     Route::prefix('invoices')->name('invoices.')->group(function () {
         Route::get('/', [InvoiceController::class, 'index'])->name('index');
+        Route::get('/statistics', [InvoiceController::class, 'statistics'])->name('statistics');
         Route::get('/{id}', [InvoiceController::class, 'show'])->name('show');
     });
 });

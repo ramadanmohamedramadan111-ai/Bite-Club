@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\Admin\Invoice\ListAdminInvoicesRequest;
 use App\DTOs\Admin\Invoice\ListAdminInvoicesDto;
+use App\Http\Requests\Admin\Invoice\GetInvoiceStatisticsRequest;
 use App\DTOs\Admin\Invoice\ShowAdminInvoiceDto;
 use App\Http\Requests\Admin\Invoice\ShowAdminInvoiceRequest;
 use App\Services\Application\Admin\Invoice\AdminInvoiceApplicationService;
@@ -43,6 +44,16 @@ class InvoiceController extends Controller
         return $this->successResponse(
             trans('invoice.retrieved_successfully'),
             new InvoiceResource($invoice)
+        );
+    }
+
+    public function statistics(GetInvoiceStatisticsRequest $request): JsonResponse
+    {
+        $statistics = $this->applicationService->getStatistics();
+
+        return $this->successResponse(
+            trans('invoice.statistics_retrieved_successfully') ?? 'Statistics retrieved successfully.',
+            $statistics
         );
     }
 }

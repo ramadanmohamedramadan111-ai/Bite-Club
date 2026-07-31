@@ -25,4 +25,9 @@ class AdminInvoiceApplicationService
     {
         return $this->invoiceDomainService->getAdminInvoiceDetails($dto->getId());
     }
+
+    public function getStatistics(): array
+    {
+        return $this->invoiceDomainService->getInvoiceStatistics();
+    }
 }

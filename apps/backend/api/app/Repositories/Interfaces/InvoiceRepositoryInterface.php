@@ -13,5 +13,6 @@ interface InvoiceRepositoryInterface extends BaseRepositoryInterface
     public function getAllInvoices(array $filters, int $perPage = 15): array;
     public function findByIdForRestaurant(int $id, int $restaurantId): ?Invoice;
     public function findByIdWithDetails(int $id): ?Invoice;
+    public function getStatistics(): array;
     public function hasOverdueInvoices(int $restaurantId): bool;
 }

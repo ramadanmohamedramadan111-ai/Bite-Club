@@ -76,4 +76,39 @@ class AdminInvoiceTest extends TestCase
             ->assertJsonPath('data.id', $this->invoice->id)
             ->assertJsonPath('data.restaurant.id', $this->restaurant->id);
     }
+
+    public function test_admin_can_view_invoice_statistics(): void
+    {
+        // Add another invoice to check aggregation
+        Invoice::factory()->create([
+            'restaurant_id' => $this->restaurant->id,
+            'status' => InvoiceStatusEnum::PAID->value,
+            'amount' => 1000.00,
+        ]);
+
+        $response = $this->actingAs($this->admin, 'admin')->getJson('/api/admin/invoices/statistics');
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'data' => [
+                    'total_invoices_count',
+                    'total_amount',
+                    'paid_invoices_count',
+                    'paid_amount',
+                    'unpaid_invoices_count',
+                    'unpaid_amount',
+                    'overdue_invoices_count',
+                    'overdue_amount',
+                ]
+            ]);
+
+        $response->assertJsonPath('data.total_invoices_count', 2)
+                 ->assertJsonPath('data.total_amount', 1500)
+                 ->assertJsonPath('data.paid_invoices_count', 1)
+                 ->assertJsonPath('data.paid_amount', 1000)
+                 ->assertJsonPath('data.unpaid_invoices_count', 1)
+                 ->assertJsonPath('data.unpaid_amount', 500);
+    }
 }

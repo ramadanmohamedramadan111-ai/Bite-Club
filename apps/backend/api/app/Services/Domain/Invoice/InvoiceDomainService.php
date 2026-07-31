@@ -112,6 +112,11 @@ class InvoiceDomainService
         return $this->invoiceRepository->getAllInvoices($filters, $perPage);
     }
 
+    public function getInvoiceStatistics(): array
+    {
+        return $this->invoiceRepository->getStatistics();
+    }
+
     public function getAdminInvoiceDetails(int $id): Invoice
     {
         $invoice = $this->invoiceRepository->findByIdWithDetails($id);

@@ -6,5 +6,6 @@ return [
     'not_found' => 'Invoice not found',
     'already_paid' => 'Invoice is already paid',
     'payment_failed' => 'Failed to initialize payment session',
-    'payment_session_created' => 'Payment session created successfully'
+    'payment_session_created' => 'Payment session created successfully',
+    'statistics_retrieved_successfully' => 'Statistics retrieved successfully.',
 ];

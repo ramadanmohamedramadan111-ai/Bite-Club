@@ -92,6 +92,38 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
             ->first();
     }
 
+    public function getStatistics(): array
+    {
+        $stats = $this->model->selectRaw('
+            count(*) as total_count,
+            sum(amount) as total_amount,
+            sum(case when status = ? then 1 else 0 end) as paid_count,
+            sum(case when status = ? then amount else 0 end) as paid_amount,
+            sum(case when status = ? then 1 else 0 end) as unpaid_count,
+            sum(case when status = ? then amount else 0 end) as unpaid_amount,
+            sum(case when status = ? then 1 else 0 end) as overdue_count,
+            sum(case when status = ? then amount else 0 end) as overdue_amount
+        ', [
+            InvoiceStatusEnum::PAID->value,
+            InvoiceStatusEnum::PAID->value,
+            InvoiceStatusEnum::UNPAID->value,
+            InvoiceStatusEnum::UNPAID->value,
+            InvoiceStatusEnum::OVERDUE->value,
+            InvoiceStatusEnum::OVERDUE->value
+        ])->first();
+
+        return [
+            'total_invoices_count' => (int) $stats->total_count,
+            'total_amount' => (float) $stats->total_amount,
+            'paid_invoices_count' => (int) $stats->paid_count,
+            'paid_amount' => (float) $stats->paid_amount,
+            'unpaid_invoices_count' => (int) $stats->unpaid_count,
+            'unpaid_amount' => (float) $stats->unpaid_amount,
+            'overdue_invoices_count' => (int) $stats->overdue_count,
+            'overdue_amount' => (float) $stats->overdue_amount,
+        ];
+    }
+
     public function hasOverdueInvoices(int $restaurantId): bool
     {
         return $this->model
