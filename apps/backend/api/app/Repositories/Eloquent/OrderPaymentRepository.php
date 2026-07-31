@@ -35,4 +35,34 @@ class OrderPaymentRepository extends BaseRepository implements OrderPaymentRepos
             ->where('status', PaymentStatusEnum::PENDING->value)
             ->update(['status' => $status]);
     }
+
+    public function listRestaurantPayments(int $restaurantId, array $filters, int $perPage = 15): array
+    {
+        $query = $this->model->whereHas('order', function ($q) use ($restaurantId) {
+            $q->where('restaurant_id', $restaurantId);
+        })->with([
+            'order:id,user_id,restaurant_id,status,total,created_at',
+            'order.user:id,first_name,last_name,email'
+        ]);
+
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (!empty($filters['payment_method'])) {
+            $query->where('payment_method', $filters['payment_method']);
+        }
+
+        $paginator = $query->orderBy('created_at', 'desc')->paginate($perPage);
+
+        return [
+            'data' => $paginator->items(),
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+            ]
+        ];
+    }
 }
