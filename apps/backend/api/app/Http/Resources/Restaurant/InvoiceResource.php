@@ -23,6 +23,13 @@ class InvoiceResource extends JsonResource
             'status' => $this->status,
             'payment_gateway_ref' => $this->payment_gateway_ref,
             'created_at' => $this->created_at->toDateTimeString(),
+            'restaurant' => $this->whenLoaded('restaurant', function () {
+                return [
+                    'id' => $this->restaurant->id,
+                    'name' => $this->restaurant->name,
+                ];
+            }),
+            'platform_dues' => $this->whenLoaded('platformDues'),
         ];
     }
 }

@@ -60,6 +60,38 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
             ->first();
     }
 
+    public function getAllInvoices(array $filters, int $perPage = 15): array
+    {
+        $query = $this->model->with(['restaurant:id,name']);
+
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (!empty($filters['restaurant_id'])) {
+            $query->where('restaurant_id', $filters['restaurant_id']);
+        }
+
+        $paginator = $query->orderBy('created_at', 'desc')->paginate($perPage);
+
+        return [
+            'data' => $paginator->items(),
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+            ]
+        ];
+    }
+
+    public function findByIdWithDetails(int $id): ?Invoice
+    {
+        return $this->model->with(['restaurant:id,name', 'platformDues.order'])
+            ->where('id', $id)
+            ->first();
+    }
+
     public function hasOverdueInvoices(int $restaurantId): bool
     {
         return $this->model

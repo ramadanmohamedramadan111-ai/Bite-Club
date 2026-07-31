@@ -107,6 +107,22 @@ class InvoiceDomainService
         return $this->invoiceRepository->getForRestaurant($restaurantId, $filters, $perPage);
     }
 
+    public function getAllInvoices(array $filters, int $perPage = 15): array
+    {
+        return $this->invoiceRepository->getAllInvoices($filters, $perPage);
+    }
+
+    public function getAdminInvoiceDetails(int $id): Invoice
+    {
+        $invoice = $this->invoiceRepository->findByIdWithDetails($id);
+
+        if (!$invoice) {
+            throw new \DomainException(trans('invoice.not_found') ?? 'Invoice not found.');
+        }
+
+        return $invoice;
+    }
+
     public function getRestaurantInvoiceDetails(int $id, int $restaurantId): Invoice
     {
         $invoice = $this->invoiceRepository->findByIdForRestaurant($id, $restaurantId);
