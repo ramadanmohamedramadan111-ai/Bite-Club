@@ -1,6 +1,6 @@
 import math
 
-from review_rag.models import ReviewEmbedding
+from review_rag.models import ReviewEmbedding, MenuItemEmbedding
 
 
 class VectorSearchService:
@@ -20,6 +20,34 @@ class VectorSearchService:
         ]
 
         return sorted(scored, key=lambda item: item["score"], reverse=True)[:limit]
+
+    def search_menu_items(self, restaurant_ids, query_embedding, limit=10):
+        if not query_embedding:
+            return []
+
+        embeddings = MenuItemEmbedding.objects.filter(restaurant_id__in=restaurant_ids)
+
+        results = []
+        for e in embeddings:
+            try:
+                if isinstance(e.embedding, str):
+                    emb = eval(e.embedding)
+                else:
+                    emb = e.embedding
+                
+                similarity = self._cosine_similarity(query_embedding, emb)
+                results.append(
+                    {
+                        "item_id": e.item_id,
+                        "restaurant_id": e.restaurant_id,
+                        "similarity": similarity,
+                    }
+                )
+            except Exception:
+                continue
+
+        results.sort(key=lambda x: x["similarity"], reverse=True)
+        return results[:limit]
 
     def _cosine_similarity(self, left, right):
         if not left or not right or len(left) != len(right):

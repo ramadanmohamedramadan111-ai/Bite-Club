@@ -304,22 +304,28 @@ class AiInternalToolController extends Controller
         $lat = $request->input('latitude');
         $lng = $request->input('longitude');
 
-        $restaurants = Restaurant::query()
-            ->where('status', 'active')
-            ->with(['setting', 'openingHours', 'category'])
-            ->get()
+        $query = Restaurant::query()
+            ->select('restaurants.*')
+            ->leftJoin('restaurant_settings as rs', 'restaurants.id', '=', 'rs.restaurant_id')
+            ->where('restaurants.status', 'active')
+            ->with(['setting', 'openingHours', 'category']);
+
+        if ($lat !== null && $lng !== null) {
+            $query->selectRaw(
+                '( 6371 * acos( cos( radians(?) ) * cos( radians( rs.latitude ) ) * cos( radians( rs.longitude ) - radians(?) ) + sin( radians(?) ) * sin( radians( rs.latitude ) ) ) ) AS distance_km',
+                [$lat, $lng, $lat]
+            )->orderByRaw('CASE WHEN rs.latitude IS NULL THEN 1 ELSE 0 END')
+             ->orderBy('distance_km');
+        }
+
+        $restaurants = $query->get()
             ->filter(function ($restaurant) {
                 if (!$restaurant->setting || !$restaurant->setting->is_open || !$restaurant->setting->accept_orders) {
                     return false;
                 }
                 return $restaurant->isOpenNow();
             })
-            ->map(function ($restaurant) use ($lat, $lng) {
-                $distance = null;
-                if ($lat !== null && $lng !== null && $restaurant->setting->latitude && $restaurant->setting->longitude) {
-                    $distance = $this->calculateDistance($lat, $lng, $restaurant->setting->latitude, $restaurant->setting->longitude);
-                }
-
+            ->map(function ($restaurant) {
                 $now = now();
                 $currentDay = $now->dayOfWeek;
                 $todayRecord = $restaurant->openingHours->firstWhere('day_of_week', $currentDay);
@@ -328,17 +334,12 @@ class AiInternalToolController extends Controller
                     'id' => $restaurant->id,
                     'name' => $restaurant->name,
                     'category' => $restaurant->category?->name,
-                    'distance_km' => $distance !== null ? round($distance, 2) : null,
+                    'distance_km' => isset($restaurant->distance_km) ? round((float)$restaurant->distance_km, 2) : null,
                     'is_open_now' => true,
                     'closing_time' => $todayRecord ? $todayRecord->closes_at : null,
                 ];
-            });
-
-        if ($lat !== null && $lng !== null) {
-            $restaurants = $restaurants->sortBy('distance_km');
-        }
-
-        $restaurants = $restaurants->values();
+            })
+            ->values();
 
         return response()->json([
             'restaurants' => $restaurants,
