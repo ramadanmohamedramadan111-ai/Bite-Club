@@ -6,6 +6,7 @@ use App\Models\Order;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 
 class OrderOutForDeliveryNotification extends Notification implements ShouldQueue
 {
@@ -15,7 +16,7 @@ class OrderOutForDeliveryNotification extends Notification implements ShouldQueu
 
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'broadcast'];
     }
 
     public function toArray(object $notifiable): array
@@ -28,5 +29,22 @@ class OrderOutForDeliveryNotification extends Notification implements ShouldQueu
             'order_id' => $this->order->id,
             'restaurant_name' => $this->order->restaurant->name,
         ];
+    }
+
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        return new BroadcastMessage([
+            'type' => 'order_out_for_delivery',
+            'title' => trans('notification.order_out_for_delivery_title'),
+            'body' => trans('notification.order_out_for_delivery_body', ['restaurant_name' => $this->order->restaurant->name]),
+            'action_url' => config('frontend.user_url') . str_replace('{id}', $this->order->id, config('frontend.paths.user.order_tracking')),
+            'order_id' => $this->order->id,
+            'restaurant_name' => $this->order->restaurant->name,
+        ]);
+    }
+
+    public function broadcastType(): string
+    {
+        return 'order_out_for_delivery';
     }
 }
