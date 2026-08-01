@@ -1,11 +1,12 @@
+import './Dashboard.css';
 import { useState, useEffect } from 'react'
-import { useLocale } from '../contexts/LocaleContext'
-import { StatusBadge } from '../components/StatusBadge'
-import { StatsGrid } from '../components/StatsGrid'
-import { LoadingState } from '../components/LoadingState'
-import { AlertBanner } from '../components/AlertBanner'
-import { PaginationUI } from '../components/PaginationUI'
-import api from '../lib/api'
+import { useLocale } from '../../contexts/LocaleContext'
+import { StatusBadge } from '../../components/StatusBadge'
+import { StatsGrid } from '../../components/StatsGrid'
+import { LoadingState } from '../../components/LoadingState'
+import { AlertBanner } from '../../components/AlertBanner'
+import { PaginationUI } from '../../components/PaginationUI'
+import api from '../../lib/api'
 
 interface DashboardStats {
   total_revenue: number
@@ -106,13 +107,11 @@ export function DashboardPage() {
     }
   }, [period])
 
-  // Pagination calculations for recent orders
   const recentOrders = data?.recent_orders || []
   const totalOrdersPages = Math.ceil(recentOrders.length / ORDERS_PAGE_SIZE)
   const startIndex = (ordersPage - 1) * ORDERS_PAGE_SIZE
   const pagedOrders = recentOrders.slice(startIndex, startIndex + ORDERS_PAGE_SIZE)
 
-  // Pagination calculations for recent activity
   const recentActivity = data?.recent_activity || []
   const totalActivityPages = Math.ceil(recentActivity.length / ACTIVITY_PAGE_SIZE)
   const activityStartIndex = (activityPage - 1) * ACTIVITY_PAGE_SIZE
@@ -120,7 +119,7 @@ export function DashboardPage() {
 
   return (
     <div className="page-content">
-      {/* Top Container: Title, Time Filter, Stats cards */}
+      
       <div className="card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px', background: 'var(--bg-elevated)', color: 'var(--text-primary)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
           <div>
@@ -196,7 +195,6 @@ export function DashboardPage() {
         )}
       </div>
 
-      {/* Bottom Container: Recent Orders & Recent Activities */}
       {(!loading || data) && (
         <div className="content-grid" style={{ alignItems: 'start' }}>
           <div className="card">

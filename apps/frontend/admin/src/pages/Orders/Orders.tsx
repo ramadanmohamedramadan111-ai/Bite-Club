@@ -1,17 +1,18 @@
+import './Orders.css';
 import { useState, useEffect } from 'react'
-import { useLocale } from '../contexts/LocaleContext'
-import { PageHeader } from '../components/PageHeader'
-import { SearchBar } from '../components/SearchBar'
-import { FilterBar } from '../components/FilterBar'
-import { DataTable, type Column } from '../components/DataTable'
-import { PaginationUI } from '../components/PaginationUI'
-import { Modal } from '../components/Modal'
-import { StatusBadge } from '../components/StatusBadge'
-import { StatsGrid } from '../components/StatsGrid'
-import { ActionButtons } from '../components/ActionButtons'
-import { AlertBanner } from '../components/AlertBanner'
-import { LoadingState } from '../components/LoadingState'
-import api from '../lib/api'
+import { useLocale } from '../../contexts/LocaleContext'
+import { PageHeader } from '../../components/PageHeader'
+import { SearchBar } from '../../components/SearchBar'
+import { FilterBar } from '../../components/FilterBar'
+import { DataTable, type Column } from '../../components/DataTable'
+import { PaginationUI } from '../../components/PaginationUI'
+import { Modal } from '../../components/Modal'
+import { StatusBadge } from '../../components/StatusBadge'
+import { StatsGrid } from '../../components/StatsGrid'
+import { ActionButtons } from '../../components/ActionButtons'
+import { AlertBanner } from '../../components/AlertBanner'
+import { LoadingState } from '../../components/LoadingState'
+import api from '../../lib/api'
 
 interface Order {
   id: number
@@ -83,14 +84,12 @@ const BACKEND_PAGE_SIZE = 15
 
 export function OrdersPage() {
   const { t } = useLocale()
-  
-  // State variables
+
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [validationError, setValidationError] = useState('')
-  
-  // Filters & Pagination
+
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [periodFilter, setPeriodFilter] = useState('')
@@ -100,11 +99,9 @@ export function OrdersPage() {
   const [frontendPage, setFrontendPage] = useState(1)
   const [totalItems, setTotalItems] = useState(0)
 
-  // Sorting
   const [sortKey, setSortKey] = useState('created_at')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
-  
-  // Statistics
+
   const [stats, setStats] = useState({
     total_orders: 0,
     pending_orders: 0,
@@ -113,20 +110,16 @@ export function OrdersPage() {
     cancelled_orders: 0,
   })
 
-  // Modals & Details
   const [showDetails, setShowDetails] = useState<OrderDetail | null>(null)
   const [loadingDetails, setLoadingDetails] = useState(false)
 
-  // Calculate backend page based on current frontend page
   const backendPage = Math.ceil((frontendPage * FRONTEND_PAGE_SIZE) / BACKEND_PAGE_SIZE)
 
-  // API Call: Fetch orders
   const fetchOrders = async () => {
     setLoading(true)
     setError('')
     setValidationError('')
 
-    // Client-side validations
     if (search.length > 255) {
       setValidationError('Search query cannot exceed 255 characters.')
       setLoading(false)
@@ -183,7 +176,6 @@ export function OrdersPage() {
     fetchOrders()
   }, [backendPage, statusFilter, periodFilter, fromDate, toDate, search])
 
-  // Reset pagination on filter or search changes
   const handleSearchChange = (v: string) => {
     setSearch(v)
     setFrontendPage(1)
@@ -221,7 +213,6 @@ export function OrdersPage() {
     setFrontendPage(1)
   }
 
-  // API Call: Fetch single order details
   const handleOpenDetails = async (orderId: number) => {
     setLoadingDetails(true)
     setError('')
@@ -242,7 +233,6 @@ export function OrdersPage() {
     else { setSortKey(key); setSortDir('asc') }
   }
 
-  // Apply sorting locally on loaded orders
   const sortedOrders = [...orders].sort((a, b) => {
     let aVal: any = a[sortKey as keyof Order]
     let bVal: any = b[sortKey as keyof Order]
@@ -264,7 +254,6 @@ export function OrdersPage() {
     return 0
   })
 
-  // Slicing offset within backend returned block
   const offset = ((frontendPage - 1) * FRONTEND_PAGE_SIZE) % BACKEND_PAGE_SIZE
   const pagedOrders = sortedOrders.slice(offset, offset + FRONTEND_PAGE_SIZE)
   const totalPages = Math.ceil(totalItems / FRONTEND_PAGE_SIZE)
@@ -328,46 +317,18 @@ export function OrdersPage() {
               />
             </div>
             
-            <div className="date-range" style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '12px',
-              flexWrap: 'wrap',
-              marginTop: '16px',
-              paddingTop: '16px',
-              borderTop: '1px solid var(--border-subtle)',
-              width: '100%'
-            }}>
-              <span className="details-label" style={{ marginBottom: 0, fontWeight: '500', color: 'var(--text-secondary)', marginRight: '-12px' }}>Date Range:</span>
+            <div className="date-range">
+              <span className="date-range-label">Date Range:</span>
               <input
                 type="date"
-                className="form-input"
-                style={{
-                  width: 'auto',
-                  minWidth: '150px',
-                  padding: '8px 12px',
-                  background: 'var(--bg-elevated)',
-                  border: '1px solid var(--border-subtle)',
-                  borderRadius: 'var(--radius-sm)',
-                  color: 'var(--text-primary)'
-                }}
+                className="date-range-input"
                 value={fromDate}
                 onChange={(e) => handleFromDateChange(e.target.value)}
               />
-              <span style={{ color: 'var(--text-secondary)' }}>to</span>
+              <span className="date-range-separator">to</span>
               <input
                 type="date"
-                className="form-input"
-                style={{
-                  width: 'auto',
-                  minWidth: '150px',
-                  padding: '8px 12px',
-                  background: 'var(--bg-elevated)',
-                  border: '1px solid var(--border-subtle)',
-                  borderRadius: 'var(--radius-sm)',
-                  color: 'var(--text-primary)'
-                }}
+                className="date-range-input"
                 value={toDate}
                 onChange={(e) => handleToDateChange(e.target.value)}
               />
@@ -388,8 +349,7 @@ export function OrdersPage() {
       <Modal open={!!showDetails} onClose={() => setShowDetails(null)} title={t('orders.orderDetails')} size="lg">
         {showDetails && (
           <div className="order-details-container" style={{ display: 'flex', flexDirection: 'column', gap: '24px', fontFamily: 'var(--sans)' }}>
-            
-            {/* Top Summary Banner */}
+
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
@@ -420,13 +380,12 @@ export function OrdersPage() {
               </div>
             </div>
 
-            {/* Customer & Restaurant Grid */}
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
               gap: '20px'
             }}>
-              {/* Customer Info Card */}
+              
               <div style={{
                 background: 'var(--bg-surface)',
                 border: '1px solid var(--border-subtle)',
@@ -468,7 +427,6 @@ export function OrdersPage() {
                 </div>
               </div>
 
-              {/* Restaurant Info Card */}
               <div style={{
                 background: 'var(--bg-surface)',
                 border: '1px solid var(--border-subtle)',
@@ -512,7 +470,6 @@ export function OrdersPage() {
               </div>
             </div>
 
-            {/* Items Table Card */}
             <div style={{
               background: 'var(--bg-surface)',
               border: '1px solid var(--border-subtle)',
@@ -568,13 +525,12 @@ export function OrdersPage() {
               </div>
             </div>
 
-            {/* Payment & Receipt Summary */}
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
               gap: '20px'
             }}>
-              {/* Payment Details Card */}
+              
               <div style={{
                 background: 'var(--bg-surface)',
                 border: '1px solid var(--border-subtle)',
@@ -626,7 +582,6 @@ export function OrdersPage() {
                 </div>
               </div>
 
-              {/* Receipt Summary Card */}
               <div style={{
                 background: 'var(--bg-elevated)',
                 border: '1px solid var(--border)',
@@ -650,8 +605,7 @@ export function OrdersPage() {
                     <span>{t('orders.serviceFee')}</span>
                     <span style={{ color: 'var(--text-primary)', fontWeight: '500' }}>${showDetails.service_fee.toFixed(2)}</span>
                   </div>
-                  
-                  {/* Decorative dashed line */}
+
                   <div style={{ borderTop: '1px dashed var(--border)', margin: '10px 0' }}></div>
                   
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

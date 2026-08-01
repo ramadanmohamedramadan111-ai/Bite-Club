@@ -1,9 +1,10 @@
+import './Login.css';
 import { useState } from 'react'
-import { useLocale } from '../contexts/LocaleContext'
-import { useTheme } from '../contexts/ThemeContext'
-import { I } from '../config/navigation'
-import api from '../lib/api'
-import { setAuthToken, setAuthUser } from '../lib/cookies'
+import { useLocale } from '../../contexts/LocaleContext'
+import { useTheme } from '../../contexts/ThemeContext'
+import { I } from '../../config/navigation'
+import api from '../../lib/api'
+import { setAuthToken, setAuthUser } from '../../lib/cookies'
 
 interface LoginPageProps {
   onLogin: () => void
@@ -23,7 +24,6 @@ export function LoginPage({ onLogin }: LoginPageProps) {
   const validateForm = () => {
     let isValid = true
 
-    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!email) {
       setEmailError(t('common.email') + ' is required')
@@ -35,7 +35,6 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       setEmailError('')
     }
 
-    // Password validation
     if (!password) {
       setPasswordError(t('login.passwordLabel') + ' is required')
       isValid = false
@@ -75,11 +74,10 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
   return (
     <div className={`login-page-container ${dir === 'rtl' ? 'rtl' : ''}`}>
-      {/* Background image & overlay */}
+      
       <div className="login-bg-image" />
       <div className="login-bg-overlay" />
 
-      {/* Main card container */}
       <div className="login-content-box">
         <h1 className="login-brand-logo">BiteClub</h1>
         
@@ -149,7 +147,6 @@ export function LoginPage({ onLogin }: LoginPageProps) {
           </form>
         </div>
 
-        {/* Language and theme selectors */}
         <div className="login-selectors">
           <button className="login-selector-btn" onClick={() => setLocale(locale === 'en' ? 'ar' : 'en')} title="Toggle language">
             {locale === 'en' ? 'AR' : 'EN'}

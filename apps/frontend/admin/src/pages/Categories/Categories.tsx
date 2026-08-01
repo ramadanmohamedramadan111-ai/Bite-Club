@@ -1,15 +1,16 @@
+import './Categories.css';
 import { useState, useEffect } from 'react'
-import { useLocale } from '../contexts/LocaleContext'
-import { PageHeader } from '../components/PageHeader'
-import { SearchBar } from '../components/SearchBar'
-import { DataTable, type Column } from '../components/DataTable'
-import { PaginationUI } from '../components/PaginationUI'
-import { Modal } from '../components/Modal'
-import { ConfirmDialog } from '../components/ConfirmDialog'
-import { StatsGrid } from '../components/StatsGrid'
-import { ActionButtons } from '../components/ActionButtons'
-import { AlertBanner } from '../components/AlertBanner'
-import api from '../lib/api'
+import { useLocale } from '../../contexts/LocaleContext'
+import { PageHeader } from '../../components/PageHeader'
+import { SearchBar } from '../../components/SearchBar'
+import { DataTable, type Column } from '../../components/DataTable'
+import { PaginationUI } from '../../components/PaginationUI'
+import { Modal } from '../../components/Modal'
+import { ConfirmDialog } from '../../components/ConfirmDialog'
+import { StatsGrid } from '../../components/StatsGrid'
+import { ActionButtons } from '../../components/ActionButtons'
+import { AlertBanner } from '../../components/AlertBanner'
+import api from '../../lib/api'
 
 interface Category {
   id: string | number
@@ -61,7 +62,6 @@ export function CategoriesPage() {
   const [showDetails, setShowDetails] = useState<Category | null>(null)
   const [showDelete, setShowDelete] = useState<Category | null>(null)
 
-  // Fetch categories from the backend API
   const fetchCategories = async () => {
     setLoading(true)
     setError('')
@@ -128,7 +128,6 @@ export function CategoriesPage() {
     }
   }
 
-  // Create a new category
   const handleCreate = async () => {
     if (!createName.trim()) {
       setFormError('Category name is required')
@@ -167,7 +166,6 @@ export function CategoriesPage() {
     }
   }
 
-  // Edit/Update an existing category
   const handleUpdate = async () => {
     if (!showEdit) return
     if (!editName.trim()) {
@@ -183,7 +181,7 @@ export function CategoriesPage() {
       if (editImageFile) {
         formData.append('image', editImageFile)
       }
-      // Laravel PUT multipart workaround override
+      
       formData.append('_method', 'PUT')
 
       await api.post(`/admin/restaurant-categories/${showEdit.id}`, formData, {
@@ -207,7 +205,6 @@ export function CategoriesPage() {
     }
   }
 
-  // Delete category
   const handleDelete = async () => {
     if (!showDelete) return
     try {
@@ -220,7 +217,6 @@ export function CategoriesPage() {
     }
   }
 
-  // Local filtering & sorting
   const filtered = categories.filter((c) => {
     const q = search.toLowerCase()
     return (c.name || '').toLowerCase().includes(q) || (c.slug || '').toLowerCase().includes(q)
