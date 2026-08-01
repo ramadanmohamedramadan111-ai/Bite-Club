@@ -5,6 +5,7 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use App\Models\Order;
 
 class OrderCancelledByTimeoutNotification extends Notification
@@ -18,7 +19,7 @@ class OrderCancelledByTimeoutNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database', 'broadcast'];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -38,12 +39,31 @@ class OrderCancelledByTimeoutNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'order_id' => $this->order->id,
-            'restaurant_id' => $this->order->restaurant_id,
-            'title' => trans('order.cancelled_by_timeout_title'),
-            'message' => trans('order.cancelled_by_timeout_message_db'),
-            'points_refunded' => $this->pointsRefunded,
             'type' => 'order_cancelled_timeout',
+            'title' => trans('order.cancelled_by_timeout_title'),
+            'body' => trans('order.cancelled_by_timeout_message_db'),
+            'action_url' => config('frontend.user_url') . str_replace('{id}', $this->order->id, config('frontend.paths.user.order_tracking')),
+            'order_id' => $this->order->id,
+            'restaurant_name' => $this->order->restaurant->name,
+            'points_refunded' => $this->pointsRefunded,
         ];
+    }
+
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        return new BroadcastMessage([
+            'type' => 'order_cancelled_timeout',
+            'title' => trans('order.cancelled_by_timeout_title'),
+            'body' => trans('order.cancelled_by_timeout_message_db'),
+            'action_url' => config('frontend.user_url') . str_replace('{id}', $this->order->id, config('frontend.paths.user.order_tracking')),
+            'order_id' => $this->order->id,
+            'restaurant_name' => $this->order->restaurant->name,
+            'points_refunded' => $this->pointsRefunded,
+        ]);
+    }
+
+    public function broadcastType(): string
+    {
+        return 'order_cancelled_timeout';
     }
 }
