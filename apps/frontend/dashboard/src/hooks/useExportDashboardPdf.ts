@@ -39,7 +39,7 @@ export function useExportDashboardPdf() {
           </head>
           <body>
             <h1>${escapeHtml(title)}</h1>
-            <div class="meta">Period: ${escapeHtml(period)}</div>
+           ${analytics ? `<div class="meta">Period: ${escapeHtml(period)}</div>` : ``}
             ${order ? `
               <div class="card">
                 <h2>Order ${escapeHtml(order.id)}</h2>
