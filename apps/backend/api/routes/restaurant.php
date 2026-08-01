@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\Restaurant\RestaurantDashboardController;
 use App\Http\Controllers\Api\Restaurant\RestaurantReviewController;
 use App\Http\Controllers\Api\Restaurant\InvoiceController;
 use App\Http\Controllers\Api\Restaurant\OrderPaymentController;
+use App\Http\Controllers\Api\Restaurant\RestaurantReportController;
 
 Route::post('/register', [RestaurantAuthController::class, 'register'])->name('register');
 Route::post('/login',    [RestaurantAuthController::class, 'login'])->name('login');
@@ -74,4 +75,7 @@ Route::middleware('auth.restaurant')->group(function () {
         Route::get('/', [OrderPaymentController::class, 'index'])->name('index');
         Route::get('/statistics', [OrderPaymentController::class, 'statistics'])->name('statistics');
     });
+
+    Route::get('/reports', [RestaurantReportController::class, 'index'])->name('reports.index');
 });
+

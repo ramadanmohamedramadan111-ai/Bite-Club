@@ -81,7 +81,7 @@ class MenuItemApplicationService
        
         $this->deleteFile($item->image_url);
     }
-a
+
     private function mapItem($item): array
     {
         return [

@@ -480,6 +480,13 @@ const resources = {
       recommendations: 'Recommendations',
       actionPlan: 'Action Plan',
       aiPowered: 'AI-Powered',
+
+      today: 'Today',
+      yesterday: 'Yesterday',
+      twoDaysAgo: 'Two days ago',
+      noReportForToday: "Today's report has not been generated yet. It will be generated automatically at midnight.",
+      reportGeneratedAt: 'Generated at',
+      reportLanguage: 'Report Language',
       // Order Tracking
       deliveryAddress: 'Delivery Address',
       paymentDetails: 'Payment Details',
@@ -982,6 +989,13 @@ const resources = {
       recommendations: 'التوصيات',
       actionPlan: 'خطة العمل',
       aiPowered: 'مدعوم بالذكاء الاصطناعي',
+      
+      today: 'اليوم',
+      yesterday: 'أمس',
+      twoDaysAgo: 'قبل يومين',
+      noReportForToday: 'لم يتم إنشاء تقرير اليوم بعد. سيتم إنشاؤه تلقائياً في منتصف الليل.',
+      reportGeneratedAt: 'تم الإنشاء في',
+      reportLanguage: 'لغة التقرير',
       // Order Tracking
    
       deliveryAddress: 'عنوان التوصيل',

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Sparkles,
@@ -18,7 +19,7 @@ import {
   Download,
 } from 'lucide-react'
 import { useAiStore } from '../../store/aiStore'
-import { useExportDashboardPdf } from '../../hooks/useExportDashboardPdf'
+
 // ── Severity config ───────────────────────────────────────────────────────────
 const SEVERITY: Record<string, { label: string; cls: string; dot: string }> = {
   high:   { label: 'High',   cls: 'bg-red-50    dark:bg-red-950/30  border-red-200    dark:border-red-800/40  text-red-700    dark:text-red-400',   dot: 'bg-red-500'    },
@@ -27,9 +28,42 @@ const SEVERITY: Record<string, { label: string; cls: string; dot: string }> = {
 }
 
 export function ReportsPage() {
-  const { t } = useTranslation()
-  const { report, isLoading, error, generate } = useAiStore()
-  const { exportPdf, isExporting } = useExportDashboardPdf()
+  const { t, i18n } = useTranslation()
+  const { reports, isLoading, error, fetchReports } = useAiStore()
+  const [selectedTab, setSelectedTab] = useState(0)
+
+  useEffect(() => {
+    fetchReports()
+  }, [fetchReports])
+
+  const getLocalDateString = (offsetDays: number) => {
+    const d = new Date()
+    d.setDate(d.getDate() - offsetDays)
+    const year = d.getFullYear()
+    const month = String(d.getMonth() + 1).padStart(2, '0')
+    const date = String(d.getDate()).padStart(2, '0')
+    return `${year}-${month}-${date}`
+  }
+
+  const tabs = [
+    { key: 0, label: t('today'), dateStr: getLocalDateString(0) },
+    { key: 1, label: t('yesterday'), dateStr: getLocalDateString(1) },
+    { key: 2, label: t('twoDaysAgo'), dateStr: getLocalDateString(2) },
+  ]
+
+  const activeReportRecord = reports.find((r) => r.report_date === tabs[selectedTab].dateStr) || null
+  const report = activeReportRecord
+    ? (i18n.language === 'ar' ? activeReportRecord.report_ar : activeReportRecord.report_en)
+    : null
+
+  const formatGenerationTime = (createdAtStr?: string) => {
+    if (!createdAtStr) return ''
+    const date = new Date(createdAtStr)
+    return date.toLocaleString(i18n.language === 'ar' ? 'ar-EG' : 'en-US', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    })
+  }
 
   // ── Score colour band ─────────────────────────────────────────────────────
   const scoreColor = (s: number) =>
@@ -65,27 +99,45 @@ export function ReportsPage() {
               {t('aiReportsSubtitle')}
             </p>
           </div>
-
-          <div className="flex items-center gap-2.5">
-            <button
-              type="button"
-              onClick={() => exportPdf({ period: 'week', title: t('aiReports'), report })}
-              disabled={isExporting || !report}
-              className="group relative shrink-0 flex items-center gap-2.5 rounded-2xl border border-brand-orange/30 bg-white px-4 py-3.5 text-sm font-bold text-brand-orange shadow-sm transition-all duration-200 hover:bg-orange-50 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-slate-900"
-            >
-              <Download size={16} />
-              {isExporting ? t('exporting') : t('exportReport', 'Export Report')}
-            </button>
-            <button
-              onClick={generate}
-              disabled={isLoading}
-              className="group relative shrink-0 flex items-center gap-2.5 rounded-2xl bg-brand-orange px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-brand-orange/30 hover:opacity-90 hover:shadow-brand-orange/50 hover:shadow-xl transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {isLoading ? <RefreshCw size={16} className="animate-spin" /> : <Zap size={16} className="group-hover:scale-110 transition-transform" />}
-              {isLoading ? t('analyzing') : report ? t('regenerateReport') : t('generateAiReport')}
-            </button>
-          </div>
         </div>
+      </div>
+
+      {/* ── Report History Tabs & Info ─────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-100 dark:border-slate-800 pb-4">
+        <div className="flex items-center gap-2 p-1 bg-gray-50 dark:bg-slate-800/60 rounded-xl self-start">
+          {tabs.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setSelectedTab(tab.key)}
+              className={`px-4 py-2 text-sm font-bold rounded-lg transition-all duration-200 ${
+                selectedTab === tab.key
+                  ? 'bg-white dark:bg-slate-700 text-brand-orange shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* ── Generation Info Metadata ───────────────────────────────────── */}
+        {activeReportRecord && (
+          <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-gray-500 dark:text-slate-400">
+            <div className="flex items-center gap-1.5">
+              <Clock size={14} className="text-gray-400" />
+              <span>
+                {t('reportGeneratedAt')}: {formatGenerationTime(activeReportRecord.created_at)}
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Sparkles size={14} className="text-gray-400" />
+              <span>
+                {t('reportLanguage')}: {i18n.language === 'ar' ? 'العربية' : 'English'}
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* ── Error ────────────────────────────────────────────────────────── */}
       {error && (
@@ -118,13 +170,18 @@ export function ReportsPage() {
 
       {/* ── Empty state ──────────────────────────────────────────────────── */}
       {!report && !isLoading && !error && (
-        <div className="flex flex-col items-center justify-center gap-5 py-28 text-center">
+        <div className="flex flex-col items-center justify-center gap-5 py-28 text-center bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl p-8 w-full">
           <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30">
             <BarChart2 size={36} className="text-brand-orange/50" />
           </div>
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-2 max-w-md">
             <p className="text-base font-bold text-gray-700 dark:text-slate-200">{t('noReportYet')}</p>
-            <p className="text-sm text-gray-400 dark:text-slate-500">{t('noReportYetDesc')}</p>
+            <p className="text-sm text-gray-400 dark:text-slate-500">
+              {selectedTab === 0 
+                ? t('noReportForToday') 
+                : (i18n.language === 'ar' ? 'التقرير الخاص بهذا اليوم غير متوفر.' : 'Report for this day is not available.')
+              }
+            </p>
           </div>
         </div>
       )}
@@ -346,6 +403,6 @@ export function ReportsPage() {
         </div>
       )}
     </div>
-    </div>
   )
 }
+

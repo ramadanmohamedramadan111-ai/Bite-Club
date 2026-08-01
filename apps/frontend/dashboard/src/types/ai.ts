@@ -33,3 +33,14 @@ export type AiReport = {
   recommendations: string[]
   action_plan: string[]
 }
+
+export type RestaurantReport = {
+  id: number
+  restaurant_id: number
+  report_date: string
+  report_en: AiReport | null
+  report_ar: AiReport | null
+  created_at: string
+  updated_at: string
+}
+

@@ -177,4 +177,10 @@ class Restaurant extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Post::class);
     }
+
+    public function reports(): HasMany
+    {
+        return $this->hasMany(RestaurantReport::class);
+    }
 }
+

@@ -25,3 +25,15 @@ Schedule::command('invoices:generate')->monthlyOn(1, '00:00');
 
 // Check for overdue invoices every day at 01:00 AM
 Schedule::command('invoices:check-overdue')->dailyAt('01:00');
+
+use App\Jobs\Ai\GenerateDailyReportsJob;
+
+Schedule::job(new GenerateDailyReportsJob)->dailyAt('00:00');
+
+Artisan::command('reports:generate', function () {
+    $this->info('Starting reports generation...');
+    $job = new GenerateDailyReportsJob();
+    $job->handle();
+    $this->info('Daily reports generation completed.');
+})->purpose('Generate daily AI reports for all active restaurants');
+

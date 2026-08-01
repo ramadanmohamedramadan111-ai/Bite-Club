@@ -1,9 +1,10 @@
 import { api } from './api'
-import type { AiResponse } from '../types/ai'
+import type { RestaurantReport } from '../types/ai'
 
 export const aiService = {
-  generateReport: (locale: string) =>
+  getReports: () =>
     api
-      .post<AiResponse>('/ai/chat', { message: 'Generate report', locale })
+      .get<{ data: RestaurantReport[] }>('/restaurant/reports')
       .then((r) => r.data.data),
 }
+
