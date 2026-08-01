@@ -9,6 +9,7 @@ import type {
   UpdateProfilePayload,
   UpdateSettingsPayload,
 } from '../types/restaurant'
+import type { RestaurantReviewsResponse, ReviewListParams } from '../types/reviews'
 
 export const restaurantService = {
   getProfile: () =>
@@ -45,4 +46,7 @@ export const restaurantService = {
 
   getDashboardAnalytics: (period: DashboardPeriod = 'today') =>
     api.get<DashboardAnalyticsResponse>(`/restaurant/dashboard`, { params: { period } }).then((r) => r.data.data),
+
+  getReviews: (params: ReviewListParams = {}) =>
+    api.get<RestaurantReviewsResponse>('/restaurant/reviews', { params }).then((r) => r.data.data),
 }

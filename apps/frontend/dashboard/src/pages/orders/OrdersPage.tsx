@@ -71,14 +71,14 @@ export function OrdersPage() {
       order_type: filterType || undefined,
       from_date:  filterFromDate || undefined,
       to_date:    filterToDate || undefined,
-      query:      query || undefined,
+      search:     query || undefined,
     })
   }
 
   const handleClearFilters = () => {
     setFilterStatus(''); setFilterType(''); setFilterFromDate(''); setFilterToDate('')
     setCurrentPage(1)
-    fetchHistoryOrders(1, { query: query || undefined })
+    fetchHistoryOrders(1, { search: query || undefined })
   }
 
   const orders = activeTab === 'live' ? liveOrders : historyOrders
