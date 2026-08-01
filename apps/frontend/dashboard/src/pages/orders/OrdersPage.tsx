@@ -46,10 +46,18 @@ export function OrdersPage() {
 
   const query = searchParams.get('q') || ''
 
-  // Fetch live orders whenever query changes
+  // Fetch live orders on load and poll every minute while the live tab is active
   useEffect(() => {
+    if (activeTab !== 'live') return
+
     fetchLiveOrders(query)
-  }, [fetchLiveOrders, query])
+
+    const intervalId = window.setInterval(() => {
+      fetchLiveOrders(query)
+    }, 60_000)
+
+    return () => window.clearInterval(intervalId)
+  }, [activeTab, fetchLiveOrders, query])
 
   // Fetch history orders when page, tab, or query changes
   useEffect(() => {

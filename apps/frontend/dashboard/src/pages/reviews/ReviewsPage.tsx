@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { useDebounce } from 'use-debounce'
 import {
   Star,
   Download,
-  Filter,
-  MoreVertical,
 } from 'lucide-react'
 import { Table } from '../../components/common/Table'
 import type { Column } from '../../components/common/Table'
@@ -16,9 +16,15 @@ import type { ApiReview } from '../../types/reviews'
 export function ReviewsPage() {
   const { t } = useTranslation()
   const { exportPdf, isExporting } = useExportDashboardPdf()
-  const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'negative'>('all')
   const [currentPage, setCurrentPage] = useState(1)
-  const { data, loading } = useRestaurantReviews({ page: currentPage, per_page: 10 })
+  const [searchParams] = useSearchParams()
+  const [debouncedSearch] = useDebounce(searchParams.get('q') ?? '', 400)
+
+  const { data, loading } = useRestaurantReviews({
+    page: currentPage,
+    per_page: 10,
+    search: debouncedSearch || undefined,
+  })
 
   const reviews = (data?.reviews?.data ?? []).map((review: ApiReview) => ({
     id: review.id,
@@ -33,11 +39,7 @@ export function ReviewsPage() {
     avatarColor: 'bg-orange-100 text-orange-700',
   }))
 
-  const visibleReviews = reviews.filter((review) => {
-    if (activeTab === 'pending') return review.status === 'PENDING'
-    if (activeTab === 'negative') return review.rating <= 2
-    return true
-  })
+
 
   const renderStars = (count: number) => {
     return (
@@ -125,7 +127,7 @@ export function ReviewsPage() {
          
           <button
             type="button"
-            onClick={() => exportPdf({ period: 'week', title: t('reviewsFeedback', 'Reviews & Feedback'), reviews: visibleReviews.map((review) => ({
+            onClick={() => exportPdf({ period: 'week', title: t('reviewsFeedback', 'Reviews & Feedback'), reviews: reviews.map((review) => ({
               customer: review.customer,
               rating: review.rating,
               content: review.content,
@@ -195,7 +197,7 @@ export function ReviewsPage() {
         ) : (
           <Table
             columns={columns}
-            data={visibleReviews}
+            data={reviews}
             keyExtractor={(row) => row.id}
           />
         )}
