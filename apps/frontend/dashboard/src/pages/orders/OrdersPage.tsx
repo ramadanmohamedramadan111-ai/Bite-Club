@@ -6,7 +6,6 @@ import { Table } from '../../components/common/Table'
 import type { Column } from '../../components/common/Table'
 import { Pagination } from '../../components/common/Pagination'
 import { useOrderStore } from '../../store/orderStore'
-import { api } from '../../lib/api'
 
 function statusPill(status: string) {
   switch (status.toLowerCase()) {
@@ -60,7 +59,7 @@ export function OrdersPage() {
         order_type: filterType || undefined,
         from_date:  filterFromDate || undefined,
         to_date:    filterToDate || undefined,
-        query:      query || undefined,
+        search:     query || undefined,
       })
     }
   }, [currentPage, activeTab, query]) // eslint-disable-line react-hooks/exhaustive-deps

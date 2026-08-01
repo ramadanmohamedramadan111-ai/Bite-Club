@@ -9,6 +9,7 @@ import {
 import { Table } from '../../components/common/Table'
 import type { Column } from '../../components/common/Table'
 import { Pagination } from '../../components/common/Pagination'
+import { useExportDashboardPdf } from '../../hooks/useExportDashboardPdf'
 
 const reviewsData = [
   {
@@ -47,8 +48,15 @@ const reviewsData = [
 
 export function ReviewsPage() {
   const { t } = useTranslation()
+  const { exportPdf, isExporting } = useExportDashboardPdf()
   const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'negative'>('all')
   const [currentPage, setCurrentPage] = useState(1)
+
+  const visibleReviews = reviewsData.filter((review) => {
+    if (activeTab === 'pending') return review.status === 'PENDING'
+    if (activeTab === 'negative') return review.rating <= 2
+    return true
+  })
 
   const renderStars = (count: number) => {
     return (
@@ -165,8 +173,19 @@ export function ReviewsPage() {
           <button className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-slate-705 dark:bg-slate-800 dark:text-slate-200">
             <Filter size={15} /> {t('filters', 'Filters')}
           </button>
-          <button className="flex items-center gap-2 rounded-xl bg-brand-orange px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition shadow-sm">
-            <Download size={15} /> {t('exportReport', 'Export Report')}
+          <button
+            type="button"
+            onClick={() => exportPdf({ period: 'week', title: t('reviewsFeedback', 'Reviews & Feedback'), reviews: visibleReviews.map((review) => ({
+              customer: review.customer,
+              rating: review.rating,
+              content: review.content,
+              status: review.status,
+              date: review.date,
+            })) })}
+            disabled={isExporting}
+            className="flex items-center gap-2 rounded-xl bg-brand-orange px-4 py-2.5 text-sm font-semibold text-white transition shadow-sm hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            <Download size={15} /> {isExporting ? t('exporting') : t('exportReport', 'Export Report')}
           </button>
         </div>
       </div>

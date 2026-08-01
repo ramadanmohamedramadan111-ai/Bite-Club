@@ -9,7 +9,7 @@ import { DeleteModal } from '../../components/common/DeleteModal'
 import { FormModal } from '../../components/common/FormModal'
 import { useMenuStore } from '../../store/menuStore'
 import { useCategoryStore } from '../../store/categoryStore'
-import type { ApiMenuItem } from '../../store/menuTypes'
+import type { ApiMenuItem } from '../../types/menu'
 
 type SortBy  = 'title' | 'price' | 'availability'
 type SortDir = 'asc' | 'desc'
@@ -60,7 +60,7 @@ export function MenuPage() {
   const doFetch = useCallback(() => {
     fetchItems({
       menu_category_id: activeCatId === 'all' ? undefined : activeCatId,
-      query: debouncedSearch || undefined,
+      search: debouncedSearch || undefined,
       sort_by: sortBy,
       sort_dir: sortDir,
       page,

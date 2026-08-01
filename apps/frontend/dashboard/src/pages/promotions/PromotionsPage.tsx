@@ -377,7 +377,7 @@ export function PromotionsPage() {
         <Table
           columns={columns}
           data={campaigns}
-          keyExtractor={(row) => row.id}
+          keyExtractor={(row) => row.id ?? row.name}
         />
 
         {/* Reusable Pagination */}

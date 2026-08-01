@@ -2,7 +2,8 @@ import { useState, useEffect, type FormEvent } from 'react'
 import { ArrowLeft, ArrowRight, Eye, EyeOff, Lock, Mail, Moon, SunMedium, Phone, MapPin, Utensils, FileText } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
-import { authService, type Category } from '../../lib/authService'
+import { authService } from '../../lib/authService'
+import type { Category } from '../../types/auth'
 import Logo from '../../assets/images/logo.svg'
 
 interface RegisterPageProps {

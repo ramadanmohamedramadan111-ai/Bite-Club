@@ -9,6 +9,7 @@ import { DeleteModal } from '../../components/common/DeleteModal'
 import { FormModal } from '../../components/common/FormModal'
 import { useCustomerStore, customerSchema } from '../../store/customerStore'
 import type { Customer } from '../../store/customerStore'
+import { useExportDashboardPdf } from '../../hooks/useExportDashboardPdf'
 import { z } from 'zod'
 
 const segBadge = (s: string) =>
@@ -21,6 +22,7 @@ const initials = (name: string) => name.split(' ').map((n) => n[0]).join('').sli
 export function CustomersPage() {
   const { t } = useTranslation()
   const { customers: rawCustomers, addCustomer, updateCustomer, deleteCustomer } = useCustomerStore()
+  const { exportPdf, isExporting } = useExportDashboardPdf()
   const [searchParams] = useSearchParams()
   const [currentPage, setCurrentPage] = useState(1)
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -161,8 +163,21 @@ export function CustomersPage() {
           <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">{t('customerDatabaseSub')}</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <button className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:border-brand-orange hover:text-brand-orange transition dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">
-            <Download size={14} /> {t('exportCSV')}
+          <button
+            type="button"
+            onClick={() => exportPdf({ period: 'week', title: t('customerDatabase'), customers: customers.map((customer) => ({
+              name: customer.name,
+              email: customer.email,
+              phone: customer.phone,
+              orders: customer.orders,
+              spend: customer.spend,
+              lastOrder: customer.lastOrder ?? '',
+              segment: customer.segment,
+            })) })}
+            disabled={isExporting}
+            className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:border-brand-orange hover:text-brand-orange disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+          >
+            <Download size={14} /> {isExporting ? t('exporting') : t('exportReport')}
           </button>
           <button 
             onClick={() => setShowCreateModal(true)}
@@ -188,7 +203,7 @@ export function CustomersPage() {
         <Table
           columns={columns}
           data={customers}
-          keyExtractor={(row) => row.id}
+          keyExtractor={(row) => row.id ?? row.phone}
         />
         <Pagination
           currentPage={currentPage}

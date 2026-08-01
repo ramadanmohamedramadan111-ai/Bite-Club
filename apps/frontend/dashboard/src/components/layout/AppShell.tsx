@@ -2,7 +2,7 @@ import { useState, useEffect, type ReactNode } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Header } from './Header'
 import { Sidebar } from './Sidebar'
-import { Phone, Plus } from 'lucide-react'
+import { Phone } from 'lucide-react'
 
 interface AppShellProps {
   children: ReactNode

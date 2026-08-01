@@ -3,16 +3,13 @@ import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   ArrowLeft,
-  Printer,
+  Download,
   User,
   CreditCard,
   CheckCircle,
   Clock,
   MapPin,
-  Truck,
-  ChevronDown,
   ExternalLink,
-  Star,
   Zap,
   ArrowRight,
 } from 'lucide-react'
@@ -20,6 +17,7 @@ import {
 import { useOrderStore } from '../../store/orderStore'
 import { api } from '../../lib/api'
 import { useEffect } from 'react'
+import { useExportDashboardPdf } from '../../hooks/useExportDashboardPdf'
 
 const statusColors: Record<string, string> = {
   pending:   'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/30 dark:text-yellow-400',
@@ -34,6 +32,7 @@ export function OrderTrackingPage() {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
 
+  const { exportPdf, isExporting } = useExportDashboardPdf()
   const { orders: liveOrders, historyOrders, fetchLiveOrders } = useOrderStore()
 
   const apiOrder = liveOrders.find(o => o.id.toString() === id) || historyOrders.find(o => o.id.toString() === id)
@@ -47,7 +46,6 @@ export function OrderTrackingPage() {
   const [currentStatus, setCurrentStatus] = useState<string>('')
   const [availableStatuses, setAvailableStatuses] = useState<string[]>([])
   const [isUpdating, setIsUpdating] = useState(false)
-  const [kitchenView, setKitchenView] = useState(true)
 
   useEffect(() => {
     if (apiOrder) setCurrentStatus(apiOrder.status)
@@ -150,9 +148,45 @@ export function OrderTrackingPage() {
           </span>
         </div>
 
-        <button className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 self-start sm:self-auto shrink-0">
-          <Printer size={15} />
-          {t('printReceipt', 'Print Receipt')}
+        <button
+          type="button"
+          onClick={() => exportPdf({
+            period: 'week',
+            title: `${t('order', 'Order')} ${order.id}`,
+            analytics: null,
+            reviews: null,
+            customers: null,
+            order: {
+              id: order.id,
+              status: currentStatus,
+              customer: order.customer,
+              payments: order.payments.map((p) => ({
+                method: p.method,
+                amount: p.amount,
+                status: p.status,
+              })),
+              items: order.items.map((i) => ({
+                name: i.name,
+                qty: i.qty,
+                unitPrice: i.unitPrice,
+                totalPrice: i.totalPrice,
+              })),
+              subtotal: order.subtotal,
+              tax: order.tax,
+              deliveryFee: order.deliveryFee,
+              total: order.total,
+              lifecycle: order.lifecycle.map((s) => ({
+                label: s.label,
+                done: s.done,
+                current: s.current,
+              })),
+            },
+          })}
+          disabled={isExporting}
+          className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 self-start sm:self-auto shrink-0 disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          <Download size={15} />
+          {isExporting ? t('exporting') : t('exportReport', 'Export Report')}
         </button>
       </div>
 
@@ -210,7 +244,7 @@ export function OrderTrackingPage() {
             <p className="text-sm text-gray-400 dark:text-slate-500">No payments recorded</p>
           ) : (
             <div className="space-y-3">
-              {order.payments.map((payment, idx) => (
+              {order.payments.map((payment) => (
                 <div key={payment.id} className="flex items-center gap-3 rounded-xl border border-gray-100 dark:border-slate-800 p-3">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-500 text-white">
                     <CreditCard size={18} />

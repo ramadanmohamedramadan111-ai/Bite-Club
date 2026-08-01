@@ -6,7 +6,7 @@ import Logo from '../../assets/images/logo.svg'
 
 type HeaderProps = ShellProps & { onMenuToggle: () => void }
 
-export function Header({ theme, toggleTheme, language, toggleLanguage, onMenuToggle }: HeaderProps) {
+export function Header({ theme, toggleTheme, toggleLanguage, onMenuToggle }: HeaderProps) {
   const { t } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
   const query = searchParams.get('q') || ''

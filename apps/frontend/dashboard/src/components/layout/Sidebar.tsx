@@ -28,7 +28,6 @@ interface SidebarProps {
 // Shared nav content extracted so both mobile and desktop render the same thing
 function SidebarContent({ onClose, showClose }: { onClose: () => void; showClose: boolean }) {
   const { t } = useTranslation()
-  const token  = useAuthStore((s) => s.token)
   const logout = useAuthStore((s) => s.logout)
 
   const handleLogout = async () => {

@@ -15,8 +15,10 @@ import {
   ThumbsUp,
   ThumbsDown,
   Zap,
+  Download,
 } from 'lucide-react'
 import { useAiStore } from '../../store/aiStore'
+import { useExportDashboardPdf } from '../../hooks/useExportDashboardPdf'
 // ── Severity config ───────────────────────────────────────────────────────────
 const SEVERITY: Record<string, { label: string; cls: string; dot: string }> = {
   high:   { label: 'High',   cls: 'bg-red-50    dark:bg-red-950/30  border-red-200    dark:border-red-800/40  text-red-700    dark:text-red-400',   dot: 'bg-red-500'    },
@@ -27,6 +29,7 @@ const SEVERITY: Record<string, { label: string; cls: string; dot: string }> = {
 export function ReportsPage() {
   const { t } = useTranslation()
   const { report, isLoading, error, generate } = useAiStore()
+  const { exportPdf, isExporting } = useExportDashboardPdf()
 
   // ── Score colour band ─────────────────────────────────────────────────────
   const scoreColor = (s: number) =>
@@ -63,19 +66,26 @@ export function ReportsPage() {
             </p>
           </div>
 
-          <button
-            onClick={generate}
-            disabled={isLoading}
-            className="group relative shrink-0 flex items-center gap-2.5 rounded-2xl bg-brand-orange px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-brand-orange/30 hover:opacity-90 hover:shadow-brand-orange/50 hover:shadow-xl transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            {isLoading
-              ? <RefreshCw size={16} className="animate-spin" />
-              : <Zap size={16} className="group-hover:scale-110 transition-transform" />
-            }
-            {isLoading ? t('analyzing') : report ? t('regenerateReport') : t('generateAiReport')}
-          </button>
+          <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={() => exportPdf({ period: 'week', title: t('aiReports'), report })}
+              disabled={isExporting || !report}
+              className="group relative shrink-0 flex items-center gap-2.5 rounded-2xl border border-brand-orange/30 bg-white px-4 py-3.5 text-sm font-bold text-brand-orange shadow-sm transition-all duration-200 hover:bg-orange-50 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-slate-900"
+            >
+              <Download size={16} />
+              {isExporting ? t('exporting') : t('exportReport', 'Export Report')}
+            </button>
+            <button
+              onClick={generate}
+              disabled={isLoading}
+              className="group relative shrink-0 flex items-center gap-2.5 rounded-2xl bg-brand-orange px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-brand-orange/30 hover:opacity-90 hover:shadow-brand-orange/50 hover:shadow-xl transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {isLoading ? <RefreshCw size={16} className="animate-spin" /> : <Zap size={16} className="group-hover:scale-110 transition-transform" />}
+              {isLoading ? t('analyzing') : report ? t('regenerateReport') : t('generateAiReport')}
+            </button>
+          </div>
         </div>
-      </div>
 
       {/* ── Error ────────────────────────────────────────────────────────── */}
       {error && (
@@ -335,6 +345,7 @@ export function ReportsPage() {
 
         </div>
       )}
+    </div>
     </div>
   )
 }

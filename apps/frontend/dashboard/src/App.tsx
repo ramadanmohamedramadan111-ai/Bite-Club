@@ -53,6 +53,12 @@ function App() {
     void i18next.changeLanguage(language)
   }, [theme, language])
 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setAuthScreen('login')
+    }
+  }, [isAuthenticated])
+
   const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
   const toggleLanguage = () => setLanguage((l) => (l === 'en' ? 'ar' : 'en'))
 
