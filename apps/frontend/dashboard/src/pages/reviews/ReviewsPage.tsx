@@ -101,27 +101,7 @@ export function ReviewsPage() {
         </p>
       ),
     },
-    {
-      header: t('statusCol', 'STATUS'),
-      key: 'status',
-      render: (r) => (
-        <span
-          className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${
-            r.status === 'REPLIED'
-              ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/20 dark:text-blue-500'
-              : r.status === 'ACTION_NEEDED'
-              ? 'bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-500'
-              : 'bg-yellow-50 text-yellow-700 dark:bg-yellow-950/20 dark:text-yellow-500'
-          }`}
-        >
-          {r.status === 'REPLIED'
-            ? t('statusReplied', 'Replied')
-            : r.status === 'ACTION_NEEDED'
-            ? t('statusActionNeeded', 'Action Needed')
-            : t('statusPending', 'Pending')}
-        </span>
-      ),
-    },
+   
     {
       header: t('dateCol', 'DATE'),
       key: 'date',
