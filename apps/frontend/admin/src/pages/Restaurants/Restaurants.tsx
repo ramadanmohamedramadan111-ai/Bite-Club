@@ -1,16 +1,17 @@
+import './Restaurants.css';
 import { useState, useEffect } from 'react'
-import { useLocale } from '../contexts/LocaleContext'
-import { PageHeader } from '../components/PageHeader'
-import { SearchBar } from '../components/SearchBar'
-import { FilterBar } from '../components/FilterBar'
-import { DataTable, type Column } from '../components/DataTable'
-import { PaginationUI } from '../components/PaginationUI'
-import { Modal } from '../components/Modal'
-import { StatusBadge } from '../components/StatusBadge'
-import { StatsGrid } from '../components/StatsGrid'
-import { ActionButtons } from '../components/ActionButtons'
-import { AlertBanner } from '../components/AlertBanner'
-import api from '../lib/api'
+import { useLocale } from '../../contexts/LocaleContext'
+import { PageHeader } from '../../components/PageHeader'
+import { SearchBar } from '../../components/SearchBar'
+import { FilterBar } from '../../components/FilterBar'
+import { DataTable, type Column } from '../../components/DataTable'
+import { PaginationUI } from '../../components/PaginationUI'
+import { Modal } from '../../components/Modal'
+import { StatusBadge } from '../../components/StatusBadge'
+import { StatsGrid } from '../../components/StatsGrid'
+import { ActionButtons } from '../../components/ActionButtons'
+import { AlertBanner } from '../../components/AlertBanner'
+import api from '../../lib/api'
 
 interface Category {
   id: string | number
@@ -53,7 +54,6 @@ export function RestaurantsPage() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const [showDetails, setShowDetails] = useState<Restaurant | null>(null)
 
-  // Fetch restaurants and categories from the backend
   const fetchData = async () => {
     setLoading(true)
     setError('')
@@ -86,7 +86,6 @@ export function RestaurantsPage() {
     }
   }
 
-  // Handle restaurant status update
   const handleStatusUpdate = async (id: string | number, newStatus: string) => {
     setUpdatingStatusId(id)
     setError('')
@@ -111,7 +110,6 @@ export function RestaurantsPage() {
     }
   }
 
-  // Local filtering & sorting
   const filtered = restaurants.filter((r) => {
     const q = search.toLowerCase()
     const matchesSearch =
@@ -201,7 +199,6 @@ export function RestaurantsPage() {
     },
   ]
 
-  // Calculate stats dynamically
   const totalCount = restaurants.length
   const activeCount = restaurants.filter((r) => r.status === 'active').length
   const pendingCount = restaurants.filter((r) => r.status === 'pending_approval').length

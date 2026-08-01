@@ -1,17 +1,18 @@
+import './Users.css';
 import { useState, useEffect } from 'react'
-import { useLocale } from '../contexts/LocaleContext'
-import { PageHeader } from '../components/PageHeader'
-import { SearchBar } from '../components/SearchBar'
-import { FilterBar } from '../components/FilterBar'
-import { DataTable, type Column } from '../components/DataTable'
-import { PaginationUI } from '../components/PaginationUI'
-import { Modal } from '../components/Modal'
-import { StatusBadge } from '../components/StatusBadge'
-import { StatsGrid } from '../components/StatsGrid'
-import { ActionButtons } from '../components/ActionButtons'
-import { AlertBanner } from '../components/AlertBanner'
-import { LoadingState } from '../components/LoadingState'
-import api from '../lib/api'
+import { useLocale } from '../../contexts/LocaleContext'
+import { PageHeader } from '../../components/PageHeader'
+import { SearchBar } from '../../components/SearchBar'
+import { FilterBar } from '../../components/FilterBar'
+import { DataTable, type Column } from '../../components/DataTable'
+import { PaginationUI } from '../../components/PaginationUI'
+import { Modal } from '../../components/Modal'
+import { StatusBadge } from '../../components/StatusBadge'
+import { StatsGrid } from '../../components/StatsGrid'
+import { ActionButtons } from '../../components/ActionButtons'
+import { AlertBanner } from '../../components/AlertBanner'
+import { LoadingState } from '../../components/LoadingState'
+import api from '../../lib/api'
 
 interface UserItem {
   id: number | string
@@ -60,14 +61,12 @@ export function UsersPage() {
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-  // Filters & Pagination
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [page, setPage] = useState(1)
   const [totalItems, setTotalItems] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
 
-  // Stats
   const [stats, setStats] = useState({
     total_users: 0,
     new_users_this_month: 0,
@@ -75,7 +74,6 @@ export function UsersPage() {
     unverified_users: 0,
   })
 
-  // Modals
   const [showDetails, setShowDetails] = useState<UserDetail | null>(null)
   const [loadingDetails, setLoadingDetails] = useState(false)
   const [showBlockModal, setShowBlockModal] = useState<UserItem | null>(null)
@@ -221,7 +219,6 @@ export function UsersPage() {
         )}
       </div>
 
-      {/* User Details Modal */}
       <Modal open={!!showDetails} onClose={() => setShowDetails(null)} title={t('users.userDetails')} size="lg">
         {showDetails && (
           <div className="details-grid">
@@ -256,7 +253,6 @@ export function UsersPage() {
         )}
       </Modal>
 
-      {/* Block User Modal */}
       <Modal open={!!showBlockModal} onClose={() => { setShowBlockModal(null); setBlockReason('') }} title={t('users.banUser')} size="md">
         <form onSubmit={handleBlockUser}>
           <div className="form-group">

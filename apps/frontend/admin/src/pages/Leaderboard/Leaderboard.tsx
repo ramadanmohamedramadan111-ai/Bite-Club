@@ -1,13 +1,14 @@
+import './Leaderboard.css';
 import { useState, useEffect } from 'react'
-import { useLocale } from '../contexts/LocaleContext'
-import { PageHeader } from '../components/PageHeader'
-import { DataTable, type Column } from '../components/DataTable'
-import { PaginationUI } from '../components/PaginationUI'
-import { Tabs } from '../components/Tabs'
-import { StatsGrid } from '../components/StatsGrid'
-import { AlertBanner } from '../components/AlertBanner'
-import { LoadingState } from '../components/LoadingState'
-import api from '../lib/api'
+import { useLocale } from '../../contexts/LocaleContext'
+import { PageHeader } from '../../components/PageHeader'
+import { DataTable, type Column } from '../../components/DataTable'
+import { PaginationUI } from '../../components/PaginationUI'
+import { Tabs } from '../../components/Tabs'
+import { StatsGrid } from '../../components/StatsGrid'
+import { AlertBanner } from '../../components/AlertBanner'
+import { LoadingState } from '../../components/LoadingState'
+import api from '../../lib/api'
 
 interface PostEntry {
   id: string | number

@@ -1,9 +1,10 @@
+import './GeneralSettings.css';
 import { useState, useEffect } from 'react'
-import { useLocale } from '../contexts/LocaleContext'
-import { PageHeader } from '../components/PageHeader'
-import { AlertBanner } from '../components/AlertBanner'
-import { LoadingState } from '../components/LoadingState'
-import api from '../lib/api'
+import { useLocale } from '../../contexts/LocaleContext'
+import { PageHeader } from '../../components/PageHeader'
+import { AlertBanner } from '../../components/AlertBanner'
+import { LoadingState } from '../../components/LoadingState'
+import api from '../../lib/api'
 
 export function GeneralSettingsPage() {
   const { t } = useLocale()
@@ -14,7 +15,6 @@ export function GeneralSettingsPage() {
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
 
-  // Fetch settings from API
   const fetchSettings = async () => {
     setLoading(true)
     setError('')
@@ -37,7 +37,6 @@ export function GeneralSettingsPage() {
     fetchSettings()
   }, [])
 
-  // Handle settings update
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
 
