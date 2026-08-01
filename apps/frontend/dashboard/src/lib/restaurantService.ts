@@ -26,7 +26,7 @@ export const restaurantService = {
     if (payload.logo)        form.append('logo',        payload.logo)
     if (payload.cover_image) form.append('cover_image', payload.cover_image)
 
-    return api.patch<ProfileResponse>('/restaurant/profile', form, {
+    return api.post<ProfileResponse>('/restaurant/profile', form, {
       headers: { 'Content-Type': undefined },
     }).then((r) => r.data.data)
   },

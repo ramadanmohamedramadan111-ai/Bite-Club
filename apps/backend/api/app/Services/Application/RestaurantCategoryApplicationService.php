@@ -10,10 +10,11 @@ use App\DTOs\RestaurantCategory\DestroyRestaurantCategoryDto;
 use App\Services\Domain\RestaurantCategory\RestaurantCategoryDomainService;
 use App\Repositories\Interfaces\RestaurantCategoryRepositoryInterface;
 use App\Traits\FileUploadTrait;
+use App\Traits\UrlFormatterTrait;
 
 class RestaurantCategoryApplicationService
 {
-    use FileUploadTrait;
+    use FileUploadTrait, UrlFormatterTrait;
     public function __construct(
         private RestaurantCategoryDomainService $restaurantCategoryDomainService,
         private RestaurantCategoryRepositoryInterface $restaurantCategoryRepository
@@ -78,7 +79,7 @@ class RestaurantCategoryApplicationService
             'id'        => $category->id,
             'name'      => $category->name,
             'slug'      => $category->slug,
-            'image_url' => $category->image_url,
+            'image_url' => $this->formatImageUrl($category->image_url),
         ];
     }
 }

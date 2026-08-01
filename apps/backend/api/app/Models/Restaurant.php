@@ -119,6 +119,14 @@ class Restaurant extends Authenticatable implements JWTSubject
 
     public function isOpenNow(): bool
     {
+
+
+        $setting = $this->relationLoaded('setting') ? $this->setting : $this->setting()->first();
+        if ($setting && (!$setting->accept_orders || !$setting->is_open)) {
+            return false;
+        }
+
+
         $now = now();
         $currentTime = $now->format('H:i:s');
         $currentDay = $now->dayOfWeek;

@@ -26,7 +26,7 @@ export default async function HomeCategories() {
               <div className="flex size-16 sm:size-20 items-center justify-center overflow-hidden rounded-full bg-accent/45 border border-border/40 transition-all duration-300 group-hover:bg-primary/10 group-hover:border-primary/30 group-hover:scale-105 shadow-xs group-hover:shadow-md">
                 {category.image_url ? (
                   <Image
-                    src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${category.image_url}`}
+                    src={category.image_url}
                     alt={category.name}
                     width={80}
                     height={80}

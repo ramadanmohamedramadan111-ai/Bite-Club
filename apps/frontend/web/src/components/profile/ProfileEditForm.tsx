@@ -38,7 +38,7 @@ export function ProfileEditForm({ user }: Props) {
       first_name: user.first_name,
       last_name: user.last_name,
       username: user.username,
-      image: undefined as File | undefined,
+      profile_image: undefined as File | undefined,
     },
   });
 
@@ -62,11 +62,11 @@ export function ProfileEditForm({ user }: Props) {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setValue('image', file);
+      setValue('profile_image', file);
     }
   };
 
-  const watchedImage = watch('image');
+  const watchedImage = watch('profile_image');
 
   const onSubmit = handleSubmit((formData) => {
     editProfile(formData);
@@ -106,9 +106,9 @@ export function ProfileEditForm({ user }: Props) {
                 onChange={handleImageChange}
               />
             </div>
-            {errors.image && (
+            {errors.profile_image && (
               <p className="text-xs text-destructive font-semibold">
-                {errors.image.message as string}
+                {errors.profile_image.message as string}
               </p>
             )}
           </div>

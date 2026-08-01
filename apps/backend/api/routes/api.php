@@ -87,7 +87,7 @@ Route::prefix('user')->name('user.')->group(function () {
 
         Route::get('/me', [UserAuthController::class, 'me'])->name('me');
 
-        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
         Route::get('/posts', [PostController::class, 'myPosts'])->name('posts.my');
 
