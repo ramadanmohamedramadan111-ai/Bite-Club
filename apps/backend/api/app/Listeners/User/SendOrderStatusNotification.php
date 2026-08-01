@@ -5,6 +5,10 @@ namespace App\Listeners\User;
 use App\Enums\Order\OrderStatusEnum;
 use App\Events\OrderStatusUpdated;
 use App\Notifications\User\OrderPreparingNotification;
+use App\Notifications\User\OrderReadyNotification;
+use App\Notifications\User\OrderOutForDeliveryNotification;
+use App\Notifications\User\OrderCompletedNotification;
+use App\Notifications\User\OrderCancelledNotification;
 
 class SendOrderStatusNotification
 {
@@ -21,11 +25,10 @@ class SendOrderStatusNotification
 
         match ($order->status) {
             OrderStatusEnum::PREPARING->value => $order->user->notify(new OrderPreparingNotification($order)),
-            // We will add more cases here as we create the other notification classes
-            // OrderStatusEnum::PREPARING->value => $order->user->notify(new OrderPreparingNotification($order)),
-            // OrderStatusEnum::READY->value => $order->user->notify(new OrderReadyNotification($order)),
-            // OrderStatusEnum::OUT_FOR_DELIVERY->value => $order->user->notify(new OrderOutForDeliveryNotification($order)),
-            // OrderStatusEnum::COMPLETED->value => $order->user->notify(new OrderCompletedNotification($order)),
+            OrderStatusEnum::READY->value => $order->user->notify(new OrderReadyNotification($order)),
+            OrderStatusEnum::OUT_FOR_DELIVERY->value => $order->user->notify(new OrderOutForDeliveryNotification($order)),
+            OrderStatusEnum::COMPLETED->value => $order->user->notify(new OrderCompletedNotification($order)),
+            OrderStatusEnum::CANCELLED->value => $order->user->notify(new OrderCancelledNotification($order)),
             default => null,
         };
     }
