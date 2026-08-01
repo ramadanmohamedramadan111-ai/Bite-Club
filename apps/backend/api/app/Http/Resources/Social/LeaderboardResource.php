@@ -4,9 +4,12 @@ namespace App\Http\Resources\Social;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Traits\UrlFormatterTrait;
 
 class LeaderboardResource extends JsonResource
 {
+    use UrlFormatterTrait;
+
     public function toArray(Request $request): array
     {
         return [
@@ -16,7 +19,7 @@ class LeaderboardResource extends JsonResource
                 'id'                => $this->user?->id,
                 'name'              => $this->user?->full_name,
                 'username'          => $this->user?->username,
-                'profile_image_url' => $this->user?->profile_image_url,
+                'profile_image_url' => $this->formatImageUrl($this->user?->profile_image_url),
             ],
             'copies'        => $this->copies,
             'reward_points' => $this->reward_points,

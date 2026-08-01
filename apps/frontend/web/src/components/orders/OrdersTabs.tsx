@@ -9,18 +9,18 @@ export default function OrdersTabs() {
   const pathname = usePathname();
 
   const tabs = [
-    { value: 'active' as const, label: t('activeOrders') },
-    { value: 'past' as const, label: t('pastOrders') },
+    { value: 'active' as const, href: '/orders', label: t('activeOrders') },
+    { value: 'past' as const, href: '/orders/past', label: t('pastOrders') },
   ];
 
-  const activeTab = tabs.find((tab) => pathname.endsWith(`/${tab.value}`))?.value ?? 'active';
+  const activeTab = pathname === '/orders' ? 'active' : 'past';
 
   return (
     <Tabs value={activeTab} className="mb-6">
       <TabsList className="grid w-full grid-cols-2 max-w-md">
         {tabs.map((tab) => (
           <TabsTrigger key={tab.value} value={tab.value} asChild>
-            <Link href={`/orders/${tab.value}`}>{tab.label}</Link>
+            <Link href={tab.href}>{tab.label}</Link>
           </TabsTrigger>
         ))}
       </TabsList>

@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import { Bike, Heart, MapPin, ShoppingBag, Star, Clock } from 'lucide-react';
+import { Bike, MapPin, ShoppingBag, Star, Clock } from 'lucide-react';
 import type { RestaurantType } from '@/types/restaurant';
 import RestaurantGroupOrderActions from './RestaurantGroupOrderActions';
 import { Separator } from '@/components/ui/separator';
@@ -50,12 +50,6 @@ export default function RestaurantDetailHeader({ restaurant }: Props) {
           <div className="min-w-0 space-y-3">
             <div className="flex items-center gap-3">
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">{restaurant.name}</h1>
-              <button 
-                type="button"
-                className="flex size-9 items-center justify-center rounded-full bg-accent/40 text-muted-foreground hover:text-red-500 transition-colors cursor-pointer"
-              >
-                <Heart className="size-5" />
-              </button>
             </div>
 
             <div className="flex flex-wrap items-center gap-4 text-xs md:text-sm text-muted-foreground">

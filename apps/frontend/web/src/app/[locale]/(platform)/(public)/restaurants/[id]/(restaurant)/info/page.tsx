@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import RestaurantLocationMap from '@/components/restaurants/RestaurantLocationMap';
@@ -114,3 +115,23 @@ export default async function RestaurantInfoPage({ params }: PageProps) {
   );
 }
 
+
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  try {
+    const res = await serverFetch<ApiResponse<RestaurantType>>(`/user/restaurants/${id}`);
+    const restaurant = res?.data;
+    if (restaurant) {
+      return {
+        title: `${restaurant.name} Information | Bite Club`,
+        description: `Get address, phone number, location, and opening hours for ${restaurant.name} on Bite Club.`,
+      };
+    }
+  } catch (e) {
+    // Fail silently
+  }
+  return {
+    title: "Restaurant Info | Bite Club",
+  };
+}

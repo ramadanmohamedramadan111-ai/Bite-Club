@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { getTranslations } from 'next-intl/server';
 import RestaurantCard from '@/components/restaurants/RestaurantCard';
@@ -139,3 +140,9 @@ export default async function Page({ searchParams }: PageProps) {
   );
 }
 
+
+
+export const metadata: Metadata = {
+  title: "Browse Restaurants | Bite Club",
+  description: "Explore top restaurants near you, check ratings, menus, and find your next favorite meal.",
+};

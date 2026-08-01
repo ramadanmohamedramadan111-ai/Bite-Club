@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import Hero from '@/components/home/Hero';
 import HomeCategories from '@/components/home/HomeCategories';
@@ -31,3 +32,9 @@ export default async function HomePage() {
   );
 }
 
+
+
+export const metadata: Metadata = {
+  title: "Bite Club - Social Food & Group Ordering",
+  description: "The social food ordering app. Start group orders with friends, split costs, share posts, and earn daily rewards.",
+};

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { serverFetch } from '@/utils/server-fetch';
 import type { ApiResponse } from '@/types/api';
 import type { UserResponse } from '@/types/user';
@@ -48,3 +49,9 @@ export default async function EditProfilePage() {
     </div>
   );
 }
+
+
+export const metadata: Metadata = {
+  title: "Edit Profile Details | Bite Club",
+  description: "Update your name, contact information, and personal settings.",
+};

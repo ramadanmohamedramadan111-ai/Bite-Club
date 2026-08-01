@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { serverFetch } from '@/utils/server-fetch';
 import { ApiResponse } from '@/types/api';
 import { GroupType } from '@/types/groups';
@@ -46,3 +47,23 @@ export default async function GroupMembersPage({
   );
 }
 
+
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  try {
+    const res = await serverFetch<ApiResponse<GroupType>>(`/groups/${id}`);
+    const group = res?.data;
+    if (group) {
+      return {
+        title: `${group.name} Members | Bite Club`,
+        description: `View members of the food group ${group.name} on Bite Club.`,
+      };
+    }
+  } catch (e) {
+    // Fail silently
+  }
+  return {
+    title: "Group Members | Bite Club",
+  };
+}

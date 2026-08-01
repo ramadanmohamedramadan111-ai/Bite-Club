@@ -11,13 +11,11 @@ export const protectedRoutes = [
   '/profile/edit',
   '/checkout',
   '/favorites',
-  '/feed',
-  '/feed/create',
-  '/feed/posts',
-  '/feed/leaderboard',
+  '/posts',
+  '/posts/create',
+  '/posts/leaderboard',
   '/posts/:postId',
   '/orders',
-  '/orders/active',
   '/orders/past',
   '/orders/:orderId',
   '/points',
@@ -30,7 +28,6 @@ export const protectedRoutes = [
   '/groups/:id/history',
   '/groups/invite/:token',
   '/friends',
-  '/friends/friends',
   '/friends/discover',
   '/friends/sent',
   '/friends/received',
@@ -47,6 +44,8 @@ export const publicRoutes = [
   '/restaurants/:id/reviews',
   '/items/:id',
   '/group-order/:id',
+  'privacy-policy',
+  'terms-of-service',
 ] as const;
 
 export type RoutePattern = (
@@ -71,3 +70,4 @@ export function matchRoute(pattern: string, route: string) {
     return segment.startsWith(':') || segment === routeParts[index];
   });
 }
+

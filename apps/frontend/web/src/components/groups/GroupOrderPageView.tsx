@@ -246,9 +246,15 @@ export default function GroupOrderPageView({
                 {sessionCart.status === 'locked' ? t('locked') : t('open')}
               </span>
             </div>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {restaurant.name}
-            </p>
+            <div className="mt-1.5 flex items-center gap-2.5">
+              <p className="truncate text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+                {restaurant.name}
+              </p>
+              <span
+                className="h-0.5 w-10 shrink-0 rounded-full bg-primary/60"
+                aria-hidden="true"
+              />
+            </div>
           </div>
         </div>
 
