@@ -1,59 +1,21 @@
 import { api } from './api'
-
-export type RestaurantProfile = {
-  id: number
-  name: string
-  description: string | null
-  phone_number: string
-  address: string
-  logo_url: string | null
-  cover_image_url: string | null
-  category_id: number | null
-}
-
-export type OpeningHour = {
-  day_of_week: number   // 0 = Sunday, 1 = Monday … 6 = Saturday
-  opens_at: string | null
-  closes_at: string | null
-  is_closed: boolean
-}
-
-export type RestaurantSettings = {
-  id: number
-  restaurant_id: number
-  is_open: boolean
-  accept_orders: boolean
-  delivery_enabled: boolean
-  pickup_enabled: boolean
-  latitude: string
-  longitude: string
-  delivery_radius: string
-  delivery_fee_per_km: string
-  deposit_threshold: string
-  deposit_percentage: string
-  kashier_api_key: string | null
-  kashier_merchant_id: string | null
-  kashier_webhook_secret: string | null
-  updated_at: string
-}
-
-type ProfileResponse      = { success: boolean; message: string; data: RestaurantProfile }
-type OpeningHoursResponse = { success: boolean; message: string; data: OpeningHour[] }
-type SettingsResponse     = { success: boolean; message: string; data: RestaurantSettings }
+import type { DashboardPeriod } from '../types/analytics'
+import type {
+  DashboardAnalyticsResponse,
+  OpeningHour,
+  OpeningHoursResponse,
+  ProfileResponse,
+  SettingsResponse,
+  UpdateProfilePayload,
+  UpdateSettingsPayload,
+} from '../types/restaurant'
+import type { RestaurantReviewsResponse, ReviewListParams } from '../types/reviews'
 
 export const restaurantService = {
   getProfile: () =>
     api.get<ProfileResponse>('/restaurant/profile').then((r) => r.data.data),
 
-  updateProfile: (payload: {
-    name?: string
-    description?: string
-    phone_number?: string
-    address?: string
-    category_id?: number | null
-    logo?: File | null
-    cover_image?: File | null
-  }) => {
+  updateProfile: (payload: UpdateProfilePayload) => {
     const form = new FormData()
     if (payload.name         !== undefined) form.append('name',         payload.name)
     if (payload.description  !== undefined) form.append('description',  payload.description ?? '')
@@ -79,6 +41,12 @@ export const restaurantService = {
   getSettings: () =>
     api.get<SettingsResponse>('/restaurant/settings').then((r) => r.data.data),
 
-  updateSettings: (payload: Partial<Omit<RestaurantSettings, 'id' | 'restaurant_id' | 'updated_at'>>) =>
+  updateSettings: (payload: UpdateSettingsPayload) =>
     api.put<SettingsResponse>('/restaurant/settings', payload).then((r) => r.data.data),
+
+  getDashboardAnalytics: (period: DashboardPeriod = 'today') =>
+    api.get<DashboardAnalyticsResponse>(`/restaurant/dashboard`, { params: { period } }).then((r) => r.data.data),
+
+  getReviews: (params: ReviewListParams = {}) =>
+    api.get<RestaurantReviewsResponse>('/restaurant/reviews', { params }).then((r) => r.data.data),
 }

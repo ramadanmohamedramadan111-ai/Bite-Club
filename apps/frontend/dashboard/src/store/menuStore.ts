@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { menuItemService } from '../lib/menuService'
-import type { ApiMenuItem } from './menuTypes'
+import type { ApiMenuItem } from '../types/menu'
 
 export type { ApiMenuItem as MenuItem }
 
@@ -19,7 +19,7 @@ interface MenuStore {
 
   fetchItems: (params?: {
     menu_category_id?: number
-    query?: string
+    search?: string
     sort_by?: 'title' | 'price' | 'availability'
     sort_dir?: 'asc' | 'desc'
     page?: number

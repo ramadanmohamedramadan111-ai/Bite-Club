@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import { orderService, type ApiLiveOrder, type HistoryFilters } from '../lib/orderService'
+import { orderService } from '../lib/orderService'
+import type { ApiLiveOrder, HistoryFilters } from '../types/orders'
 
 export type { ApiLiveOrder as Order }
 
@@ -17,7 +18,7 @@ interface OrderStore {
   isLoading: boolean
   error: string | null
 
-  fetchLiveOrders: (query?: string) => Promise<void>
+  fetchLiveOrders: (search?: string) => Promise<void>
   fetchHistoryOrders: (page?: number, filters?: HistoryFilters) => Promise<void>
 }
 
@@ -30,10 +31,10 @@ export const useOrderStore = create<OrderStore>((set) => ({
   isLoading: false,
   error: null,
 
-  fetchLiveOrders: async (query?: string) => {
+  fetchLiveOrders: async (search?: string) => {
     set({ isLoading: true, error: null })
     try {
-      const orders = await orderService.getLiveOrders(query)
+      const orders = await orderService.getLiveOrders(search)
       set({ orders })
     } catch (e) {
       set({ error: e instanceof Error ? e.message : 'Failed to load live orders' })

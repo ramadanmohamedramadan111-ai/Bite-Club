@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import i18n from '../i18n'
-import { aiService, type AiReport } from '../lib/aiService'
+import { aiService } from '../lib/aiService'
+import type { AiReport } from '../types/ai'
 
 type AiState = {
   report: AiReport | null

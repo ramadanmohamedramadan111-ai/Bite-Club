@@ -15,6 +15,7 @@ import { ThemeProvider } from '@/providers/ThemeProvider';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { GoogleMapsProvider } from '@/providers/GoogleMapProvider';
 import SessionProvider from '@/providers/SessionProvider';
+import NotificationProvider from '@/providers/NotificationProvider';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -66,7 +67,9 @@ export default async function RootLayout({ children, params }: Props) {
             <ThemeProvider>
               <GoogleMapsProvider>
                 <TooltipProvider>
-                  <SessionProvider>{children}</SessionProvider>
+                  <SessionProvider>
+                    <NotificationProvider>{children}</NotificationProvider>
+                  </SessionProvider>
                 </TooltipProvider>
               </GoogleMapsProvider>
             </ThemeProvider>

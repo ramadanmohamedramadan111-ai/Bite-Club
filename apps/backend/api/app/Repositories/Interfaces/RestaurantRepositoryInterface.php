@@ -15,6 +15,11 @@ interface RestaurantRepositoryInterface extends BaseRepositoryInterface
     public function findForUser(int $id): ?Restaurant;
     
     public function getNearest(float $latitude, float $longitude, int $limit = 5): Collection;
+    public function findPendingRestaurants(): \Illuminate\Database\Eloquent\Collection;
+    public function approveRestaurant(int $restaurantId): bool;
+    public function activateRestaurant(int $restaurantId): bool;
+
+    public function suspendRestaurants(array $restaurantIds): void;
     public function getHighestRated(int $limit = 10): Collection;
     public function updateStats(int $restaurantId, float $averageRating, int $reviewsCount): bool;
 }

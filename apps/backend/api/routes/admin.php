@@ -1,16 +1,18 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\Auth\AdminAuthController;
-use App\Http\Controllers\Api\RestaurantCategoryController;
-use App\Http\Controllers\Api\GeneralSettingController;
-use App\Http\Controllers\Api\Admin\RestaurantController;
-use App\Http\Controllers\Api\Admin\PostModerationController;
-use App\Http\Controllers\Api\Admin\UserManagement\UserController;
-use App\Http\Controllers\Api\Admin\UserManagement\UserBanController;
+use \App\Http\Controllers\Api\Admin\InvoiceController;
+use App\Http\Controllers\Api\Admin\AdminDashboardController;
 use App\Http\Controllers\Api\Admin\LeaderboardDashboardController;
 use App\Http\Controllers\Api\Admin\OrderController;
-use App\Http\Controllers\Api\Admin\AdminDashboardController;
+use App\Http\Controllers\Api\Admin\PostModerationController;
+use App\Http\Controllers\Api\Admin\RestaurantController;
+use App\Http\Controllers\Api\Admin\UserManagement\UserBanController;
+use App\Http\Controllers\Api\Admin\UserManagement\UserController;
+use App\Http\Controllers\Api\Auth\AdminAuthController;
+use App\Http\Controllers\Api\GeneralSettingController;
+use App\Http\Controllers\Api\RestaurantCategoryController;
+use Illuminate\Support\Facades\Route;
+
 
 Route::post('/login', [AdminAuthController::class, 'login'])->name('login');
 
@@ -67,5 +69,10 @@ Route::middleware('auth.admin')->group(function () {
     Route::prefix('leaderboard')->name('leaderboard.')->group(function () {
         Route::get('/dashboard', [LeaderboardDashboardController::class, 'index'])->name('dashboard');
     });
-});
 
+    Route::prefix('invoices')->name('invoices.')->group(function () {
+        Route::get('/', [InvoiceController::class, 'index'])->name('index');
+        Route::get('/statistics', [InvoiceController::class, 'statistics'])->name('statistics');
+        Route::get('/{id}', [InvoiceController::class, 'show'])->name('show');
+    });
+});

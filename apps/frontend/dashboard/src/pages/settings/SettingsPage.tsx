@@ -1,11 +1,12 @@
 import { useTranslation } from 'react-i18next'
 import { useEffect, useRef, useState } from 'react'
 import {
-  Store, Briefcase, Clock, Bell, Upload, CheckCircle, MapPin, Truck, Percent, Eye, EyeOff,
+  Store, Briefcase, Clock, Upload, CheckCircle, MapPin, Truck, Percent, Eye, EyeOff,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { LocationMap } from '../../components/common/LocationMap'
-import { restaurantService, type RestaurantProfile, type OpeningHour } from '../../lib/restaurantService'
+import { restaurantService } from '../../lib/restaurantService'
+import type { OpeningHour, RestaurantProfile } from '../../types/restaurant'
 
 // day_of_week: 0=Sunday, 1=Monday ... 6=Saturday
 const DAY_KEYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
@@ -195,11 +196,6 @@ export function SettingsPage() {
       setSettingsSaving(false)
     }
   }
-
-  // ── Notification state ────────────────────────────────────────────────
-  const [notifications, setNotifications] = useState({
-    email: true, desktop: true, sms: false,
-  })
 
   const inputCls = 'rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-800 outline-none focus:border-brand-orange transition dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
 

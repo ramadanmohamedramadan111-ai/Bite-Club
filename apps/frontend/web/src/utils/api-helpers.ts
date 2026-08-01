@@ -9,7 +9,7 @@ export function buildQueryString<T extends Record<string, QueryValue>>(
   const searchParams = new URLSearchParams();
 
   for (const [key, value] of Object.entries(params)) {
-    if (value != null && value !== '') {
+    if (key && value != null && value !== '') {
       searchParams.set(key, String(value));
     }
   }

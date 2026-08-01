@@ -6,7 +6,6 @@ import { Table } from '../../components/common/Table'
 import type { Column } from '../../components/common/Table'
 import { Pagination } from '../../components/common/Pagination'
 import { useOrderStore } from '../../store/orderStore'
-import { api } from '../../lib/api'
 
 function statusPill(status: string) {
   switch (status.toLowerCase()) {
@@ -47,10 +46,18 @@ export function OrdersPage() {
 
   const query = searchParams.get('q') || ''
 
-  // Fetch live orders whenever query changes
+  // Fetch live orders on load and poll every minute while the live tab is active
   useEffect(() => {
+    if (activeTab !== 'live') return
+
     fetchLiveOrders(query)
-  }, [fetchLiveOrders, query])
+
+    const intervalId = window.setInterval(() => {
+      fetchLiveOrders(query)
+    }, 60_000)
+
+    return () => window.clearInterval(intervalId)
+  }, [activeTab, fetchLiveOrders, query])
 
   // Fetch history orders when page, tab, or query changes
   useEffect(() => {
@@ -60,7 +67,7 @@ export function OrdersPage() {
         order_type: filterType || undefined,
         from_date:  filterFromDate || undefined,
         to_date:    filterToDate || undefined,
-        query:      query || undefined,
+        search:     query || undefined,
       })
     }
   }, [currentPage, activeTab, query]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -72,14 +79,14 @@ export function OrdersPage() {
       order_type: filterType || undefined,
       from_date:  filterFromDate || undefined,
       to_date:    filterToDate || undefined,
-      query:      query || undefined,
+      search:     query || undefined,
     })
   }
 
   const handleClearFilters = () => {
     setFilterStatus(''); setFilterType(''); setFilterFromDate(''); setFilterToDate('')
     setCurrentPage(1)
-    fetchHistoryOrders(1, { query: query || undefined })
+    fetchHistoryOrders(1, { search: query || undefined })
   }
 
   const orders = activeTab === 'live' ? liveOrders : historyOrders
@@ -156,38 +163,9 @@ export function OrdersPage() {
   return (
     <div className="flex flex-col gap-6 mx-auto w-full">
 
-      {/* Incoming order + efficiency */}
-      <div className="grid gap-4 xl:grid-cols-[1fr_300px]">
-        <div className="flex items-center justify-between gap-4 rounded-xl bg-orange-50 border border-orange-200 px-5 py-4 dark:bg-orange-900/10 dark:border-orange-800/40">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-orange text-white">
-              <Bell size={20} />
-            </div>
-            <div>
-              <p className="font-bold text-brand-orange text-base">{t('newIncomingOrder')}</p>
-              <p className="text-sm text-gray-600 dark:text-slate-300 mt-0.5">Order #BC-1102 from Cairo Festival City &bull; 3 Items &bull; 680 EGP</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 shrink-0">
-            <button className="flex items-center gap-2 rounded-xl bg-brand-orange px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition shadow-sm">
-              <CheckCircle size={16} /> {t('accept')}
-            </button>
-            <button className="flex items-center gap-2 rounded-xl border-2 border-brand-orange px-5 py-2.5 text-sm font-semibold text-brand-orange hover:bg-orange-50 transition dark:hover:bg-orange-900/20">
-              <XCircle size={16} /> {t('reject')}
-            </button>
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-semibold text-gray-700 dark:text-slate-200">{t('dailyEfficiency')}</span>
-            <span className="text-xl font-bold text-brand-orange">88%</span>
-          </div>
-          <div className="h-2 w-full rounded-full bg-gray-100 dark:bg-slate-700 overflow-hidden">
-            <div className="h-full rounded-full bg-brand-orange" style={{ width: '88%' }} />
-          </div>
-          <p className="mt-2.5 text-xs text-gray-400 dark:text-slate-500">{t('avgPrepTime')}: 12.4 min</p>
-        </div>
+      <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('nav_orders')}</h1>
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">{t('ordersSub')}</p>
       </div>
 
       {/* Tabs */}

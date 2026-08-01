@@ -23,7 +23,7 @@ export default async function DiscoverTabPage({ searchParams }: Props) {
 
   return (
     <Suspense fallback={<Spinner />}>
-      <DiscoverTab search={search} page={page} per_page={per_page} />
+      <DiscoverTab search={search} page={String(page)} per_page={String(per_page)} />
     </Suspense>
   );
 }

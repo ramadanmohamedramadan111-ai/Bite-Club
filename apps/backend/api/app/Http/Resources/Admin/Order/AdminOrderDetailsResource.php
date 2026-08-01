@@ -55,8 +55,8 @@ class AdminOrderDetailsResource extends JsonResource
             'payments'     => $this->relationLoaded('payments') && $this->payments ? $this->payments->map(function ($payment) {
                 return [
                     'id'             => $payment->id,
-                    'payment_type'   => $payment->payment->payment_type->value,
-                    'payment_method' => $payment->payment_method->value,
+                    'payment_type'   => $payment->payment_type?->value,
+                    'payment_method' => $payment->payment_method?->value,
                     'amount'         => (float) $payment->amount,
                     'status'         => $payment->status->value,
                     'transaction_id' => $payment->transaction_id,

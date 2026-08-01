@@ -2,19 +2,18 @@ import { useState, useCallback, useEffect } from 'react'
 import { useLocale } from './contexts/LocaleContext'
 import api from './lib/api'
 import { getAuthToken, clearAuth } from './lib/cookies'
-import { DashboardPage } from './pages/Dashboard'
-import { UsersPage } from './pages/Users'
-import { BlockedUsersPage } from './pages/BlockedUsers'
-import { RestaurantsPage } from './pages/Restaurants'
-import { CategoriesPage } from './pages/Categories'
-import { OrdersPage } from './pages/Orders'
-import { PaymentsPage } from './pages/Payments'
-import { CommissionsPage } from './pages/Commissions'
-import { LeaderboardPage } from './pages/Leaderboard'
-import { FeedModerationPage } from './pages/FeedModeration'
-import { GeneralSettingsPage } from './pages/GeneralSettings'
-import { AdminProfilePage } from './pages/AdminProfile'
-import { LoginPage } from './pages/Login'
+import { DashboardPage } from './pages/Dashboard/Dashboard'
+import { UsersPage } from './pages/Users/Users'
+import { BlockedUsersPage } from './pages/BlockedUsers/BlockedUsers'
+import { RestaurantsPage } from './pages/Restaurants/Restaurants'
+import { CategoriesPage } from './pages/Categories/Categories'
+import { OrdersPage } from './pages/Orders/Orders'
+import { InvoicesPage } from './pages/Invoices/Invoices'
+import { LeaderboardPage } from './pages/Leaderboard/Leaderboard'
+import { FeedModerationPage } from './pages/FeedModeration/FeedModeration'
+import { GeneralSettingsPage } from './pages/GeneralSettings/GeneralSettings'
+import { AdminProfilePage } from './pages/AdminProfile/AdminProfile'
+import { LoginPage } from './pages/Login/Login'
 import { Sidebar } from './components/Sidebar'
 import { Navbar } from './components/Navbar'
 import { NAV_ITEMS, type NavItemId } from './config/navigation'
@@ -27,8 +26,7 @@ const pageTitles: Record<NavItemId, string> = {
   restaurants: 'Restaurants',
   categories: 'Categories',
   orders: 'Orders',
-  payments: 'Payments',
-  commissions: 'Commissions',
+  invoices: 'Invoices',
   leaderboard: 'Leaderboard',
   feed: 'Feed Moderation',
   settings: 'General Settings',
@@ -87,8 +85,7 @@ function App() {
       case 'restaurants': return <RestaurantsPage />
       case 'categories': return <CategoriesPage />
       case 'orders': return <OrdersPage />
-      case 'payments': return <PaymentsPage />
-      case 'commissions': return <CommissionsPage />
+      case 'invoices': return <InvoicesPage />
       case 'leaderboard': return <LeaderboardPage />
       case 'feed': return <FeedModerationPage />
       case 'settings': return <GeneralSettingsPage />

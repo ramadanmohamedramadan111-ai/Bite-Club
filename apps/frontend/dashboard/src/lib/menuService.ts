@@ -1,50 +1,27 @@
 import { api } from './api'
-import type { ApiCategory, ApiMenuItem } from '../store/menuTypes'
-
-// ─── Category responses ───────────────────────────────────────────────────────
-
-type CategoryListResponse = {
-  success: boolean
-  data: {
-    items: ApiCategory[]
-    meta: {
-      current_page: number
-      last_page: number
-      per_page: number
-      total: number
-    }
-  }
-}
-type CategoryResponse     = { success: boolean; data: ApiCategory }
-
-// ─── Item responses ───────────────────────────────────────────────────────────
-
-type ItemListResponse = {
-  success: boolean
-  data: {
-    items: ApiMenuItem[]
-    meta: {
-      current_page: number
-      last_page: number
-      per_page: number
-      total: number
-    }
-  }
-}
-type ItemResponse     = { success: boolean; data: ApiMenuItem }
+import type {
+  CategoryListResponse,
+  CategoryResponse,
+  ItemListResponse,
+  ItemResponse,
+  MenuCategoryPayload,
+  MenuItemListParams,
+  MenuItemStorePayload,
+  MenuItemUpdatePayload,
+} from '../types/menu'
 
 // ─── Menu Categories ─────────────────────────────────────────────────────────
 
 export const menuCategoryService = {
-  index: (query?: string) =>
+  index: (search?: string) =>
     api.get<CategoryListResponse>('/restaurant/menu-categories', {
-      params: query ? { query } : {}
+      params: search ? { search } : {}
     }).then((r) => r.data.data.items || []),
 
-  store: (payload: { title: string; icon_name: string; short_description: string; visibility?: 'visible' | 'hidden' }) =>
+  store: (payload: MenuCategoryPayload) =>
     api.post<CategoryResponse>('/restaurant/menu-categories', payload).then((r) => r.data.data),
 
-  update: (id: number, payload: { title: string; icon_name: string; short_description: string; visibility?: 'visible' | 'hidden' }) =>
+  update: (id: number, payload: MenuCategoryPayload) =>
     api.put<CategoryResponse>(`/restaurant/menu-categories/${id}`, payload).then((r) => r.data.data),
 
   updateVisibility: (id: number, visibility: 'visible' | 'hidden') =>
@@ -57,33 +34,19 @@ export const menuCategoryService = {
 // ─── Menu Items ───────────────────────────────────────────────────────────────
 
 export const menuItemService = {
-  index: (params?: {
-    menu_category_id?: number
-    title?: string
-    query?: string
-    sort_by?: 'title' | 'price' | 'availability'
-    sort_dir?: 'asc' | 'desc'
-    page?: number
-  }) =>
+  index: (params?: MenuItemListParams) =>
     api.get<ItemListResponse>('/restaurant/menu-items', {
       params: {
         ...(params?.menu_category_id ? { menu_category_id: params.menu_category_id } : {}),
         ...(params?.title ? { title: params.title } : {}),
-        ...(params?.query ? { query: params.query } : {}),
+        ...(params?.search ? { search: params.search } : {}),
         ...(params?.sort_by ? { sort_by: params.sort_by } : {}),
         ...(params?.sort_dir ? { sort_dir: params.sort_dir } : {}),
         ...(params?.page ? { page: params.page } : {}),
       },
     }).then((r) => ({ items: r.data.data.items || [], meta: r.data.data.meta })),
 
-  store: (payload: {
-    title: string
-    description: string
-    price: number
-    menu_category_id: number
-    availability: 'available' | 'unavailable'
-    image: File
-  }) => {
+  store: (payload: MenuItemStorePayload) => {
     const form = new FormData()
     form.append('title', payload.title)
     form.append('description', payload.description)
@@ -96,14 +59,7 @@ export const menuItemService = {
     }).then((r) => r.data.data)
   },
 
-  update: (id: number, payload: {
-    title: string
-    description: string
-    price: number
-    menu_category_id: number
-    availability: 'available' | 'unavailable'
-    image?: File | null
-  }) => {
+  update: (id: number, payload: MenuItemUpdatePayload) => {
     const form = new FormData()
     form.append('title', payload.title)
     form.append('description', payload.description)

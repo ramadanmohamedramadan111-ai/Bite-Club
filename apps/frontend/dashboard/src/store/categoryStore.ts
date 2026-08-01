@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { menuCategoryService } from '../lib/menuService'
-import type { ApiCategory } from './menuTypes'
+import type { ApiCategory } from '../types/menu'
 
 export type { ApiCategory as Category }
 
@@ -9,22 +9,22 @@ interface CategoryStore {
   isLoading: boolean
   error: string | null
 
-  fetchCategories: (query?: string) => Promise<void>
+  fetchCategories: (search?: string) => Promise<void>
   addCategory: (payload: { title: string; icon_name: string; short_description: string; visibility?: 'visible' | 'hidden' }) => Promise<void>
   updateCategory: (id: number, payload: { title: string; icon_name: string; short_description: string; visibility?: 'visible' | 'hidden' }) => Promise<void>
   toggleVisibility: (id: number, current: 'visible' | 'hidden') => Promise<void>
   deleteCategory: (id: number) => Promise<void>
 }
 
-export const useCategoryStore = create<CategoryStore>((set, get) => ({
+export const useCategoryStore = create<CategoryStore>((set) => ({
   categories: [],
   isLoading: false,
   error: null,
 
-  fetchCategories: async (query?: string) => {
+  fetchCategories: async (search?: string) => {
     set({ isLoading: true, error: null })
     try {
-      const categories = await menuCategoryService.index(query)
+      const categories = await menuCategoryService.index(search)
       set({ categories })
     } catch (e) {
       set({ error: e instanceof Error ? e.message : 'Failed to load categories' })

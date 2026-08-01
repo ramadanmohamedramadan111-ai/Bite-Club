@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import {
   BarChart3, LayoutGrid, MessageSquare,
   ShoppingBag, Settings, Star, Users,
-  LogOut, UtensilsCrossed, X,
+  LogOut, UtensilsCrossed, X, CreditCard,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuthStore } from '../../store/authStore'
@@ -15,9 +15,10 @@ const navItems = [
   { key: 'nav_orders',     icon: ShoppingBag,     path: '/orders'     },
   { key: 'nav_menu',       icon: UtensilsCrossed, path: '/menu'       },
   { key: 'nav_customers',  icon: Users,           path: '/customers'  },
-  { key: 'nav_promotions', icon: MessageSquare,   path: '/promotions' },
+ // { key: 'nav_promotions', icon: MessageSquare,   path: '/promotions' },
   { key: 'nav_reviews',    icon: Star,            path: '/reviews'    },
   { key: 'nav_reports',    icon: BarChart3,       path: '/reports'    },
+  { key: 'nav_payments',   icon: CreditCard,      path: '/payments'   },
 ]
 
 interface SidebarProps {
@@ -28,7 +29,6 @@ interface SidebarProps {
 // Shared nav content extracted so both mobile and desktop render the same thing
 function SidebarContent({ onClose, showClose }: { onClose: () => void; showClose: boolean }) {
   const { t } = useTranslation()
-  const token  = useAuthStore((s) => s.token)
   const logout = useAuthStore((s) => s.logout)
 
   const handleLogout = async () => {

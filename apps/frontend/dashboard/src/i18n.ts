@@ -85,6 +85,7 @@ const resources = {
       nav_branches: 'Branches',
       nav_employees: 'Employees',
       nav_reports: 'Reports',
+      nav_payments: 'Payments',
 
       // Dashboard page
       operationsDashboard: 'Operations Dashboard',
@@ -117,6 +118,21 @@ const resources = {
       ordersTrendWeekly: 'Orders Trend (Weekly)',
       dineIn: 'Dine-in',
       delivery: 'Delivery',
+      performance: 'Performance',
+      restaurantStatus: 'Restaurant Status',
+      completedOrders: 'Completed Orders',
+      pendingOrders: 'Pending Orders',
+      acceptingOrders: 'Accepting Orders',
+      pausedOrders: 'Paused Orders',
+      openNow: 'Open Now',
+      closedNow: 'Closed Now',
+      customerSatisfactionLabel: 'Customer Satisfaction',
+      averageRating: 'Average Rating',
+      ratingFromReviews: 'Average score from recent reviews',
+      recentReviews: 'Recent Reviews',
+      latestReviews: 'Latest Reviews',
+      latestOrders: 'Latest Orders',
+      noData: 'No data available yet',
 
       // Orders page
       newIncomingOrder: 'New Incoming Order!',
@@ -332,7 +348,6 @@ const resources = {
       currentRoi: 'CURRENT ROI',
       edit: 'Edit',
       activeScheduledOffers: 'Active & Scheduled Offers',
-      allTypes: 'All Types',
       couponCodes: 'Coupon Codes',
       flashSales: 'Flash Sales',
       campaignNameCol: 'CAMPAIGN NAME',
@@ -358,7 +373,7 @@ const resources = {
       reviewsSubtitle: 'Manage and respond to customer experiences across all branches.',
       exportReport: 'Export Report',
       avgRating: 'AVERAGE RATING',
-      basedOnReviews: 'Based on 1,248 reviews',
+      basedOnReviews: 'Based on {{count}} reviews',
       ratingDistribution: 'Rating Distribution',
       star: 'Star',
       responseRate: 'RESPONSE RATE',
@@ -378,13 +393,26 @@ const resources = {
       statusReplied: 'Replied',
       statusActionNeeded: 'Action Needed',
       statusPending: 'Pending',
-      showingReviews: 'Showing 1-10 of 1,248 reviews',
+      showingReviews: 'Showing {{from}}-{{to}} of {{total}} reviews',
       aiResponseSuggestions: 'AI Response Suggestions',
       aiResponseDesc: 'Enable smart suggestions to help you reply to common feedback 40% faster.',
       configureAiAssist: 'Configure AI Assist',
       weeklyPerformance: 'Weekly Performance',
       weeklyPerformanceDesc: 'Your average rating improved by 0.3 stars this week across 4 branches.',
       viewTrendAnalysis: 'View Trend Analysis',
+
+      // Payments Page
+      paymentsTitle: 'Payments',
+      paymentsSubtitle: 'Review payments, status updates, and transaction history.',
+      paymentHistory: 'Payment History',
+      paymentId: 'PAYMENT ID',
+      paymentMethod: 'PAYMENT METHOD',
+      paymentType: 'PAYMENT TYPE',
+      totalPaid: 'Total Paid',
+      totalPending: 'Total Pending',
+      totalFailed: 'Total Failed',
+      noPayments: 'No payments found',
+      guest: 'Guest',
 
       // Reports Page
       reportsInsights: 'Reports & Insights',
@@ -434,7 +462,7 @@ const resources = {
       aiOrders: 'Orders',
       aiGrowth: 'Growth',
       aiPeakHours: 'Peak Hours',
-      customerSatisfaction: 'Customer Satisfaction',
+      customerSatisfactionLabelLabel: 'Customer Satisfaction',
       outOf5: 'out of 5',
       positiveLabel: 'Positive',
       negativeLabel: 'Negative',
@@ -471,6 +499,8 @@ const resources = {
        // payment settings
       paymentSettings: 'Payment Settings',
       kashierDesc: "Configure your Kashier API credentials to accept online payments for delivery and pickup orders.",
+
+      ordersSub:'Manage incoming and history orders',
      
       
     },
@@ -559,6 +589,7 @@ const resources = {
       nav_branches: 'الفروع',
       nav_employees: 'الموظفون',
       nav_reports: 'التقارير',
+      nav_payments: 'المدفوعات',
 
       // Dashboard page
       operationsDashboard: 'لوحة التحكم',
@@ -591,6 +622,21 @@ const resources = {
       ordersTrendWeekly: 'اتجاه الطلبات (أسبوعي)',
       dineIn: 'داخل المطعم',
       delivery: 'توصيل',
+      performance: 'الأداء',
+      restaurantStatus: 'حالة المطعم',
+      completedOrders: 'الطلبات المكتملة',
+      pendingOrders: 'الطلبات المعلقة',
+      acceptingOrders: 'يقبل الطلبات',
+      pausedOrders: 'متوقف',
+      openNow: 'مفتوح الآن',
+      closedNow: 'مغلق الآن',
+      customerSatisfaction: 'رضا العملاء',
+      averageRating: 'متوسط التقييم',
+      ratingFromReviews: 'متوسط التقييم من التقييمات الأخيرة',
+      recentReviews: 'التقييمات الأخيرة',
+      latestReviews: 'أحدث التقييمات',
+      latestOrders: 'أحدث الطلبات',
+      noData: 'لا توجد بيانات متاحة بعد',
 
       // Orders page
       newIncomingOrder: 'طلب جديد وارد!',
@@ -830,7 +876,7 @@ const resources = {
       reviewsSubtitle: 'إدارة والرد على تجارب العملاء عبر جميع الفروع.',
       exportReport: 'تصدير التقرير',
       avgRating: 'متوسط التقييم',
-      basedOnReviews: 'بناءً على 1,248 تقييم',
+      basedOnReviews: 'بناءً على {{count}} تقييم',
       ratingDistribution: 'توزيع التقييمات',
       star: 'نجمة',
       responseRate: 'معدل الرد',
@@ -850,13 +896,26 @@ const resources = {
       statusReplied: 'تم الرد',
       statusActionNeeded: 'يحتاج إجراء',
       statusPending: 'قيد الانتظار',
-      showingReviews: 'عرض 1-10 من 1,248 تقييم',
+      showingReviews: 'عرض 1-10 من {{total}} تقييم',
       aiResponseSuggestions: 'اقتراحات رد بالذكاء الاصطناعي',
       aiResponseDesc: 'تفعيل الاقتراحات الذكية لمساعدتك في الرد على الملاحظات الشائعة بسرعة 40٪ أكبر.',
       configureAiAssist: 'إعداد مساعد الذكاء الاصطناعي',
       weeklyPerformance: 'الأداء الأسبوعي',
       weeklyPerformanceDesc: 'تحسّن متوسط تقييمك بـ 0.3 نجمة هذا الأسبوع عبر 4 فروع.',
       viewTrendAnalysis: 'عرض تحليل الاتجاهات',
+
+      // Payments Page
+      paymentsTitle: 'المدفوعات',
+      paymentsSubtitle: 'راجع المدفوعات وتحديثات الحالة وسجل المعاملات.',
+      paymentHistory: 'سجل المدفوعات',
+      paymentId: 'معرّف الدفع',
+      paymentMethod: 'طريقة الدفع',
+      paymentType: 'نوع الدفع',
+      totalPaid: 'إجمالي المدفوع',
+      totalPending: 'إجمالي المعلق',
+      totalFailed: 'إجمالي الفاشل',
+      noPayments: 'لا توجد مدفوعات',
+      guest: 'ضيف',
 
       // Reports Page
       reportsInsights: 'التقارير والتحليلات',
@@ -905,7 +964,7 @@ const resources = {
       aiOrders: 'الطلبات',
       aiGrowth: 'النمو',
       aiPeakHours: 'أوقات الذروة',
-      customerSatisfaction: 'رضا العملاء',
+      customerSatisfactionLabelLabel: 'رضا العملاء',
       outOf5: 'من 5',
       positiveLabel: 'إيجابي',
       negativeLabel: 'سلبي',
@@ -943,6 +1002,8 @@ const resources = {
       // payment settings
       paymentSettings: 'إعدادات الدفع',
       kashierDesc: "أدخل بيانات الاعتماد الخاصة بـ Kashier لقبول الدفع عبر الإنترنت لطلبات التوصيل والاستلام.",
+
+      ordersSub: 'ادارة الطلبات الحالية والسابقة',
      
       
     },

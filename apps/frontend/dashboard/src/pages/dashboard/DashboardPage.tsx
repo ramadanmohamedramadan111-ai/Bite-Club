@@ -1,49 +1,72 @@
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import {
-  CreditCard, ShoppingBag, Zap, Clock, UserPlus,
-  AlertTriangle, ShoppingBasket, ShoppingCart,
+  CreditCard, ShoppingBag, Zap, Clock,
 } from 'lucide-react'
+import { useDashboardAnalytics } from '../../hooks/useDashboardAnalytics'
+import { useExportDashboardPdf } from '../../hooks/useExportDashboardPdf'
+import type { DashboardPeriod } from '../../types/analytics'
 
-const barHeights = [40, 52, 52, 65, 100, 65, 50]
-const todayIdx = 4
+const periods = ['today', 'week', 'month', 'year'] as const
 
-const recentOrders = [
-  { id: '#BC-9921', customer: 'Ahmed Mansour', status: 'Preparing',       items: '3 items', total: '450 EGP' },
-  { id: '#BC-9920', customer: 'Sarah Khalil',  status: 'Out for Delivery', items: '1 item',  total: '120 EGP' },
-  { id: '#BC-9919', customer: 'Omar Farouk',   status: 'Delivered',        items: '2 items', total: '310 EGP' },
-  { id: '#BC-9918', customer: 'Dina Mourad',   status: 'Delivered',        items: '4 items', total: '585 EGP' },
-  { id: '#BC-9917', customer: 'Guest User',    status: 'Cancelled',        items: '1 item',  total: '85 EGP'  },
-]
-
-const lowStock = [
-  { item: 'Wagyu Patties', note: 'Only 8 units left'            },
-  { item: 'Brioche Buns',  note: 'Only 24 units left'           },
-  { item: 'Truffle Mayo',  note: '12 units left (Restock soon)' },
-]
+type Period = (typeof periods)[number]
 
 function statusPill(status: string) {
   switch (status) {
-    case 'Preparing':        return 'bg-orange-100 text-orange-600'
-    case 'Out for Delivery': return 'bg-yellow-100 text-yellow-700'
-    case 'Delivered':        return 'bg-green-100 text-green-700'
-    case 'Cancelled':        return 'bg-red-100 text-red-500'
-    default:                 return 'bg-gray-100 text-gray-500'
+    case 'pending':
+    case 'preparing':
+      return 'bg-orange-100 text-orange-600'
+    case 'ready':
+    case 'delivered':
+      return 'bg-green-100 text-green-700'
+    case 'cancelled':
+      return 'bg-red-100 text-red-500'
+    default:
+      return 'bg-gray-100 text-gray-500'
   }
+}
+
+function formatCurrency(value: number) {
+  return `${value.toLocaleString()} EGP`
+}
+
+function formatReviewDate(value: string) {
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString()
+}
+
+function formatOrderLabel(value: string) {
+  return value.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())
 }
 
 export function DashboardPage() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
+  const [period, setPeriod] = useState<Period>('week')
+  const { analytics, loading } = useDashboardAnalytics(period as DashboardPeriod)
+  const { exportPdf, isExporting } = useExportDashboardPdf()
 
-  const stats = [
-    { label: t('totalRevenue'),    value: '125,430 EGP', badge: '+12%', up: true,  icon: CreditCard  },
-    { label: t('todaysRevenue'),   value: '8,200 EGP',   badge: '+4%',  up: true,  icon: CreditCard  },
-    { label: t('ordersToday'),     value: '42',           badge: '-2%',  up: false, icon: ShoppingBag },
-    { label: t('activeOrders'),    value: '12',           badge: null,   up: null,  icon: Zap         },
-    { label: t('avgOrderValue'),   value: '195 EGP',      badge: null,   up: null,  icon: Clock       },
-    { label: t('customersPerMonth'), value: '1,240',      badge: '+28%', up: true,  icon: UserPlus    },
-  ]
+  const stats = useMemo(() => {
+    if (!analytics) {
+      return [
+        { label: t('totalRevenue'), value: '—', badge: null, up: null, icon: CreditCard },
+        { label: t('ordersToday'), value: '—', badge: null, up: null, icon: ShoppingBag },
+        { label: t('activeOrders'), value: '—', badge: null, up: null, icon: Zap },
+        { label: t('averageRating'), value: '—', badge: null, up: null, icon: Clock },
+      ]
+    }
 
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    return [
+      { label: t('totalRevenue'), value: formatCurrency(analytics.summary.revenue), badge: null, up: null, icon: CreditCard },
+      { label: t('ordersToday'), value: analytics.summary.orders.toString(), badge: null, up: null, icon: ShoppingBag },
+      { label: t('activeOrders'), value: analytics.pending_orders.toString(), badge: null, up: null, icon: Zap },
+      { label: t('averageRating'), value: analytics.average_rating.toFixed(1), badge: null, up: null, icon: Clock },
+    ]
+  }, [analytics, t])
+
+  const restaurantStatusLabel = analytics?.restaurant_status?.accepting_orders ? t('acceptingOrders') : t('pausedOrders')
+  const restaurantOpenLabel = analytics?.restaurant_status?.is_open ? t('openNow') : t('closedNow')
 
   return (
     <div className="flex flex-col gap-5 mx-auto">
@@ -54,17 +77,31 @@ export function DashboardPage() {
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{t('operationsDashboardSub')}</p>
         </div>
         <div className="flex items-center gap-2 self-start sm:self-auto">
-          <button className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:border-brand-orange hover:text-brand-orange transition dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200">
-            {t('thisWeek')}
-          </button>
-          <button className="flex items-center gap-2 rounded-lg bg-brand-orange px-4 py-2 text-sm font-semibold text-white hover:opacity-90 transition shadow-sm">
-            {t('exportPDF')}
+          <div className="flex items-center rounded-lg border border-gray-200 bg-white p-1 dark:border-slate-600 dark:bg-slate-800">
+            {periods.map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => setPeriod(item)}
+                className={`rounded-md px-3 py-2 text-sm font-medium capitalize transition ${period === item ? 'bg-brand-orange text-white' : 'text-gray-700 hover:text-brand-orange dark:text-slate-200'}`}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => exportPdf({ analytics, period: period as DashboardPeriod, title: t('operationsDashboard') })}
+            disabled={isExporting}
+            className="flex items-center gap-2 rounded-lg bg-brand-orange px-4 py-2 text-sm font-semibold text-white hover:opacity-90 transition shadow-sm disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {isExporting ? t('exporting') : t('exportPDF')}
           </button>
         </div>
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-6">
+      <div className="grid grid-cols-2 gap-4  xl:grid-cols-4">
         {stats.map((s) => {
           const Icon = s.icon
           return (
@@ -80,148 +117,160 @@ export function DashboardPage() {
                 )}
               </div>
               <p className="text-xs text-gray-400 dark:text-slate-400">{s.label}</p>
-              <p className="mt-1 text-lg font-bold text-gray-900 dark:text-white leading-tight">{s.value}</p>
+              <p className="mt-1 text-lg font-bold text-gray-900 dark:text-white leading-tight">{loading ? '...' : s.value}</p>
             </div>
           )
         })}
       </div>
 
-      {/* Revenue Trend + Sales by Category */}
-      <div className="grid gap-4 xl:grid-cols-[1.7fr_1fr]">
-        <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <div className="flex items-center justify-between mb-4">
-            <span className="font-semibold text-gray-900 dark:text-white">{t('revenueTrend')}</span>
-            <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-slate-400">
-              <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-red-700 inline-block" />{t('revenue')}</span>
-              <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-blue-500 inline-block" />{t('target')}</span>
+      {/* Live overview */}
+      <div className="grid gap-4 xl:grid-cols-[1.3fr_0.9fr]">
+        <div className="rounded-2xl border border-gray-100 bg-gradient-to-br from-orange-50 via-white to-orange-100 p-5 shadow-sm dark:border-slate-700 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold text-orange-600">{t('performance')}</p>
+              <h2 className="mt-1 text-xl font-semibold text-gray-900 dark:text-white">{t('restaurantStatus')}</h2>
+            </div>
+            <div className={`rounded-full px-3 py-1 text-sm font-semibold ${analytics?.restaurant_status?.is_open ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+              {restaurantOpenLabel}
             </div>
           </div>
-          <div className="rounded-lg bg-gray-50 dark:bg-slate-800 p-4">
-            <div className="flex items-end gap-2 h-48">
-              {barHeights.map((h, i) => (
-                <div key={i} className="flex-1 flex items-end justify-center">
-                  <div className={`w-full rounded-t-lg transition-all ${i === todayIdx ? 'bg-red-800' : 'bg-red-200 dark:bg-red-900/40'}`} style={{ height: `${h}%` }} />
-                </div>
-              ))}
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-xl border border-white/70 bg-white/80 p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800/70">
+              <p className="text-sm text-gray-500 dark:text-slate-400">{t('revenue')}</p>
+              <p className="mt-2 text-2xl font-semibold text-gray-900 dark:text-white">{analytics ? formatCurrency(analytics.summary.revenue) : '—'}</p>
             </div>
+            <div className="rounded-xl border border-white/70 bg-white/80 p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800/70">
+              <p className="text-sm text-gray-500 dark:text-slate-400">{t('completedOrders')}</p>
+              <p className="mt-2 text-2xl font-semibold text-gray-900 dark:text-white">{analytics ? analytics.summary.orders : '—'}</p>
+            </div>
+          </div>
+          <div className="mt-4 flex items-center justify-between rounded-xl border border-orange-100 bg-white/70 p-3 text-sm text-gray-600 dark:border-slate-700 dark:bg-slate-800/70 dark:text-slate-300">
+            <span>{restaurantStatusLabel}</span>
+            <span className="font-semibold text-orange-600">{analytics?.pending_orders ?? 0} {t('pendingOrders')}</span>
           </div>
         </div>
 
-        <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <span className="font-semibold text-gray-900 dark:text-white">{t('salesByCategory')}</span>
-          <div className="flex justify-center my-3">
-            <div className="relative flex items-center justify-center">
-              <svg viewBox="0 0 120 120" width="160" height="160">
-                <circle cx="60" cy="60" r="46" fill="none" stroke="#e5e7eb" strokeWidth="16" className="dark:stroke-slate-700" />
-                <circle cx="60" cy="60" r="46" fill="none" stroke="#b91c1c" strokeWidth="16" strokeDasharray="121.5 289.0" strokeDashoffset="72.2" strokeLinecap="butt" />
-                <circle cx="60" cy="60" r="46" fill="none" stroke="#3b82f6" strokeWidth="16" strokeDasharray="80.9 289.0" strokeDashoffset="-49.2" strokeLinecap="butt" />
-                <circle cx="60" cy="60" r="46" fill="none" stroke="#60a5fa" strokeWidth="16" strokeDasharray="57.8 289.0" strokeDashoffset="-130.2" strokeLinecap="butt" />
-                <circle cx="60" cy="60" r="46" fill="none" stroke="#bfdbfe" strokeWidth="16" strokeDasharray="28.9 289.0" strokeDashoffset="-188.0" strokeLinecap="butt" />
-              </svg>
-              <div className="absolute flex flex-col items-center">
-                <span className="text-2xl font-bold text-gray-900 dark:text-white">42%</span>
-                <span className="text-[10px] text-gray-400 tracking-widest uppercase">{t('burgers')}</span>
-              </div>
+        <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold text-orange-600">{t('customerSatisfactionLabel')}</p>
+              <h2 className="mt-1 text-xl font-semibold text-gray-900 dark:text-white">{t('averageRating')}</h2>
+            </div>
+            <div className="rounded-full bg-orange-50 px-3 py-1 text-sm font-semibold text-orange-600 dark:bg-orange-900/20">
+              {analytics ? `${analytics.average_rating.toFixed(1)} / 5` : '—'}
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-3 text-xs text-gray-600 dark:text-slate-300">
-            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-red-700 shrink-0" />{t('burgers')} (42%)</span>
-            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-blue-500 shrink-0" />{t('sides')} (28%)</span>
-            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-blue-300 shrink-0" />{t('drinks')} (20%)</span>
-            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-blue-100 shrink-0" />{t('desserts')} (10%)</span>
+          <div className="mt-6 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 p-5 text-white">
+            <p className="text-sm opacity-90">{t('ratingFromReviews')}</p>
+            <p className="mt-2 text-4xl font-semibold">{analytics ? analytics.average_rating.toFixed(1) : '—'}</p>
+            <p className="mt-2 text-sm opacity-90">{analytics?.recent_reviews?.length ?? 0} {t('recentReviews')}</p>
           </div>
         </div>
       </div>
 
-      {/* Recent Orders + Low Stock */}
-      <div className="grid gap-4 xl:grid-cols-[1.5fr_1fr]">
+      {/* Recent Orders */}
+      <div className="grid gap-4 ">
         <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <div className="flex items-center justify-between mb-4">
-            <span className="font-semibold text-gray-900 dark:text-white">{t('recentOrders')}</span>
-            <button className="text-sm font-semibold text-brand-orange hover:underline">{t('viewAll')}</button>
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <p className="font-semibold text-gray-900 dark:text-white">{t('recentOrders')}</p>
+              <p className="text-xs text-gray-500 dark:text-slate-400">{t('latestOrders')}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate('/orders')}
+              className="text-sm font-semibold text-brand-orange transition hover:underline"
+            >
+              {t('viewAll')}
+            </button>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
+            <table className="w-full min-w-[760px] text-sm text-left">
               <thead>
                 <tr className="border-b border-gray-100 dark:border-slate-700">
-                  {[t('orderId'), t('customer'), t('status'), t('items'), t('total')].map((h) => (
+                  {[t('orderId'), t('customer'), t('type'), t('status'), t('items'), t('payment'), t('total'), t('date')].map((h) => (
                     <th key={h} className="pb-3 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-slate-500">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50 dark:divide-slate-800">
-                {recentOrders.map((o) => (
-                  <tr key={o.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition">
-                    <td className="py-3 font-semibold text-gray-800 dark:text-white">{o.id}</td>
-                    <td className="py-3 text-gray-600 dark:text-slate-300">{o.customer}</td>
-                    <td className="py-3"><span className={`inline-block rounded-full px-3 py-0.5 text-xs font-semibold ${statusPill(o.status)}`}>{o.status}</span></td>
-                    <td className="py-3 text-gray-500 dark:text-slate-400">{o.items}</td>
-                    <td className="py-3 font-semibold text-gray-800 dark:text-white">{o.total}</td>
+                {!analytics?.latest_orders?.length ? (
+                  <tr>
+                    <td colSpan={8} className="py-6 text-center text-sm text-gray-500 dark:text-slate-400">{t('noData')}</td>
                   </tr>
-                ))}
+                ) : analytics.latest_orders.map((o) => {
+                  const payment = o.payments?.[0]
+                  const itemSummary = o.items?.length
+                    ? o.items.map((item) => `${item.item_name} × ${item.quantity}`).join(', ')
+                    : t('noData')
+
+                  return (
+                    <tr key={o.id} className="transition hover:bg-gray-50 dark:hover:bg-slate-800/50">
+                      <td className="py-3 font-semibold text-gray-800 dark:text-white">#{o.id}</td>
+                      <td className="py-3">
+                        <div className="flex flex-col">
+                          <span className="font-medium text-gray-800 dark:text-white">{o.customer.name}</span>
+                          <span className="text-xs text-gray-500 dark:text-slate-400">{o.customer.phone_number}</span>
+                        </div>
+                      </td>
+                      <td className="py-3 text-gray-600 dark:text-slate-300">
+                        <span className="capitalize">{formatOrderLabel(o.order_type)}</span>
+                      </td>
+                      <td className="py-3">
+                        <span className={`inline-block rounded-full px-3 py-0.5 text-xs font-semibold ${statusPill(o.status)}`}>
+                          {formatOrderLabel(o.status)}
+                        </span>
+                      </td>
+                      <td className="max-w-[220px] py-3 text-gray-600 dark:text-slate-300">
+                        <div className="line-clamp-2">{itemSummary}</div>
+                      </td>
+                      <td className="py-3 text-gray-600 dark:text-slate-300">
+                        {payment ? `${payment.payment_method} • ${payment.status}` : t('noData')}
+                      </td>
+                      <td className="py-3 font-semibold text-gray-800 dark:text-white">{formatCurrency(o.financials.total)}</td>
+                      <td className="py-3 text-gray-500 dark:text-slate-400">{o.time_ago}</td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
         </div>
 
-        <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <div className="flex items-center justify-between mb-4">
-            <span className="font-semibold text-gray-900 dark:text-white">{t('lowStockAlerts')}</span>
-            <AlertTriangle size={18} className="text-brand-orange" />
-          </div>
-          <div className="flex flex-col gap-3">
-            {lowStock.map((item) => (
-              <div key={item.item} className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 p-3 dark:border-slate-700 dark:bg-slate-800">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-200 text-gray-600 dark:bg-slate-700 dark:text-slate-300">
-                  <ShoppingBasket size={16} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-gray-800 dark:text-white">{item.item}</p>
-                  <p className="text-xs text-brand-orange">{item.note}</p>
-                </div>
-                <button className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-brand-orange text-brand-orange hover:bg-brand-orange hover:text-white transition">
-                  <ShoppingCart size={14} />
-                </button>
-              </div>
-            ))}
-          </div>
-          <button className="mt-4 w-full rounded-xl border border-brand-orange py-2.5 text-sm font-semibold text-brand-orange hover:bg-brand-orange hover:text-white transition">
-            {t('inventoryAudit')}
-          </button>
-        </div>
+    
       </div>
 
-      {/* Orders Trend Weekly */}
-      <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+      {/* Reviews */}
+      <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
         <div className="flex items-center justify-between mb-4">
-          <span className="font-semibold text-gray-900 dark:text-white">{t('ordersTrendWeekly')}</span>
-          <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-slate-400">
-            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-blue-500 inline-block" />{t('dineIn')}</span>
-            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-blue-800 inline-block" />{t('delivery')}</span>
+          <div>
+            <p className="text-sm font-semibold text-orange-600">{t('latestReviews')}</p>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t('recentReviews')}</h2>
+          </div>
+          <div className="rounded-full bg-orange-50 px-3 py-1 text-sm font-semibold text-orange-600 dark:bg-orange-900/20">
+            {analytics?.recent_reviews?.length ?? 0}
           </div>
         </div>
-        <div className="rounded-lg bg-gray-50 dark:bg-slate-800 p-4">
-          <svg viewBox="0 0 700 130" preserveAspectRatio="none" className="w-full h-32">
-            <defs>
-              <linearGradient id="dineGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.2"/>
-                <stop offset="100%" stopColor="#3b82f6" stopOpacity="0"/>
-              </linearGradient>
-              <linearGradient id="delivGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#1e3a8a" stopOpacity="0.2"/>
-                <stop offset="100%" stopColor="#1e3a8a" stopOpacity="0"/>
-              </linearGradient>
-            </defs>
-            <path d="M0,100 C80,90 140,60 200,70 C260,80 320,40 380,50 C440,60 500,30 580,40 L700,35 L700,130 L0,130 Z" fill="url(#dineGrad)" />
-            <path d="M0,100 C80,90 140,60 200,70 C260,80 320,40 380,50 C440,60 500,30 580,40 L700,35" fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" />
-            <path d="M0,115 C80,110 140,90 200,100 C260,110 320,75 380,82 C440,90 500,60 580,70 L700,60 L700,130 L0,130 Z" fill="url(#delivGrad)" />
-            <path d="M0,115 C80,110 140,90 200,100 C260,110 320,75 380,82 C440,90 500,60 580,70 L700,60" fill="none" stroke="#1e3a8a" strokeWidth="2.5" strokeLinecap="round" />
-          </svg>
-          <div className="flex justify-between mt-2 px-1">
-            {days.map((d, i) => (
-              <span key={d} className={`text-xs font-medium px-2 py-0.5 rounded ${i === todayIdx ? 'bg-brand-orange text-white' : 'text-gray-400 dark:text-slate-500'}`}>{d}</span>
-            ))}
-          </div>
+        <div className="space-y-3">
+          {!analytics?.recent_reviews?.length ? (
+            <div className="rounded-xl border border-dashed border-gray-200 p-4 text-sm text-gray-500 dark:border-slate-700 dark:text-slate-400">
+              {t('noData')}
+            </div>
+          ) : analytics.recent_reviews.map((review) => (
+            <div key={review.id} className="rounded-xl border border-gray-100 bg-gray-50 p-4 dark:border-slate-700 dark:bg-slate-800">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="font-semibold text-gray-900 dark:text-white">{review.user.name}</p>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">{formatReviewDate(review.created_at)}</p>
+                </div>
+                <div className="rounded-full bg-yellow-100 px-2.5 py-1 text-sm font-semibold text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400">
+                  ★ {review.rating}
+                </div>
+              </div>
+              <p className="mt-3 text-sm text-gray-600 dark:text-slate-300">{review.comment}</p>
+            </div>
+          ))}
         </div>
       </div>
     </div>

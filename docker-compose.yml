@@ -70,6 +70,19 @@ services:
     networks:
       - app_net
 
+  web-prod:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.web.prod
+    ports:
+      - '3000:3000'
+    env_file:
+      - ./apps/frontend/web/.env.local
+    environment:
+      NODE_ENV: production
+    networks:
+      - app_net
+
   ai:
     build:
       context: .

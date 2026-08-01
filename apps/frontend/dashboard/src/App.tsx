@@ -16,6 +16,7 @@ import { SettingsPage } from './pages/settings/SettingsPage'
 import { PromotionsPage } from './pages/promotions/PromotionsPage'
 import { ReviewsPage } from './pages/reviews/ReviewsPage'
 import { ReportsPage } from './pages/reports/ReportsPage'
+import { PaymentsPage } from './pages/payments/PaymentsPage'
 import { useAuthStore } from './store/authStore'
 import { AppShell } from './components/layout/AppShell'
 
@@ -52,6 +53,12 @@ function App() {
     window.localStorage.setItem('biteclub-language', language)
     void i18next.changeLanguage(language)
   }, [theme, language])
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setAuthScreen('login')
+    }
+  }, [isAuthenticated])
 
   const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
   const toggleLanguage = () => setLanguage((l) => (l === 'en' ? 'ar' : 'en'))
@@ -132,6 +139,7 @@ function App() {
             <Route path="/promotions"          element={<PromotionsPage />} />
             <Route path="/reviews"             element={<ReviewsPage />} />
             <Route path="/reports"             element={<ReportsPage />} />
+            <Route path="/payments"            element={<PaymentsPage />} />
             <Route path="*"                    element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </AppShell>

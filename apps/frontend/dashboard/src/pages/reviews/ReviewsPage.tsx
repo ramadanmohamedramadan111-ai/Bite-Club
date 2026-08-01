@@ -1,54 +1,45 @@
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { useDebounce } from 'use-debounce'
 import {
   Star,
   Download,
-  Filter,
-  MoreVertical,
 } from 'lucide-react'
 import { Table } from '../../components/common/Table'
 import type { Column } from '../../components/common/Table'
 import { Pagination } from '../../components/common/Pagination'
-
-const reviewsData = [
-  {
-    id: 1,
-    customer: 'Jane Doe',
-    badge: 'Verified Buyer',
-    rating: 5,
-    content: 'The Truffle Burger was absolutely incredible! Highly recommended.',
-    status: 'REPLIED',
-    date: 'Oct 24, 2023',
-    initials: 'JD',
-    avatarColor: 'bg-orange-100 text-orange-700',
-  },
-  {
-    id: 2,
-    customer: 'Marcus Chen',
-    badge: 'Local Guide',
-    rating: 1,
-    content: 'Waited over 40 minutes for my salad. The staff seemed confused.',
-    status: 'ACTION_NEEDED',
-    date: 'Oct 23, 2023',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces',
-  },
-  {
-    id: 3,
-    customer: 'Sarah Lewis',
-    badge: 'New Customer',
-    rating: 4,
-    content: 'Great vegan options! I really appreciate the dedicated menu sections.',
-    status: 'PENDING',
-    date: 'Oct 22, 2023',
-    initials: 'SL',
-    avatarColor: 'bg-blue-100 text-blue-700',
-  },
-]
+import { useExportDashboardPdf } from '../../hooks/useExportDashboardPdf'
+import { useRestaurantReviews } from '../../hooks/useRestaurantReviews'
+import type { ApiReview } from '../../types/reviews'
 
 export function ReviewsPage() {
   const { t } = useTranslation()
-  const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'negative'>('all')
+  const { exportPdf, isExporting } = useExportDashboardPdf()
   const [currentPage, setCurrentPage] = useState(1)
+  const [searchParams] = useSearchParams()
+  const [debouncedSearch] = useDebounce(searchParams.get('q') ?? '', 400)
+
+  const { data, loading } = useRestaurantReviews({
+    page: currentPage,
+    per_page: 10,
+    search: debouncedSearch || undefined,
+  })
+
+  const reviews = (data?.reviews?.data ?? []).map((review: ApiReview) => ({
+    id: review.id,
+    customer: review.user.name,
+    badge: 'Verified Customer',
+    rating: review.rating,
+    content: review.comment,
+    status: review.rating >= 4 ? 'REPLIED' : review.rating <= 2 ? 'ACTION_NEEDED' : 'PENDING',
+    date: new Date(review.created_at).toLocaleDateString(),
+    initials: review.user.name.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase(),
+    avatar: review.user.profile_image ?? undefined,
+    avatarColor: 'bg-orange-100 text-orange-700',
+  }))
+
+
 
   const renderStars = (count: number) => {
     return (
@@ -65,7 +56,7 @@ export function ReviewsPage() {
     )
   }
 
-  const columns: Column<typeof reviewsData[0]>[] = [
+  const columns: Column<(typeof reviews)[number]>[] = [
     {
       header: t('customerCol', 'CUSTOMER'),
       key: 'customer',
@@ -112,40 +103,11 @@ export function ReviewsPage() {
         </p>
       ),
     },
-    {
-      header: t('statusCol', 'STATUS'),
-      key: 'status',
-      render: (r) => (
-        <span
-          className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${
-            r.status === 'REPLIED'
-              ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/20 dark:text-blue-500'
-              : r.status === 'ACTION_NEEDED'
-              ? 'bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-500'
-              : 'bg-yellow-50 text-yellow-700 dark:bg-yellow-950/20 dark:text-yellow-500'
-          }`}
-        >
-          {r.status === 'REPLIED'
-            ? t('statusReplied', 'Replied')
-            : r.status === 'ACTION_NEEDED'
-            ? t('statusActionNeeded', 'Action Needed')
-            : t('statusPending', 'Pending')}
-        </span>
-      ),
-    },
+   
     {
       header: t('dateCol', 'DATE'),
       key: 'date',
       render: (r) => r.date,
-    },
-    {
-      header: t('actionsCol', 'ACTIONS'),
-      key: 'actions',
-      render: () => (
-        <button className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-slate-800 transition">
-          <MoreVertical size={15} />
-        </button>
-      ),
     },
   ]
 
@@ -162,11 +124,20 @@ export function ReviewsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2.5 shrink-0 self-start sm:self-auto">
-          <button className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-slate-705 dark:bg-slate-800 dark:text-slate-200">
-            <Filter size={15} /> {t('filters', 'Filters')}
-          </button>
-          <button className="flex items-center gap-2 rounded-xl bg-brand-orange px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition shadow-sm">
-            <Download size={15} /> {t('exportReport', 'Export Report')}
+         
+          <button
+            type="button"
+            onClick={() => exportPdf({ period: 'week', title: t('reviewsFeedback', 'Reviews & Feedback'), reviews: reviews.map((review) => ({
+              customer: review.customer,
+              rating: review.rating,
+              content: review.content,
+              status: review.status,
+              date: review.date,
+            })) })}
+            disabled={isExporting || loading}
+            className="flex items-center gap-2 rounded-xl bg-brand-orange px-4 py-2.5 text-sm font-semibold text-white transition shadow-sm hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            <Download size={15} /> {isExporting ? t('exporting') : t('exportReport', 'Export Report')}
           </button>
         </div>
       </div>
@@ -179,13 +150,13 @@ export function ReviewsPage() {
             {t('avgRating', 'AVERAGE RATING')}
           </p>
           <p className="text-5xl font-extrabold text-gray-900 dark:text-white mt-3 leading-none">
-            4.8
+            {loading ? '—' : (data?.summary.average_rating ?? 0).toFixed(1)}
           </p>
           <div className="flex justify-center mt-2">
             {renderStars(5)}
           </div>
           <p className="text-xs text-gray-400 dark:text-slate-500 mt-3">
-            {t('basedOnReviews', 'Based on 1,248 reviews')}
+            {loading ? t('loading', 'Loading...') : t('basedOnReviews', 'Based on {{count}} reviews').replace('{{count}}', String(data?.summary.total_reviews ?? 0))}
           </p>
         </div>
 
@@ -195,11 +166,11 @@ export function ReviewsPage() {
             {t('ratingDistribution', 'Rating Distribution')}
           </p>
           {[
-            { stars: 5, pct: 78 },
-            { stars: 4, pct: 15 },
-            { stars: 3, pct: 4 },
-            { stars: 2, pct: 2 },
-            { stars: 1, pct: 1 },
+            { stars: 5, pct: data?.summary.ratings?.['5'] ?? 0 },
+            { stars: 4, pct: data?.summary.ratings?.['4'] ?? 0 },
+            { stars: 3, pct: data?.summary.ratings?.['3'] ?? 0 },
+            { stars: 2, pct: data?.summary.ratings?.['2'] ?? 0 },
+            { stars: 1, pct: data?.summary.ratings?.['1'] ?? 0 },
           ].map((item) => (
             <div key={item.stars} className="flex items-center gap-3 text-xs text-gray-500 dark:text-slate-400">
               <span className="w-10 font-bold shrink-0">{item.stars} {t('star', 'Star')}</span>
@@ -214,91 +185,34 @@ export function ReviewsPage() {
           ))}
         </div>
 
-        {/* Response Metrics */}
-        <div className="flex flex-col gap-4">
-          {/* Response Rate */}
-          <div className="flex-1 rounded-xl bg-blue-600 p-5 text-white shadow-sm flex flex-col justify-between">
-            <p className="text-[10px] font-bold tracking-wider uppercase opacity-80">
-              {t('responseRate', 'RESPONSE RATE')}
-            </p>
-            <div>
-              <p className="text-2xl font-extrabold">94.2%</p>
-              <p className="text-xs text-blue-100 mt-1">+2.4% {t('fromLastMonth', 'from last month')}</p>
-            </div>
-          </div>
-          {/* Avg Response Time */}
-          <div className="flex-1 rounded-xl bg-cyan-600 p-5 text-white shadow-sm flex flex-col justify-between">
-            <p className="text-[10px] font-bold tracking-wider uppercase opacity-80">
-              {t('avgResponseTime', 'AVG RESPONSE TIME')}
-            </p>
-            <div>
-              <p className="text-2xl font-extrabold">2.4 {t('hrs', 'hrs')}</p>
-              <p className="text-xs text-cyan-100 mt-1">-12m {t('fromLastMonth', 'from last month')}</p>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Main Reviews Table Block */}
       <div className="rounded-xl border border-gray-100 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 overflow-hidden">
-        {/* Table Filters & Tabs */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 gap-4 border-b border-gray-50 dark:border-slate-800">
-          <div className="flex gap-2 border-b border-gray-100 dark:border-slate-800 pb-0.5 sm:pb-0 sm:border-b-0">
-            <button
-              onClick={() => setActiveTab('all')}
-              className={`pb-2.5 sm:pb-0 px-3 text-sm font-semibold border-b-2 sm:border-b-0 transition ${
-                activeTab === 'all'
-                  ? 'border-brand-orange text-brand-orange sm:bg-orange-50/50 sm:text-brand-orange sm:rounded-lg sm:py-1.5'
-                  : 'border-transparent text-gray-500 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
-              }`}
-            >
-              {t('allReviews', 'All Reviews')}
-            </button>
-            <button
-              onClick={() => setActiveTab('pending')}
-              className={`pb-2.5 sm:pb-0 px-3 text-sm font-semibold border-b-2 sm:border-b-0 transition ${
-                activeTab === 'pending'
-                  ? 'border-brand-orange text-brand-orange sm:bg-orange-50/50 sm:text-brand-orange sm:rounded-lg sm:py-1.5'
-                  : 'border-transparent text-gray-500 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
-              }`}
-            >
-              {t('pendingResponse', 'Pending Response')}
-            </button>
-            <button
-              onClick={() => setActiveTab('negative')}
-              className={`pb-2.5 sm:pb-0 px-3 text-sm font-semibold border-b-2 sm:border-b-0 transition ${
-                activeTab === 'negative'
-                  ? 'border-brand-orange text-brand-orange sm:bg-orange-50/50 sm:text-brand-orange sm:rounded-lg sm:py-1.5'
-                  : 'border-transparent text-gray-500 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
-              }`}
-            >
-              {t('negativeReviews', 'Negative (1-2★)')}
-            </button>
-          </div>
-
-          <div className="flex items-center gap-2 self-end sm:self-auto">
-            <span className="text-xs text-gray-400 font-medium">{t('sortBy', 'Sort by')}:</span>
-            <select className="rounded-lg border border-gray-250 bg-white px-2 py-1 text-xs text-gray-700 outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
-              <option>{t('newestFirst', 'Newest First')}</option>
-              <option>{t('highestRating', 'Highest Rating')}</option>
-              <option>{t('lowestRating', 'Lowest Rating')}</option>
-            </select>
-          </div>
-        </div>
+      
 
         {/* Reusable Table */}
-        <Table
-          columns={columns}
-          data={reviewsData}
-          keyExtractor={(row) => row.id}
-        />
+        {loading ? (
+          <div className="p-6 text-sm text-gray-500 dark:text-slate-400">{t('loading', 'Loading reviews...')}</div>
+        ) : (
+          <Table
+            columns={columns}
+            data={reviews}
+            keyExtractor={(row) => row.id}
+          />
+        )}
 
         {/* Reusable Pagination */}
         <Pagination
           currentPage={currentPage}
-          totalPages={125}
+          totalPages={Math.max(1, data?.reviews.meta.last_page ?? 1)}
           onPageChange={setCurrentPage}
-          showingText={t('showingReviews', 'Showing 1-10 of 1,248 reviews')}
+          showingText={
+            t('showingReviews', 'Showing {{from}}-{{to}} of {{total}} reviews')
+              .replace('{{from}}',  String((currentPage - 1) * 10 + 1))
+              .replace('{{to}}',    String(Math.min(currentPage * 10, data?.reviews.meta.total ?? 0)))
+              .replace('{{total}}', String(data?.reviews.meta.total ?? 0))
+          }
         />
       </div>
     </div>

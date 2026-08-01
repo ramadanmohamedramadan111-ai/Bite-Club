@@ -11,6 +11,10 @@ use App\Http\Controllers\Api\RestaurantCategoryController;
 use App\Http\Controllers\Api\MenuCategoryController;
 use App\Http\Controllers\Api\MenuItemController;
 use App\Http\Controllers\Api\Restaurant\OrderController;
+use App\Http\Controllers\Api\Restaurant\RestaurantDashboardController;
+use App\Http\Controllers\Api\Restaurant\RestaurantReviewController;
+use App\Http\Controllers\Api\Restaurant\InvoiceController;
+use App\Http\Controllers\Api\Restaurant\OrderPaymentController;
 
 Route::post('/register', [RestaurantAuthController::class, 'register'])->name('register');
 Route::post('/login',    [RestaurantAuthController::class, 'login'])->name('login');
@@ -20,6 +24,9 @@ Route::post('/reset-password', [RestaurantPasswordResetController::class, 'reset
 Route::get('/categories', [RestaurantCategoryController::class, 'index'])->name('categories.index');
 
 Route::middleware('auth.restaurant')->group(function () {
+    Route::get('/dashboard', [RestaurantDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/reviews', [RestaurantReviewController::class, 'index'])->name('reviews');
+
     Route::post('/logout',  [RestaurantAuthController::class, 'logout'])->name('logout');
     Route::post('/refresh', [RestaurantAuthController::class, 'refresh'])->name('refresh');
     Route::get('/me',       [RestaurantAuthController::class, 'me'])->name('me');
@@ -55,5 +62,16 @@ Route::middleware('auth.restaurant')->group(function () {
         Route::get('/history', [OrderController::class, 'history'])->name('history');
         Route::get('/{orderId}/available-statuses', [OrderController::class, 'availableStatuses'])->name('available-statuses');
         Route::patch('/{orderId}/status', [OrderController::class, 'updateStatus'])->name('update-status');
+    });
+
+    Route::prefix('invoices')->name('invoices.')->group(function () {
+        Route::get('/', [InvoiceController::class, 'index'])->name('index');
+        Route::get('/{id}', [InvoiceController::class, 'show'])->name('show');
+        Route::post('/{id}/pay', [InvoiceController::class, 'pay'])->name('pay');
+    });
+
+    Route::prefix('payments')->name('payments.')->group(function () {
+        Route::get('/', [OrderPaymentController::class, 'index'])->name('index');
+        Route::get('/statistics', [OrderPaymentController::class, 'statistics'])->name('statistics');
     });
 });

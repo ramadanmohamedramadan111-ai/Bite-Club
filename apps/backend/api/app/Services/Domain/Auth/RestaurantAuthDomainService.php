@@ -50,7 +50,6 @@ class RestaurantAuthDomainService
 
         match($restaurant->status) {
             RestaurantStatusEnum::PENDING_APPROVAL => throw new Exception(trans('restaurant_auth.pending')),
-            RestaurantStatusEnum::SUSPENDED        => throw new Exception(trans('restaurant_auth.suspended')),
             RestaurantStatusEnum::CLOSED           => throw new Exception(trans('restaurant_auth.closed')),
             RestaurantStatusEnum::REJECTED         => throw new Exception(trans('restaurant_auth.rejected')),
             default                                => null,

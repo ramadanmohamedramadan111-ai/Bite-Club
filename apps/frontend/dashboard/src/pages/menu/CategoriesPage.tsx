@@ -6,7 +6,7 @@ import toast from 'react-hot-toast'
 import { DeleteModal } from '../../components/common/DeleteModal'
 import { FormModal } from '../../components/common/FormModal'
 import { useCategoryStore } from '../../store/categoryStore'
-import type { ApiCategory } from '../../store/menuTypes'
+import type { ApiCategory } from '../../types/menu'
 
 // Icon picker options — value stored in DB, icon shown in UI
 const ICON_OPTIONS = [
@@ -291,19 +291,7 @@ export function CategoriesPage() {
         </div>
       )}
 
-      {/* Summary */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        {[
-          { label: t('totalCategories'), value: categories.length },
-          { label: t('liveOnMenu'),      value: categories.filter((c) => c.visibility === 'visible').length },
-          { label: t('totalMenuItems'),  value: categories.reduce((s, c) => s + c.total_items, 0) },
-        ].map((stat) => (
-          <div key={stat.label} className="rounded-xl border border-gray-100 bg-white p-5 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{stat.label}</p>
-            <p className="text-3xl font-bold text-brand-orange">{stat.value}</p>
-          </div>
-        ))}
-      </div>
+     
 
       {/* Create Modal */}
       <FormModal

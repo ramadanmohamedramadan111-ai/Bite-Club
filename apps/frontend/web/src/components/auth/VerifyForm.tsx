@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/input-otp';
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { useState } from 'react';
-import NewPasswordForm from '@/components/auth/new-password-form';
+import NewPasswordForm from '@/components/auth/NewPasswordForm';
 import { toast } from 'sonner';
 import { useAction } from 'next-safe-action/hooks';
 import {
