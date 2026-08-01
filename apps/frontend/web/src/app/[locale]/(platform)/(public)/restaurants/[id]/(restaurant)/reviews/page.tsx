@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { cookies } from 'next/headers';
@@ -122,3 +123,23 @@ export default async function RestaurantReviewsPage({
   );
 }
 
+
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  try {
+    const res = await serverFetch<ApiResponse<RestaurantType>>(`/user/restaurants/${id}`);
+    const restaurant = res?.data;
+    if (restaurant) {
+      return {
+        title: `${restaurant.name} Reviews | Bite Club`,
+        description: `Read customer reviews and ratings for ${restaurant.name} on Bite Club.`,
+      };
+    }
+  } catch (e) {
+    // Fail silently
+  }
+  return {
+    title: "Restaurant Reviews | Bite Club",
+  };
+}

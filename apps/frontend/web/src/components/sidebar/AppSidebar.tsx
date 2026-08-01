@@ -77,7 +77,7 @@ export function AppSidebar({
         },
         {
           name: t('feed'),
-          url: '/feed',
+          url: '/posts',
           icon: Newspaper,
         },
         {

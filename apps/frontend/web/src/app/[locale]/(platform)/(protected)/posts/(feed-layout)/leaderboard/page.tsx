@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { serverFetch } from '@/utils/server-fetch';
 import type { ApiResponse } from '@/types/api';
 import type { LeaderBoardItem } from '@/types/posts';
@@ -16,3 +17,9 @@ export default async function LeaderboardPage() {
   return <LeaderboardFeed items={items} />;
 }
 
+
+
+export const metadata: Metadata = {
+  title: "Gourmet Leaderboard | Bite Club",
+  description: "See the top foodies and restaurant leaders on Bite Club.",
+};

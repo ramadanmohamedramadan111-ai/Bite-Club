@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import GroupsHeader from '@/components/groups/GroupsHeader';
 import YourGroups from '@/components/groups/YourGroups';
 import ActiveSessionsPanel from '@/components/groups/ActiveSessionsPanel';
@@ -23,3 +24,9 @@ export default async function Page({
   );
 }
 
+
+
+export const metadata: Metadata = {
+  title: "My Groups & Teams | Bite Club",
+  description: "Create or manage your food ordering groups to split costs and order together.",
+};

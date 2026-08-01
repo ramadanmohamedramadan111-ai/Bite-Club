@@ -4,9 +4,12 @@ namespace App\Http\Resources\Social;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Traits\UrlFormatterTrait;
 
 class PostDetailResource extends JsonResource
 {
+    use UrlFormatterTrait;
+
     public function toArray(Request $request): array
     {
         return [
@@ -15,7 +18,7 @@ class PostDetailResource extends JsonResource
                 'id'                => $this->user?->id,
                 'name'              => $this->user?->full_name,
                 'username'          => $this->user?->username,
-                'profile_image_url' => $this->user?->profile_image_url,
+                'profile_image_url' => $this->formatImageUrl($this->user?->profile_image_url),
             ],
             'restaurant' => [
                 'id'       => $this->restaurant?->id,

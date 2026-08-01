@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { ApiResponse } from '@/types/api';
 import { GroupTypeSimplified } from '@/types/groups';
@@ -73,3 +74,23 @@ export default async function Page({ params }: PageProps) {
   );
 }
 
+
+
+export async function generateMetadata({ params }: { params: Promise<{ token: string }> }): Promise<Metadata> {
+  const { token } = await params;
+  try {
+    const res = await serverFetch<ApiResponse<GroupTypeSimplified>>(`/groups/invite/${token}`);
+    const group = res?.data;
+    if (group) {
+      return {
+        title: `Join ${group.name} | Bite Club`,
+        description: group.description || `You have been invited to join ${group.name} on Bite Club.`,
+      };
+    }
+  } catch (e) {
+    // Fail silently
+  }
+  return {
+    title: "Group Invitation | Bite Club",
+  };
+}

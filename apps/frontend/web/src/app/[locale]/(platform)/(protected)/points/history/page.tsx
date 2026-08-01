@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { Coins, Calendar } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -119,3 +120,9 @@ export default async function HistoryPage({ searchParams }: PageProps) {
   );
 }
 
+
+
+export const metadata: Metadata = {
+  title: "Points & Transaction History | Bite Club",
+  description: "View your loyalty points earning history and transaction log on Bite Club.",
+};

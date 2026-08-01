@@ -78,10 +78,10 @@ class MenuItemApplicationService
     {
         $item = $this->menuItemDomainService->delete($dto->getId(), $dto->getRestaurantId());
 
-       
+
         $this->deleteFile($item->image_url);
     }
-a
+
     private function mapItem($item): array
     {
         return [

@@ -47,6 +47,7 @@ export interface RestaurantType {
   logo_url: string;
   cover_image_url: string;
   category?: RestaurantCategory;
+  category_name?: string;
   address?: string;
   phone_number?: string;
   average_rating: number;

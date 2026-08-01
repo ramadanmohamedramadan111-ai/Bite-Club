@@ -16,7 +16,7 @@ export default async function FeedHeader() {
           {t('socialFeedDesc')}
         </p>
       </div>
-      <Link href="/feed/create">
+      <Link href="/posts/create">
         <Button className="shadow-md hover:shadow-lg transition-all duration-200">
           <Plus className="mr-2 h-5 w-5" />
           {t('createPost')}

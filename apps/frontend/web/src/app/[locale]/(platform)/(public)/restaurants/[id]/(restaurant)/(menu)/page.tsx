@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { serverFetch } from '@/utils/server-fetch';
 import { ApiResponse, PaginatedResponse } from '@/types/api';
@@ -42,3 +43,23 @@ export default async function RestaurantMenuPage({ params }: PageProps) {
   );
 }
 
+
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  try {
+    const res = await serverFetch<ApiResponse<RestaurantType>>(`/user/restaurants/${id}`);
+    const restaurant = res?.data;
+    if (restaurant) {
+      return {
+        title: `${restaurant.name} Menu | Bite Club`,
+        description: `Order delicious food from ${restaurant.name} on Bite Club. ${restaurant.description}`,
+      };
+    }
+  } catch (e) {
+    // Fail silently
+  }
+  return {
+    title: "Restaurant Menu | Bite Club",
+  };
+}

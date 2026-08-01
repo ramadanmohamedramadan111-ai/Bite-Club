@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { ForgotPasswordForm } from '@/components/auth/ForgetPasswordForm';
 
 export default function page() {
@@ -8,3 +9,9 @@ export default function page() {
   );
 }
 
+
+
+export const metadata: Metadata = {
+  title: "Forgot Password | Bite Club",
+  description: "Reset your Bite Club account password securely.",
+};

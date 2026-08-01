@@ -83,20 +83,18 @@ export function PostCard({ post, onAddToCart }: PostCardProps) {
 
       <div className="p-3">
         <div className="mb-3 flex items-center gap-2">
-          <Link href={`/users/${post.user.username}`} className="shrink-0">
+          <div className="shrink-0">
             <Avatar className="h-8 w-8">
               <AvatarImage src={post.user.profile_image_url || undefined} />
               <AvatarFallback>
                 {post.user.name?.charAt(0) || 'U'}
               </AvatarFallback>
             </Avatar>
-          </Link>
+          </div>
           <div className="min-w-0 flex-1">
-            <Link href={`/users/${post.user.username}`}>
-              <p className="truncate text-sm font-semibold hover:underline">
-                {post.user.name}
-              </p>
-            </Link>
+            <p className="truncate text-sm font-semibold">
+              {post.user.name}
+            </p>
             <p className="text-xs text-muted-foreground">
               @{post.user.username}
             </p>
@@ -144,7 +142,7 @@ export function PostCard({ post, onAddToCart }: PostCardProps) {
             disabled={isPending}
             onClick={() => onAddToCart?.(post)}>
             <ShoppingCart className="mr-1.5 h-4 w-4" />
-            {t('add')}
+            {t('copyOrder')}
           </Button>
         </div>
       </div>

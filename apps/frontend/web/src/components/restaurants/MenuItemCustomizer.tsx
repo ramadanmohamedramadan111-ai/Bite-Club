@@ -57,6 +57,7 @@ export default function MenuItemCustomizer({
 
   const cart = useCartStore((state) => state.cart);
   const addItem = useCartStore((state) => state.addItem);
+  const clearCart = useCartStore((state) => state.clearCart);
 
   const addItemToCart = () => {
     const normalizedItem: CartItem = {
@@ -92,7 +93,7 @@ export default function MenuItemCustomizer({
   function handleAddToCart() {
     if (!canAddToCart) return;
 
-    if (!isAuthenticated && cart && cart.restaurant.id !== restaurant.id) {
+    if (cart && cart.restaurant.id !== restaurant.id) {
       setReplaceCartDialogOpen(true);
       return;
     }
@@ -238,6 +239,9 @@ export default function MenuItemCustomizer({
         confirmText={t('replaceCart')}
         cancelText={t('keepCurrentCart')}
         onConfirm={() => {
+          if (!isAuthenticated) {
+            clearCart();
+          }
           addItemToCart();
           setReplaceCartDialogOpen(false);
         }}

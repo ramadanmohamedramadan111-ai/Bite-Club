@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
 type PageProps = {
@@ -8,3 +9,9 @@ export default async function Page({ params }: PageProps) {
   const { id } = await params;
   redirect(`/groups/${id}/members`);
 }
+
+
+export const metadata: Metadata = {
+  title: "Redirecting... | Bite Club",
+  description: "Redirecting to group details page.",
+};

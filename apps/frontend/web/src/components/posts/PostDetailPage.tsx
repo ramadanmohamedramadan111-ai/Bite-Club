@@ -17,16 +17,20 @@ import {
 } from '@/actions/feed';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
-
+import { useCartStore } from '@/stores/cart';
+import ConfirmDialog from '@/components/shared/ConfirmationDialog';
 interface PostDetailPageProps {
   post: PostType;
 }
 
 export function PostDetailPage({ post }: PostDetailPageProps) {
   const tc = useTranslations('common');
+  const tCustomizer = useTranslations('restaurants');
   const router = useRouter();
   const [isLiked, setIsLiked] = useState(post.is_liked_by_user ?? false);
   const [likeCount, setLikeCount] = useState(post.likes_count);
+  const [replaceCartDialogOpen, setReplaceCartDialogOpen] = useState(false);
+  const cart = useCartStore((state) => state.cart);
 
   const { execute: copyOrder, isExecuting: isCopying } = useAction(
     copyOrderAction,
@@ -84,96 +88,123 @@ export function PostDetailPage({ post }: PostDetailPageProps) {
   const hasItems = post.order?.items && post.order.items.length > 0;
 
   return (
-    <div className="container mx-auto space-y-6 max-w-lg px-4 py-6">
+    <div className="container mx-auto space-y-8 py-6">
       <div className="flex items-center gap-4">
-        <Link href="/feed">
-          <Button variant="ghost" size="icon">
+        <Link href="/posts">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-9 rounded-xl border border-border/40 hover:bg-accent/40">
             <ArrowLeft className="h-5 w-5" />
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold">{post.user.full_name}</h1>
-          <p className="text-sm text-muted-foreground">@{post.user.username}</p>
+          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground via-foreground/90 to-muted-foreground bg-clip-text text-transparent">
+            {post.restaurant.name}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            @{post.user.username}'s review
+          </p>
         </div>
       </div>
 
-      <div className="space-y-4">
-        <PostImages
-          post={post}
-          imageClassName="aspect-[4/3]"
-          showCounter
-          className="rounded-lg"
-        />
-
-        <Card className="p-3">
-          <div className="flex items-start gap-3">
-            <Avatar className="h-10 w-10">
-              <AvatarImage src={post.user.profile_image || undefined} />
-              <AvatarFallback>
-                {post.user.full_name?.charAt(0) || 'U'}
+      <Card className="mx-auto max-w-xl p-6 sm:p-8 space-y-6 border border-border/40 shadow-md bg-card/60 backdrop-blur-md rounded-3xl">
+        <div className="flex items-center justify-between pb-2 border-b border-border/30">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-10 w-10 border border-border/30 shadow-xs">
+              <AvatarImage src={post.user.profile_image_url || undefined} />
+              <AvatarFallback className="font-bold text-sm bg-accent text-accent-foreground">
+                {post.user.name?.charAt(0) || 'U'}
               </AvatarFallback>
             </Avatar>
-            <div className="min-w-0 flex-1">
-              <Link href={`/users/${post.user.username}`}>
-                <div className="hover:opacity-75">
-                  <p className="font-semibold">{post.user.full_name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    @{post.user.username}
-                  </p>
-                </div>
-              </Link>
+            <div className="min-w-0">
+              <p className="font-bold text-sm text-foreground leading-tight">
+                {post.user.name}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                @{post.user.username}
+              </p>
             </div>
           </div>
-        </Card>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex items-center gap-2 rounded-xl hover:bg-red-500/10 hover:text-red-500 transition-colors"
+            onClick={handleLike}>
+            <Heart
+              className={`h-4.5 w-4.5 transition-transform active:scale-125 ${isLiked ? 'text-red-500 fill-red-500' : 'text-muted-foreground'}`}
+            />
+            <span className="text-xs font-semibold">{likeCount}</span>
+          </Button>
+        </div>
 
-        <p className="text-sm">{post.caption}</p>
+        <PostImages
+          post={post}
+          imageClassName="aspect-[4/3] rounded-2xl"
+          showCounter
+          className="rounded-2xl overflow-hidden border border-border/30"
+        />
+
+        {post.caption && (
+          <p className="text-sm sm:text-base text-foreground/90 leading-relaxed italic border-l-2 border-primary/30 pl-4 py-1">
+            "{post.caption}"
+          </p>
+        )}
 
         <Link href={`/restaurants/${post.restaurant.id}`}>
-          <Card className="cursor-pointer overflow-hidden p-3 transition-colors hover:bg-secondary/50">
-            <div className="flex gap-3">
-              {post.restaurant.logo_url && (
-                <div className="relative h-16 w-16 shrink-0 rounded">
+          <Card className="cursor-pointer overflow-hidden p-4 transition-all duration-200 border border-border/40 hover:border-primary/20 hover:bg-primary/[0.02] bg-card rounded-2xl shadow-2xs">
+            <div className="flex items-center gap-4">
+              {post.restaurant.logo_url ? (
+                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-border/30 bg-muted">
                   <Image
                     src={post.restaurant.logo_url}
                     alt={post.restaurant.name}
                     fill
-                    className="rounded object-cover"
+                    className="object-cover"
                   />
+                </div>
+              ) : (
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 font-bold text-primary text-sm uppercase">
+                  {post.restaurant.name.charAt(0)}
                 </div>
               )}
               <div className="min-w-0 flex-1">
-                <div className="mb-1 text-xs text-muted-foreground">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-primary mb-0.5">
                   {tc('from')}
-                </div>
-                <h3 className="font-semibold">{post.restaurant.name}</h3>
+                </p>
+                <h3 className="font-bold text-sm sm:text-base text-foreground leading-tight">
+                  {post.restaurant.name}
+                </h3>
               </div>
             </div>
           </Card>
         </Link>
 
         {hasItems && (
-          <Card className="p-3">
-            <h3 className="mb-3 font-semibold text-base">
+          <Card className="p-5 border border-border/40 rounded-2xl bg-muted/15 space-y-4">
+            <h3 className="font-bold text-sm sm:text-base text-foreground tracking-tight">
               {tc('orderSummary')}
             </h3>
-            <div className="space-y-2">
+            <div className="space-y-3.5">
               {post.order.items.map((item) => (
                 <div
                   key={item.id}
                   className="flex items-center justify-between text-sm">
-                  <div>
-                    <p className="font-medium text-foreground">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-foreground/90 truncate">
                       {item.item_name}
                     </p>
-                    <p className="text-muted-foreground text-xs">
+                    <p className="text-muted-foreground text-xs mt-0.5">
                       Qty: {item.quantity}
                     </p>
                   </div>
-                  <p className="font-semibold">{item.price} EGP</p>
+                  <p className="font-bold text-foreground/80 shrink-0 ml-4">
+                    {item.price} EGP
+                  </p>
                 </div>
               ))}
-              <div className="flex justify-between border-t pt-2 font-semibold text-sm">
-                <span>{tc('total')}</span>
+              <div className="flex justify-between border-t border-border/45 pt-3.5 font-bold text-sm sm:text-base">
+                <span className="text-foreground/90">{tc('total')}</span>
                 <span className="text-primary">
                   {totalPrice.toFixed(2)} EGP
                 </span>
@@ -184,21 +215,37 @@ export function PostDetailPage({ post }: PostDetailPageProps) {
 
         <Button
           size="lg"
-          className="w-full"
+          className="w-full rounded-xl bg-gradient-to-r from-primary to-orange-500 hover:from-primary hover:to-orange-600 border-0 text-white font-bold shadow-md shadow-primary/10 py-6 transition-all duration-200"
           disabled={isCopying}
-          onClick={() => copyOrder(Number(post.id))}>
-          <ShoppingCart className="mr-2 h-4 w-4" />
-          {tc('add')}
+          onClick={() => {
+            if (cart && cart.restaurant.id !== post.restaurant.id) {
+              setReplaceCartDialogOpen(true);
+            } else {
+              copyOrder(Number(post.id));
+            }
+          }}>
+          <ShoppingCart className="mr-2 h-5 w-5" />
+          {isCopying
+            ? tc('copying')
+            : tc('copyOrder')}
         </Button>
+      </Card>
 
-        <Button
-          variant="ghost"
-          className="w-full flex items-center justify-center gap-2"
-          onClick={handleLike}>
-          <Heart className="h-5 w-5" fill={isLiked ? 'currentColor' : 'none'} />
-          <span>{likeCount} likes</span>
-        </Button>
-      </div>
+      <ConfirmDialog
+        open={replaceCartDialogOpen}
+        onOpenChange={setReplaceCartDialogOpen}
+        title={tCustomizer('copyOrderTitle')}
+        description={tCustomizer('copyOrderDesc', {
+          current: cart?.restaurant.name || '',
+          new: post.restaurant.name,
+        })}
+        confirmText={tCustomizer('copyOrder')}
+        cancelText={tCustomizer('keepCurrentCart')}
+        onConfirm={() => {
+          copyOrder(Number(post.id));
+          setReplaceCartDialogOpen(false);
+        }}
+      />
     </div>
   );
 }

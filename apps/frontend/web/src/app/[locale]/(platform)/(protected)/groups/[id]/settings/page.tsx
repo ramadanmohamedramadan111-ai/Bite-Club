@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { serverFetch } from '@/utils/server-fetch';
 import { ApiResponse } from '@/types/api';
@@ -29,3 +30,23 @@ export default async function GroupSettingsPage({ params }: PageProps) {
   return <GroupSettingsTab group={group} isOwner={isOwner} />;
 }
 
+
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  try {
+    const res = await serverFetch<ApiResponse<GroupType>>(`/groups/${id}`);
+    const group = res?.data;
+    if (group) {
+      return {
+        title: `${group.name} Settings | Bite Club`,
+        description: `Manage settings for the food group ${group.name} on Bite Club.`,
+      };
+    }
+  } catch (e) {
+    // Fail silently
+  }
+  return {
+    title: "Group Settings | Bite Club",
+  };
+}

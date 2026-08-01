@@ -124,7 +124,7 @@ export default function Navbar({
       ? [
           { name: tSidebar('orders'), url: '/orders' },
           { name: tSidebar('groups'), url: '/groups' },
-          { name: tSidebar('feed'), url: '/feed' },
+          { name: tSidebar('feed'), url: '/posts' },
         ]
       : []),
   ];
@@ -150,7 +150,7 @@ export default function Navbar({
       ? [
           { name: tSidebar('orders'), url: '/orders', icon: Logs },
           { name: tSidebar('groups'), url: '/groups', icon: Users },
-          { name: tSidebar('feed'), url: '/feed', icon: Newspaper },
+          { name: tSidebar('feed'), url: '/posts', icon: Newspaper },
           {
             name: tSidebar('friends'),
             url: '/friends',
@@ -202,8 +202,8 @@ export default function Navbar({
             <Link
               href="/"
               className="flex items-center gap-2.5 transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0">
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-orange-600 text-primary-foreground shadow-[0_3px_10px_-3px_var(--color-primary)]">
-                <Bold className="size-4" />
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg overflow-hidden border border-primary/15 bg-primary/5 shadow-[0_3px_10px_-3px_var(--color-primary)]">
+                <img src="/logo.png" alt="Bite Club" className="size-full object-cover" />
               </div>
               <span className="text-2xl font-bold tracking-tight bg-gradient-to-r from-primary via-orange-500 to-amber-500 bg-clip-text text-transparent">
                 BiteClub
@@ -437,8 +437,8 @@ export default function Navbar({
                       href="/"
                       className="flex items-center gap-2.5"
                       onClick={() => setIsOpenMobile(false)}>
-                      <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-orange-600 text-primary-foreground shadow-[0_2px_8px_-2px_var(--color-primary)]">
-                        <Bold className="size-4" />
+                      <div className="flex aspect-square size-8 items-center justify-center rounded-lg overflow-hidden border border-primary/15 bg-primary/5 shadow-[0_2px_8px_-2px_var(--color-primary)]">
+                        <img src="/logo.png" alt="Bite Club" className="size-full object-cover" />
                       </div>
                       <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-primary to-orange-500 bg-clip-text text-transparent">
                         BiteClub
@@ -557,8 +557,8 @@ export default function Navbar({
             </Sheet>
 
             <Link href="/" className="flex items-center gap-1.5 sm:gap-2">
-              <div className="flex aspect-square size-7 sm:size-7.5 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-orange-600 text-primary-foreground shadow-sm">
-                <Bold className="size-3 sm:size-3.5" />
+              <div className="flex aspect-square size-7 sm:size-7.5 items-center justify-center rounded-lg overflow-hidden border border-primary/15 bg-primary/5 shadow-sm">
+                <img src="/logo.png" alt="Bite Club" className="size-full object-cover" />
               </div>
               <span className="text-base sm:text-lg font-bold tracking-tight bg-gradient-to-r from-primary to-orange-500 bg-clip-text text-transparent hidden xs:inline">
                 BiteClub
