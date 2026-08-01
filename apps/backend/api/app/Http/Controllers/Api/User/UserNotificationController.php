@@ -35,8 +35,14 @@ class UserNotificationController extends Controller
 
     public function markAsRead(Request $request, string $id): JsonResponse
     {
-        $notification = auth('user')->user()->notifications()->findOrFail($id);
-        
+
+
+        $notification = auth('user')->user()->notifications()->find($id);
+
+        if (!$notification) {
+            return $this->errorResponse(trans('notification.not_found') ?? 'Notification not found.', 404);
+        }
+
         $notification->markAsRead();
 
         return $this->successResponse(trans('notification.marked_as_read'));
