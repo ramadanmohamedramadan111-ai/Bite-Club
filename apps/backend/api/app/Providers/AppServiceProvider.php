@@ -43,6 +43,10 @@ use App\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Repositories\Interfaces\PasswordResetOtpRepositoryInterface;
 use App\Repositories\Interfaces\RestaurantCategoryRepositoryInterface;
 use App\Repositories\Interfaces\RestaurantOpeningHourRepositoryInterface;
+use App\Repositories\Interfaces\InvoiceRepositoryInterface;
+use App\Repositories\Interfaces\PlatformDueRepositoryInterface;
+use App\Repositories\Eloquent\InvoiceRepository;
+use App\Repositories\Eloquent\PlatformDueRepository;
 
 use App\Repositories\Interfaces\RestaurantRepositoryInterface;
 use App\Repositories\Interfaces\RestaurantReviewRepositoryInterface;
@@ -165,6 +169,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(OrderItemRepositoryInterface::class, OrderItemRepository::class);
         $this->app->bind(OrderPaymentRepositoryInterface::class, OrderPaymentRepository::class);
         $this->app->bind(PaymentGatewayInterface::class, KashierPaymentGateway::class);
+        $this->app->bind(InvoiceRepositoryInterface::class, InvoiceRepository::class);
+        $this->app->bind(PlatformDueRepositoryInterface::class, PlatformDueRepository::class);
     }
 
     public function boot(): void

@@ -64,6 +64,58 @@ class KashierPaymentGateway implements PaymentGatewayInterface
         }
     }
 
+    public function createInvoicePaymentSession(\App\Models\Invoice $invoice): ?string
+    {
+        $baseUrl = config('payment.kashier.base_url');
+        $apiKey = config('payment.kashier.api_key');
+        $merchantId = config('payment.kashier.merchant_id');
+        $webhookSecret = config('payment.kashier.webhook_secret');
+        $currency = config('payment.kashier.currency', 'EGP');
+
+        if (!$apiKey || !$merchantId || !$webhookSecret) {
+            Log::error('Kashier configuration missing for platform (Admin).');
+            return null;
+        }
+
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => $webhookSecret,
+                'api-key' => $apiKey,
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+            ])->post("{$baseUrl}/v3/payment/sessions", [
+                'merchantId' => $merchantId,
+                'amount' => (string) $invoice->amount,
+                'currency' => $currency,
+                'order' => 'INV-' . $invoice->id . '-' . time(),
+                'paymentType' => 'credit',
+                'type' => 'one-time',
+                'allowedMethods' => 'card,wallet',
+                'merchantRedirect' => env('FRONTEND_URL', 'https://example.com') . '/restaurant/invoices',
+                'expireAt' => now()->addMinutes((int) config('payment.kashier.session_timeout_minutes', 60))->toIso8601ZuluString(),
+                'maxFailureAttempts' => 3,
+                'display' => app()->getLocale() === 'ar' ? 'ar' : 'en',
+                'serverWebhook' => rtrim(config('app.url'), '/') . '/api/webhooks/kashier/invoices',
+                'customer' => [
+                    'email' => $invoice->restaurant->email ?? 'restaurant@example.com',
+                    'reference' => 'REST-' . $invoice->restaurant_id,
+                ],
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                return $data['sessionUrl'] ?? ($data['response']['sessionUrl'] ?? null);
+            }
+
+            Log::error('Kashier Invoice Payment Session Error: ' . $response->body());
+
+            return null;
+        } catch (\Exception $e) {
+            Log::error('Kashier Invoice Exception: ' . $e->getMessage());
+            return null;
+        }
+    }
+
     public function validateWebhookSignature(array $payload, ?string $signature, string $paymentApiKey): bool
     {
         if (!$signature) {

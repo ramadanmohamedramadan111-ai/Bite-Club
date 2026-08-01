@@ -1,30 +1,32 @@
 <?php
 
-use App\Http\Controllers\Api\Auth\AdminAuthController;
+use \App\Http\Controllers\Api\Webhook\InvoiceKashierWebhookController;
 use App\Http\Controllers\Api\Ai\AiChatController;
 use App\Http\Controllers\Api\Ai\AiInternalToolController;
 
 use App\Http\Controllers\Api\Ai\SmartWaiterAddToCartController;
 use App\Http\Controllers\Api\Ai\SmartWaiterChatController;
 
+use App\Http\Controllers\Api\Auth\AdminAuthController;
 use App\Http\Controllers\Api\Auth\UserAuthController;
 use App\Http\Controllers\Api\RestaurantCategoryController;
 use App\Http\Controllers\Api\User\CartController as UserCartController;
 use App\Http\Controllers\Api\User\FriendController;
 use App\Http\Controllers\Api\User\GroupController;
+use App\Http\Controllers\Api\User\GroupOrderController;
+use App\Http\Controllers\Api\User\LeaderboardController;
 use App\Http\Controllers\Api\User\OrderController as UserOrderController;
+use App\Http\Controllers\Api\User\PostController;
+use App\Http\Controllers\Api\User\ProfileController;
 use App\Http\Controllers\Api\User\RestaurantCategoryController as UserRestaurantCategoryController;
 use App\Http\Controllers\Api\User\RestaurantController as UserRestaurantController;
 use App\Http\Controllers\Api\User\RestaurantMenuController as UserRestaurantMenuController;
 use App\Http\Controllers\Api\User\RestaurantReviewController as UserRestaurantReviewController;
-use App\Http\Controllers\Api\User\GroupOrderController;
-use App\Http\Controllers\Api\User\PostController;
-use App\Http\Controllers\Api\User\ProfileController;
-use App\Http\Controllers\Api\User\LeaderboardController;
 use App\Http\Controllers\Api\User\UserSearchController;
-use App\Http\Controllers\Api\Webhook\KashierWebhookController;
 use App\Http\Controllers\Api\User\WalletController;
+use App\Http\Controllers\Api\Webhook\KashierWebhookController;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -157,6 +159,8 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::delete('/{id}/items', [GroupOrderController::class, 'clearUserItems'])->name('items.clear');
     });
 });
+
+Route::post('webhooks/kashier/invoices', [\App\Http\Controllers\Api\Webhook\InvoiceKashierWebhookController::class, 'handle']);
 
 // User Friends module
 Route::middleware('auth.user')->prefix('friends')->name('friends.')->group(function () {

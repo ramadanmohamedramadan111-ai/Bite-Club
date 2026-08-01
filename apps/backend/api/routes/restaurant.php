@@ -13,6 +13,8 @@ use App\Http\Controllers\Api\MenuItemController;
 use App\Http\Controllers\Api\Restaurant\OrderController;
 use App\Http\Controllers\Api\Restaurant\RestaurantDashboardController;
 use App\Http\Controllers\Api\Restaurant\RestaurantReviewController;
+use App\Http\Controllers\Api\Restaurant\InvoiceController;
+use App\Http\Controllers\Api\Restaurant\OrderPaymentController;
 
 Route::post('/register', [RestaurantAuthController::class, 'register'])->name('register');
 Route::post('/login',    [RestaurantAuthController::class, 'login'])->name('login');
@@ -60,5 +62,16 @@ Route::middleware('auth.restaurant')->group(function () {
         Route::get('/history', [OrderController::class, 'history'])->name('history');
         Route::get('/{orderId}/available-statuses', [OrderController::class, 'availableStatuses'])->name('available-statuses');
         Route::patch('/{orderId}/status', [OrderController::class, 'updateStatus'])->name('update-status');
+    });
+
+    Route::prefix('invoices')->name('invoices.')->group(function () {
+        Route::get('/', [InvoiceController::class, 'index'])->name('index');
+        Route::get('/{id}', [InvoiceController::class, 'show'])->name('show');
+        Route::post('/{id}/pay', [InvoiceController::class, 'pay'])->name('pay');
+    });
+
+    Route::prefix('payments')->name('payments.')->group(function () {
+        Route::get('/', [OrderPaymentController::class, 'index'])->name('index');
+        Route::get('/statistics', [OrderPaymentController::class, 'statistics'])->name('statistics');
     });
 });
