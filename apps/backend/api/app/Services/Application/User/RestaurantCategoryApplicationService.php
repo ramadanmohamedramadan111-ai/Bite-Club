@@ -4,9 +4,12 @@ namespace App\Services\Application\User;
 
 use App\DTOs\User\RestaurantCategory\IndexRestaurantCategoryDto;
 use App\Services\Domain\RestaurantCategory\RestaurantCategoryDomainService;
+use App\Traits\UrlFormatterTrait;
 
 class RestaurantCategoryApplicationService
 {
+    use UrlFormatterTrait;
+
     public function __construct(
         private RestaurantCategoryDomainService $restaurantCategoryDomainService
     ) {}
@@ -26,7 +29,7 @@ class RestaurantCategoryApplicationService
             'id'        => $category->id,
             'name'      => $category->name,
             'slug'      => $category->slug,
-            'image_url' => $category->image_url,
+            'image_url' => $this->formatImageUrl($category->image_url),
         ];
     }
 }

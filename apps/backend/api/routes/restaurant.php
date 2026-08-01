@@ -32,7 +32,7 @@ Route::middleware('auth.restaurant')->group(function () {
     Route::get('/me',       [RestaurantAuthController::class, 'me'])->name('me');
 
     Route::get('/profile',  [RestaurantProfileController::class, 'show'])->name('profile.show');
-    Route::patch('/profile', [RestaurantProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile', [RestaurantProfileController::class, 'update'])->name('profile.update');
 
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::get('/', [RestaurantSettingController::class, 'show'])->name('show');
