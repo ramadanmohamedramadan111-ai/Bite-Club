@@ -1,17 +1,18 @@
+import './FeedModeration.css';
 import { useState, useEffect } from 'react'
-import { useLocale } from '../contexts/LocaleContext'
-import { PageHeader } from '../components/PageHeader'
-import { SearchBar } from '../components/SearchBar'
-import { FilterBar } from '../components/FilterBar'
-import { DataTable, type Column } from '../components/DataTable'
-import { PaginationUI } from '../components/PaginationUI'
-import { Modal } from '../components/Modal'
-import { StatusBadge } from '../components/StatusBadge'
-import { StatsGrid } from '../components/StatsGrid'
-import { ActionButtons } from '../components/ActionButtons'
-import { AlertBanner } from '../components/AlertBanner'
-import { LoadingState } from '../components/LoadingState'
-import api from '../lib/api'
+import { useLocale } from '../../contexts/LocaleContext'
+import { PageHeader } from '../../components/PageHeader'
+import { SearchBar } from '../../components/SearchBar'
+import { FilterBar } from '../../components/FilterBar'
+import { DataTable, type Column } from '../../components/DataTable'
+import { PaginationUI } from '../../components/PaginationUI'
+import { Modal } from '../../components/Modal'
+import { StatusBadge } from '../../components/StatusBadge'
+import { StatsGrid } from '../../components/StatsGrid'
+import { ActionButtons } from '../../components/ActionButtons'
+import { AlertBanner } from '../../components/AlertBanner'
+import { LoadingState } from '../../components/LoadingState'
+import api from '../../lib/api'
 
 interface PostImage {
   id: number
@@ -34,8 +35,7 @@ interface FeedItem {
   reviewedBy: string
   reviewedAt: string
   reportReason: string
-  
-  // Enriched fields from the backend
+
   restaurantName?: string
   orderTotal?: number
   orderItems?: OrderItem[]
@@ -53,25 +53,21 @@ export function FeedModerationPage() {
   const [statusFilter, setStatusFilter] = useState('')
   const [page, setPage] = useState(1)
   const [showDetails, setShowDetails] = useState<FeedItem | null>(null)
-  
-  // API Integration states
+
   const [posts, setPosts] = useState<FeedItem[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [totalItems, setTotalItems] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
-  
-  // Rejection modal states
+
   const [showRejectModal, setShowRejectModal] = useState<FeedItem | null>(null)
   const [rejectionReason, setRejectionReason] = useState('')
-  
-  // Stats counters
+
   const [pendingCount, setPendingCount] = useState(0)
   const [approvedCount, setApprovedCount] = useState(0)
   const [rejectedCount, setRejectedCount] = useState(0)
 
-  // Fetch count stats for pending, approved, and rejected posts
   const fetchStats = async () => {
     try {
       const [pendingRes, approvedRes, rejectedRes] = await Promise.all([
@@ -87,7 +83,6 @@ export function FeedModerationPage() {
     }
   }
 
-  // Fetch posts from backend api using Axios
   const fetchPosts = async () => {
     setLoading(true)
     setError('')
@@ -182,7 +177,6 @@ export function FeedModerationPage() {
     }
   }
 
-  // Client-side search filtering of the retrieved posts list
   let displayedPosts = posts
   if (search) {
     const q = search.toLowerCase()
@@ -248,7 +242,6 @@ export function FeedModerationPage() {
         )}
       </div>
 
-      {/* Details Modal */}
       <Modal open={!!showDetails} onClose={() => setShowDetails(null)} title={t('feed.fields.content')} size="lg">
         {showDetails && (
           <div className="details-grid">
@@ -321,7 +314,6 @@ export function FeedModerationPage() {
         )}
       </Modal>
 
-      {/* Reject Reason Confirmation Modal */}
       <Modal open={!!showRejectModal} onClose={() => { setShowRejectModal(null); setRejectionReason('') }} title={t('feed.rejectReason')} size="md">
         <form onSubmit={handleRejectSubmit}>
           <div className="form-group">

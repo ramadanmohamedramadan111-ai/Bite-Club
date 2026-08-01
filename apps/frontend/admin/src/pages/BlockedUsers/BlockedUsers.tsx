@@ -1,15 +1,16 @@
+import './BlockedUsers.css';
 import { useState, useEffect } from 'react'
-import { useLocale } from '../contexts/LocaleContext'
-import { PageHeader } from '../components/PageHeader'
-import { SearchBar } from '../components/SearchBar'
-import { DataTable, type Column } from '../components/DataTable'
-import { PaginationUI } from '../components/PaginationUI'
-import { Modal } from '../components/Modal'
-import { StatsGrid } from '../components/StatsGrid'
-import { ActionButtons } from '../components/ActionButtons'
-import { AlertBanner } from '../components/AlertBanner'
-import { LoadingState } from '../components/LoadingState'
-import api from '../lib/api'
+import { useLocale } from '../../contexts/LocaleContext'
+import { PageHeader } from '../../components/PageHeader'
+import { SearchBar } from '../../components/SearchBar'
+import { DataTable, type Column } from '../../components/DataTable'
+import { PaginationUI } from '../../components/PaginationUI'
+import { Modal } from '../../components/Modal'
+import { StatsGrid } from '../../components/StatsGrid'
+import { ActionButtons } from '../../components/ActionButtons'
+import { AlertBanner } from '../../components/AlertBanner'
+import { LoadingState } from '../../components/LoadingState'
+import api from '../../lib/api'
 
 interface BanItem {
   id: number
@@ -44,14 +45,12 @@ export function BlockedUsersPage() {
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-  // Filters & Pagination
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [totalItems, setTotalItems] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
   const [totalUsersCount, setTotalUsersCount] = useState(0)
 
-  // Modals
   const [showDetails, setShowDetails] = useState<BanItem | null>(null)
   const [showUnblockModal, setShowUnblockModal] = useState<BanItem | null>(null)
   const [unblockReason, setUnblockReason] = useState('')
@@ -159,7 +158,6 @@ export function BlockedUsersPage() {
         )}
       </div>
 
-      {/* Ban Details Modal */}
       <Modal open={!!showDetails} onClose={() => setShowDetails(null)} title={t('users.userDetails')} size="md">
         {showDetails && (
           <div className="details-grid">
@@ -179,7 +177,6 @@ export function BlockedUsersPage() {
         )}
       </Modal>
 
-      {/* Unblock Confirmation Modal */}
       <Modal open={!!showUnblockModal} onClose={() => { setShowUnblockModal(null); setUnblockReason('') }} title={t('blockedUsers.unblockUser')} size="md">
         <form onSubmit={handleLiftBan}>
           <div style={{ marginBottom: '16px' }}>

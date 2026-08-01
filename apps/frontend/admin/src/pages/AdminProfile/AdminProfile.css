@@ -1,0 +1,30 @@
+
+.profile-avatar-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.profile-avatar-large {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--brand-primary) 15%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 24px;
+  color: var(--brand-primary);
+  flex-shrink: 0;
+}
+
+.profile-avatar-actions {
+  display: flex;
+  gap: 8px;
+}
+
+
