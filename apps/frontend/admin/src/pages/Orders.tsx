@@ -328,46 +328,18 @@ export function OrdersPage() {
               />
             </div>
             
-            <div className="date-range" style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '12px',
-              flexWrap: 'wrap',
-              marginTop: '16px',
-              paddingTop: '16px',
-              borderTop: '1px solid var(--border-subtle)',
-              width: '100%'
-            }}>
-              <span className="details-label" style={{ marginBottom: 0, fontWeight: '500', color: 'var(--text-secondary)', marginRight: '-12px' }}>Date Range:</span>
+            <div className="date-range">
+              <span className="date-range-label">Date Range:</span>
               <input
                 type="date"
-                className="form-input"
-                style={{
-                  width: 'auto',
-                  minWidth: '150px',
-                  padding: '8px 12px',
-                  background: 'var(--bg-elevated)',
-                  border: '1px solid var(--border-subtle)',
-                  borderRadius: 'var(--radius-sm)',
-                  color: 'var(--text-primary)'
-                }}
+                className="date-range-input"
                 value={fromDate}
                 onChange={(e) => handleFromDateChange(e.target.value)}
               />
-              <span style={{ color: 'var(--text-secondary)' }}>to</span>
+              <span className="date-range-separator">to</span>
               <input
                 type="date"
-                className="form-input"
-                style={{
-                  width: 'auto',
-                  minWidth: '150px',
-                  padding: '8px 12px',
-                  background: 'var(--bg-elevated)',
-                  border: '1px solid var(--border-subtle)',
-                  borderRadius: 'var(--radius-sm)',
-                  color: 'var(--text-primary)'
-                }}
+                className="date-range-input"
                 value={toDate}
                 onChange={(e) => handleToDateChange(e.target.value)}
               />
