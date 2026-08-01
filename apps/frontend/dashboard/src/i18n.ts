@@ -85,6 +85,7 @@ const resources = {
       nav_branches: 'Branches',
       nav_employees: 'Employees',
       nav_reports: 'Reports',
+      nav_payments: 'Payments',
 
       // Dashboard page
       operationsDashboard: 'Operations Dashboard',
@@ -400,6 +401,19 @@ const resources = {
       weeklyPerformanceDesc: 'Your average rating improved by 0.3 stars this week across 4 branches.',
       viewTrendAnalysis: 'View Trend Analysis',
 
+      // Payments Page
+      paymentsTitle: 'Payments',
+      paymentsSubtitle: 'Review payments, status updates, and transaction history.',
+      paymentHistory: 'Payment History',
+      paymentId: 'PAYMENT ID',
+      paymentMethod: 'PAYMENT METHOD',
+      paymentType: 'PAYMENT TYPE',
+      totalPaid: 'Total Paid',
+      totalPending: 'Total Pending',
+      totalFailed: 'Total Failed',
+      noPayments: 'No payments found',
+      guest: 'Guest',
+
       // Reports Page
       reportsInsights: 'Reports & Insights',
       reportsSubtitle: 'Performance monitoring and trend analysis for BiteClub (Main Branch).',
@@ -485,6 +499,8 @@ const resources = {
        // payment settings
       paymentSettings: 'Payment Settings',
       kashierDesc: "Configure your Kashier API credentials to accept online payments for delivery and pickup orders.",
+
+      ordersSub:'Manage incoming and history orders',
      
       
     },
@@ -573,6 +589,7 @@ const resources = {
       nav_branches: 'الفروع',
       nav_employees: 'الموظفون',
       nav_reports: 'التقارير',
+      nav_payments: 'المدفوعات',
 
       // Dashboard page
       operationsDashboard: 'لوحة التحكم',
@@ -887,6 +904,19 @@ const resources = {
       weeklyPerformanceDesc: 'تحسّن متوسط تقييمك بـ 0.3 نجمة هذا الأسبوع عبر 4 فروع.',
       viewTrendAnalysis: 'عرض تحليل الاتجاهات',
 
+      // Payments Page
+      paymentsTitle: 'المدفوعات',
+      paymentsSubtitle: 'راجع المدفوعات وتحديثات الحالة وسجل المعاملات.',
+      paymentHistory: 'سجل المدفوعات',
+      paymentId: 'معرّف الدفع',
+      paymentMethod: 'طريقة الدفع',
+      paymentType: 'نوع الدفع',
+      totalPaid: 'إجمالي المدفوع',
+      totalPending: 'إجمالي المعلق',
+      totalFailed: 'إجمالي الفاشل',
+      noPayments: 'لا توجد مدفوعات',
+      guest: 'ضيف',
+
       // Reports Page
       reportsInsights: 'التقارير والتحليلات',
       reportsSubtitle: 'مراقبة الأداء وتحليل الاتجاهات لـ BiteClub (الفرع الرئيسي).',
@@ -972,6 +1002,8 @@ const resources = {
       // payment settings
       paymentSettings: 'إعدادات الدفع',
       kashierDesc: "أدخل بيانات الاعتماد الخاصة بـ Kashier لقبول الدفع عبر الإنترنت لطلبات التوصيل والاستلام.",
+
+      ordersSub: 'ادارة الطلبات الحالية والسابقة',
      
       
     },
