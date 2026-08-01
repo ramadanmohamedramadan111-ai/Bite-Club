@@ -8,8 +8,7 @@ import { BlockedUsersPage } from './pages/BlockedUsers'
 import { RestaurantsPage } from './pages/Restaurants'
 import { CategoriesPage } from './pages/Categories'
 import { OrdersPage } from './pages/Orders'
-import { PaymentsPage } from './pages/Payments'
-import { CommissionsPage } from './pages/Commissions'
+import { InvoicesPage } from './pages/Invoices'
 import { LeaderboardPage } from './pages/Leaderboard'
 import { FeedModerationPage } from './pages/FeedModeration'
 import { GeneralSettingsPage } from './pages/GeneralSettings'
@@ -27,8 +26,7 @@ const pageTitles: Record<NavItemId, string> = {
   restaurants: 'Restaurants',
   categories: 'Categories',
   orders: 'Orders',
-  payments: 'Payments',
-  commissions: 'Commissions',
+  invoices: 'Invoices',
   leaderboard: 'Leaderboard',
   feed: 'Feed Moderation',
   settings: 'General Settings',
@@ -87,8 +85,7 @@ function App() {
       case 'restaurants': return <RestaurantsPage />
       case 'categories': return <CategoriesPage />
       case 'orders': return <OrdersPage />
-      case 'payments': return <PaymentsPage />
-      case 'commissions': return <CommissionsPage />
+      case 'invoices': return <InvoicesPage />
       case 'leaderboard': return <LeaderboardPage />
       case 'feed': return <FeedModerationPage />
       case 'settings': return <GeneralSettingsPage />
