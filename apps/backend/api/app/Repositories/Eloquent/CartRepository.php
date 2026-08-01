@@ -24,10 +24,19 @@ class CartRepository extends BaseRepository implements CartRepositoryInterface
 
     public function findOrCreateForGroupOrder(int $userId, int $restaurantId, int $groupOrderId): Cart
     {
-        return $this->model->firstOrCreate([
+        $cart = $this->model->where('user_id', $userId)->whereNotNull('group_order_id')->first();
+        
+        if ($cart) {
+            $cart->update([
+                'group_order_id' => $groupOrderId,
+                'restaurant_id' => $restaurantId,
+            ]);
+            return $cart->fresh();
+        }
+
+        return $this->model->create([
             'user_id' => $userId,
             'group_order_id' => $groupOrderId,
-        ], [
             'restaurant_id' => $restaurantId,
         ]);
     }
