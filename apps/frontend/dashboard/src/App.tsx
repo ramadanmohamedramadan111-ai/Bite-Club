@@ -17,6 +17,8 @@ import { PromotionsPage } from './pages/promotions/PromotionsPage'
 import { ReviewsPage } from './pages/reviews/ReviewsPage'
 import { ReportsPage } from './pages/reports/ReportsPage'
 import { PaymentsPage } from './pages/payments/PaymentsPage'
+import { InvoicesPage } from './pages/invoices/InvoicesPage'
+import { InvoiceDetailsPage } from './pages/invoices/InvoiceDetailsPage'
 import { useAuthStore } from './store/authStore'
 import { AppShell } from './components/layout/AppShell'
 
@@ -140,6 +142,8 @@ function App() {
             <Route path="/reviews"             element={<ReviewsPage />} />
             <Route path="/reports"             element={<ReportsPage />} />
             <Route path="/payments"            element={<PaymentsPage />} />
+            <Route path="/invoices"            element={<InvoicesPage />} />
+            <Route path="/invoices/:id"        element={<InvoiceDetailsPage />} />
             <Route path="*"                    element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </AppShell>
