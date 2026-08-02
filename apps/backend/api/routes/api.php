@@ -81,6 +81,16 @@ Route::prefix('user')->name('user.')->group(function () {
     Route::post('/verify-reset-otp', [UserAuthController::class, 'verifyResetOtp'])->name('password.verify-otp');
     Route::post('/reset-password', [UserAuthController::class, 'resetPassword'])->name('password.reset');
 
+    // Public Read-Only Endpoints
+    Route::get('/restaurant-categories', [UserRestaurantCategoryController::class, 'index'])->name('restaurant-categories.index');
+    Route::prefix('restaurants')->group(function () {
+        Route::get('/', [UserRestaurantController::class, 'index'])->name('restaurants.index');
+        Route::get('nearest', [UserRestaurantController::class, 'nearest'])->name('restaurants.nearest');
+        Route::get('/{restaurantId}', [UserRestaurantController::class, 'show'])->name('restaurants.show');
+        Route::get('/{restaurantId}/menu', [UserRestaurantMenuController::class, 'index'])->name('restaurants.menu');
+        Route::get('/{restaurantId}/reviews', [UserRestaurantReviewController::class, 'index']);
+    });
+
     Route::middleware('auth.user')->group(function () {
 
         Route::post('/logout', [UserAuthController::class, 'logout'])->name('logout');
@@ -95,23 +105,12 @@ Route::prefix('user')->name('user.')->group(function () {
 
         Route::get('/posts/shareable-orders', [PostController::class, 'shareableOrders'])->name('posts.shareable-orders');
 
-        Route::get('/restaurant-categories', [UserRestaurantCategoryController::class, 'index'])->name('restaurant-categories.index');
-
-        // Restaurants (User)
-        Route::prefix('restaurants')->group(function () {
-            Route::get('/', [UserRestaurantController::class, 'index'])->name('restaurants.index');
-            Route::get('nearest', [UserRestaurantController::class, 'nearest'])->name('restaurants.nearest');
-            Route::get('/{restaurantId}', [UserRestaurantController::class, 'show'])->name('restaurants.show');
-            Route::get('/{restaurantId}/menu', [UserRestaurantMenuController::class, 'index'])->name('restaurants.menu');
-
-            // Reviews
-            Route::prefix('{restaurantId}/reviews')->group(function () {
-                Route::get('/', [UserRestaurantReviewController::class, 'index']);
-                Route::get('me', [UserRestaurantReviewController::class, 'me']);
-                Route::post('/', [UserRestaurantReviewController::class, 'store']);
-                Route::put('/', [UserRestaurantReviewController::class, 'update']);
-                Route::delete('/', [UserRestaurantReviewController::class, 'destroy']);
-            });
+        // Reviews requiring auth
+        Route::prefix('restaurants/{restaurantId}/reviews')->group(function () {
+            Route::get('me', [UserRestaurantReviewController::class, 'me']);
+            Route::post('/', [UserRestaurantReviewController::class, 'store']);
+            Route::put('/', [UserRestaurantReviewController::class, 'update']);
+            Route::delete('/', [UserRestaurantReviewController::class, 'destroy']);
         });
 
         // Cart
@@ -119,9 +118,7 @@ Route::prefix('user')->name('user.')->group(function () {
             Route::get('/', [UserCartController::class, 'show'])->name('cart.show');
             Route::delete('/', [UserCartController::class, 'clear'])->name('cart.clear');
             Route::delete('clear', [UserCartController::class, 'clear'])->name('cart.clear.explicit');
-        });
-
-        Route::prefix('cart')->group(function () {
+            Route::post('merge', [UserCartController::class, 'merge'])->name('cart.merge');
             Route::post('items', [UserCartController::class, 'addItem'])->name('cart.items.add');
             Route::put('items/{itemId}', [UserCartController::class, 'updateItemQuantity'])->name('cart.items.update');
             Route::delete('items/{itemId}', [UserCartController::class, 'removeItem'])->name('cart.items.remove');

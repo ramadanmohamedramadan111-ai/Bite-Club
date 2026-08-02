@@ -146,7 +146,7 @@ export default async function Layout({
 
   return (
     <div className="flex min-h-screen flex-col bg-background bg-dot-pattern">
-      <CartInitializer cart={cart} />
+      {userId ? <CartInitializer cart={cart} /> : null}
       <AuthInitializer isAuthenticated={!!userId} />
       <FriendsInitializer count={friendsRequestsCount} />
       <GamificationInitializer wallet={wallet} streak={streak} />

@@ -6,8 +6,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\User\Cart\AddItemToCartRequest;
 use App\Http\Requests\User\Cart\GetCartRequest;
+
+use App\Http\Requests\User\Cart\MergeCartRequest;
+
 use App\DTOs\User\Cart\AddItemToCartDto;
 use App\DTOs\User\Cart\GetCartDto;
+
+use App\DTOs\User\Cart\MergeCartDto;
+
 use App\DTOs\User\Cart\UpdateCartItemQuantityDto;
 use App\DTOs\User\Cart\RemoveCartItemDto;
 use App\DTOs\User\Cart\ClearCartDto;
@@ -101,6 +107,21 @@ class CartController extends Controller
             );
         } catch (Exception $e) {
             Log::error('Failed to clear cart: ' . $e->getMessage());
+            return $this->errorResponse($e->getMessage(), [], 400);
+        }
+    }
+
+    public function merge(MergeCartRequest $request): JsonResponse
+    {
+        try {
+            $dto = MergeCartDto::fromValidatedRequest($request);
+            $this->cartApplicationService->mergeCart($dto);
+
+            return $this->successResponse(
+                'Cart merged successfully.'
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to merge cart: ' . $e->getMessage());
             return $this->errorResponse($e->getMessage(), [], 400);
         }
     }

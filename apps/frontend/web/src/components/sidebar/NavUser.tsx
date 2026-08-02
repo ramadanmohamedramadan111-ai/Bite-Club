@@ -29,6 +29,7 @@ import { Link, useRouter } from '@/i18n/navigation';
 import { useAction } from 'next-safe-action/hooks';
 import { toast } from 'sonner';
 import { logoutUserAction } from '@/actions/auth';
+import { useCartStore } from '@/stores/cart';
 
 export interface SidebarUser {
   id: number;
@@ -50,6 +51,7 @@ export function NavUser({ user }: NavUserProps) {
   const { execute: logout, isExecuting } = useAction(logoutUserAction, {
     onSuccess: ({ data }) => {
       toast.success(data?.message ?? t('loggedOutSuccess'));
+      useCartStore.getState().clearCart();
     },
     onError: ({ error }) => {
       toast.error(error.serverError?.message ?? t('logoutFailed'));

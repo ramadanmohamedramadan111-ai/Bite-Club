@@ -7,6 +7,9 @@ use App\DTOs\User\Cart\GetCartDto;
 use App\DTOs\User\Cart\UpdateCartItemQuantityDto;
 use App\DTOs\User\Cart\RemoveCartItemDto;
 use App\DTOs\User\Cart\ClearCartDto;
+
+use App\DTOs\User\Cart\MergeCartDto;
+
 use App\Services\Domain\User\Cart\CartDomainService;
 use App\Models\Cart;
 
@@ -52,5 +55,14 @@ class CartApplicationService
     public function clearCart(ClearCartDto $dto): void
     {
         $this->cartDomainService->clearCart($dto->getUserId());
+    }
+
+    public function mergeCart(MergeCartDto $dto): void
+    {
+        $this->cartDomainService->mergeCart(
+            $dto->getUserId(),
+            $dto->getRestaurantId(),
+            $dto->getItems()
+        );
     }
 }
