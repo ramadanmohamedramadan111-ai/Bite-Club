@@ -9,6 +9,7 @@ use App\Enums\Invoice\PlatformDueStatusEnum;
 use App\Enums\Restaurant\RestaurantStatusEnum;
 use App\Models\Order;
 use App\Notifications\Restaurant\InvoiceGeneratedNotification;
+use App\Notifications\Restaurant\InvoicePaidNotification;
 use App\Repositories\Interfaces\GeneralSettingRepositoryInterface;
 use App\Repositories\Interfaces\InvoiceRepositoryInterface;
 use App\Repositories\Interfaces\PlatformDueRepositoryInterface;
@@ -191,6 +192,10 @@ class InvoiceDomainService
                     'payment_gateway_ref' => $transactionId ?? 'Kashier_Webhook',
                     'paid_at' => now(),
                 ]);
+
+                if ($invoice->restaurant) {
+                    $invoice->restaurant->notify(new InvoicePaidNotification($invoice));
+                }
 
                 // 2. Check if the restaurant has ANY other overdue invoices
                 if (!$this->invoiceRepository->hasOverdueInvoices($invoice->restaurant_id)) {

@@ -27,4 +27,7 @@ return [
 
     'invoice_generated_title' => 'تم إصدار فاتورة جديدة',
     'invoice_generated_body' => 'تم إصدار فاتورة جديدة رقم #:invoice_id بقيمة :amount جنيه. يرجى السداد قبل تاريخ :due_date لتجنب إيقاف الحساب.',
+
+    'invoice_paid_title' => 'تم سداد الفاتورة بنجاح',
+    'invoice_paid_body' => 'تم استلام الدفعة الخاصة بفاتورة رقم #:invoice_id بقيمة :amount جنيه بنجاح. شكراً لك!',
 ];

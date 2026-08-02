@@ -27,4 +27,7 @@ return [
 
     'invoice_generated_title' => 'New Invoice Generated',
     'invoice_generated_body' => 'A new invoice #:invoice_id for the amount of :amount EGP has been generated. Please pay before :due_date to avoid suspension.',
+
+    'invoice_paid_title' => 'Invoice Paid Successfully',
+    'invoice_paid_body' => 'Payment for invoice #:invoice_id of :amount EGP has been received successfully. Thank you!',
 ];
