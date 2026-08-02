@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { Header } from './Header'
 import { Sidebar } from './Sidebar'
 import { Phone } from 'lucide-react'
+import { useNotificationSocket } from '../../hooks/useNotificationSocket'
 
 interface AppShellProps {
   children: ReactNode
@@ -15,6 +16,8 @@ interface AppShellProps {
 export function AppShell({ children, theme, toggleTheme, language, toggleLanguage }: AppShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const location = useLocation()
+
+  useNotificationSocket()
 
   // Close on route change
   useEffect(() => {

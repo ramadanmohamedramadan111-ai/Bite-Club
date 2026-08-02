@@ -1,8 +1,9 @@
-import { Bell, Globe, Menu, Moon, Search, SunMedium, X } from 'lucide-react'
+import { Globe, Menu, Moon, Search, SunMedium, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router-dom'
 import { type ShellProps } from '../../App'
 import Logo from '../../assets/images/logo.svg'
+import { NotificationDropdown } from './NotificationDropdown'
 
 type HeaderProps = ShellProps & { onMenuToggle: () => void }
 
@@ -48,12 +49,7 @@ export function Header({ theme, toggleTheme, toggleLanguage, onMenuToggle }: Hea
       {/* Actions */}
       <div className="flex items-center gap-1.5 sm:gap-2 ms-auto lg:ms-0">
 
-        <button
-          title={t('notifications')}
-          className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 transition hover:border-brand-orange hover:text-brand-orange dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
-        >
-          <Bell size={16} />
-        </button>
+        <NotificationDropdown />
 
         <button
           onClick={toggleLanguage}
