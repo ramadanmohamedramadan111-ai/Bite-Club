@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import Echo from 'laravel-echo';
-import Pusher from 'pusher-js';
+import { getEcho } from '@/lib/echo';
 import { useRouter } from '@/i18n/navigation';
 import {
   ArrowLeft,
@@ -50,41 +49,15 @@ export default function OrderDetailPageView({
   const router = useRouter();
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
 
-  const { execute: revalidateOrder } = useAction(
-    revalidateOrderDetailsAction,
-    {
-      onSuccess: () => {
-        router.refresh();
-      },
-    },
-  );
+  const { execute: revalidateOrder } = useAction(revalidateOrderDetailsAction, {
+    onSuccess: async () => {},
+  });
 
   // Laravel Echo WebSocket Listener for order status updates
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // Attach Pusher to window so Laravel Echo can find it
-    (window as any).Pusher = Pusher;
-
-    const wsHost = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-    const reverbKey = process.env.NEXT_PUBLIC_REVERB_APP_KEY || '7shjlvmsslgdjgltf46x';
-
-    const echo = new Echo({
-      broadcaster: 'reverb',
-      key: reverbKey,
-      wsHost: wsHost,
-      wsPort: 8081,
-      wssPort: 8081,
-      forceTLS: false,
-      enabledTransports: ['ws', 'wss'],
-      authEndpoint: '/api/broadcasting/auth',
-      auth: {
-        headers: {
-          Authorization: token ? `Bearer ${token}` : '',
-          Accept: 'application/json',
-        },
-      },
-    });
+    const echo = getEcho(token);
 
     const channelName = `order.${order.id}`;
     console.log(`[Echo] Joining private channel: ${channelName}`);
@@ -93,12 +66,12 @@ export default function OrderDetailPageView({
 
     channel.listen('.order.status.updated', (data: any) => {
       console.log('[Echo] Order status updated event received:', data);
-      
+
       // Toast message
       toast.success(
-        locale === 'ar' 
-          ? 'تم تحديث حالة الطلب بنجاح!' 
-          : 'Order status has been updated successfully!'
+        locale === 'ar'
+          ? 'تم تحديث حالة الطلب بنجاح!'
+          : 'Order status has been updated successfully!',
       );
 
       // Revalidate fetching of order status
@@ -108,7 +81,6 @@ export default function OrderDetailPageView({
     return () => {
       console.log(`[Echo] Leaving private channel: ${channelName}`);
       echo.leave(channelName);
-      echo.disconnect();
     };
   }, [order.id, token, locale, revalidateOrder]);
 
@@ -143,7 +115,10 @@ export default function OrderDetailPageView({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border/30 pb-6">
         <div className="flex items-center gap-4">
           <Link href="/orders" className="cursor-pointer">
-            <Button variant="outline" size="icon" className="rounded-xl border-border/50 bg-background/50 hover:bg-background">
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-xl border-border/50 bg-background/50 hover:bg-background">
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
@@ -159,14 +134,16 @@ export default function OrderDetailPageView({
         </div>
 
         <div className="flex items-center gap-3">
-          <OrderStatusBadge status={order.status} className="px-3.5 py-1 text-sm" />
+          <OrderStatusBadge
+            status={order.status}
+            className="px-3.5 py-1 text-sm"
+          />
           {showCancel && (
             <Button
               variant="destructive"
               size="sm"
               className="gap-1.5 rounded-xl cursor-pointer"
-              onClick={() => setCancelDialogOpen(true)}
-            >
+              onClick={() => setCancelDialogOpen(true)}>
               <XCircle className="size-4" />
               {tc('cancelOrder')}
             </Button>
@@ -176,7 +153,6 @@ export default function OrderDetailPageView({
 
       {/* Main Grid Layout split into details + checkout parameters */}
       <div className="grid gap-8 lg:grid-cols-12 items-start">
-        
         {/* Left Column: Tracking and Items details */}
         <div className="lg:col-span-8 space-y-6">
           {/* Tracking Timeline */}
@@ -191,15 +167,19 @@ export default function OrderDetailPageView({
               <CardContent className="pt-6">
                 <div className="relative pl-6 space-y-6 after:absolute after:inset-y-1 after:left-1.5 after:w-0.5 after:bg-border/40">
                   {order.tracking.steps.map((step) => (
-                    <div key={step.status} className="relative flex items-start gap-4">
+                    <div
+                      key={step.status}
+                      className="relative flex items-start gap-4">
                       {/* Outer pulse effect if active and not cancelled/completed */}
-                      {step.state === 'active' && !order.tracking.is_cancelled && order.status !== 'completed' && (
-                        <div className="absolute -left-5 z-10 flex size-3.5 items-center justify-center rounded-full border-2 bg-emerald-500 border-emerald-500 animate-ping opacity-75" />
-                      )}
+                      {step.state === 'active' &&
+                        !order.tracking.is_cancelled &&
+                        order.status !== 'completed' && (
+                          <div className="absolute -left-5 z-10 flex size-3.5 items-center justify-center rounded-full border-2 bg-emerald-500 border-emerald-500 animate-ping opacity-75" />
+                        )}
                       {/* Solid indicator dot overlay */}
                       <div
                         className={cn(
-                          "absolute -left-5 z-10 size-3.5 rounded-full border-2",
+                          'absolute -left-5 z-10 size-3.5 rounded-full border-2',
                           order.status === 'completed'
                             ? 'bg-emerald-500 border-emerald-500'
                             : step.state === 'active'
@@ -208,13 +188,13 @@ export default function OrderDetailPageView({
                                 : 'bg-emerald-500 border-emerald-500'
                               : step.state === 'completed'
                                 ? 'bg-emerald-500 border-emerald-500'
-                                : 'bg-background border-border/85'
+                                : 'bg-background border-border/85',
                         )}
                       />
                       <div className="flex flex-col gap-0.5">
                         <span
                           className={cn(
-                            "text-sm font-bold transition-colors",
+                            'text-sm font-bold transition-colors',
                             order.status === 'completed'
                               ? 'text-emerald-600 dark:text-emerald-400'
                               : step.state === 'active'
@@ -223,9 +203,8 @@ export default function OrderDetailPageView({
                                   : 'text-emerald-600 dark:text-emerald-400'
                                 : step.state === 'completed'
                                   ? 'text-emerald-600 dark:text-emerald-400'
-                                  : 'text-muted-foreground'
-                          )}
-                        >
+                                  : 'text-muted-foreground',
+                          )}>
                           {step.label}
                         </span>
                       </div>
@@ -249,7 +228,9 @@ export default function OrderDetailPageView({
                 {initials}
               </div>
               <div>
-                <h4 className="font-bold text-lg text-foreground leading-tight">{order.restaurant.name}</h4>
+                <h4 className="font-bold text-lg text-foreground leading-tight">
+                  {order.restaurant.name}
+                </h4>
                 <span className="inline-flex rounded bg-secondary px-2 py-0.5 text-xs font-semibold text-muted-foreground capitalize mt-2">
                   {order.order_type}
                 </span>
@@ -271,7 +252,9 @@ export default function OrderDetailPageView({
             <CardContent className="pt-6 space-y-5">
               <div className="space-y-3">
                 {order.items.map((item) => (
-                  <div key={item.id} className="flex justify-between text-sm items-start gap-4">
+                  <div
+                    key={item.id}
+                    className="flex justify-between text-sm items-start gap-4">
                     <span className="font-medium text-foreground/90">
                       {item.quantity}x {item.item_name}
                     </span>
@@ -286,16 +269,28 @@ export default function OrderDetailPageView({
 
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">{tc('subtotal')}</span>
-                  <span className="font-semibold">{order.financials.subtotal} EGP</span>
+                  <span className="text-muted-foreground">
+                    {tc('subtotal')}
+                  </span>
+                  <span className="font-semibold">
+                    {order.financials.subtotal} EGP
+                  </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">{tc('deliveryFee')}</span>
-                  <span className="font-semibold">{order.financials.delivery_fee} EGP</span>
+                  <span className="text-muted-foreground">
+                    {tc('deliveryFee')}
+                  </span>
+                  <span className="font-semibold">
+                    {order.financials.delivery_fee} EGP
+                  </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">{tc('serviceFee')}</span>
-                  <span className="font-semibold">{order.financials.service_fee} EGP</span>
+                  <span className="text-muted-foreground">
+                    {tc('serviceFee')}
+                  </span>
+                  <span className="font-semibold">
+                    {order.financials.service_fee} EGP
+                  </span>
                 </div>
               </div>
 
@@ -332,7 +327,6 @@ export default function OrderDetailPageView({
             </CardContent>
           </Card>
         </div>
-
       </div>
 
       <ConfirmDialog
@@ -348,3 +342,4 @@ export default function OrderDetailPageView({
     </div>
   );
 }
+

@@ -10,7 +10,7 @@ return [
     | interacting with this API.
     |
     */
-    'user_url' => env('FRONTEND_USER_URL', 'http://localhost:8080'),
+    'user_url' => env('FRONTEND_USER_URL', 'http://web.localhost:8080'),
     'restaurant_url' => env('FRONTEND_RESTAURANT_URL', 'http://localhost:8081'),
     'admin_url' => env('FRONTEND_ADMIN_URL', 'http://localhost:8082'),
 
@@ -25,7 +25,7 @@ return [
     */
     'paths' => [
         'user' => [
-            'order_tracking' => '/orders/{id}/track',
+            'order_tracking' => '/orders/{id}',
         ],
         'restaurant' => [
             // e.g., 'order_details' => '/orders/{id}',
