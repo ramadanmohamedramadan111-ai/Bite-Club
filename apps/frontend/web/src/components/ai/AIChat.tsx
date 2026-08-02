@@ -4,21 +4,24 @@ import { usePathname, useRouter } from '@/i18n/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { getLangDir } from 'rtl-detect';
 import { useState, useRef, useEffect } from 'react';
-import { 
-  Bot, 
-  X, 
-  SendHorizontal, 
-  Sparkles, 
-  Check, 
-  Plus, 
+import {
+  Bot,
+  X,
+  SendHorizontal,
+  Sparkles,
+  Check,
+  Plus,
   UtensilsCrossed,
-  RotateCcw
+  RotateCcw,
 } from 'lucide-react';
 import { getCookie } from 'cookies-next';
 import { useCartStore } from '@/stores/cart';
 import { useAuthStore } from '@/stores/auth';
 import { useAction } from 'next-safe-action/hooks';
-import { smartWaiterSendChatAction, smartWaiterAddToCartAction } from '@/actions/ai';
+import {
+  smartWaiterSendChatAction,
+  smartWaiterAddToCartAction,
+} from '@/actions/ai';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -74,78 +77,84 @@ export default function AIChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
-  const [conversationId, setConversationId] = useState<number | undefined>(undefined);
+  const [conversationId, setConversationId] = useState<number | undefined>(
+    undefined,
+  );
   const [selectedItem, setSelectedItem] = useState<SuggestionItem | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const addItem = useCartStore((state) => state.addItem);
 
-  const { execute: sendChat, isExecuting: isSending } = useAction(smartWaiterSendChatAction, {
-    onSuccess: ({ data }) => {
-      if (data?.success && data.data) {
-        const result = data.data; // SmartWaiterResponse
-        
-        // Save the conversation ID returned from the server
-        if (result.conversation_id) {
-          setConversationId(result.conversation_id);
+  const { execute: sendChat, isExecuting: isSending } = useAction(
+    smartWaiterSendChatAction,
+    {
+      onSuccess: ({ data }) => {
+        if (data?.success && data.data) {
+          const result = data.data; // SmartWaiterResponse
+
+          // Save the conversation ID returned from the server
+          if (result.conversation_id) {
+            setConversationId(result.conversation_id);
+          }
+
+          const rawItems = (result.items || []) as any[];
+          const mappedItems: SuggestionItem[] = rawItems.map((item) => ({
+            id: Number(item.id),
+            name: String(item.name || ''),
+            price: Number(item.price || 0),
+            quantity: Number(item.quantity || 1),
+            why: String(item.why || ''),
+          }));
+
+          const hasItems = mappedItems.length > 0;
+
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: Date.now().toString(),
+              sender: 'ai',
+              text: result.reply,
+              suggestion: hasItems
+                ? {
+                    restaurant_id: Number(
+                      result.recommended_restaurant_id || 0,
+                    ),
+                    restaurant_name: String(result.restaurant_name || ''),
+                    items: mappedItems,
+                    total_price: mappedItems.reduce(
+                      (sum, item) => sum + item.price * item.quantity,
+                      0,
+                    ),
+                    status: 'pending',
+                  }
+                : undefined,
+            },
+          ]);
+        } else {
+          toast.error(data?.message || 'Failed to get a response');
         }
-
-        const rawItems = (result.items || []) as any[];
-        const mappedItems: SuggestionItem[] = rawItems.map((item) => ({
-          id: Number(item.id),
-          name: String(item.name || ''),
-          price: Number(item.price || 0),
-          quantity: Number(item.quantity || 1),
-          why: String(item.why || ''),
-        }));
-
-        const hasItems = mappedItems.length > 0;
-
+      },
+      onError: ({ error }) => {
         setMessages((prev) => [
           ...prev,
           {
             id: Date.now().toString(),
             sender: 'ai',
-            text: result.reply,
-            suggestion: hasItems
-              ? {
-                  restaurant_id: Number(result.recommended_restaurant_id || 0),
-                  restaurant_name: String(result.restaurant_name || ''),
-                  items: mappedItems,
-                  total_price: mappedItems.reduce(
-                    (sum, item) => sum + item.price * item.quantity,
-                    0,
-                  ),
-                  status: 'pending',
-                }
-              : undefined,
+            text:
+              locale === 'ar'
+                ? 'عذراً، أواجه مشكلة في الاتصال بالخادم حالياً.'
+                : 'Sorry, I am having trouble connecting to the server right now.',
           },
         ]);
-      } else {
-        toast.error(data?.message || 'Failed to get a response');
-      }
+      },
     },
-    onError: ({ error }) => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          sender: 'ai',
-          text:
-            locale === 'ar'
-              ? 'عذراً، أواجه مشكلة في الاتصال بالخادم حالياً.'
-              : 'Sorry, I am having trouble connecting to the server right now.',
-        },
-      ]);
-    },
-  });
+  );
 
   const { execute: addToCartAction } = useAction(smartWaiterAddToCartAction, {
     onSuccess: ({ data }) => {
       if (data?.success) {
         toast.success(data.message || 'Added to cart successfully!');
-        router.refresh();
       } else {
         toast.error(data?.message || 'Failed to update cart');
       }
@@ -203,7 +212,7 @@ export default function AIChat() {
           };
         }
         return msg;
-      })
+      }),
     );
 
     // 2. Add the user message
@@ -229,7 +238,9 @@ export default function AIChat() {
     sendChat({
       conversation_id: conversationId,
       message: text,
-      locale: (locale === 'ar' || locale === 'en' ? locale : 'en') as 'ar' | 'en',
+      locale: (locale === 'ar' || locale === 'en' ? locale : 'en') as
+        | 'ar'
+        | 'en',
       latitude,
       longitude,
     });
@@ -239,7 +250,9 @@ export default function AIChat() {
     setMessages([]);
     setConversationId(undefined);
     setInputValue('');
-    toast.success(locale === 'ar' ? 'تم بدء محادثة جديدة' : 'Started a new conversation');
+    toast.success(
+      locale === 'ar' ? 'تم بدء محادثة جديدة' : 'Started a new conversation',
+    );
   };
 
   const handleAccept = (msgId: string, suggestion: Suggestion) => {
@@ -256,7 +269,7 @@ export default function AIChat() {
           };
         }
         return msg;
-      })
+      }),
     );
 
     // 2. Add to cart
@@ -266,7 +279,10 @@ export default function AIChat() {
         items: suggestion.items.map((item) => ({
           id: item.id,
           quantity: item.quantity,
-        })) as [{ id: number; quantity: number }, ...{ id: number; quantity: number }[]],
+        })) as [
+          { id: number; quantity: number },
+          ...{ id: number; quantity: number }[],
+        ],
       });
     } else {
       suggestion.items.forEach((item) => {
@@ -283,13 +299,13 @@ export default function AIChat() {
             item_name: item.name,
             unit_price: item.price,
             total_price: item.price * item.quantity,
-          }
+          },
         );
       });
       toast.success(
         locale === 'ar'
           ? 'تمت إضافة الأطباق المقترحة إلى السلة!'
-          : 'Added recommended dishes to cart!'
+          : 'Added recommended dishes to cart!',
       );
     }
   };
@@ -307,14 +323,17 @@ export default function AIChat() {
           };
         }
         return msg;
-      })
+      }),
     );
     toast.info(locale === 'ar' ? 'تم رفض الاقتراح' : 'Suggestion declined');
   };
 
-
   return (
-    <div className={cn('fixed bottom-6 z-50 transition-all duration-300', isRtl ? 'left-6' : 'right-6')}>
+    <div
+      className={cn(
+        'fixed bottom-6 z-50 transition-all duration-300',
+        isRtl ? 'left-6' : 'right-6',
+      )}>
       {/* 1. Launcher button */}
       {!isOpen && (
         <button
@@ -349,14 +368,12 @@ export default function AIChat() {
               <button
                 onClick={handleNewChat}
                 title={locale === 'ar' ? 'محادثة جديدة' : 'New Chat'}
-                className="p-1.5 rounded-full hover:bg-white/10 transition-colors text-white cursor-pointer"
-              >
+                className="p-1.5 rounded-full hover:bg-white/10 transition-colors text-white cursor-pointer">
                 <RotateCcw className="size-4" />
               </button>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-1.5 rounded-full hover:bg-white/10 transition-colors text-white cursor-pointer"
-              >
+                className="p-1.5 rounded-full hover:bg-white/10 transition-colors text-white cursor-pointer">
                 <X className="size-4" />
               </button>
             </div>
@@ -367,8 +384,14 @@ export default function AIChat() {
             {messages.map((msg) => {
               const isAi = msg.sender === 'ai';
               return (
-                <div key={msg.id} className="space-y-3.5 animate-in fade-in duration-200">
-                  <div className={cn('flex gap-2.5', isAi ? 'justify-start' : 'justify-end')}>
+                <div
+                  key={msg.id}
+                  className="space-y-3.5 animate-in fade-in duration-200">
+                  <div
+                    className={cn(
+                      'flex gap-2.5',
+                      isAi ? 'justify-start' : 'justify-end',
+                    )}>
                     {isAi && (
                       <div className="size-7 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 border border-primary/10">
                         <Sparkles className="size-3.5" />
@@ -400,8 +423,7 @@ export default function AIChat() {
                                 <div
                                   key={item.id}
                                   onClick={() => setSelectedItem(item)}
-                                  className="flex gap-3 border-b border-border/10 pb-2 last:border-0 last:pb-0 cursor-pointer hover:bg-muted/30 p-1.5 rounded-xl transition-all duration-200"
-                                >
+                                  className="flex gap-3 border-b border-border/10 pb-2 last:border-0 last:pb-0 cursor-pointer hover:bg-muted/30 p-1.5 rounded-xl transition-all duration-200">
                                   <div className="size-9 rounded-lg bg-muted/60 border border-border/50 flex items-center justify-center shrink-0 text-muted-foreground">
                                     <UtensilsCrossed className="size-4" />
                                   </div>
@@ -410,7 +432,8 @@ export default function AIChat() {
                                       {item.name}
                                     </h5>
                                     <p className="text-3xs text-muted-foreground font-semibold">
-                                      {item.quantity}x @ {item.price.toFixed(2)} EGP
+                                      {item.quantity}x @ {item.price.toFixed(2)}{' '}
+                                      EGP
                                     </p>
                                     <p className="text-4xs text-muted-foreground italic truncate mt-0.5">
                                       {item.why}
@@ -422,8 +445,12 @@ export default function AIChat() {
                           </div>
 
                           <div className="flex items-center justify-between pt-1 border-t border-border/10">
-                            <span className="text-3xs font-bold text-muted-foreground uppercase">{locale === 'ar' ? 'الإجمالي' : 'Total'}</span>
-                            <span className="text-xs font-bold text-foreground">{msg.suggestion.total_price.toFixed(2)} EGP</span>
+                            <span className="text-3xs font-bold text-muted-foreground uppercase">
+                              {locale === 'ar' ? 'الإجمالي' : 'Total'}
+                            </span>
+                            <span className="text-xs font-bold text-foreground">
+                              {msg.suggestion.total_price.toFixed(2)} EGP
+                            </span>
                           </div>
 
                           {/* Options / Action status */}
@@ -439,7 +466,9 @@ export default function AIChat() {
                                 </Button>
                                 <Button
                                   size="sm"
-                                  onClick={() => handleAccept(msg.id, msg.suggestion!)}
+                                  onClick={() =>
+                                    handleAccept(msg.id, msg.suggestion!)
+                                  }
                                   className="flex-1 rounded-xl h-8 text-xs font-bold shadow-3xs cursor-pointer bg-emerald-500 hover:bg-emerald-600 border border-emerald-600/10 text-white">
                                   <Plus className="size-3.5 mr-1" />
                                   {locale === 'ar' ? 'قبول' : 'Accept'}
@@ -450,7 +479,9 @@ export default function AIChat() {
                                 {msg.suggestion.status === 'accepted' ? (
                                   <span className="text-emerald-500 flex items-center gap-1">
                                     <Check className="size-3.5" />
-                                    {locale === 'ar' ? 'تمت الإضافة' : 'Added to Cart'}
+                                    {locale === 'ar'
+                                      ? 'تمت الإضافة'
+                                      : 'Added to Cart'}
                                   </span>
                                 ) : (
                                   <span className="text-muted-foreground">
@@ -483,7 +514,6 @@ export default function AIChat() {
             <div ref={messagesEndRef} />
           </div>
 
-
           {/* Chat input form */}
           <form
             onSubmit={(e) => {
@@ -493,7 +523,9 @@ export default function AIChat() {
             className="p-3 border-t border-border/60 flex items-center gap-2 bg-background">
             <Input
               type="text"
-              placeholder={locale === 'ar' ? 'اكتب رسالة...' : 'Ask for suggestions...'}
+              placeholder={
+                locale === 'ar' ? 'اكتب رسالة...' : 'Ask for suggestions...'
+              }
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               className="rounded-xl flex-1 text-xs border-border/80 h-9"
@@ -509,7 +541,9 @@ export default function AIChat() {
         </Card>
       )}
 
-      <Dialog open={selectedItem !== null} onOpenChange={(open) => !open && setSelectedItem(null)}>
+      <Dialog
+        open={selectedItem !== null}
+        onOpenChange={(open) => !open && setSelectedItem(null)}>
         <DialogContent className="sm:max-w-md rounded-2xl border border-border/80 bg-card p-5 shadow-lg animate-in fade-in zoom-in-95 duration-200">
           <DialogHeader className="pb-3 border-b border-border/10">
             <DialogTitle className="text-base font-bold text-foreground flex items-center gap-2">
@@ -517,20 +551,35 @@ export default function AIChat() {
               <span>{selectedItem?.name}</span>
             </DialogTitle>
           </DialogHeader>
-          
+
           <div className="space-y-4 pt-4">
             <div className="flex items-center justify-between bg-muted/40 rounded-xl p-3 border border-border/40">
               <div className="flex flex-col gap-0.5">
-                <span className="text-3xs font-bold text-muted-foreground uppercase">{locale === 'ar' ? 'سعر الوحدة' : 'Unit Price'}</span>
-                <span className="text-sm font-bold text-foreground">{selectedItem?.price.toFixed(2)} EGP</span>
+                <span className="text-3xs font-bold text-muted-foreground uppercase">
+                  {locale === 'ar' ? 'سعر الوحدة' : 'Unit Price'}
+                </span>
+                <span className="text-sm font-bold text-foreground">
+                  {selectedItem?.price.toFixed(2)} EGP
+                </span>
               </div>
               <div className="flex flex-col gap-0.5 text-right">
-                <span className="text-3xs font-bold text-muted-foreground uppercase">{locale === 'ar' ? 'الكمية' : 'Quantity'}</span>
-                <span className="text-sm font-extrabold text-primary">x{selectedItem?.quantity}</span>
+                <span className="text-3xs font-bold text-muted-foreground uppercase">
+                  {locale === 'ar' ? 'الكمية' : 'Quantity'}
+                </span>
+                <span className="text-sm font-extrabold text-primary">
+                  x{selectedItem?.quantity}
+                </span>
               </div>
               <div className="flex flex-col gap-0.5 text-right">
-                <span className="text-3xs font-bold text-muted-foreground uppercase">{locale === 'ar' ? 'الإجمالي' : 'Subtotal'}</span>
-                <span className="text-sm font-bold text-foreground">{((selectedItem?.price ?? 0) * (selectedItem?.quantity ?? 0)).toFixed(2)} EGP</span>
+                <span className="text-3xs font-bold text-muted-foreground uppercase">
+                  {locale === 'ar' ? 'الإجمالي' : 'Subtotal'}
+                </span>
+                <span className="text-sm font-bold text-foreground">
+                  {(
+                    (selectedItem?.price ?? 0) * (selectedItem?.quantity ?? 0)
+                  ).toFixed(2)}{' '}
+                  EGP
+                </span>
               </div>
             </div>
 
@@ -552,3 +601,4 @@ export default function AIChat() {
     </div>
   );
 }
+

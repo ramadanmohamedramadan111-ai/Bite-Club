@@ -19,9 +19,14 @@ import GroupOrderSessionsInitializer from '@/Initializers/GroupOrderSessionsInit
 import type { GroupOrderSession } from '@/types/group-order';
 import GamificationPopover from '@/components/gamification/GamificationPopover';
 import { CartInitializer } from '@/Initializers/CartInitializer';
+import type {
+  Notification,
+  UnreadNotificationsCount,
+} from '@/types/notifications';
 import Navbar from '@/components/navbar/Navbar';
 import Footer from '@/components/footer/Footer';
 import AIChat from '@/components/ai/AIChat';
+import { cookies } from 'next/headers';
 
 export default async function Layout({
   children,
@@ -36,6 +41,10 @@ export default async function Layout({
   let wallet: WalletDetails | null = null;
   let streak: StreakDetails | null = null;
   let activeGroupOrderSessions: GroupOrderSession[] = [];
+  let unreadNotificationsCount = 0;
+  let recentNotifications: Notification[] = [];
+  const cookiesStore = await cookies();
+  const accessToken = cookiesStore.get('accessToken')?.value || null;
 
   try {
     const res = await serverFetch<ApiResponse<UserMeResponse>>(
@@ -89,6 +98,32 @@ export default async function Layout({
       } catch (error) {
         console.log('Failed to fetch group order sessions in layout:', error);
       }
+
+      try {
+        const countRes = await serverFetch<
+          ApiResponse<UnreadNotificationsCount>
+        >('/user/notifications/unread-count', 'GET', {
+          next: {
+            tags: [`notifications-count-${userId}`],
+          },
+        });
+        unreadNotificationsCount = countRes?.data?.count ?? 0;
+      } catch (error) {
+        console.log('Failed to fetch notifications count in layout:', error);
+      }
+
+      try {
+        const recentRes = await serverFetch<
+          ApiResponse<PaginatedResponse<Notification>>
+        >('/user/notifications?page=1&per_page=5', 'GET', {
+          next: {
+            tags: [`notifications-recent-${userId}`],
+          },
+        });
+        recentNotifications = recentRes?.data?.items ?? [];
+      } catch (error) {
+        console.log('Failed to fetch recent notifications in layout:', error);
+      }
     } catch (error) {
       console.log('Failed to fetch cart in layout:', error);
     }
@@ -119,7 +154,10 @@ export default async function Layout({
 
       <Navbar
         user={user}
+        accessToken={accessToken}
         friendsRequestsCount={friendsRequestsCount}
+        unreadNotificationsCount={unreadNotificationsCount}
+        recentNotifications={recentNotifications}
         locationButton={<LocationButtonServer />}
         searchForm={<SearchForm />}
         gamificationPopover={!!userId ? <GamificationPopover /> : null}

@@ -697,6 +697,9 @@
     "subtitle": "ابق على اطلاع على الطلبات والأصدقاء والمكافآت.",
     "markAllAsRead": "تحديد الكل كمقروء",
     "markAsRead": "تحديد كمقروء",
+    "markingAsRead": "جارٍ التحديد كمقروء...",
+    "markingAllAsRead": "جارٍ تحديد الكل كمقروء...",
+    "showAll": "عرض الكل",
     "noNotifications": "لا توجد إشعارات بعد"
   },
   "points": {

@@ -697,6 +697,9 @@
     "subtitle": "Stay updated on orders, friends, and rewards.",
     "markAsRead": "Mark as read",
     "markAllAsRead": "Mark all as read",
+    "markingAsRead": "Marking as read...",
+    "markingAllAsRead": "Marking all as read...",
+    "showAll": "Show all",
     "noNotifications": "No notifications yet"
   },
   "points": {

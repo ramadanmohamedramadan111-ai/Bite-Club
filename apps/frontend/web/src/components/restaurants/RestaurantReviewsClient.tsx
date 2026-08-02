@@ -6,10 +6,20 @@ import { useAction } from 'next-safe-action/hooks';
 import { Star, Edit3, Trash2, MessageSquarePlus } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from '@/i18n/navigation';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { createReviewAction, updateReviewAction, deleteReviewAction } from '@/actions/restaurants';
+import {
+  createReviewAction,
+  updateReviewAction,
+  deleteReviewAction,
+} from '@/actions/restaurants';
 import type { RestaurantReviewUser } from '@/types/restaurant';
 import ConfirmDialog from '@/components/shared/ConfirmationDialog';
 
@@ -36,54 +46,60 @@ export default function RestaurantReviewsClient({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // 1. Create review action
-  const { execute: createReview, isExecuting: isCreating } = useAction(createReviewAction, {
-    onSuccess: ({ data }) => {
-      if (data?.success) {
-        toast.success(t('addReviewSuccess'));
-        setIsWriting(false);
-        setComment('');
-        router.refresh();
-      } else {
-        toast.error(data?.message || 'Failed to post review');
-      }
+  const { execute: createReview, isExecuting: isCreating } = useAction(
+    createReviewAction,
+    {
+      onSuccess: ({ data }) => {
+        if (data?.success) {
+          toast.success(t('addReviewSuccess'));
+          setIsWriting(false);
+          setComment('');
+        } else {
+          toast.error(data?.message || 'Failed to post review');
+        }
+      },
+      onError: ({ error }) => {
+        toast.error(error.serverError?.message ?? 'Failed to post review');
+      },
     },
-    onError: ({ error }) => {
-      toast.error(error.serverError?.message ?? 'Failed to post review');
-    },
-  });
+  );
 
   // 2. Update review action
-  const { execute: updateReview, isExecuting: isUpdating } = useAction(updateReviewAction, {
-    onSuccess: ({ data }) => {
-      if (data?.success) {
-        toast.success(t('updateReviewSuccess'));
-        setIsEditing(false);
-        router.refresh();
-      } else {
-        toast.error(data?.message || 'Failed to update review');
-      }
+  const { execute: updateReview, isExecuting: isUpdating } = useAction(
+    updateReviewAction,
+    {
+      onSuccess: ({ data }) => {
+        if (data?.success) {
+          toast.success(t('updateReviewSuccess'));
+          setIsEditing(false);
+        } else {
+          toast.error(data?.message || 'Failed to update review');
+        }
+      },
+      onError: ({ error }) => {
+        toast.error(error.serverError?.message ?? 'Failed to update review');
+      },
     },
-    onError: ({ error }) => {
-      toast.error(error.serverError?.message ?? 'Failed to update review');
-    },
-  });
+  );
 
   // 3. Delete review action
-  const { execute: deleteReview, isExecuting: isDeleting } = useAction(deleteReviewAction, {
-    onSuccess: ({ data }) => {
-      if (data?.success) {
-        toast.success(t('deleteReviewSuccess'));
-        setIsEditing(false);
-        setIsWriting(false);
-        router.refresh();
-      } else {
-        toast.error(data?.message || 'Failed to delete review');
-      }
+  const { execute: deleteReview, isExecuting: isDeleting } = useAction(
+    deleteReviewAction,
+    {
+      onSuccess: ({ data }) => {
+        if (data?.success) {
+          toast.success(t('deleteReviewSuccess'));
+          setIsEditing(false);
+          setIsWriting(false);
+        } else {
+          toast.error(data?.message || 'Failed to delete review');
+        }
+      },
+      onError: ({ error }) => {
+        toast.error(error.serverError?.message ?? 'Failed to delete review');
+      },
     },
-    onError: ({ error }) => {
-      toast.error(error.serverError?.message ?? 'Failed to delete review');
-    },
-  });
+  );
 
   const handleStartWrite = () => {
     setRating(5);
@@ -138,15 +154,15 @@ export default function RestaurantReviewsClient({
           <MessageSquarePlus className="size-4.5 text-primary" />
           <span>{isEditing ? t('editReview') : t('writeReview')}</span>
         </CardTitle>
-        <CardDescription>
-          {t('commentPlaceholder')}
-        </CardDescription>
+        <CardDescription>{t('commentPlaceholder')}</CardDescription>
       </CardHeader>
       <CardContent className="pt-2">
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Star Selector */}
           <div className="flex flex-col gap-1.5">
-            <span className="text-xs font-bold text-muted-foreground">{t('ratingLabel')}</span>
+            <span className="text-xs font-bold text-muted-foreground">
+              {t('ratingLabel')}
+            </span>
             <div className="flex items-center gap-1.5">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -155,14 +171,13 @@ export default function RestaurantReviewsClient({
                   onClick={() => setRating(star)}
                   onMouseEnter={() => setHoverRating(star)}
                   onMouseLeave={() => setHoverRating(null)}
-                  className="p-1 rounded-md hover:bg-muted/80 transition-colors cursor-pointer"
-                >
+                  className="p-1 rounded-md hover:bg-muted/80 transition-colors cursor-pointer">
                   <Star
                     className={cn(
-                      "size-7 transition-all duration-150 transform hover:scale-110",
+                      'size-7 transition-all duration-150 transform hover:scale-110',
                       star <= (hoverRating ?? rating)
-                        ? "fill-yellow-400 text-yellow-400 drop-shadow-[0_0_2px_rgba(250,204,21,0.5)]"
-                        : "text-muted border-none"
+                        ? 'fill-yellow-400 text-yellow-400 drop-shadow-[0_0_2px_rgba(250,204,21,0.5)]'
+                        : 'text-muted border-none',
                     )}
                   />
                 </button>
@@ -172,7 +187,9 @@ export default function RestaurantReviewsClient({
 
           {/* Comment Textarea */}
           <div className="flex flex-col gap-1.5">
-            <span className="text-xs font-bold text-muted-foreground">{t('commentLabel')}</span>
+            <span className="text-xs font-bold text-muted-foreground">
+              {t('commentLabel')}
+            </span>
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
@@ -193,16 +210,14 @@ export default function RestaurantReviewsClient({
                 setIsEditing(false);
                 setIsWriting(false);
               }}
-              className="rounded-xl cursor-pointer"
-            >
+              className="rounded-xl cursor-pointer">
               {t('cancel')}
             </Button>
             <Button
               type="submit"
               size="sm"
               disabled={isCreating || isUpdating}
-              className="rounded-xl cursor-pointer"
-            >
+              className="rounded-xl cursor-pointer">
               {isEditing ? t('update') : t('submit')}
             </Button>
           </div>
@@ -229,8 +244,7 @@ export default function RestaurantReviewsClient({
                 size="icon"
                 onClick={handleStartEdit}
                 className="size-8 rounded-lg text-muted-foreground hover:text-foreground cursor-pointer"
-                title={t('editReview')}
-              >
+                title={t('editReview')}>
                 <Edit3 className="size-4" />
               </Button>
               <Button
@@ -238,8 +252,7 @@ export default function RestaurantReviewsClient({
                 size="icon"
                 onClick={() => setShowDeleteConfirm(true)}
                 className="size-8 rounded-lg text-muted-foreground hover:text-destructive cursor-pointer"
-                title={t('deleteReview')}
-              >
+                title={t('deleteReview')}>
                 <Trash2 className="size-4" />
               </Button>
             </div>
@@ -250,10 +263,10 @@ export default function RestaurantReviewsClient({
                 <Star
                   key={star}
                   className={cn(
-                    "size-4.5",
+                    'size-4.5',
                     star <= myReview.rating
-                      ? "fill-yellow-400 text-yellow-400"
-                      : "text-muted"
+                      ? 'fill-yellow-400 text-yellow-400'
+                      : 'text-muted',
                   )}
                 />
               ))}
@@ -261,12 +274,16 @@ export default function RestaurantReviewsClient({
                 {new Intl.DateTimeFormat(locale === 'ar' ? 'ar' : 'en-US', {
                   month: 'short',
                   day: 'numeric',
-                  year: 'numeric'
+                  year: 'numeric',
                 }).format(new Date(myReview.updated_at || myReview.created_at))}
               </span>
             </div>
             <p className="text-sm text-foreground leading-relaxed">
-              {myReview.comment || <span className="italic text-muted-foreground">{t('reviewPlaceholder')}</span>}
+              {myReview.comment || (
+                <span className="italic text-muted-foreground">
+                  {t('reviewPlaceholder')}
+                </span>
+              )}
             </p>
           </CardContent>
         </Card>
@@ -280,8 +297,7 @@ export default function RestaurantReviewsClient({
         <Button
           onClick={handleStartWrite}
           className="w-full sm:w-auto gap-2 rounded-xl cursor-pointer"
-          variant="outline"
-        >
+          variant="outline">
           <MessageSquarePlus className="size-4.5" />
           <span>{t('writeReview')}</span>
         </Button>
@@ -300,3 +316,4 @@ export default function RestaurantReviewsClient({
     </div>
   );
 }
+

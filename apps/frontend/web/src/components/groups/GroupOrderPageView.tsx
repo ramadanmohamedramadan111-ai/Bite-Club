@@ -33,8 +33,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useEffect } from 'react';
-import Echo from 'laravel-echo';
-import Pusher from 'pusher-js';
+import { getEcho } from '@/lib/echo';
 import {
   cancelGroupAction,
   clearMyItemsGroupOrderAction,
@@ -77,30 +76,7 @@ export default function GroupOrderPageView({
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // Attach Pusher to window so Laravel Echo can find it
-    (window as any).Pusher = Pusher;
-
-    const wsHost =
-      typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-    const reverbKey =
-      process.env.NEXT_PUBLIC_REVERB_APP_KEY || '7shjlvmsslgdjgltf46x';
-
-    const echo = new Echo({
-      broadcaster: 'reverb',
-      key: reverbKey,
-      wsHost: wsHost,
-      wsPort: 8081,
-      wssPort: 8081,
-      forceTLS: false,
-      enabledTransports: ['ws', 'wss'],
-      authEndpoint: '/api/broadcasting/auth',
-      auth: {
-        headers: {
-          Authorization: token ? `Bearer ${token}` : '',
-          Accept: 'application/json',
-        },
-      },
-    });
+    const echo = getEcho(token);
 
     const channelName = `group-order.${sessionId}`;
     console.log(`[Echo] Joining presence channel: ${channelName}`);
@@ -159,9 +135,8 @@ export default function GroupOrderPageView({
     return () => {
       console.log(`[Echo] Leaving presence channel: ${channelName}`);
       echo.leave(channelName);
-      echo.disconnect();
     };
-  }, [sessionId, revalidateSession]);
+  }, [sessionId, revalidateSession, token]);
 
   const totalItems = membersSummary.reduce((sum, m) => sum + m.items.length, 0);
   const isHost =
