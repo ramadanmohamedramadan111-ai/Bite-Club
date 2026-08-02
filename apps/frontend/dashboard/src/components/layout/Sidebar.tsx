@@ -14,7 +14,7 @@ const navItems = [
   { key: 'nav_dashboard',  icon: LayoutGrid,      path: '/dashboard'  },
   { key: 'nav_orders',     icon: ShoppingBag,     path: '/orders'     },
   { key: 'nav_menu',       icon: UtensilsCrossed, path: '/menu'       },
-  { key: 'nav_customers',  icon: Users,           path: '/customers'  },
+ // { key: 'nav_customers',  icon: Users,           path: '/customers'  },
  // { key: 'nav_promotions', icon: MessageSquare,   path: '/promotions' },
   { key: 'nav_reviews',    icon: Star,            path: '/reviews'    },
   { key: 'nav_reports',    icon: BarChart3,       path: '/reports'    },
