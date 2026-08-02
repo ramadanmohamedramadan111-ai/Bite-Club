@@ -1,12 +1,13 @@
 <?php
 
+use \App\Http\Controllers\Api\User\UserNotificationController;
 use \App\Http\Controllers\Api\Webhook\InvoiceKashierWebhookController;
 use App\Http\Controllers\Api\Ai\AiChatController;
+
 use App\Http\Controllers\Api\Ai\AiInternalToolController;
-
 use App\Http\Controllers\Api\Ai\SmartWaiterAddToCartController;
-use App\Http\Controllers\Api\Ai\SmartWaiterChatController;
 
+use App\Http\Controllers\Api\Ai\SmartWaiterChatController;
 use App\Http\Controllers\Api\Auth\AdminAuthController;
 use App\Http\Controllers\Api\Auth\UserAuthController;
 use App\Http\Controllers\Api\RestaurantCategoryController;
@@ -26,6 +27,7 @@ use App\Http\Controllers\Api\User\UserSearchController;
 use App\Http\Controllers\Api\User\WalletController;
 use App\Http\Controllers\Api\Webhook\KashierWebhookController;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -137,6 +139,14 @@ Route::prefix('user')->name('user.')->group(function () {
             Route::get('past', [UserOrderController::class, 'pastOrders'])->name('past');
             Route::get('{orderId}', [UserOrderController::class, 'show'])->name('show');
             Route::post('{orderId}/cancel', [UserOrderController::class, 'cancel'])->name('cancel');
+        });
+
+        // Notifications
+        Route::prefix('notifications')->name('notifications.')->group(function () {
+            Route::get('/', [UserNotificationController::class, 'index'])->name('index');
+            Route::get('/unread-count', [UserNotificationController::class, 'unreadCount'])->name('unread-count');
+            Route::post('/mark-all-as-read', [UserNotificationController::class, 'markAllAsRead'])->name('mark-all-as-read');
+            Route::patch('/{id}/mark-as-read', [UserNotificationController::class, 'markAsRead'])->name('mark-as-read');
         });
     });
 

@@ -2,22 +2,33 @@
 
 namespace App\Providers;
 
+use \App\Events\OrderStatusUpdated;
+use \App\Listeners\User\SendOrderStatusNotification;
+use \Illuminate\Support\Facades\Event;
+use App\Models\MenuItem;
+use App\Models\Order;
 use App\Models\Restaurant;
 use App\Models\RestaurantReview;
+use App\Models\User;
+use App\Observers\MenuItemObserver;
+use App\Observers\OrderObserver;
 use App\Observers\RestaurantObserver;
 use App\Observers\RestaurantReviewObserver;
+use App\Observers\UserObserver;
 use App\Repositories\Eloquent\AdminRepository;
 use App\Repositories\Eloquent\CartItemRepository;
 use App\Repositories\Eloquent\CartRepository;
-use App\Repositories\Eloquent\GroupOrderRepository;
-use App\Repositories\Eloquent\GroupOrderItemRepository;
 use App\Repositories\Eloquent\GeneralSettingRepository;
+use App\Repositories\Eloquent\GroupOrderItemRepository;
+use App\Repositories\Eloquent\GroupOrderRepository;
+use App\Repositories\Eloquent\InvoiceRepository;
 use App\Repositories\Eloquent\MenuCategoryRepository;
 use App\Repositories\Eloquent\MenuItemRepository;
 use App\Repositories\Eloquent\OrderItemRepository;
 use App\Repositories\Eloquent\OrderPaymentRepository;
 use App\Repositories\Eloquent\OrderRepository;
 use App\Repositories\Eloquent\PasswordResetOtpRepository;
+use App\Repositories\Eloquent\PlatformDueRepository;
 use App\Repositories\Eloquent\RestaurantCategoryRepository;
 use App\Repositories\Eloquent\RestaurantOpeningHourRepository;
 use App\Repositories\Eloquent\RestaurantRepository;
@@ -32,22 +43,20 @@ use App\Repositories\Eloquent\UserRepository;
 use App\Repositories\Interfaces\AdminRepositoryInterface;
 use App\Repositories\Interfaces\CartItemRepositoryInterface;
 use App\Repositories\Interfaces\CartRepositoryInterface;
-use App\Repositories\Interfaces\GroupOrderRepositoryInterface;
-use App\Repositories\Interfaces\GroupOrderItemRepositoryInterface;
 use App\Repositories\Interfaces\GeneralSettingRepositoryInterface;
+use App\Repositories\Interfaces\GroupOrderItemRepositoryInterface;
+use App\Repositories\Interfaces\GroupOrderRepositoryInterface;
+use App\Repositories\Interfaces\InvoiceRepositoryInterface;
+
 use App\Repositories\Interfaces\MenuCategoryRepositoryInterface;
 use App\Repositories\Interfaces\MenuItemRepositoryInterface;
 use App\Repositories\Interfaces\OrderItemRepositoryInterface;
 use App\Repositories\Interfaces\OrderPaymentRepositoryInterface;
 use App\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Repositories\Interfaces\PasswordResetOtpRepositoryInterface;
+use App\Repositories\Interfaces\PlatformDueRepositoryInterface;
 use App\Repositories\Interfaces\RestaurantCategoryRepositoryInterface;
 use App\Repositories\Interfaces\RestaurantOpeningHourRepositoryInterface;
-use App\Repositories\Interfaces\InvoiceRepositoryInterface;
-use App\Repositories\Interfaces\PlatformDueRepositoryInterface;
-use App\Repositories\Eloquent\InvoiceRepository;
-use App\Repositories\Eloquent\PlatformDueRepository;
-
 use App\Repositories\Interfaces\RestaurantRepositoryInterface;
 use App\Repositories\Interfaces\RestaurantReviewRepositoryInterface;
 use App\Repositories\Interfaces\RestaurantSettingRepositoryInterface;
@@ -61,12 +70,6 @@ use App\Services\Infrastructure\Payment\KashierPaymentGateway;
 use App\Services\Infrastructure\Payment\PaymentGatewayInterface;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
-use App\Models\User;
-use App\Observers\UserObserver;
-use App\Models\Order;
-use App\Observers\OrderObserver;
-use App\Models\MenuItem;
-use App\Observers\MenuItemObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
