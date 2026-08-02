@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             FiveRestaurantsSeeder::class,
             OrderSeeder::class,
             SmartWaiterTestUserSeeder::class,
+            InvoiceSeeder::class,
         ]);
 
 
