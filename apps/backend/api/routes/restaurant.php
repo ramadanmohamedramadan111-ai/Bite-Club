@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\Restaurant\RestaurantDashboardController;
 use App\Http\Controllers\Api\Restaurant\RestaurantReviewController;
 use App\Http\Controllers\Api\Restaurant\InvoiceController;
 use App\Http\Controllers\Api\Restaurant\OrderPaymentController;
+use App\Http\Controllers\Api\Restaurant\RestaurantNotificationController;
 
 Route::post('/register', [RestaurantAuthController::class, 'register'])->name('register');
 Route::post('/login',    [RestaurantAuthController::class, 'login'])->name('login');
@@ -73,5 +74,12 @@ Route::middleware('auth.restaurant')->group(function () {
     Route::prefix('payments')->name('payments.')->group(function () {
         Route::get('/', [OrderPaymentController::class, 'index'])->name('index');
         Route::get('/statistics', [OrderPaymentController::class, 'statistics'])->name('statistics');
+    });
+
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', [RestaurantNotificationController::class, 'index'])->name('index');
+        Route::get('/unread-count', [RestaurantNotificationController::class, 'unreadCount'])->name('unread-count');
+        Route::post('/mark-all-as-read', [RestaurantNotificationController::class, 'markAllAsRead'])->name('mark-all-as-read');
+        Route::patch('/{id}/mark-as-read', [RestaurantNotificationController::class, 'markAsRead'])->name('mark-as-read');
     });
 });

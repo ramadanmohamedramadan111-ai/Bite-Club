@@ -28,7 +28,7 @@ return [
             'order_tracking' => '/orders/{id}/track',
         ],
         'restaurant' => [
-            // e.g., 'order_details' => '/orders/{id}',
+            'order_details' => '/orders/{id}',
         ],
     ],
 ];

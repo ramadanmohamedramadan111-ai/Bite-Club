@@ -18,4 +18,7 @@ return [
 
     'order_cancelled_title' => 'Order Cancelled',
     'order_cancelled_body' => 'Your order from :restaurant_name has been cancelled.',
+
+    'new_order_received_title' => 'New Order Received',
+    'new_order_received_body' => 'You have received a new order #:order_id. Please review and accept it.',
 ];

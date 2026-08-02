@@ -18,4 +18,7 @@ return [
 
     'order_cancelled_title' => 'إلغاء الطلب',
     'order_cancelled_body' => 'تم إلغاء طلبك من مطعم :restaurant_name.',
+
+    'new_order_received_title' => 'طلب جديد',
+    'new_order_received_body' => 'لقد تلقيت طلباً جديداً رقم #:order_id. يرجى مراجعته وقبوله.',
 ];

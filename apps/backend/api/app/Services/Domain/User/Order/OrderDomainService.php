@@ -11,8 +11,10 @@ use App\Enums\Payment\PaymentStatusEnum;
 use App\Enums\Payment\PaymentTypeEnum;
 use App\Models\GeneralSetting;
 use App\Models\Order;
+use App\Models\PlatformDue;
 use App\Models\Redemption;
 use App\Notifications\OrderCancelledByTimeoutNotification;
+use App\Notifications\Restaurant\NewOrderReceivedNotification;
 use App\Repositories\Interfaces\CartRepositoryInterface;
 use App\Repositories\Interfaces\OrderItemRepositoryInterface;
 use App\Repositories\Interfaces\OrderPaymentRepositoryInterface;
@@ -296,6 +298,12 @@ class OrderDomainService
 
             $this->cartRepository->delete($cart->id);
 
+            if ($orderStatus === OrderStatusEnum::PENDING->value) {
+                if ($order->restaurant) {
+                    $order->restaurant->notify(new NewOrderReceivedNotification($order));
+                }
+            }
+
             return $order;
         });
 
@@ -348,6 +356,11 @@ class OrderDomainService
                 $this->orderRepository->update($order->id, [
                     'status' => OrderStatusEnum::PENDING->value,
                 ]);
+                
+                // Notify restaurant
+                if ($order->restaurant) {
+                    $order->restaurant->notify(new NewOrderReceivedNotification($order));
+                }
             } else {
                 Log::warning("Kashier Webhook: Received non-SUCCESS status '{$status}' for Order: {$orderId}. Leaving for cron job cleanup.");
             }
