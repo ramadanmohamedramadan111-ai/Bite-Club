@@ -33,4 +33,7 @@ return [
 
     'restaurant_suspended_title' => 'Account Suspended',
     'restaurant_suspended_body' => 'Your restaurant account has been suspended due to overdue invoices. Please pay your outstanding invoices to reactivate your account.',
+
+    'restaurant_reactivated_title' => 'Account Reactivated',
+    'restaurant_reactivated_body' => 'Your restaurant account has been successfully reactivated. You can now receive new orders!',
 ];

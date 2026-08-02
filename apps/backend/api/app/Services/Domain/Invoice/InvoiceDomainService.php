@@ -10,6 +10,7 @@ use App\Enums\Restaurant\RestaurantStatusEnum;
 use App\Models\Order;
 use App\Notifications\Restaurant\InvoiceGeneratedNotification;
 use App\Notifications\Restaurant\InvoicePaidNotification;
+use App\Notifications\Restaurant\RestaurantReactivatedNotification;
 use App\Notifications\Restaurant\RestaurantSuspendedNotification;
 use App\Repositories\Interfaces\GeneralSettingRepositoryInterface;
 use App\Repositories\Interfaces\InvoiceRepositoryInterface;
@@ -208,6 +209,10 @@ class InvoiceDomainService
                 if (!$this->invoiceRepository->hasOverdueInvoices($invoice->restaurant_id)) {
                     // Unsuspend restaurant
                     $this->restaurantRepository->activateRestaurant($invoice->restaurant_id);
+                    
+                    if ($invoice->restaurant) {
+                        $invoice->restaurant->notify(new RestaurantReactivatedNotification($invoice->restaurant));
+                    }
                 }
             });
         }

@@ -33,4 +33,7 @@ return [
 
     'restaurant_suspended_title' => 'تم إيقاف الحساب',
     'restaurant_suspended_body' => 'تم إيقاف حساب المطعم الخاص بك بسبب فواتير متأخرة. يرجى سداد الفواتير المستحقة لإعادة تفعيل الحساب.',
+
+    'restaurant_reactivated_title' => 'تم إعادة تفعيل الحساب',
+    'restaurant_reactivated_body' => 'تم إعادة تفعيل حساب المطعم الخاص بك بنجاح. يمكنك الآن استقبال طلبات جديدة!',
 ];
