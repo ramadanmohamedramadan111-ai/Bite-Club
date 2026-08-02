@@ -24,11 +24,11 @@ class SendOrderStatusNotification
         }
 
         match ($order->status) {
-            OrderStatusEnum::PREPARING->value => $order->user->notify(new OrderPreparingNotification($order)),
-            OrderStatusEnum::READY->value => $order->user->notify(new OrderReadyNotification($order)),
-            OrderStatusEnum::OUT_FOR_DELIVERY->value => $order->user->notify(new OrderOutForDeliveryNotification($order)),
-            OrderStatusEnum::COMPLETED->value => $order->user->notify(new OrderCompletedNotification($order)),
-            OrderStatusEnum::CANCELLED->value => $order->user->notify(new OrderCancelledNotification($order)),
+            OrderStatusEnum::PREPARING => $order->user->notify(new OrderPreparingNotification($order)),
+            OrderStatusEnum::READY => $order->user->notify(new OrderReadyNotification($order)),
+            OrderStatusEnum::OUT_FOR_DELIVERY => $order->user->notify(new OrderOutForDeliveryNotification($order)),
+            OrderStatusEnum::COMPLETED => $order->user->notify(new OrderCompletedNotification($order)),
+            OrderStatusEnum::CANCELLED => $order->user->notify(new OrderCancelledNotification($order)),
             default => null,
         };
     }

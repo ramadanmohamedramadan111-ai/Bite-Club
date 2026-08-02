@@ -76,7 +76,7 @@ class RestaurantOrderDomainService
         // Refresh the order to return updated data
         $updatedOrder = $this->orderRepository->findOrderForRestaurant($orderId, $restaurantId);
 
-        broadcast(new OrderStatusUpdated($updatedOrder));
+        event(new OrderStatusUpdated($updatedOrder));
 
         return $updatedOrder;
     }
