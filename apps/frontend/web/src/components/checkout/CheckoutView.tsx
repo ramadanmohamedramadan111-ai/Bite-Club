@@ -66,6 +66,12 @@ export default function CheckoutView({ initialLocation }: Props) {
   );
   const [fulfillmentType, setFulfillmentType] =
     useState<FulfillmentType>('delivery');
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/login?redirect=/checkout');
+    }
+  }, [isAuthenticated, router]);
   const [paymentMethod, setPaymentMethod] =
     useState<PaymentMethod>('full_cash');
   const [error, setError] = useState<string | null>(null);

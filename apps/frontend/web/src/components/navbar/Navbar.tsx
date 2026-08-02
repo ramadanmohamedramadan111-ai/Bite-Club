@@ -101,6 +101,7 @@ export default function Navbar({
   const { execute: logout, isExecuting } = useAction(logoutUserAction, {
     onSuccess: ({ data }) => {
       toast.success(data?.message ?? t('loggedOutSuccess'));
+      useCartStore.getState().clearCart();
     },
     onError: ({ error }) => {
       toast.error(error.serverError?.message ?? t('logoutFailed'));
