@@ -20,6 +20,7 @@ interface RestaurantRepositoryInterface extends BaseRepositoryInterface
     public function activateRestaurant(int $restaurantId): bool;
 
     public function suspendRestaurants(array $restaurantIds): void;
+    public function findByIds(array $ids): Collection;
     public function getHighestRated(int $limit = 10): Collection;
     public function updateStats(int $restaurantId, float $averageRating, int $reviewsCount): bool;
 }

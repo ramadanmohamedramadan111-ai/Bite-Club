@@ -30,4 +30,7 @@ return [
 
     'invoice_paid_title' => 'Invoice Paid Successfully',
     'invoice_paid_body' => 'Payment for invoice #:invoice_id of :amount EGP has been received successfully. Thank you!',
+
+    'restaurant_suspended_title' => 'Account Suspended',
+    'restaurant_suspended_body' => 'Your restaurant account has been suspended due to overdue invoices. Please pay your outstanding invoices to reactivate your account.',
 ];

@@ -10,6 +10,7 @@ use App\Enums\Restaurant\RestaurantStatusEnum;
 use App\Models\Order;
 use App\Notifications\Restaurant\InvoiceGeneratedNotification;
 use App\Notifications\Restaurant\InvoicePaidNotification;
+use App\Notifications\Restaurant\RestaurantSuspendedNotification;
 use App\Repositories\Interfaces\GeneralSettingRepositoryInterface;
 use App\Repositories\Interfaces\InvoiceRepositoryInterface;
 use App\Repositories\Interfaces\PlatformDueRepositoryInterface;
@@ -104,6 +105,12 @@ class InvoiceDomainService
         DB::transaction(function () use ($invoiceIds, $restaurantIds) {
             $this->invoiceRepository->markAsOverdue($invoiceIds);
             $this->restaurantRepository->suspendRestaurants($restaurantIds);
+
+            // Notify each suspended restaurant
+            $restaurants = $this->restaurantRepository->findByIds($restaurantIds);
+            foreach ($restaurants as $restaurant) {
+                $restaurant->notify(new RestaurantSuspendedNotification($restaurant));
+            }
         });
 
         return count($invoiceIds);

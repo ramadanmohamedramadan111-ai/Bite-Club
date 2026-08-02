@@ -30,4 +30,7 @@ return [
 
     'invoice_paid_title' => 'تم سداد الفاتورة بنجاح',
     'invoice_paid_body' => 'تم استلام الدفعة الخاصة بفاتورة رقم #:invoice_id بقيمة :amount جنيه بنجاح. شكراً لك!',
+
+    'restaurant_suspended_title' => 'تم إيقاف الحساب',
+    'restaurant_suspended_body' => 'تم إيقاف حساب المطعم الخاص بك بسبب فواتير متأخرة. يرجى سداد الفواتير المستحقة لإعادة تفعيل الحساب.',
 ];

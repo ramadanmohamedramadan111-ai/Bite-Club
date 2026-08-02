@@ -145,6 +145,11 @@ class RestaurantRepository extends BaseRepository implements RestaurantRepositor
             ->update(['status' => RestaurantStatusEnum::SUSPENDED->value]);
     }
 
+    public function findByIds(array $ids): \Illuminate\Database\Eloquent\Collection
+    {
+        return $this->model->whereIn('id', $ids)->get();
+    }
+
     public function findPendingRestaurants():  \Illuminate\Database\Eloquent\Collection
     {
         return $this->model->where('status', RestaurantStatusEnum::PENDING_APPROVAL->value)->get();
