@@ -54,7 +54,7 @@ class IndexTest extends TestCase
                         'user' => [
                             'id',
                             'name',
-                            'profile_image_url'
+                            'profile_image'
                         ],
                         'created_at'
                     ]

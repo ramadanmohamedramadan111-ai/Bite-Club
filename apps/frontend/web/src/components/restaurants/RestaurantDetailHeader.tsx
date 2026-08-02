@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import { Bike, MapPin, ShoppingBag, Star, Clock } from 'lucide-react';
+import { Bike, MapPin, ShoppingBag, Star } from 'lucide-react';
 import type { RestaurantType } from '@/types/restaurant';
 import RestaurantGroupOrderActions from './RestaurantGroupOrderActions';
 import { Separator } from '@/components/ui/separator';
@@ -36,7 +36,7 @@ export default function RestaurantDetailHeader({ restaurant }: Props) {
       {/* Info Panel */}
       <div className="relative px-4 pb-6 pt-16 sm:px-6 md:px-8">
         {/* Floating Logo Badge */}
-        <div className="absolute -top-12 left-4 size-24 overflow-hidden rounded-2xl border-4 border-card bg-background shadow-lg sm:left-6 sm:-top-16 sm:size-28">
+        <div className="absolute -top-12 left-4 size-24 overflow-hidden rounded-2xl border-4 border-card bg-background shadow-lg sm:left-6 sm:-top-16 sm:size-28 z-20">
           <Image
             src={restaurant.logo_url}
             alt={restaurant.name}
@@ -69,12 +69,6 @@ export default function RestaurantDetailHeader({ restaurant }: Props) {
                   <span className="truncate max-w-[200px] sm:max-w-xs">{restaurant.address}</span>
                 </span>
               )}
-
-              {/* Delivery Time Estimate Badge */}
-              <span className="inline-flex items-center gap-1 rounded-md bg-accent/60 px-2 py-0.5 text-xs font-semibold text-muted-foreground">
-                <Clock className="size-3.5" />
-                <span>25-35 min</span>
-              </span>
             </div>
 
             <div className="flex flex-wrap gap-2 pt-1">

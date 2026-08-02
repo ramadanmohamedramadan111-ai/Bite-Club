@@ -13,6 +13,7 @@ import { likePostAction, unlikePostAction } from '@/actions/feed';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { useTranslations } from 'next-intl';
+import { getMediaUrl } from '@/lib/utils';
 
 interface PostCardProps {
   post: PostType;
@@ -85,7 +86,7 @@ export function PostCard({ post, onAddToCart }: PostCardProps) {
         <div className="mb-3 flex items-center gap-2">
           <div className="shrink-0">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={post.user.profile_image_url || undefined} />
+              <AvatarImage src={getMediaUrl(post.user.profile_image_url)} />
               <AvatarFallback>
                 {post.user.name?.charAt(0) || 'U'}
               </AvatarFallback>

@@ -53,7 +53,7 @@ export default function MenuItemCustomizer({
 
   const total = useMemo(() => calculateTotal(item, quantity), [item, quantity]);
 
-  const canAddToCart = isSelectionValid(item);
+  const canAddToCart = isSelectionValid(item) && restaurant.is_open_now;
 
   const cart = useCartStore((state) => state.cart);
   const addItem = useCartStore((state) => state.addItem);
@@ -114,7 +114,7 @@ export default function MenuItemCustomizer({
     },
   });
 
-  const disabledConditions = isExecutingAddToIndividualCart || !item.available;
+  const disabledConditions = isExecutingAddToIndividualCart || !item.available || !restaurant.is_open_now;
 
   return (
     <>

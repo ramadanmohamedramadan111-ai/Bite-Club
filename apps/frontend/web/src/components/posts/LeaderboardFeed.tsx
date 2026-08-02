@@ -5,6 +5,7 @@ import { Award, Crown, Zap } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { useTranslations } from 'next-intl';
+import { getMediaUrl } from '@/lib/utils';
 
 export default function LeaderboardFeed({
   items,
@@ -36,7 +37,7 @@ export default function LeaderboardFeed({
               <div className="relative mb-2">
                 <Award className="h-7 w-7 text-slate-300 absolute -top-4 -right-1 drop-shadow" />
                 <Avatar className="h-20 w-20 border-4 border-slate-300 shadow-md">
-                  <AvatarImage src={top2.user.profile_image_url || undefined} />
+                  <AvatarImage src={getMediaUrl(top2.user.profile_image_url)} />
                   <AvatarFallback className="bg-slate-100 text-slate-600 font-bold text-lg">
                     {top2.user.name.charAt(0)}
                   </AvatarFallback>
@@ -69,7 +70,7 @@ export default function LeaderboardFeed({
               <div className="relative mb-2 scale-110 sm:scale-125">
                 <Crown className="h-8 w-8 text-amber-500 fill-amber-500 absolute -top-6 left-1/2 -translate-x-1/2 drop-shadow-md animate-bounce duration-1000" />
                 <Avatar className="h-24 w-24 border-4 border-amber-500 shadow-lg">
-                  <AvatarImage src={top1.user.profile_image_url || undefined} />
+                  <AvatarImage src={getMediaUrl(top1.user.profile_image_url)} />
                   <AvatarFallback className="bg-amber-50 text-amber-700 font-bold text-xl">
                     {top1.user.name.charAt(0)}
                   </AvatarFallback>
@@ -102,7 +103,7 @@ export default function LeaderboardFeed({
               <div className="relative mb-2">
                 <Award className="h-7 w-7 text-amber-700 absolute -top-4 -right-1 drop-shadow" />
                 <Avatar className="h-20 w-20 border-4 border-amber-700 shadow-md">
-                  <AvatarImage src={top3.user.profile_image_url || undefined} />
+                  <AvatarImage src={getMediaUrl(top3.user.profile_image_url)} />
                   <AvatarFallback className="bg-amber-50/50 text-amber-900 font-bold text-lg">
                     {top3.user.name.charAt(0)}
                   </AvatarFallback>
@@ -142,7 +143,7 @@ export default function LeaderboardFeed({
                   </span>
                   <Avatar className="h-10 w-10">
                     <AvatarImage
-                      src={item.user.profile_image_url || undefined}
+                      src={getMediaUrl(item.user.profile_image_url)}
                     />
                     <AvatarFallback className="font-semibold bg-muted text-muted-foreground">
                       {item.user.name.charAt(0)}

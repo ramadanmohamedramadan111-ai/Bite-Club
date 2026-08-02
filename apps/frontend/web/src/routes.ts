@@ -20,11 +20,9 @@ export const protectedRoutes = [
   '/orders/:orderId',
   '/points',
   '/points/referrals',
-  '/points/history',
   '/groups',
   '/groups/:id',
   '/groups/:id/settings',
-  '/groups/:id/members',
   '/groups/:id/history',
   '/groups/invite/:token',
   '/friends',
@@ -42,10 +40,10 @@ export const publicRoutes = [
   '/restaurants/:id',
   '/restaurants/:id/info',
   '/restaurants/:id/reviews',
-  '/items/:id',
+  '/restaurants/:id/:itemId',
   '/group-order/:id',
-  'privacy-policy',
-  'terms-of-service',
+  '/privacy-policy',
+  '/terms-of-service',
 ] as const;
 
 export type RoutePattern = (

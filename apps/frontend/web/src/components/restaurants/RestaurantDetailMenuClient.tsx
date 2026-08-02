@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
-import { Clock, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import type {
   ClientMenuItem,
   MenuItem,
@@ -184,13 +184,9 @@ export default function RestaurantDetailMenuClient({
                             {item.description || ''}
                           </p>
                         </div>
-                        <div className="flex items-center gap-3 pt-2">
+                        <div className="pt-2">
                           <span className="text-sm sm:text-base font-bold text-foreground">
                             {item.price.toFixed(2)} EGP
-                          </span>
-                          <span className="inline-flex items-center gap-1 rounded bg-accent/60 px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
-                            <Clock className="size-3" />
-                            <span>15 min</span>
                           </span>
                         </div>
                       </div>

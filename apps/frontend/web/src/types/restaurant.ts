@@ -3,7 +3,7 @@ export type RestaurantReview = {
   user: {
     id: number;
     name: string;
-    profile_image_url: string;
+    profile_image: string | null;
   };
   rating: number;
   comment: string;

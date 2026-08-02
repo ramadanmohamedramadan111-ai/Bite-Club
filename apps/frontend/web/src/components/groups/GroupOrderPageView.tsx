@@ -20,7 +20,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
+import { cn, getMediaUrl } from '@/lib/utils';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -192,7 +192,7 @@ export default function GroupOrderPageView({
           {restaurant.image_url && (
             <div className="relative size-16 overflow-hidden rounded-2xl border border-border/30 shadow-xs shrink-0 select-none">
               <Image
-                src={restaurant.image_url}
+                src={getMediaUrl(restaurant.image_url)!}
                 alt={restaurant.name}
                 fill
                 className="object-cover"

@@ -8,9 +8,12 @@ use App\DTOs\User\Review\UpdateReviewDto;
 use App\DTOs\User\Review\DestroyReviewDto;
 use App\DTOs\User\Review\GetMyReviewDto;
 use App\DTOs\User\Review\IndexReviewDto;
+use App\Traits\UrlFormatterTrait;
 
 class RestaurantReviewApplicationService
 {
+    use UrlFormatterTrait;
+
     public function __construct(
         private RestaurantReviewDomainService $domainService
     ) {}
@@ -71,7 +74,7 @@ class RestaurantReviewApplicationService
                 'user' => [
                     'id' => $review->user->id,
                     'name' => trim($review->user->first_name . ' ' . $review->user->last_name),
-                    'profile_image_url' => $review->user->profile_image_url,
+                    'profile_image' => $this->formatImageUrl($review->user->profile_image_url),
                 ],
                 'created_at' => $review->created_at,
             ];

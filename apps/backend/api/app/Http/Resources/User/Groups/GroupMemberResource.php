@@ -4,9 +4,12 @@ namespace App\Http\Resources\User\Groups;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Traits\UrlFormatterTrait;
 
 class GroupMemberResource extends JsonResource
 {
+    use UrlFormatterTrait;
+
     public function toArray(Request $request): array
     {
         $joinedAt = $this->pivot && $this->pivot->joined_at 
@@ -20,7 +23,7 @@ class GroupMemberResource extends JsonResource
             'id'            => $this->id,
             'username'      => $this->username,
             'full_name'     => $this->full_name,
-            'profile_image' => $this->profile_image_url,
+            'profile_image' => $this->formatImageUrl($this->profile_image_url),
             'role'          => $this->pivot ? $this->pivot->role : null,
             'status'        => $this->pivot ? $this->pivot->status : null,
             'joined_at'     => $joinedAt ? $joinedAt->toIso8601String() : null,

@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Map, { Marker, MapMouseEvent, MapRef } from 'react-map-gl/maplibre';
 import maplibregl from 'maplibre-gl';
+import { useTranslations } from 'next-intl';
+import { MapPin } from 'lucide-react';
 
 import type { LatLng } from './types';
 
@@ -20,6 +22,20 @@ let rtlLoaded = false;
 
 export function GoogleMap({ value, onChange }: MapProps) {
   const mapRef = useRef<MapRef>(null);
+  const t = useTranslations('location');
+  const [renderFailed, setRenderFailed] = useState(() => {
+    if (typeof document === 'undefined') return false;
+
+    try {
+      const canvas = document.createElement('canvas');
+      const supported = !!(
+        canvas.getContext('webgl2') || canvas.getContext('webgl')
+      );
+      return !supported;
+    } catch {
+      return true;
+    }
+  });
 
   useEffect(() => {
     if (rtlLoaded) return;
@@ -52,6 +68,20 @@ export function GoogleMap({ value, onChange }: MapProps) {
     });
   }
 
+  if (renderFailed) {
+    return (
+      <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-muted/40 p-6 text-center">
+        <MapPin className="size-6 text-muted-foreground" />
+        <p className="text-sm font-medium text-foreground">
+          {t('mapUnavailable')}
+        </p>
+        <p className="text-xs text-muted-foreground">
+          {t('mapUnavailableDesc')}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <Map
       ref={mapRef}
@@ -64,8 +94,10 @@ export function GoogleMap({ value, onChange }: MapProps) {
         width: '100%',
         height: '100%',
       }}
+      mapLib={maplibregl}
       mapStyle="https://tiles.openfreemap.org/styles/liberty"
       onClick={handleClick}
+      onError={() => setRenderFailed(true)}
       attributionControl={false}>
       {value && <Marker latitude={value.lat} longitude={value.lng} />}
     </Map>

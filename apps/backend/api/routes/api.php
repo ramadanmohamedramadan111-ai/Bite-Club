@@ -194,7 +194,7 @@ Route::middleware('auth.user')->prefix('groups')->name('groups.')->group(functio
     Route::post('/invite/{token}', [GroupController::class, 'joinByInvite'])->name('invite.join');
     Route::get('/', [GroupController::class, 'index'])->name('index');
     Route::get('/{group}', [GroupController::class, 'show'])->name('show');
-    Route::patch('/{group}', [GroupController::class, 'update'])->name('update');
+    Route::post('/{group}', [GroupController::class, 'update'])->name('update'); // POST due to multipart/form-data
     Route::delete('/{group}', [GroupController::class, 'destroy'])->name('destroy');
     Route::get('/{group}/members', [GroupController::class, 'listMembers'])->name('members.index');
     Route::get('/{group}/invitable-friends', [GroupController::class, 'listInvitableFriends'])->name('members.invitable-friends');

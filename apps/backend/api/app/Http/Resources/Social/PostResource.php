@@ -23,7 +23,7 @@ class PostResource extends JsonResource
             'restaurant' => [
                 'id'       => $this->restaurant?->id,
                 'name'     => $this->restaurant?->name,
-                'logo_url' => $this->restaurant?->logo_url,
+                'logo_url' => $this->formatImageUrl($this->restaurant?->logo_url),
             ],
             'images'            => PostImageResource::collection($this->whenLoaded('images')),
             'order'             => [

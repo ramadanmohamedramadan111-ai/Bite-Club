@@ -20,6 +20,7 @@ export interface GroupOrderCartSession {
     user: {
       id: number;
       name: string;
+      profile_image: string | null;
     };
     user_total: number;
     items: {
@@ -113,6 +114,7 @@ export interface GroupOrderHistory {
     user: {
       id: number;
       name: string;
+      profile_image: string | null;
     };
     user_total: number;
     items: {

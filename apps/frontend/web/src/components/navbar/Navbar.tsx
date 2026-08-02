@@ -44,6 +44,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Badge } from '@/components/ui/badge';
 import {
   Sheet,
   SheetContent,
@@ -230,7 +231,7 @@ export default function Navbar({
           icon: Handshake,
           badge: friendsRequestsCount,
         },
-        { name: tSidebar('favorites'), url: '/favorites', icon: Heart },
+        // { name: tSidebar('favorites'), url: '/favorites', icon: Heart },
         { name: tSidebar('points'), url: '/points', icon: Coins },
         { name: tSidebar('settings'), url: '/settings', icon: Settings },
       ]
@@ -250,7 +251,7 @@ export default function Navbar({
             icon: Handshake,
             badge: friendsRequestsCount,
           },
-          { name: tSidebar('favorites'), url: '/favorites', icon: Heart },
+          // { name: tSidebar('favorites'), url: '/favorites', icon: Heart },
           { name: tSidebar('points'), url: '/points', icon: Coins },
           {
             name: tSidebar('notifications'),
@@ -491,9 +492,16 @@ export default function Navbar({
                       className="rounded-lg cursor-pointer">
                       <Link
                         href="/notifications"
-                        className="flex items-center gap-2.5">
-                        <CircleUserRound className="size-4 text-muted-foreground" />
-                        <span>{t('notifications')}</span>
+                        className="flex items-center justify-between w-full gap-2.5">
+                        <div className="flex items-center gap-2.5">
+                          <BellIcon className="size-4 text-muted-foreground" />
+                          <span>{t('notifications')}</span>
+                        </div>
+                        {unreadNotificationsCount > 0 && (
+                          <Badge className="bg-primary hover:bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full scale-90 border-none shrink-0">
+                            {unreadNotificationsCount}
+                          </Badge>
+                        )}
                       </Link>
                     </DropdownMenuItem>
                   </DropdownMenuGroup>

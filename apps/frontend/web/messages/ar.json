@@ -102,6 +102,7 @@
     "morePages": "المزيد من الصفحات",
     "pageOf": "الصفحة {current} من {total}",
     "proceedToCheckout": "المتابعة إلى الدفع",
+    "loginToCheckout": "تسجيل الدخول للدفع",
     "youreReady": "أنت مستعد!",
     "imReady": "أنا مستعد",
     "waitingForHost": "أنت مستعد! في انتظار المضيف لإتمام الدفع.",
@@ -861,6 +862,8 @@
     "saturday": "السبت",
     "closed": "مغلق",
     "location": "الموقع",
+    "mapUnavailable": "الخريطة غير متاحة",
+    "mapUnavailableDesc": "تعذر تحميل الخريطة في هذا المتصفح. الموقع: {lat}، {lng}",
     "deliveryTime": "{time} دقيقة"
   },
   "settings": {
@@ -1085,7 +1088,12 @@
     "confirmResetTitle": "هل أنت متأكد أنك تريد إعادة تعيين موقعك؟",
     "confirmResetDescription": "سيؤدي هذا إلى إزالة موقعك المحفوظ. ستحتاج إلى تحديد موقع مرة أخرى قبل تقديم طلب.",
     "confirmLocation": "تأكيد الموقع",
-    "chooseLocation": "اختر موقعًا"
+    "chooseLocation": "اختر موقعًا",
+    "requiredTitle": "تحديد الموقع",
+    "requiredMessage": "حدد موقعك لاستكشاف أفضل المطاعم وخيارات الطعام المتاحة بالقرب منك.",
+    "chooseLocationButton": "تحديد الموقع",
+    "mapUnavailable": "الخريطة غير متاحة",
+    "mapUnavailableDesc": "تعذر تحميل الخريطة في هذا المتصفح."
   },
   "gamification": {
     "signInToTrack": "سجل الدخول لتتبع مكافآتك",

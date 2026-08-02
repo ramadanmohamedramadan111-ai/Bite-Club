@@ -12,6 +12,8 @@ import ConfirmDialog from '@/components/shared/ConfirmationDialog';
 import type { OrderResponse } from '@/types/order';
 import { cancelOrder } from '@/actions/order';
 import { OrderStatusBadge } from './OrderStatusBadge';
+import { getMediaUrl } from '@/lib/utils';
+import Image from 'next/image';
 
 function formatOrderDate(date: string) {
   return new Intl.DateTimeFormat('en-US', {
@@ -57,9 +59,18 @@ export default function OrderCard({ order }: { order: OrderResponse }) {
   return (
     <Card className="p-5 border border-border/40 hover:border-border/85 hover:shadow-md transition-all duration-300">
       <div className="flex gap-4">
-        {/* Left Side: Restaurant Initials Logo Box */}
-        <div className="flex size-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-orange-500/10 text-primary font-bold text-lg border border-primary/20 shrink-0 shadow-xs select-none">
-          {initials}
+        {/* Left Side: Restaurant Logo/Initials Box */}
+        <div className="relative flex size-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-orange-500/10 text-primary font-bold text-lg border border-primary/20 shrink-0 shadow-xs select-none overflow-hidden">
+          {order.restaurant.logo_url ? (
+            <Image
+              src={getMediaUrl(order.restaurant.logo_url)!}
+              alt={order.restaurant.name}
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <span>{initials}</span>
+          )}
         </div>
 
         {/* Right Side: Order Info details */}

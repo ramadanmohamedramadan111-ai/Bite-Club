@@ -23,7 +23,8 @@ import ConfirmDialog from '@/components/shared/ConfirmationDialog';
 import type { OrderDetails } from '@/types/order';
 import { cancelOrder, revalidateOrderDetailsAction } from '@/actions/order';
 import { OrderStatusBadge } from './OrderStatusBadge';
-import { cn } from '@/lib/utils';
+import { cn, getMediaUrl } from '@/lib/utils';
+import Image from 'next/image';
 
 function formatOrderDate(date: string) {
   return new Intl.DateTimeFormat('en-US', {
@@ -224,8 +225,17 @@ export default function OrderDetailPageView({
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-5 flex items-center gap-4">
-              <div className="flex size-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/10 to-orange-500/10 text-primary font-bold text-2xl border border-primary/20 shrink-0 shadow-xs select-none">
-                {initials}
+              <div className="relative flex size-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/10 to-orange-500/10 text-primary font-bold text-2xl border border-primary/20 shrink-0 shadow-xs select-none overflow-hidden">
+                {order.restaurant.logo_url ? (
+                  <Image
+                    src={getMediaUrl(order.restaurant.logo_url)!}
+                    alt={order.restaurant.name}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <span>{initials}</span>
+                )}
               </div>
               <div>
                 <h4 className="font-bold text-lg text-foreground leading-tight">

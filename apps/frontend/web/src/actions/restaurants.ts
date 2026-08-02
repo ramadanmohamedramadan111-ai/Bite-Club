@@ -61,3 +61,12 @@ export const deleteReviewAction = actionClient
     return response;
   });
 
+export const revalidateLocationAction = async () => {
+  const userId = await getUserId();
+  updateTag('nearest-guest');
+  if (userId) {
+    updateTag(`nearest-${userId}`);
+  }
+};
+
+

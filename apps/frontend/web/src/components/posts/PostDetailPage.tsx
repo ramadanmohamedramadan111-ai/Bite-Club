@@ -19,6 +19,7 @@ import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { useCartStore } from '@/stores/cart';
 import ConfirmDialog from '@/components/shared/ConfirmationDialog';
+import { getMediaUrl } from '@/lib/utils';
 interface PostDetailPageProps {
   post: PostType;
 }
@@ -112,7 +113,7 @@ export function PostDetailPage({ post }: PostDetailPageProps) {
         <div className="flex items-center justify-between pb-2 border-b border-border/30">
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10 border border-border/30 shadow-xs">
-              <AvatarImage src={post.user.profile_image_url || undefined} />
+              <AvatarImage src={getMediaUrl(post.user.profile_image_url)} />
               <AvatarFallback className="font-bold text-sm bg-accent text-accent-foreground">
                 {post.user.name?.charAt(0) || 'U'}
               </AvatarFallback>
@@ -157,7 +158,7 @@ export function PostDetailPage({ post }: PostDetailPageProps) {
               {post.restaurant.logo_url ? (
                 <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-border/30 bg-muted">
                   <Image
-                    src={post.restaurant.logo_url}
+                    src={getMediaUrl(post.restaurant.logo_url)!}
                     alt={post.restaurant.name}
                     fill
                     className="object-cover"

@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { useAction } from 'next-safe-action/hooks';
 import { createPostAction } from '@/actions/feed';
 import type { OrderResponse } from '@/types/order';
+import { getMediaUrl } from '@/lib/utils';
 
 function formatOrderDate(date: string) {
   return new Intl.DateTimeFormat('en-US', {
@@ -39,8 +40,17 @@ function OrderOption({
       }`}
       onClick={onSelect}>
       <div className="flex items-center gap-4">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 font-bold text-primary text-sm uppercase">
-          {order.restaurant.name.charAt(0)}
+        <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-primary/10 font-bold text-primary text-sm uppercase">
+          {order.restaurant.logo_url ? (
+            <Image
+              src={getMediaUrl(order.restaurant.logo_url)!}
+              alt={order.restaurant.name}
+              fill
+              className="object-cover"
+            />
+          ) : (
+            order.restaurant.name.charAt(0)
+          )}
         </div>
         <div className="min-w-0 flex-1 space-y-0.5">
           <p className="font-bold text-sm sm:text-base text-foreground leading-tight">

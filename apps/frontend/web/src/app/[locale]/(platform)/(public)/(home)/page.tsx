@@ -5,13 +5,20 @@ import HomeCategories from '@/components/home/HomeCategories';
 import TopRestaurants from '@/components/home/TopRestaurants';
 import { Spinner } from '@/components/ui/spinner';
 import { Suspense } from 'react';
+import { LocationAlert } from '@/components/location/location-alert';
+import { cookies } from 'next/headers';
 
 export default async function HomePage() {
   const t = await getTranslations('home');
+  const cookieStore = await cookies();
+  const lat = cookieStore.get('lat')?.value;
+  const lng = cookieStore.get('lng')?.value;
+  const hasLocation = !!lat && !!lng;
 
   return (
     <>
       <Hero />
+      <LocationAlert initialHasLocation={hasLocation} />
       <section className="space-y-6">
         <div>
           <h2 className="text-2xl font-bold">{t('categories')}</h2>

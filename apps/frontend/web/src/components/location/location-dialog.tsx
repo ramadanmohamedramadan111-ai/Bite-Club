@@ -32,6 +32,8 @@ import type { LatLng, SavedLocation } from './types';
 import { deleteCookie, setCookie } from 'cookies-next/client';
 import { GoogleMap } from './map';
 import { Search, Loader2 } from 'lucide-react';
+import { useRouter } from '@/i18n/navigation';
+import { revalidateLocationAction } from '@/actions/restaurants';
 
 interface Props {
   open: boolean;
@@ -48,6 +50,7 @@ export function LocationDialog({
 }: Props) {
   const t = useTranslations('location');
   const tc = useTranslations('common');
+  const router = useRouter();
   const [location, setLocation] = useState<LatLng | null>(
     value
       ? {
@@ -217,6 +220,10 @@ export function LocationDialog({
 
     onLocationSelected(saved);
     onOpenChange(false);
+
+    revalidateLocationAction().then(() => {
+      router.refresh();
+    });
   }
 
   function handleCancel() {
@@ -233,6 +240,10 @@ export function LocationDialog({
     deleteCookie('address', { path: '/' });
     deleteCookie('lat', { path: '/' });
     deleteCookie('lng', { path: '/' });
+
+    revalidateLocationAction().then(() => {
+      router.refresh();
+    });
   }
 
   return (

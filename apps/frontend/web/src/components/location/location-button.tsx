@@ -22,6 +22,10 @@ export function LocationButton({
     initialLocation,
   );
 
+  useEffect(() => {
+    setLocation(initialLocation);
+  }, [initialLocation]);
+
   return (
     <>
       <Button

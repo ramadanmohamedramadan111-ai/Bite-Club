@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import { Clock, Users } from 'lucide-react';
 
 import type { GroupOrderHistory } from '@/types/group-order';
+import { getMediaUrl } from '@/lib/utils';
 import { Card, CardHeader, CardContent } from '../ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Badge } from '../ui/badge';
@@ -21,7 +22,7 @@ export default async function GroupOrderHistoryCard({ order }: Props) {
     <Card className="overflow-hidden">
       <CardHeader className="flex-row items-center gap-3 space-y-0 pb-3">
         <Avatar className="h-10 w-10 rounded-md">
-          <AvatarImage src={order.restaurant.image_url ?? undefined} />
+          <AvatarImage src={getMediaUrl(order.restaurant.image_url)} />
           <AvatarFallback className="rounded-md">
             {order.restaurant.name[0]}
           </AvatarFallback>
@@ -57,7 +58,18 @@ export default async function GroupOrderHistoryCard({ order }: Props) {
         {order.members_summary.map((member) => (
           <div key={member.user.id} className="rounded-lg bg-muted/50 p-3">
             <div className="mb-2 flex items-center justify-between">
-              <p className="text-sm font-medium">{member.user.name}</p>
+              <div className="flex items-center gap-2">
+                <Avatar className="size-6 rounded-full">
+                  <AvatarImage
+                    src={getMediaUrl(member.user.profile_image)}
+                    className="object-cover"
+                  />
+                  <AvatarFallback className="text-[10px]">
+                    {member.user.name.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <p className="text-sm font-medium">{member.user.name}</p>
+              </div>
               <p className="text-sm font-semibold">
                 {new Intl.NumberFormat('en-US', {
                   style: 'currency',
@@ -75,6 +87,15 @@ export default async function GroupOrderHistoryCard({ order }: Props) {
                     <span className="text-muted-foreground">
                       {item.quantity}x
                     </span>
+                    <Avatar className="size-6 rounded-md">
+                      <AvatarImage
+                        src={getMediaUrl(item.item.image_url)}
+                        className="object-cover"
+                      />
+                      <AvatarFallback className="rounded-md text-[10px]">
+                        {item.item.title.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
                     <span>{item.item.title}</span>
                   </div>
                   <span className="text-muted-foreground">

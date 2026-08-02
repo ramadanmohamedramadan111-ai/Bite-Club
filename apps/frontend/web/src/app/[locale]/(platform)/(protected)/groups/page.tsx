@@ -13,7 +13,7 @@ export default async function Page({
   const raw = await searchParams;
   const parsed = parseSearchParams(SearchPaginatedParams, raw);
   if (!parsed.success) return <InvalidSearchParams />;
-  const { search, page = '1', per_page = '1' } = parsed.data;
+  const { search, page = '1', per_page = '15' } = parsed.data;
 
   return (
     <div className="container mx-auto space-y-8">

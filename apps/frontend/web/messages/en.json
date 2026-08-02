@@ -102,6 +102,7 @@
     "morePages": "More pages",
     "pageOf": "Page {current} of {total}",
     "proceedToCheckout": "Proceed to checkout",
+    "loginToCheckout": "Login to checkout",
     "youreReady": "You're ready!",
     "imReady": "I'm ready",
     "waitingForHost": "You're ready! Waiting for the host to checkout.",
@@ -861,6 +862,8 @@
     "saturday": "Saturday",
     "closed": "Closed",
     "location": "Location",
+    "mapUnavailable": "Map unavailable",
+    "mapUnavailableDesc": "The map could not be loaded in this browser. Location: {lat}, {lng}",
     "deliveryTime": "{time} min"
   },
   "settings": {
@@ -1086,7 +1089,12 @@
     "confirmResetTitle": "Are you sure you want to reset your location?",
     "confirmResetDescription": "This will remove your saved location. You will need to select a location again before placing an order.",
     "confirmLocation": "Confirm location",
-    "chooseLocation": "Choose a location"
+    "chooseLocation": "Choose a location",
+    "requiredTitle": "Select Location",
+    "requiredMessage": "Select your location to discover top restaurants and food options near you.",
+    "chooseLocationButton": "Choose Location",
+    "mapUnavailable": "Map unavailable",
+    "mapUnavailableDesc": "The map could not be loaded in this browser."
   },
   "gamification": {
     "signInToTrack": "Sign in to track your rewards",

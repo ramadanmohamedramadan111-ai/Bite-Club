@@ -18,11 +18,18 @@ export const createGroupAction = actionClient
   })
   .action(async ({ parsedInput }) => {
     const userId = await getUserId();
+    const formData = new FormData();
+    formData.append('name', parsedInput.name);
+    formData.append('description', parsedInput.description);
+    if (parsedInput.image) {
+      formData.append('image', parsedInput.image);
+    }
+
     const response = await serverFetch<ApiResponse<GroupType>>(
       '/groups',
       'POST',
       {
-        body: parsedInput,
+        body: formData,
       },
     );
 
@@ -39,11 +46,18 @@ export const updateGroupAction = actionClient
   .action(async ({ parsedInput }) => {
     const { id, ...body } = parsedInput;
 
+    const formData = new FormData();
+    formData.append('name', body.name);
+    formData.append('description', body.description);
+    if (body.image) {
+      formData.append('image', body.image);
+    }
+
     const response = await serverFetch<ApiResponse<GroupType>>(
       `/groups/${id}`,
-      'PATCH',
+      'POST',
       {
-        body: body,
+        body: formData,
       },
     );
 
