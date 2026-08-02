@@ -136,6 +136,10 @@ export default function Navbar({
       if (type && orderNotificationTypes.includes(type)) {
         console.log(`[Echo-Navbar] Order notification received:`, notification);
 
+        // Play notification sound
+        const audio = new Audio('/notification.mp3');
+        audio.play().catch(() => {});
+
         // Show toast notification
         const title = notification.title || 'Order Update';
         const body = notification.body || 'Your order has been updated';
@@ -167,6 +171,17 @@ export default function Navbar({
       echo.leave(channelName);
     };
   }, [user?.id, accessToken]);
+
+  // Update the browser tab title with the unread notifications count
+  React.useEffect(() => {
+    if (typeof document === 'undefined') return;
+
+    const cleanTitle = document.title.replace(/^\(\d+\)\s*/, '');
+    document.title =
+      unreadNotificationsCount > 0
+        ? `(${unreadNotificationsCount}) ${cleanTitle}`
+        : cleanTitle;
+  }, [unreadNotificationsCount, pathname]);
 
   const itemCount = useCartStore(
     (state) =>
