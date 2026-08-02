@@ -29,6 +29,7 @@ return [
         ],
         'restaurant' => [
             'order_details' => '/orders/{id}',
+            'invoice_details' => '/invoices/{id}',
         ],
     ],
 ];

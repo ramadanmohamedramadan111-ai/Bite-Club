@@ -24,4 +24,7 @@ return [
 
     'order_cancelled_by_user_title' => 'Order Cancelled by Customer',
     'order_cancelled_by_user_body' => 'The customer has cancelled their order #:order_id.',
+
+    'invoice_generated_title' => 'New Invoice Generated',
+    'invoice_generated_body' => 'A new invoice #:invoice_id for the amount of :amount EGP has been generated. Please pay before :due_date to avoid suspension.',
 ];

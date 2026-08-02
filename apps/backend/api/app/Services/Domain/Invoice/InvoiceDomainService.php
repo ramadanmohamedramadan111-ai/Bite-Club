@@ -6,7 +6,9 @@ use \App\Models\Invoice;
 use \App\Services\Infrastructure\Payment\KashierPaymentGateway;
 use App\Enums\Invoice\InvoiceStatusEnum;
 use App\Enums\Invoice\PlatformDueStatusEnum;
+use App\Enums\Restaurant\RestaurantStatusEnum;
 use App\Models\Order;
+use App\Notifications\Restaurant\InvoiceGeneratedNotification;
 use App\Repositories\Interfaces\GeneralSettingRepositoryInterface;
 use App\Repositories\Interfaces\InvoiceRepositoryInterface;
 use App\Repositories\Interfaces\PlatformDueRepositoryInterface;
@@ -72,6 +74,10 @@ class InvoiceDomainService
                     // Update all platform_dues to be invoiced
                     $dueIds = $dues->pluck('id')->toArray();
                     $this->platformDueRepository->markAsInvoiced($dueIds, $invoice->id);
+
+                    if ($invoice->restaurant) {
+                        $invoice->restaurant->notify(new InvoiceGeneratedNotification($invoice));
+                    }
 
                     $invoicesCreatedCount++;
                 });

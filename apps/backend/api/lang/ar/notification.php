@@ -24,4 +24,7 @@ return [
 
     'order_cancelled_by_user_title' => 'إلغاء الطلب من العميل',
     'order_cancelled_by_user_body' => 'قام العميل بإلغاء طلبه رقم #:order_id.',
+
+    'invoice_generated_title' => 'تم إصدار فاتورة جديدة',
+    'invoice_generated_body' => 'تم إصدار فاتورة جديدة رقم #:invoice_id بقيمة :amount جنيه. يرجى السداد قبل تاريخ :due_date لتجنب إيقاف الحساب.',
 ];
