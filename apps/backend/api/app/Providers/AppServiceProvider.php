@@ -185,10 +185,5 @@ class AppServiceProvider extends ServiceProvider
         User::observe(UserObserver::class);
         Order::observe(OrderObserver::class);
         MenuItem::observe(MenuItemObserver::class);
-
-        Event::listen(
-            OrderStatusUpdated::class,
-            SendOrderStatusNotification::class
-        );
     }
 }
