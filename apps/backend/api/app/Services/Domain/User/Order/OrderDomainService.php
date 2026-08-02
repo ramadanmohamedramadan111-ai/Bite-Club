@@ -15,6 +15,7 @@ use App\Models\PlatformDue;
 use App\Models\Redemption;
 use App\Notifications\OrderCancelledByTimeoutNotification;
 use App\Notifications\Restaurant\NewOrderReceivedNotification;
+use App\Notifications\Restaurant\OrderCancelledByUserNotification;
 use App\Repositories\Interfaces\CartRepositoryInterface;
 use App\Repositories\Interfaces\OrderItemRepositoryInterface;
 use App\Repositories\Interfaces\OrderPaymentRepositoryInterface;
@@ -489,7 +490,9 @@ class OrderDomainService
             throw new Exception(trans('order.cannot_cancel_paid_online') ?? 'Cannot cancel an order after online payment is completed; please contact restaurant support.');
         }
 
-        return DB::transaction(function () use ($order) {
+        $previousStatus = $order->status;
+
+        return DB::transaction(function () use ($order, $previousStatus) {
             $this->orderRepository->update($order->id, [
                 'status' => OrderStatusEnum::CANCELLED->value,
             ]);
@@ -508,6 +511,10 @@ class OrderDomainService
                     $redemption->id,
                     Redemption::class
                 );
+            }
+
+            if ($previousStatus === OrderStatusEnum::PENDING && $order->restaurant) {
+                $order->restaurant->notify(new OrderCancelledByUserNotification($order));
             }
 
             return $order->refresh();

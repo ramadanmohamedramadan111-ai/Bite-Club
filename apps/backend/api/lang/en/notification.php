@@ -21,4 +21,7 @@ return [
 
     'new_order_received_title' => 'New Order Received',
     'new_order_received_body' => 'You have received a new order #:order_id. Please review and accept it.',
+
+    'order_cancelled_by_user_title' => 'Order Cancelled by Customer',
+    'order_cancelled_by_user_body' => 'The customer has cancelled their order #:order_id.',
 ];

@@ -21,4 +21,7 @@ return [
 
     'new_order_received_title' => 'طلب جديد',
     'new_order_received_body' => 'لقد تلقيت طلباً جديداً رقم #:order_id. يرجى مراجعته وقبوله.',
+
+    'order_cancelled_by_user_title' => 'إلغاء الطلب من العميل',
+    'order_cancelled_by_user_body' => 'قام العميل بإلغاء طلبه رقم #:order_id.',
 ];
