@@ -11,9 +11,12 @@ services:
       - ai
       - admin
 
+
   web:
-    profiles:
-      - dev-only
+    image: alpine
+    command: ["echo", "web dev disabled in production"]
+    networks:
+      - app_net
 
   web-prod:
     depends_on:
