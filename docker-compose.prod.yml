@@ -1,0 +1,15 @@
+services:
+  nginx:
+    ports:
+      - '80:80'
+    volumes:
+      - ./nginx/conf.d/prod.conf:/etc/nginx/conf.d/default.conf:ro
+
+  web:
+    profiles:
+      - dev-only
+
+  web-prod:
+    depends_on:
+      - api
+      - ai
