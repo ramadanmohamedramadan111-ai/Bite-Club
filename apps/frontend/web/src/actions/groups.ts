@@ -62,6 +62,7 @@ export const updateGroupAction = actionClient
     );
 
     updateTag(`groups-${id}`);
+    updateTag(`groups`);
 
     return response;
   });
@@ -99,6 +100,7 @@ export const deleteGroupAction = actionClient
     );
 
     updateTag(`groups`);
+    updateTag(`groups-${parsedInput}`);
 
     return response;
   });
@@ -106,12 +108,14 @@ export const deleteGroupAction = actionClient
 export const leaveGroupAction = actionClient
   .inputSchema(idSchema)
   .action(async ({ parsedInput }) => {
+    const userId = await getUserId();
     const response = await serverFetch<ApiResponse<GroupType>>(
       `/groups/${parsedInput}/leave`,
       'POST',
     );
 
     updateTag(`groups`);
+    updateTag(`groups-${userId}`);
 
     return response;
   });
@@ -125,12 +129,17 @@ export const removeGroupMemberAction = actionClient
   )
   .action(async ({ parsedInput }) => {
     const { user_id, group_id } = parsedInput;
+    const userId = await getUserId();
     const response = await serverFetch<ApiResponse<GroupType>>(
       `/groups/${group_id}/members/${user_id}`,
       'DELETE',
     );
 
     updateTag(`groups`);
+    updateTag(`groups-${group_id}`);
+    updateTag(`groups-members`);
+    updateTag(`groups-members-${userId}`);
+    updateTag(`groups-members-${user_id}`);
 
     return response;
   });
@@ -144,6 +153,7 @@ export const promoteGroupMemberAction = actionClient
   )
   .action(async ({ parsedInput }) => {
     const { user_id, group_id } = parsedInput;
+    const userId = await getUserId();
     const response = await serverFetch<ApiResponse<GroupType>>(
       `/groups/${group_id}/members/${user_id}`,
       'PATCH',
@@ -155,6 +165,10 @@ export const promoteGroupMemberAction = actionClient
     );
 
     updateTag(`groups`);
+    updateTag(`groups-${group_id}`);
+    updateTag(`groups-members`);
+    updateTag(`groups-members-${userId}`);
+    updateTag(`groups-members-${user_id}`);
 
     return response;
   });
@@ -168,6 +182,7 @@ export const demoteGroupMemberAction = actionClient
   )
   .action(async ({ parsedInput }) => {
     const { user_id, group_id } = parsedInput;
+    const userId = await getUserId();
     const response = await serverFetch<ApiResponse<GroupType>>(
       `/groups/${group_id}/members/${user_id}`,
       'PATCH',
@@ -179,6 +194,10 @@ export const demoteGroupMemberAction = actionClient
     );
 
     updateTag(`groups`);
+    updateTag(`groups-${group_id}`);
+    updateTag(`groups-members`);
+    updateTag(`groups-members-${userId}`);
+    updateTag(`groups-members-${user_id}`);
 
     return response;
   });
@@ -192,6 +211,7 @@ export const addGroupMemberAction = actionClient
   )
   .action(async ({ parsedInput }) => {
     const { user_id, group_id } = parsedInput;
+    const userId = await getUserId();
     const response = await serverFetch<ApiResponse<GroupType>>(
       `/groups/${group_id}/members`,
       'POST',
@@ -203,6 +223,11 @@ export const addGroupMemberAction = actionClient
     );
 
     updateTag(`groups`);
+    updateTag(`groups-${group_id}`);
+    updateTag(`groups-members`);
+    updateTag(`groups-members-${userId}`);
+    updateTag(`groups-members-${user_id}`);
+    updateTag(`groups-${user_id}`);
 
     return response;
   });
@@ -215,12 +240,15 @@ export const joinGroupByLinkAction = actionClient
   )
   .action(async ({ parsedInput }) => {
     const { invite_token } = parsedInput;
+    const userId = await getUserId();
     const response = await serverFetch<ApiResponse<GroupType>>(
       `/groups/invite/${invite_token}`,
       'POST',
     );
 
     updateTag(`groups`);
+    updateTag(`groups-${userId}`);
+    updateTag(`groups-invite-${invite_token}`);
 
     return response;
   });

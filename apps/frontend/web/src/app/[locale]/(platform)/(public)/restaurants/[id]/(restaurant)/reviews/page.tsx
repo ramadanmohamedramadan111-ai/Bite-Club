@@ -7,7 +7,7 @@ import RestaurantReviewsClient from '@/components/restaurants/RestaurantReviewsC
 import { serverFetch } from '@/utils/server-fetch';
 import { ApiResponse, PaginatedResponse } from '@/types/api';
 import { RestaurantReview, RestaurantType, RestaurantReviewUser } from '@/types/restaurant';
-import { buildQueryString } from '@/utils/api-helpers';
+import { buildQueryString, getUserId } from '@/utils/api-helpers';
 import AppPagination from '@/components/shared/AppPagination';
 import { parseSearchParams, PaginatedParams } from '@/utils/validate-search-params';
 import InvalidSearchParams from '@/components/errors/InvalidSearchParams';
@@ -33,6 +33,12 @@ export default async function RestaurantReviewsPage({
 
   const data = await serverFetch<ApiResponse<RestaurantType>>(
     `/user/restaurants/${id}`,
+    'GET',
+    {
+      next: {
+        tags: [`restaurant-${id}`],
+      },
+    },
   );
 
   const restaurant = data.data;
@@ -45,12 +51,20 @@ export default async function RestaurantReviewsPage({
   const cookieStore = await cookies();
   const token = cookieStore.get('accessToken')?.value || null;
 
+  const userId = await getUserId();
+
   // Fetch my review if logged in
   let myReview: RestaurantReviewUser | null = null;
   if (token) {
     try {
       const myReviewResponse = await serverFetch<ApiResponse<RestaurantReviewUser>>(
         `/user/restaurants/${id}/reviews/me`,
+        'GET',
+        {
+          next: {
+            tags: [`restaurant-my-review-${id}-${userId}`],
+          },
+        },
       );
       if (myReviewResponse.success && myReviewResponse.data) {
         myReview = myReviewResponse.data;
@@ -67,7 +81,11 @@ export default async function RestaurantReviewsPage({
 
   const reviewsData = await serverFetch<
     ApiResponse<PaginatedResponse<RestaurantReview>>
-  >(`/user/restaurants/${id}/reviews${query}`);
+  >(`/user/restaurants/${id}/reviews${query}`, 'GET', {
+    next: {
+      tags: [`restaurant-reviews-${id}`],
+    },
+  });
 
   const { items: reviews, meta } = reviewsData.data;
 

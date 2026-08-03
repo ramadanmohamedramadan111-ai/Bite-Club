@@ -34,6 +34,7 @@ export const cancelOrder = actionClient
     console.log('RESPONSE', response);
 
     updateTag(`cart-${userId}`);
+    updateTag(`order-details-${parsedInput}`);
 
     return response;
   });
