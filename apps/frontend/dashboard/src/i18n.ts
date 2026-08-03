@@ -69,6 +69,9 @@ const resources = {
       profile: 'Profile',
       manager: 'Manager',
       notifications: 'Notifications',
+      markAllAsRead: 'Mark all as read',
+      noNotifications: 'No notifications yet',
+      loading: 'Loading...',
       language: 'Language',
       toggleTheme: 'Toggle Theme',
       settings: 'Settings',
@@ -85,6 +88,32 @@ const resources = {
       nav_branches: 'Branches',
       nav_employees: 'Employees',
       nav_reports: 'Reports',
+      nav_payments: 'Payments',
+      nav_invoices: 'Invoices',
+
+      // Invoices page
+      invoicesTitle: 'Invoices',
+      invoicesSubtitle: 'Review your platform commission invoices and settle any dues.',
+      invoiceId: 'Invoice ID',
+      invoice: 'Invoice',
+      billingPeriod: 'Billing Period',
+      dueDate: 'Due Date',
+      overdue: 'Overdue',
+      payNow: 'Pay Now',
+      processing: 'Processing...',
+      invoicePaymentFailed: 'Failed to start payment.',
+      noInvoices: 'No invoices found',
+      backToInvoices: 'Back to Invoices',
+      createdOn: 'Created on',
+      orderTotal: 'Order Total',
+      commissionRate: 'Commission Rate',
+      commissionAmount: 'Commission',
+      serviceFee: 'Service Fee',
+      totalDue: 'Total Due',
+      platformDues: 'Platform Dues Breakdown',
+      noPlatformDues: 'No orders in this billing period',
+      paymentGatewayRef: 'Payment Ref',
+      amount: 'Amount',
 
       // Dashboard page
       operationsDashboard: 'Operations Dashboard',
@@ -400,6 +429,19 @@ const resources = {
       weeklyPerformanceDesc: 'Your average rating improved by 0.3 stars this week across 4 branches.',
       viewTrendAnalysis: 'View Trend Analysis',
 
+      // Payments Page
+      paymentsTitle: 'Payments',
+      paymentsSubtitle: 'Review payments, status updates, and transaction history.',
+      paymentHistory: 'Payment History',
+      paymentId: 'PAYMENT ID',
+      paymentMethod: 'PAYMENT METHOD',
+      paymentType: 'PAYMENT TYPE',
+      totalPaid: 'Total Paid',
+      totalPending: 'Total Pending',
+      totalFailed: 'Total Failed',
+      noPayments: 'No payments found',
+      guest: 'Guest',
+
       // Reports Page
       reportsInsights: 'Reports & Insights',
       reportsSubtitle: 'Performance monitoring and trend analysis for BiteClub (Main Branch).',
@@ -485,6 +527,8 @@ const resources = {
        // payment settings
       paymentSettings: 'Payment Settings',
       kashierDesc: "Configure your Kashier API credentials to accept online payments for delivery and pickup orders.",
+
+      ordersSub:'Manage incoming and history orders',
      
       
     },
@@ -557,6 +601,9 @@ const resources = {
       profile: 'الملف الشخصي',
       manager: 'مدير',
       notifications: 'الإشعارات',
+      markAllAsRead: 'تحديد الكل كمقروء',
+      noNotifications: 'لا توجد إشعارات بعد',
+      loading: 'جارٍ التحميل...',
       language: 'اللغة',
       toggleTheme: 'تبديل المظهر',
       settings: 'الإعدادات',
@@ -573,6 +620,32 @@ const resources = {
       nav_branches: 'الفروع',
       nav_employees: 'الموظفون',
       nav_reports: 'التقارير',
+      nav_payments: 'المدفوعات',
+      nav_invoices: 'الفواتير',
+
+      // Invoices page
+      invoicesTitle: 'الفواتير',
+      invoicesSubtitle: 'راجع فواتير عمولة المنصة وقم بسداد أي مستحقات.',
+      invoiceId: 'رقم الفاتورة',
+      invoice: 'فاتورة',
+      billingPeriod: 'فترة الفوترة',
+      dueDate: 'تاريخ الاستحقاق',
+      overdue: 'متأخرة',
+      payNow: 'ادفع الآن',
+      processing: 'جارٍ المعالجة...',
+      invoicePaymentFailed: 'فشل بدء عملية الدفع.',
+      noInvoices: 'لا توجد فواتير',
+      backToInvoices: 'العودة إلى الفواتير',
+      createdOn: 'تاريخ الإنشاء',
+      orderTotal: 'إجمالي الطلب',
+      commissionRate: 'نسبة العمولة',
+      commissionAmount: 'العمولة',
+      serviceFee: 'رسوم الخدمة',
+      totalDue: 'الإجمالي المستحق',
+      platformDues: 'تفاصيل مستحقات المنصة',
+      noPlatformDues: 'لا توجد طلبات في هذه الفترة',
+      paymentGatewayRef: 'مرجع الدفع',
+      amount: 'المبلغ',
 
       // Dashboard page
       operationsDashboard: 'لوحة التحكم',
@@ -887,6 +960,19 @@ const resources = {
       weeklyPerformanceDesc: 'تحسّن متوسط تقييمك بـ 0.3 نجمة هذا الأسبوع عبر 4 فروع.',
       viewTrendAnalysis: 'عرض تحليل الاتجاهات',
 
+      // Payments Page
+      paymentsTitle: 'المدفوعات',
+      paymentsSubtitle: 'راجع المدفوعات وتحديثات الحالة وسجل المعاملات.',
+      paymentHistory: 'سجل المدفوعات',
+      paymentId: 'معرّف الدفع',
+      paymentMethod: 'طريقة الدفع',
+      paymentType: 'نوع الدفع',
+      totalPaid: 'إجمالي المدفوع',
+      totalPending: 'إجمالي المعلق',
+      totalFailed: 'إجمالي الفاشل',
+      noPayments: 'لا توجد مدفوعات',
+      guest: 'ضيف',
+
       // Reports Page
       reportsInsights: 'التقارير والتحليلات',
       reportsSubtitle: 'مراقبة الأداء وتحليل الاتجاهات لـ BiteClub (الفرع الرئيسي).',
@@ -972,6 +1058,8 @@ const resources = {
       // payment settings
       paymentSettings: 'إعدادات الدفع',
       kashierDesc: "أدخل بيانات الاعتماد الخاصة بـ Kashier لقبول الدفع عبر الإنترنت لطلبات التوصيل والاستلام.",
+
+      ordersSub: 'ادارة الطلبات الحالية والسابقة',
      
       
     },

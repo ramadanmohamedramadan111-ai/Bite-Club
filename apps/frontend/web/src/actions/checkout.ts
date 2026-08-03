@@ -64,6 +64,8 @@ export const checkoutPayAction = actionClient
     );
 
     updateTag(`cart-${userId}`);
+    updateTag(`wallet-${userId}`);
+    updateTag(`streak-${userId}`);
 
     return response;
   });

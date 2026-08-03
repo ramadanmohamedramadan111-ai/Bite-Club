@@ -11,7 +11,11 @@ export interface OrderResponse {
   id: number;
   order_type: 'delivery' | 'pickup';
   status: string;
-  restaurant: { id: number; name: string };
+  restaurant: {
+    id: number;
+    name: string;
+    logo_url: string | null;
+  };
   financials: {
     subtotal: number;
     delivery_fee: number;

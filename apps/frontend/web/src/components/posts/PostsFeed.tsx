@@ -12,10 +12,16 @@ import { useAction } from 'next-safe-action/hooks';
 import { copyOrderAction } from '@/actions/feed';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
+import { useCartStore } from '@/stores/cart';
+import ConfirmDialog from '@/components/shared/ConfirmationDialog';
 
 export default function PostsFeed() {
   const router = useRouter();
   const tc = useTranslations('common');
+  const tCustomizer = useTranslations('restaurants');
+  const [replaceCartDialogOpen, setReplaceCartDialogOpen] = useState(false);
+  const [selectedPostToCopy, setSelectedPostToCopy] = useState<PostType | null>(null);
+  const cart = useCartStore((state) => state.cart);
 
   const {
     data,
@@ -65,6 +71,11 @@ export default function PostsFeed() {
   );
 
   const handleAddToCart = (post: PostType) => {
+    if (cart && cart.restaurant.id !== post.restaurant.id) {
+      setSelectedPostToCopy(post);
+      setReplaceCartDialogOpen(true);
+      return;
+    }
     copyOrder(Number(post.id));
   };
 
@@ -81,7 +92,7 @@ export default function PostsFeed() {
     return (
       <div className="rounded-2xl border border-dashed p-16 text-center">
         <p className="text-muted-foreground">{tc('noPostsFeed')}</p>
-        <Link href="/feed/create" className="mt-4 inline-block">
+        <Link href="/posts/create" className="mt-4 inline-block">
           <Button variant="outline">{tc('shareFirstMeal')}</Button>
         </Link>
       </div>
@@ -96,12 +107,30 @@ export default function PostsFeed() {
         ))}
       </div>
 
-      {hasNextPage && (
-        <div ref={setObservedElement} className="flex justify-center py-8">
-          {isFetchingNextPage && (
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          )}
-        </div>
+      <div className="mt-8 flex justify-center">
+        {hasNextPage && (
+          <div ref={setObservedElement}>
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          </div>
+        )}
+      </div>
+
+      {selectedPostToCopy && (
+        <ConfirmDialog
+          open={replaceCartDialogOpen}
+          onOpenChange={setReplaceCartDialogOpen}
+          title={tCustomizer('copyOrderTitle')}
+          description={tCustomizer('copyOrderDesc', {
+            current: cart?.restaurant.name || '',
+            new: selectedPostToCopy.restaurant.name,
+          })}
+          confirmText={tCustomizer('copyOrder')}
+          cancelText={tCustomizer('keepCurrentCart')}
+          onConfirm={() => {
+            copyOrder(Number(selectedPostToCopy.id));
+            setReplaceCartDialogOpen(false);
+          }}
+        />
       )}
 
       {!hasNextPage && (

@@ -5,6 +5,7 @@ import { Star } from 'lucide-react';
 import type { RestaurantReview } from '@/types/restaurant';
 import { Card, CardContent } from '@/components/ui/card';
 import { useFormatter } from 'next-intl';
+import { getMediaUrl } from '@/lib/utils';
 
 type Props = {
   review: RestaurantReview;
@@ -20,9 +21,9 @@ export default function RestaurantReviewCard({ review }: Props) {
       <CardContent className="space-y-3.5 p-4 sm:p-5">
         <div className="flex items-center gap-3.5">
           <div className="relative size-10 overflow-hidden rounded-full bg-muted border border-border/50 flex items-center justify-center shrink-0">
-            {review.user?.profile_image_url ? (
+            {review.user?.profile_image ? (
               <Image
-                src={review.user.profile_image_url}
+                src={getMediaUrl(review.user.profile_image)!}
                 alt={review.user.name || 'User'}
                 fill
                 className="object-cover"

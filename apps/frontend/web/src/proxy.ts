@@ -66,7 +66,7 @@ export default async function middleware(request: NextRequest) {
   // Guest-only pages
   if (matches(anonymousRoutes)) {
     if (authenticated) {
-      return NextResponse.redirect(new URL(`/${locale}/feed`, request.url));
+      return NextResponse.redirect(new URL(`/${locale}/posts`, request.url));
     }
 
     return intlMiddleware(request);

@@ -53,10 +53,11 @@ export default function MenuItemCustomizer({
 
   const total = useMemo(() => calculateTotal(item, quantity), [item, quantity]);
 
-  const canAddToCart = isSelectionValid(item);
+  const canAddToCart = isSelectionValid(item) && restaurant.is_open_now;
 
   const cart = useCartStore((state) => state.cart);
   const addItem = useCartStore((state) => state.addItem);
+  const clearCart = useCartStore((state) => state.clearCart);
 
   const addItemToCart = () => {
     const normalizedItem: CartItem = {
@@ -92,7 +93,7 @@ export default function MenuItemCustomizer({
   function handleAddToCart() {
     if (!canAddToCart) return;
 
-    if (!isAuthenticated && cart && cart.restaurant.id !== restaurant.id) {
+    if (cart && cart.restaurant.id !== restaurant.id) {
       setReplaceCartDialogOpen(true);
       return;
     }
@@ -113,7 +114,7 @@ export default function MenuItemCustomizer({
     },
   });
 
-  const disabledConditions = isExecutingAddToIndividualCart || !item.available;
+  const disabledConditions = isExecutingAddToIndividualCart || !item.available || !restaurant.is_open_now;
 
   return (
     <>
@@ -238,6 +239,9 @@ export default function MenuItemCustomizer({
         confirmText={t('replaceCart')}
         cancelText={t('keepCurrentCart')}
         onConfirm={() => {
+          if (!isAuthenticated) {
+            clearCart();
+          }
           addItemToCart();
           setReplaceCartDialogOpen(false);
         }}

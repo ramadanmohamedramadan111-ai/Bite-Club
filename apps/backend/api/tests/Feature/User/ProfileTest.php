@@ -81,7 +81,7 @@ class ProfileTest extends TestCase
             'username'   => 'janesmith',
         ];
 
-        $response = $this->patchJson('/api/user/profile', $payload, $this->getHeadersForUser($user));
+        $response = $this->postJson('/api/user/profile', $payload, $this->getHeadersForUser($user));
 
         $response->assertOk()
             ->assertJsonPath('success', true)
@@ -106,7 +106,7 @@ class ProfileTest extends TestCase
             'username' => 'takenusername',
         ];
 
-        $response = $this->patchJson('/api/user/profile', $payload, $this->getHeadersForUser($user2));
+        $response = $this->postJson('/api/user/profile', $payload, $this->getHeadersForUser($user2));
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['username']);
@@ -121,7 +121,7 @@ class ProfileTest extends TestCase
         // Use UploadedFile::fake()->create to avoid GD library imagejpeg/imagepng dependency
         $file = UploadedFile::fake()->create('avatar.jpg', 100, 'image/jpeg');
 
-        $response = $this->patchJson('/api/user/profile', [
+        $response = $this->postJson('/api/user/profile', [
             'profile_image' => $file,
         ], $this->getHeadersForUser($user));
 
@@ -141,7 +141,7 @@ class ProfileTest extends TestCase
             'first_name' => 'Jane',
         ];
 
-        $response = $this->patchJson('/api/user/profile', $payload, [
+        $response = $this->postJson('/api/user/profile', $payload, [
             'Accept' => 'application/json',
         ]);
 

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { Spinner } from '@/components/ui/spinner';
 import DiscoverTab from '@/components/friends/DiscoverTab';
@@ -28,3 +29,9 @@ export default async function DiscoverTabPage({ searchParams }: Props) {
   );
 }
 
+
+
+export const metadata: Metadata = {
+  title: "Discover Friends | Bite Club",
+  description: "Find and connect with fellow foodies and friends on Bite Club.",
+};

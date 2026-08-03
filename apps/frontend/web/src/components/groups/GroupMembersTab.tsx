@@ -46,7 +46,7 @@ export default async function GroupMembersTab({
           })}
         </p>
         <div className="flex gap-4 items-center">
-          <AppSearch route={`/groups/${group.id}/members`} />
+          <AppSearch route={`/groups/${group.id}`} />
           {group.my_role !== 'member' && (
             <AddMembersPaginatedDialog groupId={group.id} />
           )}

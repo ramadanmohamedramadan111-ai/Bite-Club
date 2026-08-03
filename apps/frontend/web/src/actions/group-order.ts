@@ -32,7 +32,8 @@ export const createGroupOrderSessionAction = actionClient
       body: parsedInput,
     });
 
-    updateTag(`groups-sessions-${userId}`);
+    updateTag(`group-order-sessions-${userId}`);
+    updateTag(`group-order-sessions`);
 
     return response;
   });
@@ -54,7 +55,8 @@ export const addItemToGroupOrderSessionAction = actionClient
       },
     );
 
-    updateTag(`groups-sessions-${userId}`);
+    updateTag(`group-order-session-${group_order_id}`);
+    updateTag(`group-order-sessions-${userId}`);
 
     return response;
   });
@@ -69,7 +71,8 @@ export const removeItemFromGroupOrderSessionAction = actionClient
       'DELETE',
     );
 
-    updateTag(`groups-sessions-${userId}`);
+    updateTag(`group-order-session-${group_order_id}`);
+    updateTag(`group-order-sessions-${userId}`);
 
     return response;
   });
@@ -89,7 +92,8 @@ export const updateItemQuantityGroupOrderSessionAction = actionClient
       },
     );
 
-    updateTag(`groups-sessions-${userId}`);
+    updateTag(`group-order-session-${group_order_id}`);
+    updateTag(`group-order-sessions-${userId}`);
 
     return response;
   });
@@ -113,7 +117,7 @@ export const checkoutGroupPreviewDeliveryAction = actionClient
       },
     );
 
-    updateTag(`groups-sessions-${userId}`);
+    updateTag(`group-order-sessions-${userId}`);
 
     return response;
   });
@@ -135,7 +139,7 @@ export const checkoutGroupPreviewPickupAction = actionClient
       },
     );
 
-    updateTag(`groups-sessions-${userId}`);
+    updateTag(`group-order-sessions-${userId}`);
 
     return response;
   });
@@ -151,7 +155,9 @@ export const unlockGroupAction = actionClient
       'POST',
     );
 
-    updateTag(`groups-sessions-${userId}`);
+    updateTag(`group-order-session-${parsedInput}`);
+    updateTag(`group-order-sessions-${userId}`);
+    updateTag(`group-order-sessions`);
 
     return response;
   });
@@ -171,7 +177,11 @@ export const checkoutGroupPayAction = actionClient
       },
     );
 
-    updateTag(`groups-sessions-${userId}`);
+    updateTag(`group-order-session-${group_order_id}`);
+    updateTag(`group-order-sessions-${userId}`);
+    updateTag(`group-order-sessions`);
+    updateTag(`wallet-${userId}`);
+    updateTag(`streak-${userId}`);
 
     return response;
   });
@@ -187,7 +197,9 @@ export const cancelGroupAction = actionClient
       'POST',
     );
 
-    updateTag(`groups-sessions-${userId}`);
+    updateTag(`group-order-session-${parsedInput}`);
+    updateTag(`group-order-sessions-${userId}`);
+    updateTag(`group-order-sessions`);
 
     return response;
   });
@@ -202,7 +214,8 @@ export const clearMyItemsGroupOrderAction = actionClient
       'DELETE',
     );
 
-    updateTag(`groups-sessions-${userId}`);
+    updateTag(`group-order-session-${parsedInput}`);
+    updateTag(`group-order-sessions-${userId}`);
 
     return response;
   });
@@ -214,4 +227,3 @@ export const revalidateGroupOrderSessionAction = actionClient
     updateTag(`group-order-session-${sessionId}`);
     return { success: true };
   });
-

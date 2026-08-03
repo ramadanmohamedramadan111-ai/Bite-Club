@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import GroupOrderPageView from '@/components/groups/GroupOrderPageView';
 import { serverFetch } from '@/utils/server-fetch';
 import { getUserId } from '@/utils/api-helpers';
@@ -107,3 +108,23 @@ export default async function Page({ params }: PageProps) {
   );
 }
 
+
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  try {
+    const res = await serverFetch<ApiResponse<GroupOrderCartSession>>(`/user/group-orders/${id}`);
+    const cart = res?.data;
+    if (cart) {
+      return {
+        title: `Group Order - ${cart.restaurant.name} | Bite Club`,
+        description: `Join group order at ${cart.restaurant.name} on Bite Club. Status: ${cart.status}`,
+      };
+    }
+  } catch (e) {
+    // Fail silently
+  }
+  return {
+    title: "Group Order Session | Bite Club",
+  };
+}

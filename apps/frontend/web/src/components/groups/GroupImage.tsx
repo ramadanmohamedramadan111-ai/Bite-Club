@@ -1,6 +1,6 @@
 import { Users } from 'lucide-react';
 
-import { cn } from '@/lib/utils';
+import { cn, getMediaUrl } from '@/lib/utils';
 
 type Props = {
   src?: string | null;
@@ -15,10 +15,11 @@ export default function GroupImage({
   className,
   fallbackClassName,
 }: Props) {
-  if (src) {
+  const mediaUrl = getMediaUrl(src);
+  if (mediaUrl) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
-      <img src={src} alt={alt} className={cn('object-cover', className)} />
+      <img src={mediaUrl} alt={alt} className={cn('object-cover', className)} />
     );
   }
 

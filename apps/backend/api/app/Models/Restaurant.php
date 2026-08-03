@@ -11,11 +11,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Notifications\Notifiable;
 use App\Mail\Restaurant\ResetPasswordMail;
 
 class Restaurant extends Authenticatable implements JWTSubject
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Notifiable;
 
     public function sendPasswordResetNotification($token): void
     {
@@ -119,6 +120,14 @@ class Restaurant extends Authenticatable implements JWTSubject
 
     public function isOpenNow(): bool
     {
+
+
+        $setting = $this->relationLoaded('setting') ? $this->setting : $this->setting()->first();
+        if ($setting && (!$setting->accept_orders || !$setting->is_open)) {
+            return false;
+        }
+
+
         $now = now();
         $currentTime = $now->format('H:i:s');
         $currentDay = $now->dayOfWeek;

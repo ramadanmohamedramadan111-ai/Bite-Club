@@ -10,19 +10,19 @@ export default function FeedTabsNav() {
   const t = useTranslations('feed');
   const pathname = usePathname();
 
-  const activeTab = tabs.find((tab) => pathname.endsWith(`/${tab}`)) ?? 'posts';
+  const activeTab = pathname.startsWith('/posts/leaderboard') ? 'leaderboard' : 'posts';
 
   return (
     <Tabs value={activeTab} className="w-full">
       <TabsList className="grid w-full grid-cols-2 max-w-md">
         <TabsTrigger value="posts" asChild>
-          <Link href="/feed/posts">{t('postsFeed')}</Link>
+          <Link href="/posts">{t('postsFeed')}</Link>
         </TabsTrigger>
         <TabsTrigger
           value="leaderboard"
           asChild
         >
-          <Link href="/feed/leaderboard">{t('leaderboard')}</Link>
+          <Link href="/posts/leaderboard">{t('leaderboard')}</Link>
         </TabsTrigger>
       </TabsList>
     </Tabs>

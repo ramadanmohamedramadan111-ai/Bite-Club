@@ -6,7 +6,12 @@ use \App\Models\Invoice;
 use \App\Services\Infrastructure\Payment\KashierPaymentGateway;
 use App\Enums\Invoice\InvoiceStatusEnum;
 use App\Enums\Invoice\PlatformDueStatusEnum;
+use App\Enums\Restaurant\RestaurantStatusEnum;
 use App\Models\Order;
+use App\Notifications\Restaurant\InvoiceGeneratedNotification;
+use App\Notifications\Restaurant\InvoicePaidNotification;
+use App\Notifications\Restaurant\RestaurantReactivatedNotification;
+use App\Notifications\Restaurant\RestaurantSuspendedNotification;
 use App\Repositories\Interfaces\GeneralSettingRepositoryInterface;
 use App\Repositories\Interfaces\InvoiceRepositoryInterface;
 use App\Repositories\Interfaces\PlatformDueRepositoryInterface;
@@ -73,6 +78,10 @@ class InvoiceDomainService
                     $dueIds = $dues->pluck('id')->toArray();
                     $this->platformDueRepository->markAsInvoiced($dueIds, $invoice->id);
 
+                    if ($invoice->restaurant) {
+                        $invoice->restaurant->notify(new InvoiceGeneratedNotification($invoice));
+                    }
+
                     $invoicesCreatedCount++;
                 });
             } catch (\Exception $e) {
@@ -97,6 +106,12 @@ class InvoiceDomainService
         DB::transaction(function () use ($invoiceIds, $restaurantIds) {
             $this->invoiceRepository->markAsOverdue($invoiceIds);
             $this->restaurantRepository->suspendRestaurants($restaurantIds);
+
+            // Notify each suspended restaurant
+            $restaurants = $this->restaurantRepository->findByIds($restaurantIds);
+            foreach ($restaurants as $restaurant) {
+                $restaurant->notify(new RestaurantSuspendedNotification($restaurant));
+            }
         });
 
         return count($invoiceIds);
@@ -186,10 +201,18 @@ class InvoiceDomainService
                     'paid_at' => now(),
                 ]);
 
+                if ($invoice->restaurant) {
+                    $invoice->restaurant->notify(new InvoicePaidNotification($invoice));
+                }
+
                 // 2. Check if the restaurant has ANY other overdue invoices
                 if (!$this->invoiceRepository->hasOverdueInvoices($invoice->restaurant_id)) {
                     // Unsuspend restaurant
                     $this->restaurantRepository->activateRestaurant($invoice->restaurant_id);
+                    
+                    if ($invoice->restaurant) {
+                        $invoice->restaurant->notify(new RestaurantReactivatedNotification($invoice->restaurant));
+                    }
                 }
             });
         }

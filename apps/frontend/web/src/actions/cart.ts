@@ -8,6 +8,7 @@ import { ApiResponse } from '@/types/api';
 import { getUserId } from '@/utils/api-helpers';
 import { serverFetch } from '@/utils/server-fetch';
 import { updateTag } from 'next/cache';
+import { z } from 'zod';
 
 export const addIndividualCartItemAction = actionClient
   .inputSchema(addCartItemSchema)
@@ -72,4 +73,33 @@ export const clearIndividualCartAction = actionClient.action(async () => {
 
   return response;
 });
+
+export const mergeCartAction = actionClient
+  .inputSchema(
+    z.object({
+      restaurant_id: z.number(),
+      items: z.array(
+        z.object({
+          item_id: z.number(),
+          quantity: z.number(),
+          notes: z.string().nullable().optional(),
+        })
+      ),
+    })
+  )
+  .action(async ({ parsedInput }) => {
+    const userId = await getUserId();
+
+    const response = await serverFetch<ApiResponse<null>>(
+      '/user/cart/merge',
+      'POST',
+      {
+        body: parsedInput,
+      }
+    );
+
+    updateTag(`cart-${userId}`);
+
+    return response;
+  });
 

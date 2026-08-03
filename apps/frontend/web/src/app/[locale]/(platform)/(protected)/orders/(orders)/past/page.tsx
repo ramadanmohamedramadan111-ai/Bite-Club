@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { getTranslations } from 'next-intl/server';
 import PastOrders from '@/components/orders/PastOrders';
@@ -24,3 +25,9 @@ export default async function PastOrdersPage({ searchParams }: Props) {
     </Suspense>
   );
 }
+
+
+export const metadata: Metadata = {
+  title: "Past Orders History | Bite Club",
+  description: "Browse and reorder from your past culinary choices on Bite Club.",
+};

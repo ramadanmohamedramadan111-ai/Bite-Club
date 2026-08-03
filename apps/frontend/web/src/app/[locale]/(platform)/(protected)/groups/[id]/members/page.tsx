@@ -1,48 +1,21 @@
-import { serverFetch } from '@/utils/server-fetch';
-import { ApiResponse } from '@/types/api';
-import { GroupType } from '@/types/groups';
-import { notFound } from 'next/navigation';
-import GroupMembersTab from '@/components/groups/GroupMembersTab';
-import { parseSearchParams, SearchPaginatedParams } from '@/utils/validate-search-params';
-import InvalidSearchParams from '@/components/errors/InvalidSearchParams';
+import type { Metadata } from 'next';
+import { redirect } from '@/i18n/navigation';
 
 type PageProps = {
-  params: Promise<{ id: string }>;
-  searchParams: Promise<{
-    search?: string;
-    page?: string;
-    per_page?: string;
-  }>;
+  params: Promise<{ id: string; locale: string }>;
+  searchParams: Promise<{ [key: string]: string | undefined }>;
 };
 
-export default async function GroupMembersPage({
-  params,
-  searchParams,
-}: PageProps) {
-  const { id } = await params;
-  const raw = await searchParams;
-  const parsed = parseSearchParams(SearchPaginatedParams, raw);
-  if (!parsed.success) return <InvalidSearchParams />;
-  const { search = '', page = '1', per_page = '1' } = parsed.data;
-
-  const data = await serverFetch<ApiResponse<GroupType>>(
-    `/groups/${id}`,
-    'GET',
-    {
-      next: { tags: ['groups', `groups-${id}`] },
-    },
-  );
-  const group = data.data;
-
-  if (!group) notFound();
-
-  return (
-    <GroupMembersTab
-      group={group}
-      search={search}
-      page={page}
-      per_page={per_page}
-    />
-  );
+export default async function Page({ params, searchParams }: PageProps) {
+  const { id, locale } = await params;
+  const sp = await searchParams;
+  const queryString = new URLSearchParams(sp as Record<string, string>).toString();
+  const dest = `/groups/${id}${queryString ? `?${queryString}` : ''}`;
+  
+  redirect({ href: dest, locale });
 }
 
+export const metadata: Metadata = {
+  title: "Redirecting... | Bite Club",
+  description: "Redirecting to group details page.",
+};

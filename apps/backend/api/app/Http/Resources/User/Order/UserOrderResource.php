@@ -4,9 +4,12 @@ namespace App\Http\Resources\User\Order;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Traits\UrlFormatterTrait;
 
 class UserOrderResource extends JsonResource
 {
+    use UrlFormatterTrait;
+
     /**
      * Transform the resource into an array.
      *
@@ -21,6 +24,7 @@ class UserOrderResource extends JsonResource
             'restaurant' => [
                 'id' => $this->restaurant->id ?? null,
                 'name' => $this->restaurant->name ?? null,
+                'logo_url' => $this->formatImageUrl($this->restaurant->logo_url),
             ],
             'financials' => [
                 'subtotal' => (float) $this->subtotal,

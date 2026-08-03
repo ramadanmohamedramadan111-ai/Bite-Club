@@ -4,9 +4,12 @@ namespace App\Http\Resources\User\GroupOrder;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Traits\UrlFormatterTrait;
 
 class GroupOrderResource extends JsonResource
 {
+    use UrlFormatterTrait;
+
     public function toArray(Request $request): array
     {
         $totalAmount = 0;
@@ -22,6 +25,7 @@ class GroupOrderResource extends JsonResource
                     'user' => [
                         'id' => $userId,
                         'name' => $item->user->full_name,
+                        'profile_image' => $this->formatImageUrl($item->user->profile_image_url),
                     ],
                     'user_total' => 0,
                     'items' => [],
@@ -43,7 +47,8 @@ class GroupOrderResource extends JsonResource
             'restaurant' => [
                 'id' => $this->restaurant->id,
                 'name' => $this->restaurant->name,
-                'image_url' => $this->restaurant->image_url,
+                'image_url' => $this->formatImageUrl($this->restaurant->logo_url)
+                    ?? $this->formatImageUrl($this->restaurant->cover_image_url),
             ],
             'host' => [
                 'id' => $this->host->id,

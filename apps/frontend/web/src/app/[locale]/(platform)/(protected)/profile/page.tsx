@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { serverFetch } from '@/utils/server-fetch';
 import type { ApiResponse } from '@/types/api';
 import type { UserResponse } from '@/types/user';
@@ -100,3 +101,9 @@ export default async function MyProfilePage() {
     </div>
   );
 }
+
+
+export const metadata: Metadata = {
+  title: "My Account Profile | Bite Club",
+  description: "Manage your Bite Club profile details, address, and preferences.",
+};

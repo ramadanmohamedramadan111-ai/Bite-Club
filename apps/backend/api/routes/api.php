@@ -1,12 +1,13 @@
 <?php
 
+use \App\Http\Controllers\Api\User\UserNotificationController;
 use \App\Http\Controllers\Api\Webhook\InvoiceKashierWebhookController;
 use App\Http\Controllers\Api\Ai\AiChatController;
+
 use App\Http\Controllers\Api\Ai\AiInternalToolController;
-
 use App\Http\Controllers\Api\Ai\SmartWaiterAddToCartController;
-use App\Http\Controllers\Api\Ai\SmartWaiterChatController;
 
+use App\Http\Controllers\Api\Ai\SmartWaiterChatController;
 use App\Http\Controllers\Api\Auth\AdminAuthController;
 use App\Http\Controllers\Api\Auth\UserAuthController;
 use App\Http\Controllers\Api\RestaurantCategoryController;
@@ -26,6 +27,7 @@ use App\Http\Controllers\Api\User\UserSearchController;
 use App\Http\Controllers\Api\User\WalletController;
 use App\Http\Controllers\Api\Webhook\KashierWebhookController;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -79,6 +81,16 @@ Route::prefix('user')->name('user.')->group(function () {
     Route::post('/verify-reset-otp', [UserAuthController::class, 'verifyResetOtp'])->name('password.verify-otp');
     Route::post('/reset-password', [UserAuthController::class, 'resetPassword'])->name('password.reset');
 
+    // Public Read-Only Endpoints
+    Route::get('/restaurant-categories', [UserRestaurantCategoryController::class, 'index'])->name('restaurant-categories.index');
+    Route::prefix('restaurants')->group(function () {
+        Route::get('/', [UserRestaurantController::class, 'index'])->name('restaurants.index');
+        Route::get('nearest', [UserRestaurantController::class, 'nearest'])->name('restaurants.nearest');
+        Route::get('/{restaurantId}', [UserRestaurantController::class, 'show'])->name('restaurants.show');
+        Route::get('/{restaurantId}/menu', [UserRestaurantMenuController::class, 'index'])->name('restaurants.menu');
+        Route::get('/{restaurantId}/reviews', [UserRestaurantReviewController::class, 'index']);
+    });
+
     Route::middleware('auth.user')->group(function () {
 
         Route::post('/logout', [UserAuthController::class, 'logout'])->name('logout');
@@ -87,29 +99,18 @@ Route::prefix('user')->name('user.')->group(function () {
 
         Route::get('/me', [UserAuthController::class, 'me'])->name('me');
 
-        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
         Route::get('/posts', [PostController::class, 'myPosts'])->name('posts.my');
 
         Route::get('/posts/shareable-orders', [PostController::class, 'shareableOrders'])->name('posts.shareable-orders');
 
-        Route::get('/restaurant-categories', [UserRestaurantCategoryController::class, 'index'])->name('restaurant-categories.index');
-
-        // Restaurants (User)
-        Route::prefix('restaurants')->group(function () {
-            Route::get('/', [UserRestaurantController::class, 'index'])->name('restaurants.index');
-            Route::get('nearest', [UserRestaurantController::class, 'nearest'])->name('restaurants.nearest');
-            Route::get('/{restaurantId}', [UserRestaurantController::class, 'show'])->name('restaurants.show');
-            Route::get('/{restaurantId}/menu', [UserRestaurantMenuController::class, 'index'])->name('restaurants.menu');
-
-            // Reviews
-            Route::prefix('{restaurantId}/reviews')->group(function () {
-                Route::get('/', [UserRestaurantReviewController::class, 'index']);
-                Route::get('me', [UserRestaurantReviewController::class, 'me']);
-                Route::post('/', [UserRestaurantReviewController::class, 'store']);
-                Route::put('/', [UserRestaurantReviewController::class, 'update']);
-                Route::delete('/', [UserRestaurantReviewController::class, 'destroy']);
-            });
+        // Reviews requiring auth
+        Route::prefix('restaurants/{restaurantId}/reviews')->group(function () {
+            Route::get('me', [UserRestaurantReviewController::class, 'me']);
+            Route::post('/', [UserRestaurantReviewController::class, 'store']);
+            Route::put('/', [UserRestaurantReviewController::class, 'update']);
+            Route::delete('/', [UserRestaurantReviewController::class, 'destroy']);
         });
 
         // Cart
@@ -117,9 +118,7 @@ Route::prefix('user')->name('user.')->group(function () {
             Route::get('/', [UserCartController::class, 'show'])->name('cart.show');
             Route::delete('/', [UserCartController::class, 'clear'])->name('cart.clear');
             Route::delete('clear', [UserCartController::class, 'clear'])->name('cart.clear.explicit');
-        });
-
-        Route::prefix('cart')->group(function () {
+            Route::post('merge', [UserCartController::class, 'merge'])->name('cart.merge');
             Route::post('items', [UserCartController::class, 'addItem'])->name('cart.items.add');
             Route::put('items/{itemId}', [UserCartController::class, 'updateItemQuantity'])->name('cart.items.update');
             Route::delete('items/{itemId}', [UserCartController::class, 'removeItem'])->name('cart.items.remove');
@@ -137,6 +136,14 @@ Route::prefix('user')->name('user.')->group(function () {
             Route::get('past', [UserOrderController::class, 'pastOrders'])->name('past');
             Route::get('{orderId}', [UserOrderController::class, 'show'])->name('show');
             Route::post('{orderId}/cancel', [UserOrderController::class, 'cancel'])->name('cancel');
+        });
+
+        // Notifications
+        Route::prefix('notifications')->name('notifications.')->group(function () {
+            Route::get('/', [UserNotificationController::class, 'index'])->name('index');
+            Route::get('/unread-count', [UserNotificationController::class, 'unreadCount'])->name('unread-count');
+            Route::post('/mark-all-as-read', [UserNotificationController::class, 'markAllAsRead'])->name('mark-all-as-read');
+            Route::patch('/{id}/mark-as-read', [UserNotificationController::class, 'markAsRead'])->name('mark-as-read');
         });
     });
 
@@ -187,7 +194,7 @@ Route::middleware('auth.user')->prefix('groups')->name('groups.')->group(functio
     Route::post('/invite/{token}', [GroupController::class, 'joinByInvite'])->name('invite.join');
     Route::get('/', [GroupController::class, 'index'])->name('index');
     Route::get('/{group}', [GroupController::class, 'show'])->name('show');
-    Route::patch('/{group}', [GroupController::class, 'update'])->name('update');
+    Route::post('/{group}', [GroupController::class, 'update'])->name('update'); // POST due to multipart/form-data
     Route::delete('/{group}', [GroupController::class, 'destroy'])->name('destroy');
     Route::get('/{group}/members', [GroupController::class, 'listMembers'])->name('members.index');
     Route::get('/{group}/invitable-friends', [GroupController::class, 'listInvitableFriends'])->name('members.invitable-friends');

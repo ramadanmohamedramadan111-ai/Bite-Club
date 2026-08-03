@@ -10,10 +10,11 @@ use App\DTOs\MenuItem\DestroyMenuItemDto;
 use App\Services\Domain\MenuItem\MenuItemDomainService;
 use App\Services\Domain\MenuCategory\MenuCategoryDomainService;
 use App\Traits\FileUploadTrait;
+use App\Traits\UrlFormatterTrait;
 
 class MenuItemApplicationService
 {
-    use FileUploadTrait;
+    use FileUploadTrait, UrlFormatterTrait;
 
     public function __construct(
         private MenuItemDomainService $menuItemDomainService,
@@ -77,7 +78,7 @@ class MenuItemApplicationService
     {
         $item = $this->menuItemDomainService->delete($dto->getId(), $dto->getRestaurantId());
 
-       
+
         $this->deleteFile($item->image_url);
     }
 
@@ -88,7 +89,7 @@ class MenuItemApplicationService
             'menu_category_id' => $item->menu_category_id,
             'title'            => $item->title,
             'description'      => $item->description,
-            'image_url'        => $item->image_url,
+            'image_url'        => $this->formatImageUrl($item->image_url),
             'price'            => (float) $item->price,
             'availability'     => $item->availability->value ?? $item->availability,
             'category'         => $item->relationLoaded('menuCategory') ? [

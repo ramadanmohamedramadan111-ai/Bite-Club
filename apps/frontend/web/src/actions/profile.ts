@@ -15,11 +15,19 @@ export const editUserAction = actionClient
   })
   .action(async ({ parsedInput }) => {
     const userId = await getUserId();
+    const formData = new FormData();
+    formData.append('first_name', parsedInput.first_name);
+    formData.append('last_name', parsedInput.last_name);
+    formData.append('username', parsedInput.username);
+    if (parsedInput.profile_image) {
+      formData.append('profile_image', parsedInput.profile_image);
+    }
+
     const response = await serverFetch<ApiResponse<null>>(
       '/user/profile',
       'POST',
       {
-        body: { ...parsedInput, _method: 'PATCH' },
+        body: formData,
       },
     );
 

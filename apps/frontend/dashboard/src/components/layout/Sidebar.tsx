@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import {
   BarChart3, LayoutGrid, MessageSquare,
   ShoppingBag, Settings, Star, Users,
-  LogOut, UtensilsCrossed, X,
+  LogOut, UtensilsCrossed, X, CreditCard, Receipt,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuthStore } from '../../store/authStore'
@@ -14,10 +14,12 @@ const navItems = [
   { key: 'nav_dashboard',  icon: LayoutGrid,      path: '/dashboard'  },
   { key: 'nav_orders',     icon: ShoppingBag,     path: '/orders'     },
   { key: 'nav_menu',       icon: UtensilsCrossed, path: '/menu'       },
-  { key: 'nav_customers',  icon: Users,           path: '/customers'  },
-  { key: 'nav_promotions', icon: MessageSquare,   path: '/promotions' },
+ // { key: 'nav_customers',  icon: Users,           path: '/customers'  },
+ // { key: 'nav_promotions', icon: MessageSquare,   path: '/promotions' },
   { key: 'nav_reviews',    icon: Star,            path: '/reviews'    },
   { key: 'nav_reports',    icon: BarChart3,       path: '/reports'    },
+  { key: 'nav_payments',   icon: CreditCard,      path: '/payments'   },
+  { key: 'nav_invoices',   icon: Receipt,         path: '/invoices'   },
 ]
 
 interface SidebarProps {

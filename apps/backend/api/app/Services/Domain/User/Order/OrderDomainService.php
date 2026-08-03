@@ -11,8 +11,11 @@ use App\Enums\Payment\PaymentStatusEnum;
 use App\Enums\Payment\PaymentTypeEnum;
 use App\Models\GeneralSetting;
 use App\Models\Order;
+use App\Models\PlatformDue;
 use App\Models\Redemption;
 use App\Notifications\OrderCancelledByTimeoutNotification;
+use App\Notifications\Restaurant\NewOrderReceivedNotification;
+use App\Notifications\Restaurant\OrderCancelledByUserNotification;
 use App\Repositories\Interfaces\CartRepositoryInterface;
 use App\Repositories\Interfaces\OrderItemRepositoryInterface;
 use App\Repositories\Interfaces\OrderPaymentRepositoryInterface;
@@ -296,6 +299,12 @@ class OrderDomainService
 
             $this->cartRepository->delete($cart->id);
 
+            if ($orderStatus === OrderStatusEnum::PENDING->value) {
+                if ($order->restaurant) {
+                    $order->restaurant->notify(new NewOrderReceivedNotification($order));
+                }
+            }
+
             return $order;
         });
 
@@ -348,6 +357,11 @@ class OrderDomainService
                 $this->orderRepository->update($order->id, [
                     'status' => OrderStatusEnum::PENDING->value,
                 ]);
+                
+                // Notify restaurant
+                if ($order->restaurant) {
+                    $order->restaurant->notify(new NewOrderReceivedNotification($order));
+                }
             } else {
                 Log::warning("Kashier Webhook: Received non-SUCCESS status '{$status}' for Order: {$orderId}. Leaving for cron job cleanup.");
             }
@@ -476,7 +490,9 @@ class OrderDomainService
             throw new Exception(trans('order.cannot_cancel_paid_online') ?? 'Cannot cancel an order after online payment is completed; please contact restaurant support.');
         }
 
-        return DB::transaction(function () use ($order) {
+        $previousStatus = $order->status;
+
+        return DB::transaction(function () use ($order, $previousStatus) {
             $this->orderRepository->update($order->id, [
                 'status' => OrderStatusEnum::CANCELLED->value,
             ]);
@@ -495,6 +511,10 @@ class OrderDomainService
                     $redemption->id,
                     Redemption::class
                 );
+            }
+
+            if ($previousStatus === OrderStatusEnum::PENDING && $order->restaurant) {
+                $order->restaurant->notify(new OrderCancelledByUserNotification($order));
             }
 
             return $order->refresh();

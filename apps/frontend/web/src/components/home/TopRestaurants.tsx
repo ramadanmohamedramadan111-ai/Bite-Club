@@ -7,7 +7,7 @@ import { serverFetch } from '@/utils/server-fetch';
 import { ApiResponse } from '@/types/api';
 import { RestaurantType, TopRestaurant } from '@/types/restaurant';
 import { cookies } from 'next/headers';
-import { buildQueryString } from '@/utils/api-helpers';
+import { buildQueryString, getUserId } from '@/utils/api-helpers';
 import RestaurantCard from '../restaurants/RestaurantCard';
 
 export default async function TopRestaurants() {
@@ -16,11 +16,18 @@ export default async function TopRestaurants() {
 
   const lat = cookieStore.get('lat')?.value;
   const lng = cookieStore.get('lng')?.value;
+  const userId = await getUserId();
 
   const query = buildQueryString({ latitude: lat, longitude: lng, limit: 5 });
 
   const data = await serverFetch<ApiResponse<TopRestaurant[]>>(
     `/user/restaurants/nearest${query}`,
+    'GET',
+    {
+      next: {
+        tags: [`nearest-${userId}`, 'nearest-guest'],
+      },
+    },
   );
 
   const topRestaurants = data.data;
@@ -56,7 +63,10 @@ export default async function TopRestaurants() {
             {lat && lng ? t('topRestaurantsNearDesc') : t('topRestaurantsDesc')}
           </p>
         </div>
-        <Button asChild variant="outline" className="w-fit gap-2 rounded-xl bg-background/50 border-border/60 hover:bg-background">
+        <Button
+          asChild
+          variant="outline"
+          className="w-fit gap-2 rounded-xl bg-background/50 border-border/60 hover:bg-background">
           <Link href="/restaurants" className="cursor-pointer">
             {t('viewAll')}
             <ArrowRight className="size-4" />

@@ -38,6 +38,9 @@ import {
 
 import { toast } from 'sonner';
 import { loginUserAction } from '@/actions/auth';
+import { useSearchParams } from 'next/navigation';
+import { useCartStore } from '@/stores/cart';
+import { mergeCartAction } from '@/actions/cart';
 
 export default function UserLoginForm({
   className,
@@ -56,10 +59,33 @@ export default function UserLoginForm({
     resolver: zodResolver(loginSchema),
   });
 
+  const searchParams = useSearchParams();
+
   const { execute: loginUser, isExecuting } = useAction(loginUserAction, {
-    onSuccess: ({ data }) => {
+    onSuccess: async ({ data }) => {
       toast.success(data?.message || t('success'));
-      navigate('/');
+
+      let redirect = searchParams.get('redirect') || '/';
+      redirect = redirect.replace(/^\/(en|ar)(\/|$)/, '/');
+      const guestCart = useCartStore.getState().cart;
+
+      if (guestCart && guestCart.items.length > 0) {
+        try {
+          await mergeCartAction({
+            restaurant_id: guestCart.restaurant.id,
+            items: guestCart.items.map((item) => ({
+              item_id: item.item_id,
+              quantity: item.quantity,
+              notes: item.notes || null,
+            })),
+          });
+          useCartStore.getState().clearCart();
+        } catch (err) {
+          console.error('Failed to merge guest cart:', err);
+        }
+      }
+
+      navigate(redirect);
     },
 
     onError: ({ error }) => {

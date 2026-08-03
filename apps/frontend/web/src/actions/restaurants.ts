@@ -24,7 +24,9 @@ export const createReviewAction = actionClient
       body: body,
     });
 
-    updateTag(`groups-${userId}`);
+    updateTag(`restaurant-reviews-${restaurant_id}`);
+    updateTag(`restaurant-my-review-${restaurant_id}-${userId}`);
+    updateTag(`restaurant-${restaurant_id}`);
 
     return response;
   });
@@ -43,7 +45,9 @@ export const updateReviewAction = actionClient
       body: body,
     });
 
-    updateTag(`groups-${userId}`);
+    updateTag(`restaurant-reviews-${restaurant_id}`);
+    updateTag(`restaurant-my-review-${restaurant_id}-${userId}`);
+    updateTag(`restaurant-${restaurant_id}`);
 
     return response;
   });
@@ -51,13 +55,23 @@ export const updateReviewAction = actionClient
 export const deleteReviewAction = actionClient
   .inputSchema(idSchema)
   .action(async ({ parsedInput }) => {
+    const restaurant_id = parsedInput;
     const userId = await getUserId();
     const response = await serverFetch<
       ApiResponse<RestaurantReviewCreateResponse>
-    >(`/user/restaurants/${parsedInput}/reviews`, 'DELETE');
+    >(`/user/restaurants/${restaurant_id}/reviews`, 'DELETE');
 
-    updateTag(`groups-${userId}`);
+    updateTag(`restaurant-reviews-${restaurant_id}`);
+    updateTag(`restaurant-my-review-${restaurant_id}-${userId}`);
+    updateTag(`restaurant-${restaurant_id}`);
 
     return response;
   });
 
+export const revalidateLocationAction = async () => {
+  const userId = await getUserId();
+  updateTag('nearest-guest');
+  if (userId) {
+    updateTag(`nearest-${userId}`);
+  }
+};

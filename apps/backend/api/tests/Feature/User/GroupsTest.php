@@ -191,7 +191,7 @@ class GroupsTest extends TestCase
         GroupMember::create(['group_id' => $group->id, 'user_id' => $owner->id, 'role' => 'owner', 'status' => 'active']);
 
         // Owner edits successfully
-        $response = $this->patchJson("/api/groups/{$group->id}", [
+        $response = $this->postJson("/api/groups/{$group->id}", [
             'name'        => 'Updated Name',
             'description' => 'Brand new desc'
         ], $this->getHeadersForUser($owner));
@@ -215,7 +215,7 @@ class GroupsTest extends TestCase
         GroupMember::create(['group_id' => $group->id, 'user_id' => $member->id, 'role' => 'member', 'status' => 'active']);
 
         // Member attempts edit
-        $response = $this->patchJson("/api/groups/{$group->id}", [
+        $response = $this->postJson("/api/groups/{$group->id}", [
             'name' => 'Hacked Name'
         ], $this->getHeadersForUser($member));
         $response->assertStatus(500);
@@ -237,7 +237,7 @@ class GroupsTest extends TestCase
         ]);
 
         // Attempt edit on archived group
-        $response = $this->patchJson("/api/groups/{$group->id}", [
+        $response = $this->postJson("/api/groups/{$group->id}", [
             'name' => 'New Name'
         ], $this->getHeadersForUser($owner));
         $response->assertStatus(500);

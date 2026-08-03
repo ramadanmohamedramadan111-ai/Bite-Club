@@ -97,4 +97,39 @@ class CartDomainService
             $this->cartRepository->delete($cart->id);
         }
     }
+
+    public function mergeCart(int $userId, int $restaurantId, array $items): void
+    {
+        // Enforce single cart per user: delete any cart belonging to a different restaurant
+        $existingCart = $this->cartRepository->getUserCart($userId, false);
+        if ($existingCart && $existingCart->restaurant_id !== $restaurantId) {
+            $this->cartRepository->delete($existingCart->id);
+        }
+
+        $cart = $this->cartRepository->findOrCreateForUserAndRestaurant($userId, $restaurantId);
+
+        foreach ($items as $itemData) {
+            $itemId = $itemData['item_id'];
+            $quantity = $itemData['quantity'];
+            $notes = $itemData['notes'] ?? null;
+
+            $item = $this->menuItemRepository->find($itemId);
+
+            if (!$item || $item->availability !== MenuItemAvailabilityEnum::AVAILABLE) {
+                continue;
+            }
+
+            if ($item->menuCategory->restaurant_id !== $restaurantId) {
+                continue;
+            }
+
+            $this->cartItemRepository->updateOrCreateItem($cart->id, [
+                'item_id'    => $item->id,
+                'item_name'  => $item->title,
+                'quantity'   => $quantity,
+                'unit_price' => $item->price,
+                'notes'      => $notes,
+            ]);
+        }
+    }
 }

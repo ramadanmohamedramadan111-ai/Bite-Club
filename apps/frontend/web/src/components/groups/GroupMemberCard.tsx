@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server';
-import { cn } from '@/lib/utils';
+import { cn, getMediaUrl } from '@/lib/utils';
 import { GroupMember, GroupType } from '@/types/groups';
 
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
@@ -27,7 +27,7 @@ export default async function GroupMemberCard({ member, group, type }: Props) {
     >
       <div className="flex items-center gap-3">
         <Avatar className="size-11 rounded-full border border-border/30 shadow-xs">
-          <AvatarImage src={member.profile_image ?? undefined} className="object-cover" />
+          <AvatarImage src={getMediaUrl(member.profile_image)} className="object-cover" />
           <AvatarFallback className="font-bold text-sm bg-accent text-accent-foreground">
             {member.full_name.charAt(0).toUpperCase()}
           </AvatarFallback>

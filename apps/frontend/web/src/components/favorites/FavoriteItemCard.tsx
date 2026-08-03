@@ -22,7 +22,7 @@ export default function FavoriteItemCard({ item }: Props) {
   const restaurantName = getRestaurantName(item.restaurantId);
 
   return (
-    <Link href={`/items/${item.id}`} className="block h-full">
+    <Link href={`/restaurants/${item.restaurantId}/${item.id}`} className="block h-full">
       <Card className="h-full overflow-hidden transition-shadow hover:shadow-md">
         <div className="relative h-40 w-full">
           <Image

@@ -21,12 +21,13 @@ import { Input } from '../ui/input';
 import { ScrollArea } from '../ui/scroll-area';
 import { ApiResponse, PaginatedResponse } from '@/types/api';
 import { GroupMember } from '@/types/groups';
-import { Checkbox } from '../ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import DialogPagination from '../shared/DialogPagination';
 import { UserPlus } from 'lucide-react';
 import { useDebounce } from 'use-debounce';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Spinner } from '../ui/spinner';
+import { getMediaUrl } from '@/lib/utils';
 
 type Props = {
   groupId: number;
@@ -55,7 +56,7 @@ export default function AddMembersPaginatedDialog({ groupId }: Props) {
     enabled: open,
     queryFn: () =>
       clientFetch<ApiResponse<PaginatedResponse<GroupMember>>>(
-        `/api/groups/${groupId}/invitable-friends?search=${debouncedSearch}&page=${page}&per_page=1`,
+        `/api/groups/${groupId}/invitable-friends?search=${debouncedSearch}&page=${page}&per_page=15`,
       ),
   });
 
@@ -64,7 +65,7 @@ export default function AddMembersPaginatedDialog({ groupId }: Props) {
 
   const toggleUser = (id: number) => {
     setSelectedUserIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+      prev.includes(id) ? [] : [id],
     );
   };
 
@@ -145,40 +146,47 @@ export default function AddMembersPaginatedDialog({ groupId }: Props) {
           {isPending ? (
             <Spinner />
           ) : users?.length === 0 ? (
-            <p>{t('noMembersFound')}</p>
+            <p className="text-center py-8 text-sm text-muted-foreground">{t('noMembersFound')}</p>
           ) : (
-            users?.map((user) => {
-              const checked = selectedUserIds.includes(user.id);
+            <RadioGroup value={selectedUserIds[0] ? String(selectedUserIds[0]) : ''}>
+              <div className="flex flex-col gap-2.5 pr-3">
+                {users?.map((user) => {
+                  const checked = selectedUserIds.includes(user.id);
 
-              return (
-                <div
-                  key={user.id}
-                  onClick={() => toggleUser(user.id)}
-                  className="flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors hover:bg-accent">
-                  <div className="flex items-center gap-3">
-                    <Avatar>
-                      <AvatarImage src={user.profile_image ?? undefined} />
-                      <AvatarFallback>
-                        {user.full_name.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
+                  return (
+                    <div
+                      key={user.id}
+                      onClick={() => toggleUser(user.id)}
+                      className="flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors hover:bg-accent">
+                      <div className="flex items-center gap-3">
+                        <Avatar>
+                          <AvatarImage src={getMediaUrl(user.profile_image)} />
+                          <AvatarFallback>
+                            {user.full_name.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
 
-                    <div>
-                      <p className="font-medium">{user.full_name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        @{user.username}
-                      </p>
+                        <div>
+                          <p className="font-medium">{user.full_name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            @{user.username}
+                          </p>
+                        </div>
+                      </div>
+
+                      <RadioGroupItem
+                        value={String(user.id)}
+                        checked={checked}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleUser(user.id);
+                        }}
+                      />
                     </div>
-                  </div>
-
-                  <Checkbox
-                    checked={checked}
-                    onCheckedChange={() => toggleUser(user.id)}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </div>
-              );
-            })
+                  );
+                })}
+              </div>
+            </RadioGroup>
           )}
         </ScrollArea>
 
@@ -201,8 +209,7 @@ export default function AddMembersPaginatedDialog({ groupId }: Props) {
           <Button
             onClick={handleAddMembers}
             disabled={selectedUserIds.length === 0 || isExecuting}>
-            {t('addMembers')} {selectedUserIds.length || ''}{' '}
-            {selectedUserIds.length === 1 ? t('member') : t('members_plural')}
+            {t('addMember')}
           </Button>
         </DialogFooter>
       </DialogContent>

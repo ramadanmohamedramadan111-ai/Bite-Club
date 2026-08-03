@@ -16,7 +16,6 @@ import {
   Settings,
   Menu,
   ChevronDown,
-  Bold,
   LogOutIcon,
   User,
   BellIcon,
@@ -32,6 +31,9 @@ import { logoutUserAction } from '@/actions/auth';
 import { capitalize } from '@/utils/format';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
+import { getEcho } from '@/lib/echo';
+import { revalidateNotifications } from '@/actions/notifications';
+import type { Notification } from '@/types/notifications';
 
 import {
   DropdownMenu,
@@ -42,6 +44,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Badge } from '@/components/ui/badge';
 import {
   Sheet,
   SheetContent,
@@ -65,20 +68,36 @@ export interface SidebarUser {
   profile_image: string | null;
 }
 
+interface BroadcastNotification {
+  id: string;
+  type: string;
+  title?: string;
+  body?: string;
+  action_url?: string;
+  order_id?: number | null;
+  restaurant_name?: string | null;
+}
+
 interface NavbarProps {
   user: SidebarUser | null;
   friendsRequestsCount: number;
+  unreadNotificationsCount: number;
+  recentNotifications: Notification[];
   locationButton?: React.ReactNode;
   searchForm?: React.ReactNode;
   gamificationPopover?: React.ReactNode;
+  accessToken?: string | null;
 }
 
 export default function Navbar({
   user,
   friendsRequestsCount,
+  unreadNotificationsCount,
+  recentNotifications,
   locationButton,
   searchForm,
   gamificationPopover,
+  accessToken,
 }: NavbarProps) {
   const locale = useLocale();
   const direction = getLangDir(locale);
@@ -93,6 +112,78 @@ export default function Navbar({
   const [isOpenMobile, setIsOpenMobile] = React.useState(false);
   const [isLevelTwoOpen, setIsLevelTwoOpen] = React.useState(true);
 
+  React.useEffect(() => {
+    if (typeof window === 'undefined' || !user) return;
+
+    const echo = getEcho(accessToken);
+
+    const channelName = `App.Models.User.${user.id}`;
+    console.log(`[Echo-Navbar] Joining private channel: ${channelName}`);
+
+    const channel = echo.private(channelName);
+
+    const orderNotificationTypes = [
+      'order_preparing',
+      'order_ready',
+      'order_out_for_delivery',
+      'order_completed',
+      'order_cancelled',
+      'order_cancelled_timeout',
+    ];
+
+    channel.notification((notification: BroadcastNotification) => {
+      const type = notification?.type;
+
+      if (type && orderNotificationTypes.includes(type)) {
+        console.log(`[Echo-Navbar] Order notification received:`, notification);
+
+        // Play notification sound
+        const audio = new Audio('/notification.mp3');
+        audio.play().catch(() => {});
+
+        // Show toast notification
+        const title = notification.title || 'Order Update';
+        const body = notification.body || 'Your order has been updated';
+        const actionUrl = notification.action_url;
+
+        const handleToastClick = () => {
+          if (actionUrl) {
+            window.location.href = actionUrl;
+          }
+        };
+
+        toast.success(
+          <button
+            type="button"
+            onClick={handleToastClick}
+            className="flex flex-col gap-1 text-left">
+            <span className="font-semibold">{title}</span>
+            <span className="text-xs text-muted-foreground">{body}</span>
+          </button>,
+        );
+
+        // Revalidate notifications on server so the layout refetches fresh data
+        revalidateNotifications();
+      }
+    });
+
+    return () => {
+      console.log(`[Echo-Navbar] Leaving private channel: ${channelName}`);
+      echo.leave(channelName);
+    };
+  }, [user?.id, accessToken]);
+
+  // Update the browser tab title with the unread notifications count
+  React.useEffect(() => {
+    if (typeof document === 'undefined') return;
+
+    const cleanTitle = document.title.replace(/^\(\d+\)\s*/, '');
+    document.title =
+      unreadNotificationsCount > 0
+        ? `(${unreadNotificationsCount}) ${cleanTitle}`
+        : cleanTitle;
+  }, [unreadNotificationsCount, pathname]);
+
   const itemCount = useCartStore(
     (state) =>
       state.cart?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0,
@@ -101,6 +192,7 @@ export default function Navbar({
   const { execute: logout, isExecuting } = useAction(logoutUserAction, {
     onSuccess: ({ data }) => {
       toast.success(data?.message ?? t('loggedOutSuccess'));
+      useCartStore.getState().clearCart();
     },
     onError: ({ error }) => {
       toast.error(error.serverError?.message ?? t('logoutFailed'));
@@ -109,6 +201,8 @@ export default function Navbar({
       router.replace('/login');
     },
   });
+
+  const isCheckout = pathname.endsWith('/checkout');
 
   const isActive = (url: string) => {
     if (url === '/') {
@@ -124,7 +218,7 @@ export default function Navbar({
       ? [
           { name: tSidebar('orders'), url: '/orders' },
           { name: tSidebar('groups'), url: '/groups' },
-          { name: tSidebar('feed'), url: '/feed' },
+          { name: tSidebar('feed'), url: '/posts' },
         ]
       : []),
   ];
@@ -137,7 +231,7 @@ export default function Navbar({
           icon: Handshake,
           badge: friendsRequestsCount,
         },
-        { name: tSidebar('favorites'), url: '/favorites', icon: Heart },
+        // { name: tSidebar('favorites'), url: '/favorites', icon: Heart },
         { name: tSidebar('points'), url: '/points', icon: Coins },
         { name: tSidebar('settings'), url: '/settings', icon: Settings },
       ]
@@ -150,29 +244,34 @@ export default function Navbar({
       ? [
           { name: tSidebar('orders'), url: '/orders', icon: Logs },
           { name: tSidebar('groups'), url: '/groups', icon: Users },
-          { name: tSidebar('feed'), url: '/feed', icon: Newspaper },
+          { name: tSidebar('feed'), url: '/posts', icon: Newspaper },
           {
             name: tSidebar('friends'),
             url: '/friends',
             icon: Handshake,
             badge: friendsRequestsCount,
           },
-          { name: tSidebar('favorites'), url: '/favorites', icon: Heart },
+          // { name: tSidebar('favorites'), url: '/favorites', icon: Heart },
           { name: tSidebar('points'), url: '/points', icon: Coins },
           {
             name: tSidebar('notifications'),
             url: '/notifications',
             icon: BellIcon,
+            badge: unreadNotificationsCount,
           },
         ]
       : []),
     { name: tSidebar('settings'), url: '/settings', icon: Settings },
-    {
-      name: tSidebar('cart'),
-      url: '/cart',
-      icon: ShoppingCartIcon,
-      badge: itemCount,
-    },
+    ...(isCheckout
+      ? []
+      : [
+          {
+            name: tSidebar('cart'),
+            url: '/cart',
+            icon: ShoppingCartIcon,
+            badge: itemCount,
+          },
+        ]),
   ];
 
   const secondaryActive = secondaryLinks.some((link) => isActive(link.url));
@@ -202,8 +301,12 @@ export default function Navbar({
             <Link
               href="/"
               className="flex items-center gap-2.5 transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0">
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-orange-600 text-primary-foreground shadow-[0_3px_10px_-3px_var(--color-primary)]">
-                <Bold className="size-4" />
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg overflow-hidden border border-primary/15 bg-primary/5 shadow-[0_3px_10px_-3px_var(--color-primary)]">
+                <img
+                  src="/logo.png"
+                  alt="Bite Club"
+                  className="size-full object-cover"
+                />
               </div>
               <span className="text-2xl font-bold tracking-tight bg-gradient-to-r from-primary via-orange-500 to-amber-500 bg-clip-text text-transparent">
                 BiteClub
@@ -304,12 +407,17 @@ export default function Navbar({
             <div className="flex items-center gap-3">
               {user && (
                 <>
-                  <NotificationPopover />
+                  <NotificationPopover
+                    unreadCount={unreadNotificationsCount}
+                    recentNotifications={recentNotifications}
+                  />
                   <GroupOrderSessionsButton />
-                  <CartButton className="hover:bg-accent/60" />
+                  {!isCheckout && <CartButton className="hover:bg-accent/60" />}
                 </>
               )}
-              {!user && <CartButton className="hover:bg-accent/60" />}
+              {!user && !isCheckout && (
+                <CartButton className="hover:bg-accent/60" />
+              )}
 
               {/* Language AR/EN Toggle Button */}
               <Button
@@ -384,9 +492,16 @@ export default function Navbar({
                       className="rounded-lg cursor-pointer">
                       <Link
                         href="/notifications"
-                        className="flex items-center gap-2.5">
-                        <CircleUserRound className="size-4 text-muted-foreground" />
-                        <span>{t('notifications')}</span>
+                        className="flex items-center justify-between w-full gap-2.5">
+                        <div className="flex items-center gap-2.5">
+                          <BellIcon className="size-4 text-muted-foreground" />
+                          <span>{t('notifications')}</span>
+                        </div>
+                        {unreadNotificationsCount > 0 && (
+                          <Badge className="bg-primary hover:bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full scale-90 border-none shrink-0">
+                            {unreadNotificationsCount}
+                          </Badge>
+                        )}
                       </Link>
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
@@ -437,8 +552,12 @@ export default function Navbar({
                       href="/"
                       className="flex items-center gap-2.5"
                       onClick={() => setIsOpenMobile(false)}>
-                      <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-orange-600 text-primary-foreground shadow-[0_2px_8px_-2px_var(--color-primary)]">
-                        <Bold className="size-4" />
+                      <div className="flex aspect-square size-8 items-center justify-center rounded-lg overflow-hidden border border-primary/15 bg-primary/5 shadow-[0_2px_8px_-2px_var(--color-primary)]">
+                        <img
+                          src="/logo.png"
+                          alt="Bite Club"
+                          className="size-full object-cover"
+                        />
                       </div>
                       <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-primary to-orange-500 bg-clip-text text-transparent">
                         BiteClub
@@ -557,8 +676,12 @@ export default function Navbar({
             </Sheet>
 
             <Link href="/" className="flex items-center gap-1.5 sm:gap-2">
-              <div className="flex aspect-square size-7 sm:size-7.5 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-orange-600 text-primary-foreground shadow-sm">
-                <Bold className="size-3 sm:size-3.5" />
+              <div className="flex aspect-square size-7 sm:size-7.5 items-center justify-center rounded-lg overflow-hidden border border-primary/15 bg-primary/5 shadow-sm">
+                <img
+                  src="/logo.png"
+                  alt="Bite Club"
+                  className="size-full object-cover"
+                />
               </div>
               <span className="text-base sm:text-lg font-bold tracking-tight bg-gradient-to-r from-primary to-orange-500 bg-clip-text text-transparent hidden xs:inline">
                 BiteClub
@@ -570,11 +693,14 @@ export default function Navbar({
           <div className="flex items-center gap-0.5 sm:gap-1">
             {user && (
               <>
-                <NotificationPopover />
+                <NotificationPopover
+                  unreadCount={unreadNotificationsCount}
+                  recentNotifications={recentNotifications}
+                />
                 <GroupOrderSessionsButton />
               </>
             )}
-            <CartButton className="hover:bg-accent/60" />
+            {!isCheckout && <CartButton className="hover:bg-accent/60" />}
 
             {/* Language AR/EN Toggle Button */}
             <Button

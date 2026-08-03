@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { RestaurantRegisterForm } from '@/components/auth/RestaurantRegisterForm';
 import { ApiResponse } from '@/types/api';
 import { RestaurantCategory } from '@/types/restaurant';
@@ -16,3 +17,9 @@ export default async function page() {
   );
 }
 
+
+
+export const metadata: Metadata = {
+  title: "Partner Registration | Bite Club",
+  description: "Register your restaurant with Bite Club to reach more customers, receive online orders, and boost your sales.",
+};

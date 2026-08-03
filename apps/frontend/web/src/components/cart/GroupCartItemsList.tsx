@@ -7,7 +7,8 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { useRouter } from '@/i18n/navigation';
 import { useAction } from 'next-safe-action/hooks';
-import { cn } from '@/lib/utils';
+import { cn, getMediaUrl } from '@/lib/utils';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
   removeItemFromGroupOrderSessionAction,
   updateItemQuantityGroupOrderSessionAction,
@@ -60,12 +61,20 @@ export default function GroupCartItemsList({
             member.user.id === currentUserId && 'border-primary/50',
           )}>
           <div className="flex items-center justify-between gap-3">
-            <p className="font-medium">
-              {member.user.name}
-              <span className="ms-2 text-sm text-muted-foreground">
-                {member.user_total.toFixed(2)} {t('egp')}
-              </span>
-            </p>
+            <div className="flex items-center gap-2">
+              <Avatar className="size-6 rounded-full shrink-0">
+                <AvatarImage src={getMediaUrl(member.user.profile_image)} className="object-cover" />
+                <AvatarFallback className="text-[10px] font-bold bg-primary/10 text-primary">
+                  {member.user.name[0].toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <p className="font-medium flex items-center gap-1.5 flex-wrap">
+                <span className="truncate max-w-[120px]">{member.user.name}</span>
+                <span className="text-sm font-normal text-muted-foreground">
+                  ({member.user_total.toFixed(2)} {t('egp')})
+                </span>
+              </p>
+            </div>
           </div>
 
           <div className="space-y-3">

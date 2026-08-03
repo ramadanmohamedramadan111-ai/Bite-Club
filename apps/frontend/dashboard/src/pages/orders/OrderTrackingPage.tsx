@@ -66,11 +66,14 @@ export function OrderTrackingPage() {
       setIsUpdating(true)
       await api.patch(`/restaurant/orders/${id}/status`, { status: newStatus })
       setCurrentStatus(newStatus)
-      // Refresh the orders store so the changes reflect globally
       await fetchLiveOrders()
-      // Also refetch available statuses since the current one changed
       const res = await api.get<{ data: string[] }>(`/restaurant/orders/${id}/available-statuses`)
       setAvailableStatuses(res.data.data)
+
+      // When order is completed navigate to orders history tab
+      if (newStatus === 'completed') {
+        navigate('/orders')
+      }
     } catch (e) {
       console.error('Failed to update status', e)
     } finally {

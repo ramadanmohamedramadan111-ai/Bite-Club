@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { serverFetch } from '@/utils/server-fetch';
 import { getTranslations } from 'next-intl/server';
 import { cookies } from 'next/headers';
@@ -50,3 +51,23 @@ export default async function OrderDetailPage({
   return <OrderDetailPageView order={order} token={token} />;
 }
 
+
+
+export async function generateMetadata({ params }: { params: Promise<{ orderId: string }> }): Promise<Metadata> {
+  const { orderId } = await params;
+  try {
+    const res = await serverFetch<ApiResponse<OrderDetails>>(`/user/orders/${orderId}`);
+    const order = res?.data;
+    if (order) {
+      return {
+        title: `Order #${order.id} Details - ${order.restaurant.name} | Bite Club`,
+        description: `Track your order from ${order.restaurant.name}. Status: ${order.status}. Total: ${order.financials.total} EGP.`,
+      };
+    }
+  } catch (e) {
+    // Fail silently
+  }
+  return {
+    title: "Order Details | Bite Club",
+  };
+}

@@ -17,6 +17,8 @@
     "friends": "Friends",
     "from": "From",
     "add": "Add",
+    "copyOrder": "Copy Order",
+    "copying": "Copying...",
     "pending": "Pending",
     "failedToLoad": "Failed to load profile",
     "backToOrders": "Back to orders",
@@ -100,6 +102,7 @@
     "morePages": "More pages",
     "pageOf": "Page {current} of {total}",
     "proceedToCheckout": "Proceed to checkout",
+    "loginToCheckout": "Login to checkout",
     "youreReady": "You're ready!",
     "imReady": "I'm ready",
     "waitingForHost": "You're ready! Waiting for the host to checkout.",
@@ -559,7 +562,9 @@
     "settings": "Settings",
     "notifications": "Notifications",
     "cart": "Cart",
-    "logout": "Logout"
+    "logout": "Logout",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy"
   },
   "errors": {
     "serverUnavailable": "Server is unavailable. Please try again later.",
@@ -627,7 +632,8 @@
   "postCard": {
     "pending": "Pending",
     "from": "From",
-    "add": "Add"
+    "add": "Add",
+    "copyOrder": "Copy Order"
   },
   "userPosts": {
     "noPosts": "No posts yet"
@@ -692,6 +698,9 @@
     "subtitle": "Stay updated on orders, friends, and rewards.",
     "markAsRead": "Mark as read",
     "markAllAsRead": "Mark all as read",
+    "markingAsRead": "Marking as read...",
+    "markingAllAsRead": "Marking all as read...",
+    "showAll": "Show all",
     "noNotifications": "No notifications yet"
   },
   "points": {
@@ -830,6 +839,9 @@
     "replaceCartDesc": "Your cart contains items from \"{current}\". Do you want to discard those items and start a new cart from \"{new}\"?",
     "replaceCart": "Replace cart",
     "keepCurrentCart": "Keep current cart",
+    "copyOrderTitle": "Copy this order?",
+    "copyOrderDesc": "Your cart contains items from \"{current}\". Copying this order will replace them with items from \"{new}\".",
+    "copyOrder": "Copy Order",
     "required": "Required",
     "optional": "Optional",
     "max": "Max {max}",
@@ -850,6 +862,8 @@
     "saturday": "Saturday",
     "closed": "Closed",
     "location": "Location",
+    "mapUnavailable": "Map unavailable",
+    "mapUnavailableDesc": "The map could not be loaded in this browser. Location: {lat}, {lng}",
     "deliveryTime": "{time} min"
   },
   "settings": {
@@ -992,6 +1006,8 @@
     "yourCartIsEmpty": "Your cart is empty",
     "emptyCartDesc": "Add items from a restaurant menu before checking out.",
     "loading": "Loading checkout details...",
+    "selectAddressToPreview": "Select a delivery address to calculate totals",
+    "calculatingTotals": "Calculating order totals...",
     "restaurantNotFound": "Restaurant not found",
     "restaurantNotFoundDesc": "We couldn't load details for this order.",
     "delivery": "Delivery",
@@ -1075,7 +1091,12 @@
     "confirmResetTitle": "Are you sure you want to reset your location?",
     "confirmResetDescription": "This will remove your saved location. You will need to select a location again before placing an order.",
     "confirmLocation": "Confirm location",
-    "chooseLocation": "Choose a location"
+    "chooseLocation": "Choose a location",
+    "requiredTitle": "Select Location",
+    "requiredMessage": "Select your location to discover top restaurants and food options near you.",
+    "chooseLocationButton": "Choose Location",
+    "mapUnavailable": "Map unavailable",
+    "mapUnavailableDesc": "The map could not be loaded in this browser."
   },
   "gamification": {
     "signInToTrack": "Sign in to track your rewards",
@@ -1133,6 +1154,161 @@
     "ratingRequired": "Please select a rating",
     "averageRating": "Average Rating",
     "reviewPlaceholder": "No comment provided."
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "subtitle": "Please read these terms carefully before using BiteClub.",
+    "lastUpdated": "Last updated: August 1, 2026",
+    "sections": [
+      {
+        "title": "1. Introduction",
+        "body": [
+          "Welcome to BiteClub! These Terms of Service (\"Terms\") govern your access to and use of the BiteClub platform, including our website, mobile application, and related services (collectively, the \"Service\").",
+          "By creating an account, ordering food, or using any part of the Service, you agree to be bound by these Terms. If you do not agree, please do not use the Service."
+        ]
+      },
+      {
+        "title": "2. Eligibility",
+        "body": [
+          "You must be at least 18 years old to use the Service, or the legal age of majority in your jurisdiction. By using the Service, you represent that you meet this requirement.",
+          "You are responsible for maintaining the confidentiality of your account credentials and for all activity that occurs under your account."
+        ]
+      },
+      {
+        "title": "3. Orders and Payments",
+        "body": [
+          "When you place an order through BiteClub, you agree to pay the amounts displayed at checkout, including taxes, delivery fees, and service fees.",
+          "All prices are listed in EGP and are subject to change at any time. We reserve the right to refuse or cancel any order for any reason, including if the item is unavailable, the price is incorrect, or fraud is suspected.",
+          "Payment options may include online payment, cash on delivery, or split payment between group members. By placing a group order, you agree to be responsible for your share of the total."
+        ]
+      },
+      {
+        "title": "4. Group Orders and Shared Meals",
+        "body": [
+          "BiteClub allows you to create or join group orders with friends, family, and colleagues. When you join a group order, you are responsible for your own selections and your share of the bill.",
+          "You agree not to misuse group order features, including by creating fake orders, impersonating other users, or interfering with other members' selections."
+        ]
+      },
+      {
+        "title": "5. User Content",
+        "body": [
+          "You retain ownership of content you post to the Service, such as reviews, posts, and profile information. By posting content, you grant BiteClub a non-exclusive, worldwide, royalty-free license to use, store, and display that content on the Service.",
+          "You agree not to post content that is unlawful, offensive, deceptive, or infringes the rights of others. We may remove content that violates these Terms without notice."
+        ]
+      },
+      {
+        "title": "6. Acceptable Use",
+        "body": [
+          "You agree not to use the Service to harm, exploit, or interfere with others or with the operation of the Service. This includes not engaging in fraudulent activity, spamming, or attempting to gain unauthorized access to the Service or our systems.",
+          "We may suspend or terminate your account if we believe you have violated these Terms or applicable laws."
+        ]
+      },
+      {
+        "title": "7. Intellectual Property",
+        "body": [
+          "The BiteClub name, logo, design, and all related content, trademarks, and software are the property of BiteClub and its licensors and are protected by applicable intellectual property laws.",
+          "You may not copy, modify, distribute, sell, or create derivative works from any part of the Service without our prior written consent."
+        ]
+      },
+      {
+        "title": "8. Limitation of Liability",
+        "body": [
+          "To the maximum extent permitted by law, BiteClub shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly.",
+          "BiteClub acts as a platform that facilitates orders between you and restaurants. We are not responsible for the quality, availability, or preparation of food provided by third-party restaurants."
+        ]
+      },
+      {
+        "title": "9. Changes to These Terms",
+        "body": [
+          "We may update these Terms from time to time. When we do, we will revise the \"Last updated\" date at the top of this page. Your continued use of the Service after changes are posted constitutes acceptance of the revised Terms.",
+          "If any provision of these Terms is found to be unenforceable, the remaining provisions will remain in full force and effect."
+        ]
+      },
+      {
+        "title": "10. Contact Us",
+        "body": [
+          "If you have any questions about these Terms, please contact us through the support options available in the Service or at support@biteclub.com."
+        ]
+      }
+    ]
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "subtitle": "Learn how BiteClub collects, uses, and protects your information.",
+    "lastUpdated": "Last updated: August 1, 2026",
+    "sections": [
+      {
+        "title": "1. Introduction",
+        "body": [
+          "At BiteClub, we are committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our Service.",
+          "By using the Service, you consent to the collection and use of your information as described in this policy."
+        ]
+      },
+      {
+        "title": "2. Information We Collect",
+        "body": [
+          "Account Information: When you register, we collect your name, email address, phone number, date of birth, and password.",
+          "Location Information: With your permission, we collect your location to help you find nearby restaurants and calculate delivery routes.",
+          "Order and Payment Information: We collect details about your orders, cart contents, and payment methods to process transactions and provide receipts.",
+          "Usage Information: We collect information about how you use the Service, such as pages visited, features used, and device information."
+        ]
+      },
+      {
+        "title": "3. How We Use Your Information",
+        "body": [
+          "We use your information to operate, maintain, and improve the Service; to process your orders and payments; to personalize your experience; to communicate with you about your account and orders; and to provide customer support.",
+          "We may also use aggregated, anonymized data for analytics and to improve our products and services."
+        ]
+      },
+      {
+        "title": "4. Sharing of Information",
+        "body": [
+          "We share your information with restaurants and delivery partners as necessary to fulfill your orders.",
+          "We may share information with trusted service providers who assist us in operating the Service, and when required by law or to protect the rights and safety of BiteClub, our users, or others.",
+          "We do not sell your personal information to third parties."
+        ]
+      },
+      {
+        "title": "5. Data Security",
+        "body": [
+          "We implement reasonable technical and organizational measures to protect your information from unauthorized access, alteration, disclosure, or destruction.",
+          "No method of transmission over the internet or electronic storage is completely secure. While we strive to protect your personal information, we cannot guarantee its absolute security."
+        ]
+      },
+      {
+        "title": "6. Your Rights and Choices",
+        "body": [
+          "You can access and update your account information at any time through your profile settings.",
+          "You can request access to, correction of, or deletion of your personal data by contacting us. We will respond to valid requests within applicable legal timeframes.",
+          "You can control location and notification permissions through your device settings and the Service."
+        ]
+      },
+      {
+        "title": "7. Cookies and Similar Technologies",
+        "body": [
+          "We use cookies and similar technologies to keep you signed in, remember your preferences, and understand how the Service is used.",
+          "You can manage cookies through your browser settings, though disabling certain cookies may affect the functionality of the Service."
+        ]
+      },
+      {
+        "title": "8. Children's Privacy",
+        "body": [
+          "The Service is not intended for individuals under the age of 18. We do not knowingly collect personal information from children. If you believe a child has provided us with personal information, please contact us so we can delete it."
+        ]
+      },
+      {
+        "title": "9. Changes to This Policy",
+        "body": [
+          "We may update this Privacy Policy from time to time. We will notify you of material changes by posting the updated policy on the Service and revising the \"Last updated\" date.",
+          "Your continued use of the Service after changes are posted constitutes acceptance of the updated Privacy Policy."
+        ]
+      },
+      {
+        "title": "10. Contact Us",
+        "body": [
+          "If you have any questions or concerns about this Privacy Policy or our data practices, please contact us at support@biteclub.com."
+        ]
+      }
+    ]
   }
 }
-

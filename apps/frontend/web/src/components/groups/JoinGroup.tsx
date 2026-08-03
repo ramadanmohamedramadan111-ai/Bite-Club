@@ -27,17 +27,19 @@ export default function JoinGroup({ token }: Props) {
   });
 
   return (
-    <div className="flex justify-end gap-2">
+    <div className="flex flex-col sm:flex-row gap-3 w-full">
       <Button
         variant="outline"
         onClick={() => router.back()}
-        disabled={isExecuting}>
+        disabled={isExecuting}
+        className="w-full sm:flex-1 rounded-xl cursor-pointer order-2 sm:order-1">
         {tc('cancel')}
       </Button>
 
       <Button
         onClick={() => execute({ invite_token: token })}
-        disabled={isExecuting}>
+        disabled={isExecuting}
+        className="w-full sm:flex-1 bg-gradient-to-r from-primary to-orange-600 hover:opacity-95 text-white font-semibold rounded-xl cursor-pointer shadow-md hover:shadow-lg transition-all order-1 sm:order-2">
         {t('acceptInvitation')}
       </Button>
     </div>

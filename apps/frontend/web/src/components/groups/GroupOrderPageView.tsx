@@ -11,7 +11,7 @@ import GroupCartActionButton from '@/components/cart/GroupCartActionButton';
 import GroupCartItemsList from '@/components/cart/GroupCartItemsList';
 import GroupCartTotals from '@/components/cart/GroupCartTotals';
 import GroupOrderMenuItems from '@/components/groups/GroupOrderMenuItems';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -20,7 +20,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
+import { cn, getMediaUrl } from '@/lib/utils';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,8 +33,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useEffect } from 'react';
-import Echo from 'laravel-echo';
-import Pusher from 'pusher-js';
+import { getEcho } from '@/lib/echo';
 import {
   cancelGroupAction,
   clearMyItemsGroupOrderAction,
@@ -77,30 +76,7 @@ export default function GroupOrderPageView({
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // Attach Pusher to window so Laravel Echo can find it
-    (window as any).Pusher = Pusher;
-
-    const wsHost =
-      typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-    const reverbKey =
-      process.env.NEXT_PUBLIC_REVERB_APP_KEY || '7shjlvmsslgdjgltf46x';
-
-    const echo = new Echo({
-      broadcaster: 'reverb',
-      key: reverbKey,
-      wsHost: wsHost,
-      wsPort: 8081,
-      wssPort: 8081,
-      forceTLS: false,
-      enabledTransports: ['ws', 'wss'],
-      authEndpoint: '/api/broadcasting/auth',
-      auth: {
-        headers: {
-          Authorization: token ? `Bearer ${token}` : '',
-          Accept: 'application/json',
-        },
-      },
-    });
+    const echo = getEcho(token);
 
     const channelName = `group-order.${sessionId}`;
     console.log(`[Echo] Joining presence channel: ${channelName}`);
@@ -159,9 +135,8 @@ export default function GroupOrderPageView({
     return () => {
       console.log(`[Echo] Leaving presence channel: ${channelName}`);
       echo.leave(channelName);
-      echo.disconnect();
     };
-  }, [sessionId, revalidateSession]);
+  }, [sessionId, revalidateSession, token]);
 
   const totalItems = membersSummary.reduce((sum, m) => sum + m.items.length, 0);
   const isHost =
@@ -217,7 +192,7 @@ export default function GroupOrderPageView({
           {restaurant.image_url && (
             <div className="relative size-16 overflow-hidden rounded-2xl border border-border/30 shadow-xs shrink-0 select-none">
               <Image
-                src={restaurant.image_url}
+                src={getMediaUrl(restaurant.image_url)!}
                 alt={restaurant.name}
                 fill
                 className="object-cover"
@@ -246,9 +221,15 @@ export default function GroupOrderPageView({
                 {sessionCart.status === 'locked' ? t('locked') : t('open')}
               </span>
             </div>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {restaurant.name}
-            </p>
+            <div className="mt-1.5 flex items-center gap-2.5">
+              <p className="truncate text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+                {restaurant.name}
+              </p>
+              <span
+                className="h-0.5 w-10 shrink-0 rounded-full bg-primary/60"
+                aria-hidden="true"
+              />
+            </div>
           </div>
         </div>
 
@@ -278,6 +259,7 @@ export default function GroupOrderPageView({
                 key={member.user.id}
                 className="flex items-center gap-2 rounded-xl border border-border/40 bg-accent/20 px-3.5 py-1.5 text-xs font-semibold text-foreground">
                 <Avatar className="size-5 rounded-full">
+                  <AvatarImage src={getMediaUrl(member.user.profile_image)} className="object-cover" />
                   <AvatarFallback className="text-[10px] font-bold bg-primary/10 text-primary">
                     {member.user.name[0].toUpperCase()}
                   </AvatarFallback>

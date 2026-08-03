@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { getTranslations } from 'next-intl/server';
 import RestaurantCard from '@/components/restaurants/RestaurantCard';
@@ -11,6 +12,8 @@ import { buildQueryString } from '@/utils/api-helpers';
 import AppPagination from '@/components/shared/AppPagination';
 import { parseSearchParams, RestaurantListParams } from '@/utils/validate-search-params';
 import InvalidSearchParams from '@/components/errors/InvalidSearchParams';
+import { LocationAlert } from '@/components/location/location-alert';
+import { cookies } from 'next/headers';
 
 type PageProps = {
   searchParams: Promise<{
@@ -27,6 +30,11 @@ type PageProps = {
 
 export default async function Page({ searchParams }: PageProps) {
   const t = await getTranslations('restaurants');
+  const cookieStore = await cookies();
+  const lat = cookieStore.get('lat')?.value;
+  const lng = cookieStore.get('lng')?.value;
+  const hasLocation = !!lat && !!lng;
+
   const raw = await searchParams;
   const parsed = parseSearchParams(RestaurantListParams, raw);
   if (!parsed.success) return <InvalidSearchParams />;
@@ -68,6 +76,8 @@ export default async function Page({ searchParams }: PageProps) {
         <h1 className="text-3xl font-bold tracking-tight text-foreground">{t('title')}</h1>
         <p className="mt-2 text-muted-foreground">{t('subtitle')}</p>
       </div>
+
+      <LocationAlert initialHasLocation={hasLocation} />
 
       {/* Top Bar for Search and Sort */}
       <div className="mb-8 flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between bg-card border border-border/40 p-4 rounded-2xl shadow-xs">
@@ -139,3 +149,9 @@ export default async function Page({ searchParams }: PageProps) {
   );
 }
 
+
+
+export const metadata: Metadata = {
+  title: "Browse Restaurants | Bite Club",
+  description: "Explore top restaurants near you, check ratings, menus, and find your next favorite meal.",
+};

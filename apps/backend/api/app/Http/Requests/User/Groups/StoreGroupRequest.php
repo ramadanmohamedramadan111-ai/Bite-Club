@@ -21,7 +21,7 @@ class StoreGroupRequest extends FormRequest
         return [
             'name'               => ['required', 'string', 'max:255'],
             'description'        => ['nullable', 'string'],
-            'image'              => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            'image'              => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:5120'],
             'allow_join_by_link' => ['nullable', 'boolean'],
         ];
     }
@@ -34,7 +34,7 @@ class StoreGroupRequest extends FormRequest
             'name.max'      => trans('validation.max.string', ['attribute' => 'name', 'max' => 255]),
             'image.image'   => trans('validation.image', ['attribute' => 'image']),
             'image.mimes'   => trans('validation.mimes', ['attribute' => 'image', 'values' => 'jpeg,png,jpg,gif,svg']),
-            'image.max'     => trans('validation.max.file', ['attribute' => 'image', 'max' => 2048]),
+            'image.max'     => trans('validation.max.file', ['attribute' => 'image', 'max' => 5120]),
         ];
     }
 

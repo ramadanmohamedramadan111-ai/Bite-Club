@@ -1,107 +1,113 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useSearchParams } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import NotificationCard from './NotificationCard';
-import NotificationsPagination from './NotificationsPagination';
-import type { Notification } from '@/types/notification';
+import type { Notification } from '@/types/notifications';
+import { useAction } from 'next-safe-action/hooks';
+import {
+  markNotificationAsReadAction,
+  markAllNotificationsAsReadAction,
+  revalidateNotifications,
+} from '@/actions/notifications';
+import { PaginatedResponse } from '@/types/api';
+import AppPagination from '../shared/AppPagination';
+import { toast } from 'sonner';
 
-const MOCK_NOTIFICATIONS: Notification[] = [
-  {
-    id: '1',
-    title: 'Order Ready',
-    description: 'Your order from Pizza Place is ready for pickup!',
-    read: false,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    title: 'New Restaurant',
-    description: 'A new restaurant just opened near you.',
-    read: false,
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-  },
-  {
-    id: '3',
-    title: 'Welcome!',
-    description: 'Welcome to Bite Club! Enjoy your first meal.',
-    read: true,
-    createdAt: new Date(Date.now() - 172800000).toISOString(),
-  },
-];
+interface Props {
+  initialData: PaginatedResponse<Notification>;
+  currentPage: number;
+}
 
-const NOTIFICATIONS_PER_PAGE = 4;
-
-export default function NotificationsPageView() {
+export default function NotificationsPageView({
+  initialData,
+  currentPage,
+}: Props) {
   const t = useTranslations('notifications');
   const tc = useTranslations('common');
-  const searchParams = useSearchParams();
-  const currentPage = Math.max(1, Number(searchParams.get('page') ?? '1'));
 
-  const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
+  const [markingId, setMarkingId] = useState<string | null>(null);
+
+  const { execute: executeMarkAsRead } = useAction(
+    markNotificationAsReadAction,
+    {
+      onSuccess: async ({ data }) => {
+        toast.success(data.message);
+        await revalidateNotifications();
+      },
+      onError: ({ error }) => {
+        toast.error(error.serverError?.message);
+      },
+      onSettled: () => {
+        setMarkingId(null);
+      },
+    },
+  );
+
+  const { execute: executeMarkAllAsRead, isPending: isMarkingAll } = useAction(
+    markAllNotificationsAsReadAction,
+    {
+      onSuccess: async ({ data }) => {
+        toast.success(data.message);
+        await revalidateNotifications();
+      },
+      onError: ({ error }) => {
+        toast.error(error.serverError?.message);
+      },
+    },
+  );
+
+  const notifications = initialData.items ?? [];
+  const meta = initialData.meta;
+  const totalItems = meta?.total ?? 0;
+  const totalPages = meta?.last_page ?? 1;
+
+  const hasUnread = notifications.some((notification) => !notification.read_at);
 
   const markAsRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
-    );
+    setMarkingId(id);
+    executeMarkAsRead(id);
   };
 
   const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    executeMarkAllAsRead();
   };
 
-  const sortedNotifications = useMemo(
-    () =>
-      [...notifications].sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-      ),
-    [notifications],
-  );
-
-  const totalPages = Math.max(
-    1,
-    Math.ceil(sortedNotifications.length / NOTIFICATIONS_PER_PAGE),
-  );
-  const safePage = Math.min(currentPage, totalPages);
-  const startIndex = (safePage - 1) * NOTIFICATIONS_PER_PAGE;
-  const paginatedNotifications = sortedNotifications.slice(
-    startIndex,
-    startIndex + NOTIFICATIONS_PER_PAGE,
-  );
-
-  const hasUnread = notifications.some((notification) => !notification.read);
-
   return (
-    <div className="container mx-auto max-w-3xl space-y-6">
+    <div className="container mx-auto space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold">{t('title')}</h1>
-          <p className="mt-2 text-muted-foreground">
-            {t('subtitle')}
-          </p>
+          <p className="mt-2 text-muted-foreground">{t('subtitle')}</p>
         </div>
 
         {hasUnread && (
-          <Button variant="outline" onClick={markAllAsRead}>
-            {t('markAllAsRead')}
+          <Button
+            variant="outline"
+            disabled={isMarkingAll}
+            onClick={markAllAsRead}
+          >
+            {isMarkingAll && <Loader2 className="animate-spin" />}
+            {isMarkingAll ? t('markingAllAsRead') : t('markAllAsRead')}
           </Button>
         )}
       </div>
 
       <p className="text-sm text-muted-foreground">
-        {sortedNotifications.length} {sortedNotifications.length === 1 ? tc('notification') : tc('notifications')}
+        {totalItems}{' '}
+        {totalItems === 1 ? tc('notification') : tc('notifications')}
       </p>
 
       <div className="space-y-3">
-        {paginatedNotifications.length > 0 ? (
-          paginatedNotifications.map((notification) => (
+        {notifications.length > 0 ? (
+          notifications.map((notification) => (
             <NotificationCard
               key={notification.id}
               notification={notification}
               onMarkAsRead={markAsRead}
+              isMarking={markingId === notification.id}
             />
           ))
         ) : (
@@ -111,10 +117,8 @@ export default function NotificationsPageView() {
         )}
       </div>
 
-      <NotificationsPagination
-        currentPage={safePage}
-        totalPages={totalPages}
-      />
+      <AppPagination currentPage={currentPage} totalPages={totalPages} />
     </div>
   );
 }
+

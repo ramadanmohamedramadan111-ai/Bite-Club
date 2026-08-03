@@ -71,8 +71,8 @@ class RestaurantProfileTest extends RestaurantAuthTest
             'cover_image'  => $cover,
         ];
 
-        // Act - we use POST with _method=PATCH to support multipart/form-data files upload in Laravel
-        $response = $this->withToken($token)->postJson('/api/restaurant/profile?_method=PATCH', $payload);
+        // Act - we use POST to support multipart/form-data files upload in Laravel
+        $response = $this->withToken($token)->postJson('/api/restaurant/profile', $payload);
 
         // Assert
         $response->assertOk();
@@ -108,7 +108,7 @@ class RestaurantProfileTest extends RestaurantAuthTest
         ];
 
         // Act
-        $response = $this->withToken($token)->postJson('/api/restaurant/profile?_method=PATCH', $payload);
+        $response = $this->withToken($token)->postJson('/api/restaurant/profile', $payload);
 
         // Assert
         $response->assertStatus(422);

@@ -9,6 +9,10 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
 
+Broadcast::channel('App.Models.Restaurant.{id}', function ($restaurant, $id) {
+    return (int) $restaurant->id === (int) $id;
+}, ['guards' => ['restaurant']]);
+
 Broadcast::channel('group-order.{groupId}', function ($user, $groupId) {
     $domainService = app(GroupOrderDomainService::class);
 

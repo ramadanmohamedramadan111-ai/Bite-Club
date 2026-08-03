@@ -15,16 +15,14 @@ export default function PointsTabs() {
   const t = useTranslations('points');
   const pathname = usePathname();
 
-  const activeTab =
-    tabKeys.find((tab) => pathname.endsWith(`/${tab.value}`))?.value ??
-    'history';
+  const activeTab: PointsTab = pathname.endsWith('/referrals') ? 'referrals' : 'history';
 
   return (
     <Tabs value={activeTab}>
       <TabsList className="grid w-full grid-cols-2 max-w-md">
         {tabKeys.map((tab) => (
           <TabsTrigger key={tab.value} value={tab.value} asChild>
-            <Link href={`/points/${tab.value}`}>{t(tab.labelKey)}</Link>
+            <Link href={tab.value === 'history' ? '/points' : `/points/${tab.value}`}>{t(tab.labelKey)}</Link>
           </TabsTrigger>
         ))}
       </TabsList>

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import GroupsHeader from '@/components/groups/GroupsHeader';
 import YourGroups from '@/components/groups/YourGroups';
 import ActiveSessionsPanel from '@/components/groups/ActiveSessionsPanel';
@@ -12,7 +13,7 @@ export default async function Page({
   const raw = await searchParams;
   const parsed = parseSearchParams(SearchPaginatedParams, raw);
   if (!parsed.success) return <InvalidSearchParams />;
-  const { search, page = '1', per_page = '1' } = parsed.data;
+  const { search, page = '1', per_page = '15' } = parsed.data;
 
   return (
     <div className="container mx-auto space-y-8">
@@ -23,3 +24,9 @@ export default async function Page({
   );
 }
 
+
+
+export const metadata: Metadata = {
+  title: "My Groups & Teams | Bite Club",
+  description: "Create or manage your food ordering groups to split costs and order together.",
+};

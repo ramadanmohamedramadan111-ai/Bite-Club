@@ -19,6 +19,7 @@ import { toast } from 'sonner';
 import { mapServerFieldErrors } from '@/utils/map-server-field-errors';
 import { Dispatch, SetStateAction } from 'react';
 import { useRouter } from '@/i18n/navigation';
+import { getMediaUrl } from '@/lib/utils';
 
 export default function GroupForm({
   type,
@@ -66,7 +67,7 @@ export default function GroupForm({
 
   function resetForm() {
     reset();
-    setImagePreview(group?.image_url ?? null);
+    setImagePreview(getMediaUrl(group?.image_url) ?? null);
     setFileInputKey((prev) => prev + 1);
   }
 
@@ -83,7 +84,7 @@ export default function GroupForm({
     const file = event.target.files?.[0];
 
     if (!file) {
-      setImagePreview(group?.image_url ?? null);
+      setImagePreview(getMediaUrl(group?.image_url) ?? null);
       return;
     }
 
@@ -149,7 +150,7 @@ export default function GroupForm({
       image: undefined,
     });
 
-    setImagePreview(group?.image_url ?? null);
+    setImagePreview(getMediaUrl(group?.image_url) ?? null);
   }, [group, reset]);
 
   return (

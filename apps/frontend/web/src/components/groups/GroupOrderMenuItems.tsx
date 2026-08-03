@@ -16,7 +16,7 @@ import {
 import { Field, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { cn } from '@/lib/utils';
+import { cn, getMediaUrl } from '@/lib/utils';
 import { useAction } from 'next-safe-action/hooks';
 import { addItemToGroupOrderSessionAction } from '@/actions/group-order';
 import { useRouter } from '@/i18n/navigation';
@@ -212,8 +212,8 @@ export default function GroupOrderMenuItems({ sessionId, menuGroups }: Props) {
                       <div className="relative h-36 w-full">
                         <Image
                           src={
-                            item.image_url ||
-                            '/storage/restaurants/restaurant.jpeg'
+                            getMediaUrl(item.image_url) ||
+                            getMediaUrl('/storage/restaurants/restaurant.jpeg')!
                           }
                           alt={item.title}
                           fill
@@ -264,8 +264,8 @@ export default function GroupOrderMenuItems({ sessionId, menuGroups }: Props) {
             <div className="relative h-44 overflow-hidden rounded-xl">
               <Image
                 src={
-                  selectedItem?.image_url ||
-                  '/storage/restaurants/restaurant.jpeg'
+                  getMediaUrl(selectedItem?.image_url) ||
+                  getMediaUrl('/storage/restaurants/restaurant.jpeg')!
                 }
                 alt={selectedItem?.title ?? ''}
                 fill

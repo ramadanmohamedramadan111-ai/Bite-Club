@@ -6,9 +6,12 @@ use App\Enums\Order\OrderStatusEnum;
 use App\Enums\Order\OrderTypeEnum;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Traits\UrlFormatterTrait;
 
 class UserOrderDetailsResource extends JsonResource
 {
+    use UrlFormatterTrait;
+
     /**
      * Transform the resource into an array.
      *
@@ -24,6 +27,7 @@ class UserOrderDetailsResource extends JsonResource
                 'id' => $this->restaurant->id ?? null,
                 'name' => $this->restaurant->name ?? null,
                 'address' => $this->restaurant->address ?? null,
+                'logo_url' => $this->formatImageUrl($this->restaurant->logo_url),
             ],
             'financials' => [
                 'subtotal' => (float) $this->subtotal,
