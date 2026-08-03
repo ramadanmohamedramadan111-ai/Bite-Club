@@ -22,6 +22,8 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import CheckoutDeliveryAddress from './CheckoutDeliveryAddress';
 import type { SavedLocation } from '@/components/location/types';
+import { getSavedLocation } from '@/utils/map';
+import { Spinner } from '@/components/ui/spinner';
 import {
   checkoutGroupPreviewDeliveryAction,
   checkoutGroupPreviewPickupAction,
@@ -59,7 +61,12 @@ export default function GroupOrderCheckoutView({
   const membersSummary = sessionCart.members_summary;
   const totalItems = membersSummary.reduce((sum, m) => sum + m.items.length, 0);
 
-  const [location, setLocation] = useState<SavedLocation | null>(null);
+  const [location, setLocation] = useState<SavedLocation | null>(() => {
+    if (typeof window !== 'undefined') {
+      return getSavedLocation();
+    }
+    return null;
+  });
   const [fulfillmentType, setFulfillmentType] =
     useState<FulfillmentType>('pickup');
   const [paymentMethod, setPaymentMethod] =
@@ -216,7 +223,11 @@ export default function GroupOrderCheckoutView({
   }
 
   const disabledCondition =
-    isPreviewingDelivery || isPreviewingPickup || isPlacingOrder || !!error;
+    isPreviewingDelivery ||
+    isPreviewingPickup ||
+    isPlacingOrder ||
+    !checkoutPreview ||
+    !!error;
 
   const handlePlaceOrder = () => {
     setError(null);
@@ -552,62 +563,75 @@ export default function GroupOrderCheckoutView({
 
             <Separator />
 
-            <dl className="space-y-2.5 text-sm">
-              <div className="flex justify-between">
-                <dt className="text-muted-foreground">{t('subtotal')}</dt>
-                <dd className="font-semibold text-foreground">
-                  {summary.subtotal.toFixed(2)} EGP
-                </dd>
+            {isPreviewingDelivery || isPreviewingPickup || !checkoutPreview ? (
+              <div className="py-6 flex flex-col items-center justify-center space-y-3 text-center">
+                <Spinner className="size-6 text-primary" />
+                <p className="text-xs text-muted-foreground">
+                  {fulfillmentType === 'delivery' && !location
+                    ? t('selectAddressToPreview') || 'Select a delivery address to calculate totals'
+                    : t('calculatingTotals') || 'Calculating order totals...'}
+                </p>
               </div>
-              {fulfillmentType === 'delivery' && (
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">{t('deliveryFee')}</dt>
-                  <dd className="font-semibold text-foreground">
-                    {summary.deliveryFee.toFixed(2)} EGP
-                  </dd>
-                </div>
-              )}
-              {summary.serviceFee > 0 && (
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">{t('serviceFee')}</dt>
-                  <dd className="font-semibold text-foreground">
-                    {summary.serviceFee.toFixed(2)} EGP
-                  </dd>
-                </div>
-              )}
-              {summary.discountAmount > 0 && (
-                <div className="flex justify-between text-green-600 dark:text-green-400">
-                  <dt className="flex items-center gap-1.5">
-                    {t('discount')}
-                    <span className="text-xs font-normal text-muted-foreground">
-                      ({t('pointsRedeemed', { count: summary.pointsRedeemed })})
-                    </span>
-                  </dt>
-                  <dd className="font-semibold">
-                    -{summary.discountAmount.toFixed(2)} EGP
-                  </dd>
-                </div>
-              )}
-            </dl>
-
-            <Separator />
-
-            {summary.requiresDeposit ? (
-              <dl className="space-y-2.5 text-sm">
-                <div className="flex justify-between text-base font-bold text-primary">
-                  <span>{t('requiredDeposit')}</span>
-                  <span>{summary.depositAmount.toFixed(2)} EGP</span>
-                </div>
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>{t('remainingOnDelivery')}</span>
-                  <span>{summary.remainingAmount.toFixed(2)} EGP</span>
-                </div>
-              </dl>
             ) : (
-              <div className="flex justify-between text-base font-bold">
-                <span>{t('total')}</span>
-                <span className="text-primary">{summary.total.toFixed(2)} EGP</span>
-              </div>
+              <>
+                <dl className="space-y-2.5 text-sm">
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">{t('subtotal')}</dt>
+                    <dd className="font-semibold text-foreground">
+                      {summary.subtotal.toFixed(2)} EGP
+                    </dd>
+                  </div>
+                  {fulfillmentType === 'delivery' && (
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">{t('deliveryFee')}</dt>
+                      <dd className="font-semibold text-foreground">
+                        {summary.deliveryFee.toFixed(2)} EGP
+                      </dd>
+                    </div>
+                  )}
+                  {summary.serviceFee > 0 && (
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">{t('serviceFee')}</dt>
+                      <dd className="font-semibold text-foreground">
+                        {summary.serviceFee.toFixed(2)} EGP
+                      </dd>
+                    </div>
+                  )}
+                  {summary.discountAmount > 0 && (
+                    <div className="flex justify-between text-green-600 dark:text-green-400">
+                      <dt className="flex items-center gap-1.5">
+                        {t('discount')}
+                        <span className="text-xs font-normal text-muted-foreground">
+                          ({t('pointsRedeemed', { count: summary.pointsRedeemed })})
+                        </span>
+                      </dt>
+                      <dd className="font-semibold">
+                        -{summary.discountAmount.toFixed(2)} EGP
+                      </dd>
+                    </div>
+                  )}
+                </dl>
+
+                <Separator />
+
+                {summary.requiresDeposit ? (
+                  <dl className="space-y-2.5 text-sm">
+                    <div className="flex justify-between text-base font-bold text-primary">
+                      <span>{t('requiredDeposit')}</span>
+                      <span>{summary.depositAmount.toFixed(2)} EGP</span>
+                    </div>
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>{t('remainingOnDelivery')}</span>
+                      <span>{summary.remainingAmount.toFixed(2)} EGP</span>
+                    </div>
+                  </dl>
+                ) : (
+                  <div className="flex justify-between text-base font-bold">
+                    <span>{t('total')}</span>
+                    <span className="text-primary">{summary.total.toFixed(2)} EGP</span>
+                  </div>
+                )}
+              </>
             )}
           </CardContent>
         </Card>

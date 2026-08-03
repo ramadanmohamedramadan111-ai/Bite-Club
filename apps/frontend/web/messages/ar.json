@@ -1006,6 +1006,8 @@
     "yourCartIsEmpty": "سلة التسوق فارغة",
     "emptyCartDesc": "أضف عناصر من قائمة المطعم قبل إتمام الطلب.",
     "loading": "جاري تحميل تفاصيل الدفع...",
+    "selectAddressToPreview": "اختر عنوان التوصيل لحساب الإجمالي",
+    "calculatingTotals": "جاري حساب إجمالي الطلب...",
     "restaurantNotFound": "المطعم غير موجود",
     "restaurantNotFoundDesc": "تعذر تحميل تفاصيل هذا الطلب.",
     "delivery": "توصيل",

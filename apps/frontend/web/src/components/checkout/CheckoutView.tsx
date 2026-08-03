@@ -304,6 +304,7 @@ export default function CheckoutView({ initialLocation }: Props) {
     isClearingCart ||
     isLoadingRestaurant ||
     isPlacingOrder ||
+    !checkoutPreview ||
     !!error;
 
   const handlePlaceOrder = () => {
@@ -640,6 +641,8 @@ export default function CheckoutView({ initialLocation }: Props) {
           cart={cart}
           summary={summary}
           fulfillmentType={fulfillmentType}
+          isLoading={isPreviewingDelivery || isPreviewingPickup || !checkoutPreview}
+          hasLocation={!!location}
         />
       </div>
     </div>

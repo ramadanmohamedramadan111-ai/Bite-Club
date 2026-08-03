@@ -11,7 +11,7 @@ import GroupCartActionButton from '@/components/cart/GroupCartActionButton';
 import GroupCartItemsList from '@/components/cart/GroupCartItemsList';
 import GroupCartTotals from '@/components/cart/GroupCartTotals';
 import GroupOrderMenuItems from '@/components/groups/GroupOrderMenuItems';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -259,6 +259,7 @@ export default function GroupOrderPageView({
                 key={member.user.id}
                 className="flex items-center gap-2 rounded-xl border border-border/40 bg-accent/20 px-3.5 py-1.5 text-xs font-semibold text-foreground">
                 <Avatar className="size-5 rounded-full">
+                  <AvatarImage src={getMediaUrl(member.user.profile_image)} className="object-cover" />
                   <AvatarFallback className="text-[10px] font-bold bg-primary/10 text-primary">
                     {member.user.name[0].toUpperCase()}
                   </AvatarFallback>

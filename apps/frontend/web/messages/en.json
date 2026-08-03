@@ -1006,6 +1006,8 @@
     "yourCartIsEmpty": "Your cart is empty",
     "emptyCartDesc": "Add items from a restaurant menu before checking out.",
     "loading": "Loading checkout details...",
+    "selectAddressToPreview": "Select a delivery address to calculate totals",
+    "calculatingTotals": "Calculating order totals...",
     "restaurantNotFound": "Restaurant not found",
     "restaurantNotFoundDesc": "We couldn't load details for this order.",
     "delivery": "Delivery",

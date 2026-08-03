@@ -47,7 +47,7 @@ export default function CreateGroupOrderDialog({
   const t = useTranslations('groups');
   const tc = useTranslations('common');
   const [sessionType, setSessionType] =
-    useState<GroupOrderSessionType>('anonymous');
+    useState<GroupOrderSessionType>('fixed');
   const [selectedGroupId, setSelectedGroupId] = useState<number>();
 
   // Search & pagination
@@ -132,6 +132,7 @@ export default function CreateGroupOrderDialog({
                   resetState();
                 }
               }}>
+              {/*
               <div className="flex items-start gap-3 rounded-lg border p-3">
                 <RadioGroupItem value="anonymous" id="anonymous" />
                 <div className="space-y-1">
@@ -143,6 +144,7 @@ export default function CreateGroupOrderDialog({
                   </p>
                 </div>
               </div>
+              */}
               <div className="flex items-start gap-3 rounded-lg border p-3">
                 <RadioGroupItem value="fixed" id="fixed" />
                 <div className="space-y-1">
@@ -185,8 +187,8 @@ export default function CreateGroupOrderDialog({
                   {t('noGroupsFound')}
                 </p>
               ) : (
-                <ScrollArea className="max-h-48">
-                  <div className="space-y-1">
+                <ScrollArea className="h-48 pr-3">
+                  <div className="flex flex-col gap-2">
                     {groups.map((group) => (
                       <button
                         key={group.id}
@@ -198,9 +200,11 @@ export default function CreateGroupOrderDialog({
                         }`}
                         onClick={() => setSelectedGroupId(group.id)}>
                         <p className="font-medium">{group.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {group.description}
-                        </p>
+                        {group.description && (
+                          <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">
+                            {group.description}
+                          </p>
+                        )}
                         <p className="mt-1 text-xs text-muted-foreground">
                           {group.members_count} members
                         </p>
