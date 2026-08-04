@@ -16,6 +16,7 @@ import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useI18n } from '@/lib/i18n';
 import { useRemoveCartItem, useUpdateCartItemQuantity } from '@/lib/queries';
+import { useAuthStore } from '@/stores/auth';
 import type { Cart } from '@/lib/types';
 
 type Props = {
@@ -31,6 +32,7 @@ export function CartSheet({ cart, visible, onClose }: Props) {
   const colors = Colors[scheme ?? 'light'];
   const { t } = useI18n();
   const router = useRouter();
+  const { isAuthenticated } = useAuthStore();
 
   const updateQuantity = useUpdateCartItemQuantity();
   const removeItem = useRemoveCartItem();
@@ -148,11 +150,17 @@ export function CartSheet({ cart, visible, onClose }: Props) {
               <Pressable
                 onPress={() => {
                   onClose();
-                  router.push('/checkout');
+                  if (!isAuthenticated) {
+                    router.push('/login?redirect=/checkout');
+                  } else {
+                    router.push('/checkout');
+                  }
                 }}
                 accessibilityRole="button"
                 style={[styles.checkoutBtn, { backgroundColor: colors.primary }]}>
-                <Text style={styles.checkoutText}>{t('cart.checkout')}</Text>
+                <Text style={styles.checkoutText}>
+                  {isAuthenticated ? t('cart.checkout') : t('cart.loginToCheckout')}
+                </Text>
               </Pressable>
             </View>
           </>

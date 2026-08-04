@@ -6,11 +6,13 @@ import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useI18n } from '@/lib/i18n';
 import { useActiveGroupOrders, useFriendRequests } from '@/lib/queries';
+import { useAuthStore } from '@/stores/auth';
 
 export default function TabLayout() {
   const scheme = useColorScheme();
   const colors = Colors[scheme ?? 'light'];
   const { t } = useI18n();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   const { data: activeSessions } = useActiveGroupOrders();
   const activeCount = activeSessions?.length ?? 0;
@@ -27,6 +29,7 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: colors.card,
           borderTopColor: colors.border,
+          display: isAuthenticated ? 'flex' : 'none',
         },
       }}>
       <Tabs.Screen
@@ -41,6 +44,7 @@ export default function TabLayout() {
         options={{
           title: t('tabs.orders'),
           tabBarIcon: ({ color, size }) => <Logs size={size} color={color} />,
+          href: isAuthenticated ? undefined : null,
         }}
       />
       <Tabs.Screen
@@ -48,6 +52,7 @@ export default function TabLayout() {
         options={{
           title: t('tabs.posts'),
           tabBarIcon: ({ color, size }) => <Newspaper size={size} color={color} />,
+          href: isAuthenticated ? undefined : null,
         }}
       />
       <Tabs.Screen
@@ -56,6 +61,7 @@ export default function TabLayout() {
           title: t('tabs.groups'),
           tabBarIcon: ({ color, size }) => <Ionicons name="people" size={size} color={color} />,
           tabBarBadge: activeCount > 0 ? activeCount : undefined,
+          href: isAuthenticated ? undefined : null,
         }}
       />
       <Tabs.Screen
@@ -64,6 +70,7 @@ export default function TabLayout() {
           title: t('tabs.friends'),
           tabBarIcon: ({ color, size }) => <Users size={size} color={color} />,
           tabBarBadge: requestsCount > 0 ? requestsCount : undefined,
+          href: isAuthenticated ? undefined : null,
         }}
       />
       <Tabs.Screen

@@ -7,7 +7,6 @@ import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useI18n } from '@/lib/i18n';
 import { resolveImageUrl } from '@/lib/config';
-import { useAuthStore } from '@/stores/auth';
 import type { MenuItem, MenuSection } from '@/lib/types';
 
 type Props = {
@@ -22,7 +21,6 @@ export function RestaurantMenu({ restaurantId, menu, isLoading, isError, onCusto
   const scheme = useColorScheme();
   const colors = Colors[scheme ?? 'light'];
   const { t } = useI18n();
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -113,7 +111,7 @@ export function RestaurantMenu({ restaurantId, menu, isLoading, isError, onCusto
           <Text style={[styles.sectionTitle, { color: colors.text }]}>{activeSection.title}</Text>
           {activeSection.items.map((item) => {
             const image = resolveImageUrl(item.image_url);
-            const canCustomize = isAuthenticated && item.is_available;
+            const canCustomize = item.is_available;
             return (
               <Pressable
                 key={item.id}

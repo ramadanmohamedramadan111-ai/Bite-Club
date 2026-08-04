@@ -2,10 +2,34 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { useFonts } from 'expo-font';
+import { ActivityIndicator, StyleSheet, View, Text, TextInput } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import * as SplashScreen from 'expo-splash-screen';
 import 'react-native-reanimated';
+
+// Prevent native splash screen from auto-hiding
+SplashScreen.preventAutoHideAsync();
+
+import { SplashScreenComponent } from '@/components/splash/splash-screen';
+
+// Inject global default font family for consistent typography
+// @ts-ignore
+if (Text.defaultProps == null) {
+  // @ts-ignore
+  Text.defaultProps = {};
+}
+// @ts-ignore
+Text.defaultProps.style = { fontFamily: 'Rubik' };
+
+// @ts-ignore
+if (TextInput.defaultProps == null) {
+  // @ts-ignore
+  TextInput.defaultProps = {};
+}
+// @ts-ignore
+TextInput.defaultProps.style = { fontFamily: 'Rubik' };
 
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -15,6 +39,7 @@ import { RealtimeSubscriber } from '@/components/notifications/realtime-subscrip
 import { useAuthStore } from '@/stores/auth';
 import { useLocationStore } from '@/stores/location';
 import { useSettingsStore } from '@/stores/settings';
+import { useCartStore } from '@/stores/cart';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -28,18 +53,39 @@ export default function RootLayout() {
   const settingsLocale = useSettingsStore((s) => s.locale);
   const settingsHydrate = useSettingsStore((s) => s.hydrate);
   const locationHydrate = useLocationStore((s) => s.hydrate);
+  const cartHydrate = useCartStore((s) => s.hydrate);
+
+  const [fontsLoaded] = useFonts({
+    'Rubik': 'https://raw.githubusercontent.com/google/fonts/main/ofl/rubik/Rubik%5Bwght%5D.ttf',
+    'ReadexPro': 'https://raw.githubusercontent.com/ThomasJockin/readexpro/master/fonts/ttf/ReadexPro-Regular.ttf',
+  });
+
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     hydrate();
     settingsHydrate();
     locationHydrate();
-  }, [hydrate, settingsHydrate, locationHydrate]);
+    cartHydrate();
+
+    const timer = setTimeout(() => {
+      setIsReady(true);
+    }, 2800);
+
+    return () => clearTimeout(timer);
+  }, [hydrate, settingsHydrate, locationHydrate, cartHydrate]);
 
   useEffect(() => {
     if (settingsHydrated) {
       applyLocale(settingsLocale);
     }
   }, [settingsHydrated, settingsLocale]);
+
+  useEffect(() => {
+    if (hydrated && settingsHydrated && fontsLoaded) {
+      SplashScreen.hideAsync().catch((err) => console.warn(err));
+    }
+  }, [hydrated, settingsHydrated, fontsLoaded]);
 
   const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
   const theme = {
@@ -55,12 +101,8 @@ export default function RootLayout() {
     },
   };
 
-  if (!hydrated || !settingsHydrated) {
-    return (
-      <View style={[styles.loading, { backgroundColor: colors.background }]}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
+  if (!hydrated || !settingsHydrated || !isReady || !fontsLoaded) {
+    return <SplashScreenComponent />;
   }
 
   return (

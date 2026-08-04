@@ -96,9 +96,7 @@ export default function RestaurantDetailScreen() {
         <Text style={[styles.navTitle, { color: colors.text }]} numberOfLines={1}>
           {restaurant?.name ?? ''}
         </Text>
-        {isAuthenticated && (
-          <CartButton count={cartCount} onPress={() => setCartOpen(true)} />
-        )}
+        <CartButton count={cartCount} onPress={() => setCartOpen(true)} />
       </View>
 
       {restaurantQuery.isLoading || restaurantQuery.isError || !restaurant ? (
@@ -157,6 +155,7 @@ export default function RestaurantDetailScreen() {
       <MenuItemCustomizer
         item={customizeItem}
         restaurantId={restaurant?.id ?? 0}
+        restaurantName={restaurant?.name ?? ''}
         visible={customizeItem !== null}
         onClose={() => setCustomizeItem(null)}
       />

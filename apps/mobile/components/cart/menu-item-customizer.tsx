@@ -23,13 +23,14 @@ import type { MenuItem } from '@/lib/types';
 type Props = {
   item: MenuItem | null;
   restaurantId: number;
+  restaurantName: string;
   visible: boolean;
   onClose: () => void;
 };
 
 const MAX_TRANSLATE = 620;
 
-export function MenuItemCustomizer({ item, restaurantId, visible, onClose }: Props) {
+export function MenuItemCustomizer({ item, restaurantId, restaurantName, visible, onClose }: Props) {
   const scheme = useColorScheme();
   const colors = Colors[scheme ?? 'light'];
   const { t } = useI18n();
@@ -110,7 +111,10 @@ export function MenuItemCustomizer({ item, restaurantId, visible, onClose }: Pro
       addCartItem.mutate(
         {
           restaurant_id: restaurantId,
+          restaurant_name: restaurantName,
           item_id: item.id,
+          item_name: item.title,
+          unit_price: item.price,
           quantity,
           notes: trimmedNotes,
         },

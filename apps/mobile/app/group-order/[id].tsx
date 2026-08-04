@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, Redirect } from 'expo-router';
 import { useState, useMemo } from 'react';
 import {
   ActivityIndicator,
@@ -45,8 +45,12 @@ export default function GroupOrderScreen() {
   const scheme = useColorScheme();
   const colors = Colors[scheme ?? 'light'];
   const { t } = useI18n();
-  const { user: currentUser } = useAuthStore();
+  const { user: currentUser, isAuthenticated } = useAuthStore();
   const queryClient = useQueryClient();
+
+  if (!isAuthenticated) {
+    return <Redirect href={`/login?redirect=/group-order/${sessionId}`} />;
+  }
 
   const [tab, setTab] = useState<Tab>('menu');
   const [customizeItem, setCustomizeItem] = useState<MenuItem | null>(null);

@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import { Link, useRouter } from 'expo-router';
+import { Link, useRouter, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { StyleSheet, Text, View } from 'react-native';
@@ -20,11 +20,13 @@ import { useI18n } from '@/lib/i18n';
 import { mapServerFieldErrors } from '@/lib/map-server-errors';
 import { createLoginSchema, type LoginValues } from '@/lib/schemas';
 import { useAuthStore, type AuthUser } from '@/stores/auth';
+import { useCartStore } from '@/stores/cart';
 import { Colors, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export function LoginForm() {
   const router = useRouter();
+  const { redirect } = useLocalSearchParams<{ redirect: string }>();
   const setAuth = useAuthStore((s) => s.setAuth);
   const scheme = useColorScheme();
   const colors = Colors[scheme ?? 'light'];
@@ -44,10 +46,32 @@ export function LoginForm() {
   const loginMutation = useMutation({
     mutationFn: (values: LoginValues) =>
       api.post<{ data: { access_token: string; user: AuthUser } }>('/user/login', values),
-    onSuccess: (res) => {
+    onSuccess: async (res) => {
       if (res.data?.access_token) {
         setAuth(res.data.access_token, res.data.user);
-        router.replace('/');
+
+        const guestCart = useCartStore.getState().cart;
+        if (guestCart && guestCart.items.length > 0) {
+          try {
+            await api.post('/user/cart/merge', {
+              restaurant_id: guestCart.restaurant.id,
+              items: guestCart.items.map((item) => ({
+                item_id: item.item_id,
+                quantity: item.quantity,
+                notes: item.notes || null,
+              })),
+            });
+            useCartStore.getState().clearCart();
+          } catch (err) {
+            console.error('Failed to merge guest cart:', err);
+          }
+        }
+
+        if (redirect) {
+          router.replace(redirect as any);
+        } else {
+          router.replace('/');
+        }
       }
     },
     onError: (e) => {

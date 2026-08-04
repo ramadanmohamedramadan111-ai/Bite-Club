@@ -111,9 +111,7 @@ export default function RestaurantsScreen() {
           <Text style={[styles.headerTitle, { color: colors.text }]}>{t('restaurants.title')}</Text>
           <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>{t('restaurants.subtitle')}</Text>
         </View>
-        {isAuthenticated && (
-          <CartButton count={cartCount} onPress={() => setCartOpen(true)} />
-        )}
+        <CartButton count={cartCount} onPress={() => setCartOpen(true)} />
       </View>
 
       <View style={styles.toolbar}>

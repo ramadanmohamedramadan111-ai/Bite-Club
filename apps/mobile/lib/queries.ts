@@ -1,8 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
 
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/stores/auth';
 import { useNotificationsStore } from '@/stores/notifications';
+import { useCartStore } from '@/stores/cart';
 import {
   toRating,
   type Cart,
@@ -351,7 +352,9 @@ export function useDeleteReviewMutation() {
 
 export function useCart() {
   const { isAuthenticated } = useAuthStore();
-  return useQuery({
+  const guestCart = useCartStore((s) => s.cart);
+
+  const apiCartQuery = useQuery({
     queryKey: queryKeys.cart,
     queryFn: async () => {
       const res = await api.get<{ data: Cart }>('/user/cart');
@@ -359,31 +362,105 @@ export function useCart() {
     },
     enabled: isAuthenticated,
   });
+
+  if (!isAuthenticated) {
+    return {
+      data: guestCart,
+      isLoading: false,
+      isSuccess: true,
+      refetch: () => Promise.resolve(),
+    } as unknown as UseQueryResult<Cart, Error>;
+  }
+
+  return apiCartQuery;
 }
 
 export function useAddCartItem() {
+  const { isAuthenticated } = useAuthStore();
   const queryClient = useQueryClient();
+  const addGuestItem = useCartStore((s) => s.addItem);
+
   return useMutation({
-    mutationFn: (payload: { restaurant_id: number; item_id: number; quantity: number; notes?: string }) =>
-      api.post('/user/cart/items', payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.cart }),
+    mutationFn: async (payload: {
+      restaurant_id: number;
+      restaurant_name?: string;
+      item_id: number;
+      item_name?: string;
+      unit_price?: number;
+      quantity: number;
+      notes?: string;
+    }) => {
+      if (!isAuthenticated) {
+        addGuestItem(
+          payload.restaurant_id,
+          payload.restaurant_name ?? 'Restaurant',
+          {
+            id: payload.item_id,
+            title: payload.item_name ?? 'Item',
+            price: payload.unit_price ?? 0,
+            description: '',
+            is_available: true,
+            image_url: '',
+          },
+          payload.quantity,
+          payload.notes
+        );
+        return null;
+      }
+      return api.post('/user/cart/items', {
+        restaurant_id: payload.restaurant_id,
+        item_id: payload.item_id,
+        quantity: payload.quantity,
+        notes: payload.notes,
+      });
+    },
+    onSuccess: () => {
+      if (isAuthenticated) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.cart });
+      }
+    },
   });
 }
 
 export function useUpdateCartItemQuantity() {
+  const { isAuthenticated } = useAuthStore();
   const queryClient = useQueryClient();
+  const updateGuestQty = useCartStore((s) => s.updateQuantity);
+
   return useMutation({
-    mutationFn: ({ id, quantity }: { id: number; quantity: number }) =>
-      api.put(`/user/cart/items/${id}`, { quantity }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.cart }),
+    mutationFn: async ({ id, quantity }: { id: number; quantity: number }) => {
+      if (!isAuthenticated) {
+        updateGuestQty(id, quantity);
+        return null;
+      }
+      return api.put(`/user/cart/items/${id}`, { quantity });
+    },
+    onSuccess: () => {
+      if (isAuthenticated) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.cart });
+      }
+    },
   });
 }
 
 export function useRemoveCartItem() {
+  const { isAuthenticated } = useAuthStore();
   const queryClient = useQueryClient();
+  const removeGuestItem = useCartStore((s) => s.removeItem);
+
   return useMutation({
-    mutationFn: (id: number) => api.del(`/user/cart/items/${id}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.cart }),
+    mutationFn: async (id: number) => {
+      if (!isAuthenticated) {
+        removeGuestItem(id);
+        return null;
+      }
+      return api.del(`/user/cart/items/${id}`);
+    },
+    onSuccess: () => {
+      if (isAuthenticated) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.cart });
+      }
+    },
   });
 }
 
@@ -1140,6 +1217,7 @@ export function useCreateGroupOrderSession() {
 }
 
 export function useActiveGroupOrders() {
+  const { isAuthenticated } = useAuthStore();
   return useQuery({
     queryKey: queryKeys.activeGroupOrders,
     queryFn: () =>
@@ -1147,14 +1225,17 @@ export function useActiveGroupOrders() {
         const list = res.data ?? [];
         return list.filter((s) => s.status === 'open' || s.status === 'locked');
       }),
+    enabled: isAuthenticated,
   });
 }
 
 export function useStreak() {
+  const { isAuthenticated } = useAuthStore();
   return useQuery({
     queryKey: queryKeys.streak,
     queryFn: () =>
       api.get<{ data: StreakDetails }>('/wallet/streak').then((res) => res.data),
+    enabled: isAuthenticated,
   });
 }
 

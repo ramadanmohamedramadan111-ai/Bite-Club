@@ -57,23 +57,23 @@ export default function HomeScreen() {
         <View style={styles.topBarSpacer} />
         <View style={styles.actions}>
           {isAuthenticated && (
-            <>
-              <NotificationsButton
-                onPress={() => router.push('/notifications')}
-              />
-              <CartButton count={cartCount} onPress={() => setCartOpen(true)} />
-            </>
+            <NotificationsButton
+              onPress={() => router.push('/notifications')}
+            />
           )}
-          <Pressable
-            onPress={() => router.push('/profile')}
-            hitSlop={8}
-            accessibilityRole="button"
-            style={[
-              styles.actionBtn,
-              { backgroundColor: colors.muted, borderColor: colors.border },
-            ]}>
-            <Ionicons name="person-outline" size={18} color={colors.text} />
-          </Pressable>
+          <CartButton count={cartCount} onPress={() => setCartOpen(true)} />
+          {isAuthenticated && (
+            <Pressable
+              onPress={() => router.push('/profile')}
+              hitSlop={8}
+              accessibilityRole="button"
+              style={[
+                styles.actionBtn,
+                { backgroundColor: colors.muted, borderColor: colors.border },
+              ]}>
+              <Ionicons name="person-outline" size={18} color={colors.text} />
+            </Pressable>
+          )}
           <Pressable
             onPress={() => router.push('/settings')}
             hitSlop={8}
@@ -92,7 +92,22 @@ export default function HomeScreen() {
           { backgroundColor: colors.muted, borderTopColor: colors.border },
         ]}>
         <LocationButton />
-        <PointsButton />
+        {isAuthenticated ? (
+          <PointsButton />
+        ) : (
+          <Pressable
+            onPress={() => router.push('/login')}
+            accessibilityRole="button"
+            style={[
+              styles.loginBarBtn,
+              { backgroundColor: colors.primary, borderColor: colors.primary },
+            ]}>
+            <Ionicons name="log-in-outline" size={14} color="#FFFFFF" />
+            <Text style={[styles.loginBarText, { color: '#FFFFFF' }]}>
+              {t('common.signIn')}
+            </Text>
+          </Pressable>
+        )}
       </View>
       <ScrollView
         style={[styles.root, { backgroundColor: colors.background }]}
@@ -102,7 +117,11 @@ export default function HomeScreen() {
         <LocationAlert style={{ marginTop: 0, marginBottom: Spacing.md }} />
         <SectionHeader title={t('section.categories')} />
         <HomeCategories />
-        <SectionHeader title={t('section.topRestaurants')} />
+        <SectionHeader
+          title={t('section.topRestaurants')}
+          actionLabel={t('common.showAll')}
+          onActionPress={() => router.push('/restaurants')}
+        />
         <TopRestaurants />
       </ScrollView>
 
@@ -179,6 +198,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  loginBarBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.md,
+    height: 34,
+    borderRadius: Radius.xl,
+    borderWidth: 1,
+    gap: 4,
+  },
+  loginBarText: {
+    fontSize: 12,
+    fontWeight: '800',
   },
 });
 

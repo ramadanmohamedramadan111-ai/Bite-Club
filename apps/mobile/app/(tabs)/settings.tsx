@@ -1,4 +1,6 @@
-import { StyleSheet, ScrollView, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { StyleSheet, ScrollView, Text, View, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -14,28 +16,12 @@ const localeOptions: SegmentedOption<Locale>[] = [
   { value: 'ar', label: 'العربية' },
 ];
 
-function SettingsCard({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  const scheme = useColorScheme();
-  const colors = Colors[scheme ?? 'light'];
-  return (
-    <Card>
-      <View style={styles.labelWrap}>
-        <Text style={[styles.label, { color: colors.textSecondary }]}>{title}</Text>
-      </View>
-      <CardContent>{children}</CardContent>
-    </Card>
-  );
-}
+
 
 export default function SettingsScreen() {
   const scheme = useColorScheme();
   const colors = Colors[scheme ?? 'light'];
+  const router = useRouter();
   const { t } = useI18n();
   const theme = useSettingsStore((s) => s.theme);
   const locale = useSettingsStore((s) => s.locale);
@@ -64,13 +50,77 @@ export default function SettingsScreen() {
           {t('settings.subtitle')}
         </Text>
 
-        <SettingsCard title={t('settings.language')}>
-          <Segmented options={localeOptions} value={locale} onChange={handleLocale} />
-        </SettingsCard>
+        {/* Preferences Group */}
+        <Card style={styles.groupCard}>
+          <View style={styles.settingGroup}>
+            <View style={styles.settingHeader}>
+              <Ionicons name="settings-outline" size={18} color={colors.primary} style={{ marginRight: 8 }} />
+              <Text style={[styles.settingGroupTitle, { color: colors.text }]}>
+                {t('settings.title')}
+              </Text>
+            </View>
 
-        <SettingsCard title={t('settings.theme')}>
-          <Segmented options={themeOptions} value={theme} onChange={setTheme} />
-        </SettingsCard>
+            <View style={styles.settingItem}>
+              <View style={styles.itemTitleRow}>
+                <Ionicons name="globe-outline" size={16} color={colors.textSecondary} style={{ marginRight: 8 }} />
+                <Text style={[styles.itemLabel, { color: colors.text }]}>{t('settings.language')}</Text>
+              </View>
+              <Segmented options={localeOptions} value={locale} onChange={handleLocale} />
+            </View>
+
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+            <View style={styles.settingItem}>
+              <View style={styles.itemTitleRow}>
+                <Ionicons name="color-palette-outline" size={16} color={colors.textSecondary} style={{ marginRight: 8 }} />
+                <Text style={[styles.itemLabel, { color: colors.text }]}>{t('settings.theme')}</Text>
+              </View>
+              <Segmented options={themeOptions} value={theme} onChange={setTheme} />
+            </View>
+          </View>
+        </Card>
+
+        {/* Legal & Policies Group */}
+        <Card style={styles.groupCard}>
+          <View style={styles.settingGroup}>
+            <View style={styles.settingHeader}>
+              <Ionicons name="shield-checkmark-outline" size={18} color={colors.primary} style={{ marginRight: 8 }} />
+              <Text style={[styles.settingGroupTitle, { color: colors.text }]}>
+                {t('settings.legal')}
+              </Text>
+            </View>
+
+            <Pressable
+              onPress={() => router.push('/privacy-policy')}
+              style={({ pressed }) => [styles.linkRow, pressed && { opacity: 0.7 }]}
+              accessibilityRole="button"
+            >
+              <View style={styles.itemTitleRow}>
+                <Ionicons name="shield-outline" size={16} color={colors.textSecondary} style={{ marginRight: 8 }} />
+                <Text style={[styles.linkText, { color: colors.text }]}>
+                  {t('settings.privacyPolicy')}
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
+            </Pressable>
+
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+            <Pressable
+              onPress={() => router.push('/terms-of-service')}
+              style={({ pressed }) => [styles.linkRow, pressed && { opacity: 0.7 }]}
+              accessibilityRole="button"
+            >
+              <View style={styles.itemTitleRow}>
+                <Ionicons name="document-text-outline" size={16} color={colors.textSecondary} style={{ marginRight: 8 }} />
+                <Text style={[styles.linkText, { color: colors.text }]}>
+                  {t('settings.termsOfService')}
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
+            </Pressable>
+          </View>
+        </Card>
       </ScrollView>
     </SafeAreaView>
   );
@@ -96,14 +146,48 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: Spacing.sm,
   },
-  labelWrap: {
-    paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing.lg,
+  groupCard: {
+    padding: 0,
+    overflow: 'hidden',
   },
-  label: {
-    fontSize: 12,
+  settingGroup: {
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.lg,
+  },
+  settingHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+    paddingBottom: Spacing.sm,
+  },
+  settingGroupTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  settingItem: {
+    paddingVertical: Spacing.md,
+    gap: Spacing.sm,
+  },
+  itemTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  itemLabel: {
+    fontSize: 14,
     fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+  },
+  linkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: Spacing.lg,
+  },
+  linkText: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  divider: {
+    height: 1,
+    width: '100%',
   },
 });

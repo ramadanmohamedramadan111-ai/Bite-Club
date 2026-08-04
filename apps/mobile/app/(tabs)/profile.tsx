@@ -47,33 +47,16 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={[styles.navBar, { backgroundColor: colors.background }]}>
         <Text style={[styles.navTitle, { color: colors.text }]}>{t('profile.title')}</Text>
-        <View style={styles.navActions}>
-          {isAuthenticated && user && (
-            <Pressable
-              onPress={() => router.push('/profile/edit')}
-              hitSlop={10}
-              accessibilityRole="button"
-              style={[styles.editBtn, { backgroundColor: colors.muted, borderColor: colors.border }]}
-            >
-              <Ionicons name="create-outline" size={18} color={colors.primary} />
-            </Pressable>
-          )}
-          {isAuthenticated && (
-            <Pressable
-              onPress={() => logoutMutation.mutate()}
-              hitSlop={10}
-              accessibilityRole="button"
-              disabled={logoutMutation.isPending}
-              style={[styles.logoutBtn, { backgroundColor: colors.destructive + '15', borderColor: colors.destructive + '40' }]}
-            >
-              {logoutMutation.isPending ? (
-                <ActivityIndicator size="small" color={colors.destructive} />
-              ) : (
-                <Ionicons name="log-out-outline" size={18} color={colors.destructive} />
-              )}
-            </Pressable>
-          )}
-        </View>
+        {isAuthenticated && user && (
+          <Pressable
+            onPress={() => router.push('/profile/edit')}
+            hitSlop={10}
+            accessibilityRole="button"
+            style={[styles.editBtn, { backgroundColor: colors.muted, borderColor: colors.border }]}
+          >
+            <Ionicons name="create-outline" size={18} color={colors.primary} />
+          </Pressable>
+        )}
       </View>
 
       <ScrollView
@@ -131,12 +114,37 @@ export default function ProfileScreen() {
                     </View>
                   </View>
 
-                  {/* Referral Code Card */}
-                  {user.referral_code ? (
-                    <ReferralLinkSection />
-                  ) : null}
                 </CardContent>
               </Card>
+
+              {/* Logout Button Bar */}
+              <Pressable
+                onPress={() => logoutMutation.mutate()}
+                disabled={logoutMutation.isPending}
+                style={({ pressed }) => [
+                  styles.logoutBarBtn,
+                  {
+                    borderColor: colors.destructive + '60',
+                    backgroundColor: colors.destructive + '08',
+                  },
+                  pressed && { opacity: 0.75 },
+                ]}
+                accessibilityRole="button"
+              >
+                {logoutMutation.isPending ? (
+                  <ActivityIndicator size="small" color={colors.destructive} />
+                ) : (
+                  <>
+                    <Ionicons name="log-out-outline" size={18} color={colors.destructive} style={{ marginRight: 8 }} />
+                    <Text style={[styles.logoutText, { color: colors.destructive }]}>{t('common.logout')}</Text>
+                  </>
+                )}
+              </Pressable>
+
+              {/* Referral Code Card (Invite Friends) */}
+              {user.referral_code ? (
+                <ReferralLinkSection />
+              ) : null}
 
               {/* My Posts Section */}
               <View style={styles.postsSection}>
@@ -215,7 +223,20 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     letterSpacing: -0.5,
   },
+  navActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
   editBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoutBtn: {
     width: 34,
     height: 34,
     borderRadius: Radius.md,
@@ -332,5 +353,19 @@ const styles = StyleSheet.create({
   },
   postsList: {
     gap: Spacing.md,
+  },
+  logoutBarBtn: {
+    height: 48,
+    borderRadius: Radius.lg,
+    borderWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.xl,
+    marginTop: Spacing.xs,
+  },
+  logoutText: {
+    fontSize: 15,
+    fontWeight: '700',
   },
 });
