@@ -19,6 +19,32 @@ services:
 
   admin: {}
 
+  worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    command: php artisan queue:work --tries=3 --timeout=90
+    volumes:
+      - ./apps/backend/api:/var/www/api
+    depends_on:
+      - db
+      - api
+    networks:
+      - app_net
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    command: php artisan schedule:work
+    volumes:
+      - ./apps/backend/api:/var/www/api
+    depends_on:
+      - db
+      - api
+    networks:
+      - app_net
+
   nginx:
     ports:
       - "80:80"
