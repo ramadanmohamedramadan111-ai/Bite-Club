@@ -15,6 +15,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { LocationPicker } from '@/components/location/location-picker';
+import { DirectionalIcon } from '@/components/ui/directional-icon';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { ApiError } from '@/lib/api';
@@ -164,7 +165,7 @@ export default function CheckoutScreen() {
       <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]} edges={['top']}>
         <View style={[styles.navBar, { backgroundColor: colors.background }]}>
           <Pressable onPress={() => router.back()} hitSlop={10} accessibilityRole="button" style={styles.navBack}>
-            <Ionicons name="arrow-back" size={22} color={colors.text} />
+            <DirectionalIcon name="arrow-back" size={22} color={colors.text} />
           </Pressable>
           <Text style={[styles.navTitle, { color: colors.text }]}>{t('checkout.title')}</Text>
           <View style={styles.navSpacer} />
@@ -244,7 +245,7 @@ export default function CheckoutScreen() {
     <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]} edges={['top']}>
       <View style={[styles.navBar, { backgroundColor: colors.background }]}>
         <Pressable onPress={() => router.back()} hitSlop={10} accessibilityRole="button" style={styles.navBack}>
-          <Ionicons name="arrow-back" size={22} color={colors.text} />
+          <DirectionalIcon name="arrow-back" size={22} color={colors.text} />
         </Pressable>
         <Text style={[styles.navTitle, { color: colors.text }]} numberOfLines={1}>
           {t('checkout.title')}

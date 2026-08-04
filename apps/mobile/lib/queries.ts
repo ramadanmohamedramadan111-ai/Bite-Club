@@ -357,8 +357,10 @@ export function useCart() {
   const apiCartQuery = useQuery({
     queryKey: queryKeys.cart,
     queryFn: async () => {
-      const res = await api.get<{ data: Cart }>('/user/cart');
-      return res.data;
+      const res = await api.get<{ data?: Cart | null }>('/user/cart');
+      // The API omits `data` when the user's cart has been cleared after checkout.
+      // React Query query functions must never resolve to undefined.
+      return res.data ?? null;
     },
     enabled: isAuthenticated,
   });
@@ -369,7 +371,7 @@ export function useCart() {
       isLoading: false,
       isSuccess: true,
       refetch: () => Promise.resolve(),
-    } as unknown as UseQueryResult<Cart, Error>;
+    } as unknown as UseQueryResult<Cart | null, Error>;
   }
 
   return apiCartQuery;
@@ -577,6 +579,7 @@ export function useSendGift() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.wallet });
       void queryClient.invalidateQueries({ queryKey: queryKeys.walletGifts });
+      void queryClient.invalidateQueries({ queryKey: ['wallet', 'transactions'] });
     },
   });
 }
@@ -865,8 +868,8 @@ export function useShareableOrders() {
   return useQuery({
     queryKey: queryKeys.shareableOrders,
     queryFn: async () => {
-      const res = await api.get<{ data: PaginatedItems<UserOrder> }>('/user/posts/shareable-orders');
-      return res.data?.items ?? [];
+      const res = await api.get<{ data?: UserOrder[] }>('/user/posts/shareable-orders');
+      return res.data ?? [];
     },
     enabled: isAuthenticated,
   });
@@ -1168,6 +1171,7 @@ export function useCancelGroupOrder(sessionId: number) {
     mutationFn: () => api.post(`/user/group-orders/${sessionId}/cancel`),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.groupOrderSession(sessionId) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.activeGroupOrders });
     },
   });
 }
@@ -1210,9 +1214,13 @@ export function useCheckoutGroupPay(sessionId: number) {
 }
 
 export function useCreateGroupOrderSession() {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: { group_id: number; restaurant_id: number }) =>
       api.post<{ data: { group_order_id: number } }>('/user/group-orders', payload).then((res) => res.data),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.activeGroupOrders });
+    },
   });
 }
 

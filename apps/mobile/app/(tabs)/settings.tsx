@@ -4,6 +4,7 @@ import { StyleSheet, ScrollView, Text, View, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Card, CardContent } from '@/components/ui/card';
+import { DirectionalIcon } from '@/components/ui/directional-icon';
 import { Segmented, type SegmentedOption } from '@/components/ui/segmented';
 import { Colors, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -101,7 +102,7 @@ export default function SettingsScreen() {
                   {t('settings.privacyPolicy')}
                 </Text>
               </View>
-              <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
+              <DirectionalIcon name="chevron-forward" size={16} color={colors.textSecondary} />
             </Pressable>
 
             <View style={[styles.divider, { backgroundColor: colors.border }]} />
@@ -117,7 +118,7 @@ export default function SettingsScreen() {
                   {t('settings.termsOfService')}
                 </Text>
               </View>
-              <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
+              <DirectionalIcon name="chevron-forward" size={16} color={colors.textSecondary} />
             </Pressable>
           </View>
         </Card>

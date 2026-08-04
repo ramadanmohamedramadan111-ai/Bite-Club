@@ -17,9 +17,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 
 import { Button } from '@/components/ui/button';
+import { DirectionalIcon } from '@/components/ui/directional-icon';
 import { Segmented } from '@/components/ui/segmented';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { getApiErrorMessage, getApiMessage } from '@/lib/api';
 import { useI18n } from '@/lib/i18n';
 import {
   useGroupDetail,
@@ -108,8 +110,8 @@ export default function GroupDetailScreen() {
           text: t('groups.promoteToAdmin'),
           onPress: () => {
             promoteMemberMutation.mutate(member.id, {
-              onSuccess: () => Alert.alert(t('createPost.success')),
-              onError: (err) => Alert.alert(t('common.genericError'), err.message),
+              onSuccess: (response) => Alert.alert(getApiMessage(response, t('groups.memberPromoted'))),
+              onError: (err) => Alert.alert(getApiErrorMessage(err, t('common.genericError'))),
             });
           },
         });
@@ -118,8 +120,8 @@ export default function GroupDetailScreen() {
           text: t('groups.demoteToMember'),
           onPress: () => {
             demoteMemberMutation.mutate(member.id, {
-              onSuccess: () => Alert.alert(t('createPost.success')),
-              onError: (err) => Alert.alert(t('common.genericError'), err.message),
+              onSuccess: (response) => Alert.alert(getApiMessage(response, t('groups.memberDemoted'))),
+              onError: (err) => Alert.alert(getApiErrorMessage(err, t('common.genericError'))),
             });
           },
         });
@@ -131,34 +133,38 @@ export default function GroupDetailScreen() {
       text: t('groups.removeFromGroup'),
       style: 'destructive' as const,
       onPress: () => {
-        Alert.alert(t('groups.removeFromGroup') + '?', '', [
-          { text: t('createPost.cancel'), style: 'cancel' },
+        Alert.alert(
+          t('groups.removeMemberTitle'),
+          t('groups.removeMemberDesc', { name: member.full_name }),
+          [
+          { text: t('common.cancel'), style: 'cancel' },
           {
             text: t('groups.removeFromGroup'),
             style: 'destructive',
             onPress: () => {
               removeMemberMutation.mutate(member.id, {
-                onSuccess: () => Alert.alert(t('createPost.success')),
-                onError: (err) => Alert.alert(t('common.genericError'), err.message),
+                onSuccess: (response) => Alert.alert(getApiMessage(response, t('groups.memberRemoved'))),
+                onError: (err) => Alert.alert(getApiErrorMessage(err, t('common.genericError'))),
               });
             },
           },
-        ]);
+          ],
+        );
       },
     });
 
-    options.push({ text: t('createPost.cancel'), style: 'cancel' as const });
+    options.push({ text: t('common.cancel'), style: 'cancel' as const });
 
     Alert.alert(member.full_name, `@${member.username}`, options);
   };
 
   const handleAddMember = (friendId: number) => {
     addMemberMutation.mutate(friendId, {
-      onSuccess: () => {
-        Alert.alert(t('createPost.success'));
+      onSuccess: (response) => {
+        Alert.alert(getApiMessage(response, t('groups.memberAdded')));
       },
       onError: (err) => {
-        Alert.alert(t('common.genericError'), err.message);
+        Alert.alert(getApiErrorMessage(err, t('common.genericError')));
       },
     });
   };
@@ -171,7 +177,7 @@ export default function GroupDetailScreen() {
       {/* Header */}
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backBtnWrapper}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
+          <DirectionalIcon name="arrow-back" size={24} color={colors.text} />
         </Pressable>
         <Text style={[styles.headerTitle, { color: colors.text }]} numberOfLines={1}>
           {group.name}

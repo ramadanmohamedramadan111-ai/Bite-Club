@@ -25,6 +25,24 @@ export class ApiError extends Error {
   }
 }
 
+export function getApiMessage(response: unknown, fallback: string): string {
+  if (
+    response &&
+    typeof response === 'object' &&
+    'message' in response &&
+    typeof (response as { message?: unknown }).message === 'string'
+  ) {
+    const message = (response as { message: string }).message.trim();
+    if (message) return message;
+  }
+  return fallback;
+}
+
+export function getApiErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof Error && error.message.trim()) return error.message;
+  return fallback;
+}
+
 type RequestOptions = {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';  body?: unknown;
   headers?: Record<string, string>;

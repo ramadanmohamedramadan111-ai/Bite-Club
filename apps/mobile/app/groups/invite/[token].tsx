@@ -8,6 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Button } from '@/components/ui/button';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { getApiErrorMessage, getApiMessage } from '@/lib/api';
 import { useI18n } from '@/lib/i18n';
 import { useInviteGroupDetail, useJoinGroupByLink } from '@/lib/queries';
 import { resolveImageUrl } from '@/lib/config';
@@ -48,13 +49,13 @@ export default function GroupInviteScreen() {
 
   const handleJoin = () => {
     joinGroupMutation.mutate(inviteToken, {
-      onSuccess: () => {
-        Alert.alert(t('createPost.success'), `You have successfully joined ${group.name}!`);
+      onSuccess: (response) => {
+        Alert.alert(getApiMessage(response, t('groups.groupJoinedDesc', { name: group.name })));
         // Navigate to the group details page
         router.replace(`/groups/${group.id}`);
       },
       onError: (err) => {
-        Alert.alert(t('common.genericError'), err.message || 'Failed to join group.');
+        Alert.alert(getApiErrorMessage(err, t('common.genericError')));
       },
     });
   };
