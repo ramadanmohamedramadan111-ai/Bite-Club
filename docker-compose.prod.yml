@@ -12,9 +12,9 @@ services:
 
   ai:
       restart: on-failure
-      command: python manage.py runserver 0.0.0.0:8000 --noreload
+      command: python -u manage.py runserver 0.0.0.0:8000 --noreload
 
-      
+
   dashboard: {}
 
   admin: {}
