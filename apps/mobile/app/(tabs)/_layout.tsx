@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Logs, Newspaper, Users } from 'lucide-react-native';
 import { Tabs } from 'expo-router';
+import { Logs, Newspaper, Users } from 'lucide-react-native';
 
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -36,7 +36,9 @@ export default function TabLayout() {
         name="index"
         options={{
           title: t('tabs.home'),
-          tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home" size={size} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
@@ -51,7 +53,9 @@ export default function TabLayout() {
         name="posts/index"
         options={{
           title: t('tabs.posts'),
-          tabBarIcon: ({ color, size }) => <Newspaper size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => (
+            <Newspaper size={size} color={color} />
+          ),
           href: isAuthenticated ? undefined : null,
         }}
       />
@@ -59,8 +63,15 @@ export default function TabLayout() {
         name="groups/index"
         options={{
           title: t('tabs.groups'),
-          tabBarIcon: ({ color, size }) => <Ionicons name="people" size={size} color={color} />,
-          tabBarBadge: activeCount > 0 ? activeCount : undefined,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="people" size={size} color={color} />
+          ),
+          tabBarBadge:
+            activeCount > 0
+              ? activeCount > 9
+                ? '9+'
+                : activeCount
+              : undefined,
           href: isAuthenticated ? undefined : null,
         }}
       />
@@ -69,7 +80,12 @@ export default function TabLayout() {
         options={{
           title: t('tabs.friends'),
           tabBarIcon: ({ color, size }) => <Users size={size} color={color} />,
-          tabBarBadge: requestsCount > 0 ? requestsCount : undefined,
+          tabBarBadge:
+            requestsCount > 0
+              ? requestsCount > 9
+                ? '9+'
+                : requestsCount
+              : undefined,
           href: isAuthenticated ? undefined : null,
         }}
       />
@@ -88,3 +104,4 @@ export default function TabLayout() {
     </Tabs>
   );
 }
+

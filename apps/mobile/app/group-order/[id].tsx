@@ -210,7 +210,10 @@ export default function GroupOrderScreen() {
       handleRemoveItem(itemId);
       return;
     }
-    updateQuantityMutation.mutate({ item_id: itemId, quantity: newQty });
+    updateQuantityMutation.mutate(
+      { item_id: itemId, quantity: newQty },
+      { onError: (err) => Alert.alert(t('common.genericError'), err.message) },
+    );
   };
 
   const renderMenuItem = ({ item }: { item: MenuItem }) => {
@@ -372,7 +375,7 @@ export default function GroupOrderScreen() {
                           {isOwnItem && !isLocked ? (
                             <View style={styles.qtyControls}>
                               <Pressable
-                                onPress={() => handleUpdateQty(cartItem.item.id, cartItem.quantity - 1)}
+                                onPress={() => handleUpdateQty(cartItem.id, cartItem.quantity - 1)}
                                 style={[styles.qtyBtn, { backgroundColor: colors.muted }]}
                               >
                                 <Ionicons name="remove" size={16} color={colors.text} />
@@ -381,13 +384,13 @@ export default function GroupOrderScreen() {
                                 {cartItem.quantity}
                               </Text>
                               <Pressable
-                                onPress={() => handleUpdateQty(cartItem.item.id, cartItem.quantity + 1)}
+                                onPress={() => handleUpdateQty(cartItem.id, cartItem.quantity + 1)}
                                 style={[styles.qtyBtn, { backgroundColor: colors.muted }]}
                               >
                                 <Ionicons name="add" size={16} color={colors.text} />
                               </Pressable>
                               <Pressable
-                                onPress={() => handleRemoveItem(cartItem.item.id)}
+                                onPress={() => handleRemoveItem(cartItem.id)}
                                 style={[styles.deleteItemBtn, { backgroundColor: colors.destructive + '15' }]}
                               >
                                 <Ionicons name="trash-outline" size={16} color={colors.destructive} />
