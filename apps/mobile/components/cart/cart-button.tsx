@@ -23,7 +23,15 @@ export function CartButton({ count, onPress }: Props) {
       <ShoppingCart size={22} color={colors.text} strokeWidth={2} />
       {count > 0 && (
         <View style={[styles.badge, { backgroundColor: colors.primary }]}>
-          <Text style={styles.badgeCount}>{count > 99 ? '99+' : count}</Text>
+          <Text
+            style={[
+              styles.badgeCount,
+              count > 9
+                ? styles.badgeCountFontSmall
+                : styles.badgeCountFontLarge,
+            ]}>
+            {count > 9 ? '9+' : count}
+          </Text>
         </View>
       )}
     </Pressable>
@@ -47,9 +55,16 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#FFFFFF',
   },
+  badgeCountFontSmall: {
+    fontSize: 7,
+  },
+  badgeCountFontLarge: {
+    fontSize: 10,
+  },
+
   badgeCount: {
     color: '#FFFFFF',
-    fontSize: 10,
     fontWeight: '800',
   },
 });
+

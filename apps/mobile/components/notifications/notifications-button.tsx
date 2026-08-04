@@ -24,7 +24,15 @@ export function NotificationsButton({ onPress }: Props) {
       <Bell size={20} color={colors.text} strokeWidth={2} />
       {unreadCount > 0 && (
         <View style={[styles.badge, { backgroundColor: colors.primary }]}>
-          <Text style={styles.badgeCount}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
+          <Text
+            style={[
+              styles.badgeCount,
+              unreadCount > 9
+                ? styles.badgeCountFontSmall
+                : styles.badgeCountFontLarge,
+            ]}>
+            {unreadCount > 9 ? '9+' : unreadCount}
+          </Text>
         </View>
       )}
     </Pressable>
@@ -48,9 +56,15 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#FFFFFF',
   },
+  badgeCountFontSmall: {
+    fontSize: 7,
+  },
+  badgeCountFontLarge: {
+    fontSize: 10,
+  },
   badgeCount: {
     color: '#FFFFFF',
-    fontSize: 10,
     fontWeight: '800',
   },
 });
+
