@@ -11,11 +11,10 @@ services:
       - ai
 
   ai:
-    restart: on-failure
-    command: >
-      sh -c "until python3 -c \"import MySQLdb; MySQLdb.connect(host='db',port=3306,user='laravel',passwd='secret',db='laravel')\" 2>/dev/null;
-      do echo 'Waiting for MySQL...' && sleep 3; done && python manage.py runserver 0.0.0.0:8000 --noreload"
+      restart: on-failure
+      command: python manage.py runserver 0.0.0.0:8000 --noreload
 
+      
   dashboard: {}
 
   admin: {}
