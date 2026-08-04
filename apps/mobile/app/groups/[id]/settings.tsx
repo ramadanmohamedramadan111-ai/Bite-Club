@@ -20,9 +20,11 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Clipboard from 'expo-clipboard';
 
 import { Button } from '@/components/ui/button';
+import { DirectionalIcon } from '@/components/ui/directional-icon';
 import { Segmented } from '@/components/ui/segmented';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { getApiErrorMessage, getApiMessage } from '@/lib/api';
 import { useI18n } from '@/lib/i18n';
 import {
   useGroupDetail,
@@ -134,11 +136,11 @@ export default function GroupSettingsScreen() {
         image,
       },
       {
-        onSuccess: () => {
-          Alert.alert(t('createPost.success'));
+        onSuccess: (response) => {
+          Alert.alert(getApiMessage(response, t('groups.groupUpdated')));
         },
         onError: (err) => {
-          Alert.alert(t('createPost.failed'), err.message || t('common.genericError'));
+          Alert.alert(getApiErrorMessage(err, t('groups.groupUpdateFailed')));
         },
       }
     );
@@ -159,19 +161,19 @@ export default function GroupSettingsScreen() {
   };
 
   const handleDelete = () => {
-    Alert.alert(t('groups.deleteGroup') + '?', t('common.genericError'), [
-      { text: t('createPost.cancel'), style: 'cancel' },
+    Alert.alert(t('groups.deleteGroupTitle'), t('groups.deleteGroupDesc'), [
+      { text: t('common.cancel'), style: 'cancel' },
       {
         text: t('groups.deleteGroup'),
         style: 'destructive',
         onPress: () => {
           deleteGroupMutation.mutate(undefined, {
-            onSuccess: () => {
-              Alert.alert(t('createPost.success'));
+            onSuccess: (response) => {
+              Alert.alert(getApiMessage(response, t('groups.groupDeleted')));
               router.replace('/groups');
             },
             onError: (err) => {
-              Alert.alert(t('common.genericError'), err.message);
+              Alert.alert(getApiErrorMessage(err, t('common.genericError')));
             },
           });
         },
@@ -180,19 +182,19 @@ export default function GroupSettingsScreen() {
   };
 
   const handleLeave = () => {
-    Alert.alert(t('groups.leaveGroup') + '?', '', [
-      { text: t('createPost.cancel'), style: 'cancel' },
+    Alert.alert(t('groups.leaveGroupTitle'), t('groups.leaveGroupDesc'), [
+      { text: t('common.cancel'), style: 'cancel' },
       {
         text: t('groups.leaveGroup'),
         style: 'destructive',
         onPress: () => {
           leaveGroupMutation.mutate(undefined, {
-            onSuccess: () => {
-              Alert.alert(t('createPost.success'));
+            onSuccess: (response) => {
+              Alert.alert(getApiMessage(response, t('groups.groupLeft')));
               router.replace('/groups');
             },
             onError: (err) => {
-              Alert.alert(t('common.genericError'), err.message);
+              Alert.alert(getApiErrorMessage(err, t('common.genericError')));
             },
           });
         },
@@ -208,7 +210,7 @@ export default function GroupSettingsScreen() {
       {/* Header */}
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backBtnWrapper}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
+          <DirectionalIcon name="arrow-back" size={24} color={colors.text} />
         </Pressable>
         <Text style={[styles.headerTitle, { color: colors.text }]} numberOfLines={1}>
           {group.name}

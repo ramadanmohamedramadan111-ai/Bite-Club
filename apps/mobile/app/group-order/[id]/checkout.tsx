@@ -16,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { LocationPicker } from '@/components/location/location-picker';
 import { Button } from '@/components/ui/button';
+import { DirectionalIcon } from '@/components/ui/directional-icon';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { ApiError } from '@/lib/api';
@@ -226,7 +227,7 @@ export default function GroupOrderCheckoutScreen() {
       {/* Header */}
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backBtnWrapper}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
+          <DirectionalIcon name="arrow-back" size={24} color={colors.text} />
         </Pressable>
         <Text style={[styles.headerTitle, { color: colors.text }]} numberOfLines={1}>
           {t('checkout.title')}

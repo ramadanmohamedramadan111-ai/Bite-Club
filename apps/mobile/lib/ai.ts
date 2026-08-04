@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '@/lib/api';
 
@@ -51,8 +51,10 @@ export function useAIChatMutation() {
 }
 
 export function useAIChatAddToCartMutation() {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: { restaurant_id: number; items: { id: number; quantity: number }[] }) =>
       api.post<{ data: unknown }>('/ai/smart-waiter/add-to-cart', payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['cart'] }),
   });
 }

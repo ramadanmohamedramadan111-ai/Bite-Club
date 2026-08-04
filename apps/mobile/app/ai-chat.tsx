@@ -96,17 +96,25 @@ export default function AIChatScreen() {
   };
 
   const acceptSuggestion = (msgId: string, suggestion: SmartWaiterSuggestion) => {
-    setMessages((prev) =>
-      prev.map((m) =>
-        m.id === msgId && m.suggestion
-          ? { ...m, suggestion: { ...m.suggestion, status: 'accepted' } }
-          : m,
-      ),
+    if (addToCartMutation.isPending) return;
+    addToCartMutation.mutate(
+      {
+        restaurant_id: suggestion.restaurant_id,
+        items: suggestion.items.map((item) => ({ id: item.id, quantity: item.quantity })),
+      },
+      {
+        onSuccess: () => {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === msgId && m.suggestion
+                ? { ...m, suggestion: { ...m.suggestion, status: 'accepted' } }
+                : m,
+            ),
+          );
+          router.push('/checkout');
+        },
+      },
     );
-    addToCartMutation.mutate({
-      restaurant_id: suggestion.restaurant_id,
-      items: suggestion.items.map((item) => ({ id: item.id, quantity: item.quantity })),
-    });
   };
 
   const declineSuggestion = (msgId: string) => {
@@ -388,13 +396,13 @@ const styles = StyleSheet.create({
   },
   bubbleAi: {
     borderTopLeftRadius: 4,
+    maxWidth: '90%',
   },
   bubbleUser: {
     borderTopRightRadius: 4,
   },
   sugWrap: {
-    alignSelf: 'flex-start',
-    maxWidth: '90%',
+    alignSelf: 'stretch',
   },
   sugWrapAi: {
     marginLeft: 32,
@@ -473,7 +481,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
-    height: 36,
+    height: 44,
     borderRadius: Radius.md,
   },
   sugButtonText: {

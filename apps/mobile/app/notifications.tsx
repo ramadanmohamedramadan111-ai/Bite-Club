@@ -5,6 +5,7 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { NotificationCard } from '@/components/notifications/notification-card';
+import { DirectionalIcon } from '@/components/ui/directional-icon';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useI18n } from '@/lib/i18n';
@@ -31,7 +32,7 @@ export default function NotificationsScreen() {
     <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]} edges={['top']}>
       <View style={[styles.navBar, { backgroundColor: colors.background }]}>
         <Pressable onPress={() => router.back()} hitSlop={10} accessibilityRole="button" style={styles.navBack}>
-          <Ionicons name="arrow-back" size={22} color={colors.text} />
+          <DirectionalIcon name="arrow-back" size={22} color={colors.text} />
         </Pressable>
         <Text style={[styles.navTitle, { color: colors.text }]} numberOfLines={1}>
           {t('notifications.title')}
@@ -85,7 +86,7 @@ export default function NotificationsScreen() {
                 { backgroundColor: colors.muted, borderColor: colors.border },
                 page <= 1 && styles.disabled,
               ]}>
-              <Ionicons name="chevron-back" size={16} color={colors.text} />
+              <DirectionalIcon name="chevron-back" size={16} color={colors.text} />
               <Text style={[styles.pageText, { color: colors.text }]}>{t('restaurants.prev')}</Text>
             </Pressable>
             <Text style={[styles.pageIndicator, { color: colors.textSecondary }]}>
@@ -101,7 +102,7 @@ export default function NotificationsScreen() {
                 page >= lastPage && styles.disabled,
               ]}>
               <Text style={[styles.pageText, { color: colors.text }]}>{t('restaurants.next')}</Text>
-              <Ionicons name="chevron-forward" size={16} color={colors.text} />
+              <DirectionalIcon name="chevron-forward" size={16} color={colors.text} />
             </Pressable>
           </View>
         )}

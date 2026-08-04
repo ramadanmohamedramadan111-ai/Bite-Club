@@ -10,6 +10,7 @@ import { RestaurantCard } from '@/components/restaurants/restaurant-card';
 import { RestaurantFilters, type RestaurantFilterValues } from '@/components/restaurants/restaurant-filters';
 import { LocationAlert } from '@/components/location/location-alert';
 import { Segmented } from '@/components/ui/segmented';
+import { DirectionalIcon } from '@/components/ui/directional-icon';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useI18n } from '@/lib/i18n';
@@ -105,7 +106,7 @@ export default function RestaurantsScreen() {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={[styles.header, { backgroundColor: colors.background }]}>
         <Pressable onPress={() => router.back()} hitSlop={10} accessibilityRole="button">
-          <Ionicons name="arrow-back" size={22} color={colors.text} />
+          <DirectionalIcon name="arrow-back" size={22} color={colors.text} />
         </Pressable>
         <View style={styles.headerText}>
           <Text style={[styles.headerTitle, { color: colors.text }]}>{t('restaurants.title')}</Text>
@@ -197,7 +198,7 @@ export default function RestaurantsScreen() {
                     { backgroundColor: colors.muted, borderColor: colors.border },
                     currentPage <= 1 && styles.pageButtonDisabled,
                   ]}>
-                  <Ionicons name="chevron-back" size={16} color={colors.text} />
+                  <DirectionalIcon name="chevron-back" size={16} color={colors.text} />
                   <Text style={[styles.pageButtonText, { color: colors.text }]}>{t('restaurants.prev')}</Text>
                 </Pressable>
                 <Text style={[styles.pageIndicator, { color: colors.textSecondary }]}>
@@ -213,7 +214,7 @@ export default function RestaurantsScreen() {
                     currentPage >= lastPage && styles.pageButtonDisabled,
                   ]}>
                   <Text style={[styles.pageButtonText, { color: colors.text }]}>{t('restaurants.next')}</Text>
-                  <Ionicons name="chevron-forward" size={16} color={colors.text} />
+                  <DirectionalIcon name="chevron-forward" size={16} color={colors.text} />
                 </Pressable>
               </View>
             ) : null

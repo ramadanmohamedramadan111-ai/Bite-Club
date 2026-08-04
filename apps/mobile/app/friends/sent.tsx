@@ -5,6 +5,7 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { FriendsSearch } from '@/components/friends/friends-search';
+import { DirectionalIcon } from '@/components/ui/directional-icon';
 import { UserCard } from '@/components/friends/user-card';
 import { Segmented } from '@/components/ui/segmented';
 import { Colors, Radius, Spacing } from '@/constants/theme';
@@ -35,7 +36,7 @@ export default function SentRequestsScreen() {
     <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]} edges={['top']}>
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} hitSlop={10} accessibilityRole="button" style={styles.back}>
-          <Ionicons name="arrow-back" size={22} color={colors.text} />
+          <DirectionalIcon name="arrow-back" size={22} color={colors.text} />
         </Pressable>
         <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
           {t('friends.sentRequests')}
@@ -100,7 +101,7 @@ export default function SentRequestsScreen() {
                 { backgroundColor: colors.muted, borderColor: colors.border },
                 page <= 1 && styles.disabled,
               ]}>
-              <Ionicons name="chevron-back" size={16} color={colors.text} />
+              <DirectionalIcon name="chevron-back" size={16} color={colors.text} />
               <Text style={[styles.pageText, { color: colors.text }]}>{t('restaurants.prev')}</Text>
             </Pressable>
             <Text style={[styles.pageIndicator, { color: colors.textSecondary }]}>
@@ -116,7 +117,7 @@ export default function SentRequestsScreen() {
                 page >= lastPage && styles.disabled,
               ]}>
               <Text style={[styles.pageText, { color: colors.text }]}>{t('restaurants.next')}</Text>
-              <Ionicons name="chevron-forward" size={16} color={colors.text} />
+              <DirectionalIcon name="chevron-forward" size={16} color={colors.text} />
             </Pressable>
           </View>
         )}

@@ -20,8 +20,10 @@ import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 
 import { Button } from '@/components/ui/button';
+import { DirectionalIcon } from '@/components/ui/directional-icon';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { getApiErrorMessage, getApiMessage } from '@/lib/api';
 import { useI18n } from '@/lib/i18n';
 import { useGroups, useCreateGroup, useActiveGroupOrders } from '@/lib/queries';
 import { resolveImageUrl } from '@/lib/config';
@@ -103,8 +105,8 @@ export default function GroupsScreen() {
         image: groupImage,
       },
       {
-        onSuccess: () => {
-          Alert.alert(t('createPost.success'));
+        onSuccess: (response) => {
+          Alert.alert(getApiMessage(response, t('groups.groupCreated')));
           setIsCreateModalOpen(false);
           setGroupName('');
           setGroupDesc('');
@@ -112,7 +114,7 @@ export default function GroupsScreen() {
           refetch();
         },
         onError: (err) => {
-          Alert.alert(t('createPost.failed'), err.message || t('common.genericError'));
+          Alert.alert(getApiErrorMessage(err, t('groups.groupCreateFailed')));
         },
       }
     );
@@ -162,7 +164,7 @@ export default function GroupsScreen() {
                   </Text>
                 </View>
               </View>
-              <Ionicons name="arrow-forward" size={18} color={colors.textSecondary} />
+              <DirectionalIcon name="arrow-forward" size={18} color={colors.textSecondary} />
             </Pressable>
           ))}
         </View>
@@ -201,7 +203,7 @@ export default function GroupsScreen() {
             </Text>
           </View>
 
-          <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+          <DirectionalIcon name="chevron-forward" size={20} color={colors.textSecondary} />
         </View>
 
         <View style={[styles.cardFooter, { borderTopColor: colors.border }]}>
@@ -280,7 +282,7 @@ export default function GroupsScreen() {
                     page <= 1 && styles.disabled,
                   ]}
                 >
-                  <Ionicons name="chevron-back" size={16} color={colors.text} />
+                  <DirectionalIcon name="chevron-back" size={16} color={colors.text} />
                   <Text style={[styles.pageText, { color: colors.text }]}>{t('restaurants.prev')}</Text>
                 </Pressable>
                 <Text style={[styles.pageIndicator, { color: colors.textSecondary }]}>
@@ -296,7 +298,7 @@ export default function GroupsScreen() {
                   ]}
                 >
                   <Text style={[styles.pageText, { color: colors.text }]}>{t('restaurants.next')}</Text>
-                  <Ionicons name="chevron-forward" size={16} color={colors.text} />
+                  <DirectionalIcon name="chevron-forward" size={16} color={colors.text} />
                 </Pressable>
               </View>
             ) : null

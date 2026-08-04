@@ -16,9 +16,11 @@ import { Image } from 'expo-image';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { Button } from '@/components/ui/button';
+import { DirectionalIcon } from '@/components/ui/directional-icon';
 import { Segmented } from '@/components/ui/segmented';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { getApiErrorMessage, getApiMessage } from '@/lib/api';
 import { useI18n } from '@/lib/i18n';
 import {
   queryKeys,
@@ -76,6 +78,7 @@ export default function GroupOrderScreen() {
     } else if (event === 'order.unlocked') {
       Alert.alert('Unlocked', t('groups.groupOrderUnlocked'));
     } else if (event === 'order.cancelled') {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.activeGroupOrders });
       Alert.alert('Cancelled', t('groups.groupOrderCancelled'));
     }
   });
@@ -159,24 +162,24 @@ export default function GroupOrderScreen() {
 
   const handleUnlockOrder = () => {
     unlockOrderMutation.mutate(undefined, {
-      onSuccess: () => Alert.alert(t('createPost.success')),
-      onError: (err) => Alert.alert(t('common.genericError'), err.message),
+      onSuccess: (response) => Alert.alert(getApiMessage(response, t('groups.groupOrderUnlocked'))),
+      onError: (err) => Alert.alert(getApiErrorMessage(err, t('common.genericError'))),
     });
   };
 
   const handleCancelOrder = () => {
     Alert.alert(t('groups.cancelGroupOrderTitle'), t('groups.cancelGroupOrderDesc'), [
-      { text: t('createPost.cancel'), style: 'cancel' },
+      { text: t('common.cancel'), style: 'cancel' },
       {
         text: t('groups.cancelGroupOrderConfirm'),
         style: 'destructive',
         onPress: () => {
           cancelOrderMutation.mutate(undefined, {
-            onSuccess: () => {
-              Alert.alert(t('createPost.success'));
+            onSuccess: (response) => {
+              Alert.alert(getApiMessage(response, t('groups.groupOrderCancelled')));
               router.replace('/groups');
             },
-            onError: (err) => Alert.alert(t('common.genericError'), err.message),
+            onError: (err) => Alert.alert(getApiErrorMessage(err, t('common.genericError'))),
           });
         },
       },
@@ -184,15 +187,15 @@ export default function GroupOrderScreen() {
   };
 
   const handleClearMyItems = () => {
-    Alert.alert(t('groups.clearMyItems') + '?', '', [
-      { text: t('createPost.cancel'), style: 'cancel' },
+    Alert.alert(t('groups.clearMyItemsTitle'), t('groups.clearMyItemsDesc'), [
+      { text: t('common.cancel'), style: 'cancel' },
       {
         text: t('groups.clearMyItems'),
         style: 'destructive',
         onPress: () => {
           clearMyItemsMutation.mutate(undefined, {
-            onSuccess: () => Alert.alert(t('createPost.success')),
-            onError: (err) => Alert.alert(t('common.genericError'), err.message),
+            onSuccess: (response) => Alert.alert(getApiMessage(response, t('groups.myItemsCleared'))),
+            onError: (err) => Alert.alert(getApiErrorMessage(err, t('common.genericError'))),
           });
         },
       },
@@ -250,7 +253,7 @@ export default function GroupOrderScreen() {
       {/* Navbar */}
       <View style={styles.navBar}>
         <Pressable onPress={() => router.back()} style={styles.navBack}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
+          <DirectionalIcon name="arrow-back" size={24} color={colors.text} />
         </Pressable>
         <View style={styles.navHeaderInfo}>
           <Text style={[styles.navTitle, { color: colors.text }]} numberOfLines={1}>

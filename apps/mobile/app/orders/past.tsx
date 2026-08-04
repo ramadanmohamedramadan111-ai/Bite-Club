@@ -5,6 +5,7 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { OrderCard } from '@/components/orders/order-card';
+import { DirectionalIcon } from '@/components/ui/directional-icon';
 import { Segmented } from '@/components/ui/segmented';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -30,7 +31,7 @@ export default function PastOrdersScreen() {
     <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]} edges={['top']}>
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} hitSlop={10} accessibilityRole="button" style={styles.back}>
-          <Ionicons name="arrow-back" size={22} color={colors.text} />
+          <DirectionalIcon name="arrow-back" size={22} color={colors.text} />
         </Pressable>
         <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
           {t('orders.pastTitle')}
@@ -92,7 +93,7 @@ export default function PastOrdersScreen() {
                 { backgroundColor: colors.muted, borderColor: colors.border },
                 page <= 1 && styles.disabled,
               ]}>
-              <Ionicons name="chevron-back" size={16} color={colors.text} />
+              <DirectionalIcon name="chevron-back" size={16} color={colors.text} />
               <Text style={[styles.pageText, { color: colors.text }]}>{t('restaurants.prev')}</Text>
             </Pressable>
             <Text style={[styles.pageIndicator, { color: colors.textSecondary }]}>
@@ -108,7 +109,7 @@ export default function PastOrdersScreen() {
                 page >= lastPage && styles.disabled,
               ]}>
               <Text style={[styles.pageText, { color: colors.text }]}>{t('restaurants.next')}</Text>
-              <Ionicons name="chevron-forward" size={16} color={colors.text} />
+              <DirectionalIcon name="chevron-forward" size={16} color={colors.text} />
             </Pressable>
           </View>
         )}
