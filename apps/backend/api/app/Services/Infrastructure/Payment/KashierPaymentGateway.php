@@ -42,7 +42,7 @@ class KashierPaymentGateway implements PaymentGatewayInterface
                 'expireAt' => now()->addMinutes((int) config('payment.kashier.session_timeout_minutes', 60))->toIso8601ZuluString(),
                 'maxFailureAttempts' => 3,
                 'display' => app()->getLocale() === 'ar' ? 'ar' : 'en',
-                'serverWebhook' => rtrim(config('app.url'), '/') . '/api/user/webhooks/kashier',
+                'serverWebhook' => rtrim(config('app.url'), '/') . '/backend/user/webhooks/kashier',
                 'customer' => [
                     'email' => $order->user->email ?? 'customer@example.com',
                     'reference' => (string) ($order->user_id ?? uniqid()),
@@ -95,7 +95,7 @@ class KashierPaymentGateway implements PaymentGatewayInterface
                 'expireAt' => now()->addMinutes((int) config('payment.kashier.session_timeout_minutes', 60))->toIso8601ZuluString(),
                 'maxFailureAttempts' => 3,
                 'display' => app()->getLocale() === 'ar' ? 'ar' : 'en',
-                'serverWebhook' => rtrim(config('app.url'), '/') . '/api/webhooks/kashier/invoices',
+                'serverWebhook' => rtrim(config('app.url'), '/') . '/backend/webhooks/kashier/invoices',
                 'customer' => [
                     'email' => $invoice->restaurant->email ?? 'restaurant@example.com',
                     'reference' => 'REST-' . $invoice->restaurant_id,
