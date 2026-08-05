@@ -9,16 +9,17 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         channels: __DIR__.'/../routes/channels.php',
         api: __DIR__ . '/../routes/api.php',
+        apiPrefix: 'backend',
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',
         then: function () {
             Route::middleware('api')
-                ->prefix('api/admin')
+                ->prefix('backend/admin')
                 ->name('admin.')
                 ->group(__DIR__ . '/../routes/admin.php');
 
             Route::middleware('api')
-                ->prefix('api/restaurant')
+                ->prefix('backend/restaurant')
                 ->name('restaurant.')
                 ->group(__DIR__ . '/../routes/restaurant.php');
         }

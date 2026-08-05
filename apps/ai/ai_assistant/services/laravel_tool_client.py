@@ -16,7 +16,7 @@ class LaravelToolClient:
             payload["restaurant_id"] = restaurant_id
 
         request = urllib.request.Request(
-            f"{self.base_url}/api/internal/ai/tools/{tool_name}",
+            f"{self.base_url}/backend/internal/ai/tools/{tool_name}",
             data=json.dumps(payload).encode("utf-8"),
             headers={
                 "Accept": "application/json",
