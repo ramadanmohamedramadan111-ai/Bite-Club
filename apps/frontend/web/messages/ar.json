@@ -106,7 +106,8 @@
     "youreReady": "أنت مستعد!",
     "imReady": "أنا مستعد",
     "waitingForHost": "أنت مستعد! في انتظار المضيف لإتمام الدفع.",
-    "close": "إغلاق"
+    "close": "إغلاق",
+    "confirm": "تأكيد"
   },
   "forms": {
     "login": {
@@ -916,6 +917,9 @@
     "openInvitations": "دعوات مفتوحة",
     "allowInviteLink": "السماح للأعضاء الجدد بالانضمام عبر رابط الدعوة",
     "toggleOpenInvitations": "تبديل الدعوات المفتوحة",
+    "allowGuestsForOrders": "السماح للضيوف بالانضمام للطلبات الجماعية",
+    "allowGuestsDesc": "السماح للضيوف بالانضمام وإضافة منتجات إلى طلبات المجموعة دون تسجيل حساب",
+    "toggleAllowGuests": "تبديل السماح للضيوف",
     "deleting": "جاري الحذف...",
     "leaving": "جاري المغادرة...",
     "deleteGroup": "حذف المجموعة",
@@ -989,7 +993,14 @@
     "groupOrderCompletedDesc": "تم تقديم طلب المجموعة في {restaurant} بالفعل.",
     "groupOrderCancelled": "تم إلغاء طلب المجموعة",
     "groupOrderCancelledDesc": "تم إلغاء طلب المجموعة في {restaurant}.",
-    "backToGroups": "العودة إلى المجموعات"
+    "backToGroups": "العودة إلى المجموعات",
+    "copyLink": "نسخ الرابط",
+    "copied": "تم النسخ",
+    "linkCopied": "تم نسخ الرابط إلى الحافظة",
+    "viewOrderDetails": "عرض تفاصيل الطلب",
+    "guestNameRequired": "اسم الضيف مطلوب",
+    "pleaseEnterYourName": "يرجى إدخال اسمك لهذا الطلب الجماعي:",
+    "yourNamePlaceholder": "مثال: محمد أحمد"
   },
   "userPanel": {
     "login": "تسجيل الدخول",

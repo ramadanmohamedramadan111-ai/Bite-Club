@@ -128,6 +128,7 @@ export default function RootLayout() {
             <Stack.Screen name="groups/invite/[token]" />
             <Stack.Screen name="group-order/[id]" />
             <Stack.Screen name="group-order/[id]/checkout" />
+            <Stack.Screen name="group-order/[id]/details" />
           </Stack>
           <RealtimeSubscriber />
           <StatusBar style="auto" />

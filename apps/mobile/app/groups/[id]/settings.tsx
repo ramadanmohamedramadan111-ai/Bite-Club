@@ -30,6 +30,7 @@ import {
   useGroupDetail,
   useUpdateGroup,
   useToggleGroupInvite,
+  useToggleGroupGuests,
   useDeleteGroup,
   useLeaveGroup,
 } from '@/lib/queries';
@@ -50,6 +51,7 @@ export default function GroupSettingsScreen() {
 
   const updateGroupMutation = useUpdateGroup(groupId);
   const toggleInviteMutation = useToggleGroupInvite(groupId);
+  const toggleGuestsMutation = useToggleGroupGuests(groupId);
   const deleteGroupMutation = useDeleteGroup(groupId);
   const leaveGroupMutation = useLeaveGroup(groupId);
 
@@ -148,6 +150,14 @@ export default function GroupSettingsScreen() {
 
   const handleToggleInvite = (value: boolean) => {
     toggleInviteMutation.mutate(value, {
+      onError: (err) => {
+        Alert.alert(t('common.genericError'), err.message);
+      },
+    });
+  };
+
+  const handleToggleGuests = (value: boolean) => {
+    toggleGuestsMutation.mutate(value, {
       onError: (err) => {
         Alert.alert(t('common.genericError'), err.message);
       },
@@ -343,6 +353,31 @@ export default function GroupSettingsScreen() {
                   </Text>
                 </Button>
               )}
+            </View>
+          )}
+
+          {/* Guests settings */}
+          {hasEditRights && (
+            <View style={[styles.section, { borderColor: colors.border, backgroundColor: colors.card }]}>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                {t('groups.allowGuestsForOrders')}
+              </Text>
+              <Text style={[styles.switchLabel, { color: colors.textSecondary }]}>
+                {t('groups.allowGuestsDesc')}
+              </Text>
+
+              <View style={styles.switchRow}>
+                <Text style={[styles.switchLabel, { color: colors.text }]}>
+                  {t('groups.toggleAllowGuests')}
+                </Text>
+                <Switch
+                  value={group.allow_guests_for_orders}
+                  onValueChange={handleToggleGuests}
+                  disabled={toggleGuestsMutation.isPending}
+                  thumbColor={Platform.OS === 'android' ? colors.primary : undefined}
+                  trackColor={{ true: colors.primary + '80', false: colors.border }}
+                />
+              </View>
             </View>
           )}
 

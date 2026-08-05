@@ -19,12 +19,13 @@ class GroupOrderResource extends JsonResource
             $itemTotal = $item->quantity * $item->unit_price;
             $totalAmount += $itemTotal;
 
-            $userId = $item->user->id;
+            $userId = 'user_' . $item->user->id;
             if (!isset($usersMap[$userId])) {
                 $usersMap[$userId] = [
                     'user' => [
-                        'id' => $userId,
+                        'id' => $item->user->id,
                         'name' => $item->user->full_name,
+                        'is_guest' => false,
                         'profile_image' => $this->formatImageUrl($item->user->profile_image_url),
                     ],
                     'user_total' => 0,
@@ -36,6 +37,30 @@ class GroupOrderResource extends JsonResource
             $usersMap[$userId]['items'][] = new GroupOrderItemResource($item);
         }
 
+        if ($this->relationLoaded('guestItems') && $this->guestItems) {
+            foreach ($this->guestItems as $item) {
+                $itemTotal = $item->quantity * $item->unit_price;
+                $totalAmount += $itemTotal;
+
+                $userId = 'guest_' . $item->user_id;
+                if (!isset($usersMap[$userId])) {
+                    $usersMap[$userId] = [
+                        'user' => [
+                            'id' => $item->user_id,
+                            'name' => $item->user_name,
+                            'is_guest' => true,
+                            'profile_image' => null,
+                        ],
+                        'user_total' => 0,
+                        'items' => [],
+                    ];
+                }
+
+                $usersMap[$userId]['user_total'] += $itemTotal;
+                $usersMap[$userId]['items'][] = new GroupOrderItemResource($item);
+            }
+        }
+
         // Format user totals
         foreach ($usersMap as &$userData) {
             $userData['user_total'] = (float) $userData['user_total'];
@@ -44,6 +69,7 @@ class GroupOrderResource extends JsonResource
         return [
             'id' => $this->id,
             'status' => $this->status,
+            'allow_guests' => (bool) $this->allow_guests,
             'restaurant' => [
                 'id' => $this->restaurant->id,
                 'name' => $this->restaurant->name,

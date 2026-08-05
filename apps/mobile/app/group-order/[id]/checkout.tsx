@@ -167,7 +167,7 @@ export default function GroupOrderCheckoutScreen() {
             if (res.payment_url) {
               await WebBrowser.openBrowserAsync(res.payment_url);
             }
-            router.replace('/orders');
+            router.replace(`/group-order/${sessionId}/details`);
           } else {
             setError('Failed to place order');
           }

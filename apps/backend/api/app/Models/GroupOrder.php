@@ -15,11 +15,13 @@ class GroupOrder extends Model
         'host_id',
         'restaurant_id',
         'order_id',
+        'allow_guests',
         'status',
     ];
 
     protected $casts = [
         'status' => GroupOrderStatusEnum::class,
+        'allow_guests' => 'boolean',
     ];
 
     public function group()
@@ -45,5 +47,10 @@ class GroupOrder extends Model
     public function items()
     {
         return $this->hasMany(GroupOrderItem::class);
+    }
+
+    public function guestItems()
+    {
+        return $this->hasMany(GroupOrderItemGuest::class);
     }
 }

@@ -20,16 +20,18 @@ class Group extends Model
         'image_url',
         'invite_token',
         'allow_join_by_link',
+        'allow_guests_for_orders',
         'status',
     ];
 
     protected function casts(): array
     {
         return [
-            'owner_user_id'      => 'integer',
-            'allow_join_by_link' => 'boolean',
-            'status'             => GroupStatusEnum::class,
-            'deleted_at'         => 'datetime',
+            'owner_user_id'           => 'integer',
+            'allow_join_by_link'      => 'boolean',
+            'allow_guests_for_orders' => 'boolean',
+            'status'                  => GroupStatusEnum::class,
+            'deleted_at'              => 'datetime',
         ];
     }
 

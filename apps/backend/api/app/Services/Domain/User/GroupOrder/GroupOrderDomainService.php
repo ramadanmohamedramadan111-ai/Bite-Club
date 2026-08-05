@@ -8,6 +8,7 @@ use App\Repositories\Interfaces\GroupOrderItemRepositoryInterface;
 use App\Repositories\Interfaces\CartRepositoryInterface;
 use App\Repositories\Interfaces\CartItemRepositoryInterface;
 use App\Repositories\Interfaces\User\GroupMemberRepositoryInterface;
+use App\Repositories\Interfaces\User\GroupRepositoryInterface;
 use App\Repositories\Interfaces\MenuItemRepositoryInterface;
 use App\Services\Domain\User\Order\OrderDomainService;
 use App\Models\GroupOrderItem;
@@ -29,7 +30,8 @@ class GroupOrderDomainService
         private readonly CartItemRepositoryInterface $cartItemRepo,
         private readonly GroupMemberRepositoryInterface $groupMemberRepo,
         private readonly MenuItemRepositoryInterface $menuItemRepo,
-        private readonly OrderApplicationService $orderApplicationService
+        private readonly OrderApplicationService $orderApplicationService,
+        private readonly GroupRepositoryInterface $groupRepo
     ) {}
 
     public function isGroupOrderMember(int $userId, int $groupOrderId): bool
@@ -46,24 +48,66 @@ class GroupOrderDomainService
             ->exists();
     }
 
-    public function createGroupOrder(int $hostId, int $groupId, int $restaurantId): GroupOrder
+    public function createGroupOrder(int $hostId, ?int $groupId, int $restaurantId, bool $isAnonymous = false): GroupOrder
     {
-        // 1. Check if the host is a member of the group
-        $isMember = $this->groupMemberRepo->query()
-            ->where('group_id', $groupId)
-            ->where('user_id', $hostId)
-            ->exists();
+        if ($isAnonymous) {
+            $randomId = \Illuminate\Support\Str::random(8);
+            $groupName = 'Anonymous Group - ' . $randomId;
+            $groupDescription = 'Auto-generated group for anonymous ordering.';
 
-        if (!$isMember) {
-            throw new Exception(trans('group_order.not_member'));
+            // Generate unique token
+            do {
+                $token = \Illuminate\Support\Str::random(32);
+            } while ($this->groupRepo->exists(['invite_token' => $token]));
+
+            $group = DB::transaction(function () use ($hostId, $groupName, $groupDescription, $token) {
+                $g = $this->groupRepo->create([
+                    'owner_user_id'      => $hostId,
+                    'name'               => $groupName,
+                    'description'        => $groupDescription,
+                    'image_url'          => null,
+                    'invite_token'       => $token,
+                    'allow_join_by_link' => true,
+                    'status'             => \App\Enums\User\Groups\GroupStatusEnum::ACTIVE->value,
+                    'allow_guests_for_orders' => true,
+                ]);
+
+                $this->groupMemberRepo->create([
+                    'group_id'  => $g->id,
+                    'user_id'   => $hostId,
+                    'role'      => \App\Enums\User\Groups\GroupMemberRoleEnum::OWNER->value,
+                    'status'    => \App\Enums\User\Groups\GroupMemberStatusEnum::ACTIVE->value,
+                    'joined_at' => now(),
+                ]);
+
+                return $g;
+            });
+
+            $groupId = $group->id;
+        } else {
+            if (!$groupId) {
+                throw new Exception('Group ID is required for non-anonymous group orders.');
+            }
+
+            // 1. Check if the host is a member of the group
+            $isMember = $this->groupMemberRepo->query()
+                ->where('group_id', $groupId)
+                ->where('user_id', $hostId)
+                ->exists();
+
+            if (!$isMember) {
+                throw new Exception(trans('group_order.not_member'));
+            }
+
+            // 2. Check if there is already an active group order for this group
+            $existingOrder = $this->groupOrderRepo->findActiveGroupOrderForGroup($groupId);
+
+            if ($existingOrder) {
+                throw new Exception(trans('group_order.active_order_exists'));
+            }
         }
 
-        // 2. Check if there is already an active group order for this group
-        $existingOrder = $this->groupOrderRepo->findActiveGroupOrderForGroup($groupId);
-
-        if ($existingOrder) {
-            throw new Exception(trans('group_order.active_order_exists'));
-        }
+        $group = $this->groupRepo->findOrFail($groupId);
 
         // 3. Create the group order
         return $this->groupOrderRepo->create([
@@ -71,6 +115,7 @@ class GroupOrderDomainService
             'host_id'       => $hostId,
             'restaurant_id' => $restaurantId,
             'status'        => GroupOrderStatusEnum::OPEN->value,
+            'allow_guests'  => (bool) $group->allow_guests_for_orders,
         ]);
     }
 
@@ -89,8 +134,8 @@ class GroupOrderDomainService
             ->where('user_id', $userId)
             ->exists();
 
-        if (!$isMember) {
-            throw new Exception(trans('group_order.not_member'));
+        if (!$isMember && !$groupOrder->allow_guests) {
+            throw new Exception(trans('group_order.not_member') ?? 'You must be a member of the group.');
         }
 
         // 3. Check if the item belongs to the same restaurant
@@ -199,15 +244,16 @@ class GroupOrderDomainService
             ->where('user_id', $userId)
             ->exists();
 
-        if (!$isMember) {
-            throw new Exception(trans('group_order.not_member'));
+        if (!$isMember && !$groupOrder->allow_guests) {
+            throw new Exception(trans('group_order.not_member') ?? 'You must be a member of the group.');
         }
 
         $groupOrder->load([
             'restaurant', 
             'host', 
             'items.user', 
-            'items.menuItem.menuCategory'
+            'items.menuItem.menuCategory',
+            'guestItems.menuItem.menuCategory'
         ]);
 
         return $groupOrder;
@@ -244,13 +290,37 @@ class GroupOrderDomainService
             ->where('group_order_id', $groupOrder->id)
             ->get();
 
-        if ($items->isEmpty()) {
+        // Fetch guest group order items
+        $guestItems = [];
+        if ($groupOrder->allow_guests) {
+            $guestItems = \App\Models\GroupOrderItemGuest::where('group_order_id', $groupOrder->id)->get();
+        }
+
+        if ($items->isEmpty() && $guestItems->isEmpty()) {
             throw new Exception(trans('group_order.empty_order'));
         }
 
         // Aggregate items (group by item_id only and merge notes)
         $aggregatedItems = [];
         foreach ($items as $item) {
+            $key = $item->item_id;
+            if (!isset($aggregatedItems[$key])) {
+                $aggregatedItems[$key] = [
+                    'item_id' => $item->item_id,
+                    'item_name' => $item->item_name,
+                    'unit_price' => $item->unit_price,
+                    'notes_list' => [],
+                    'quantity' => 0,
+                ];
+            }
+            $aggregatedItems[$key]['quantity'] += $item->quantity;
+
+            if (!empty(trim((string) $item->notes))) {
+                $aggregatedItems[$key]['notes_list'][] = "({$item->quantity}x): " . trim((string) $item->notes);
+            }
+        }
+
+        foreach ($guestItems as $item) {
             $key = $item->item_id;
             if (!isset($aggregatedItems[$key])) {
                 $aggregatedItems[$key] = [
@@ -381,5 +451,180 @@ class GroupOrderDomainService
     public function getActiveSessions(int $userId): Collection
     {
         return $this->groupOrderRepo->getActiveSessionsForUser($userId);
+    }
+
+    public function addGuestItem(string|int $guestUserId, string $guestUserName, int $groupOrderId, int $itemId, int $quantity, ?string $notes): \App\Models\GroupOrderItemGuest
+    {
+        $groupOrder = $this->groupOrderRepo->findOrFail($groupOrderId);
+
+        if ($groupOrder->status !== GroupOrderStatusEnum::OPEN) {
+            throw new Exception(trans('group_order.order_not_open') ?? 'Group order is not open.');
+        }
+
+        if (!$groupOrder->allow_guests) {
+            throw new Exception(trans('group_order.guests_not_allowed') ?? 'Guests are not allowed in this group order.');
+        }
+
+        $menuItem = $this->menuItemRepo->findOrFail($itemId);
+        if ($menuItem->menuCategory->restaurant_id !== $groupOrder->restaurant_id) {
+            throw new Exception(trans('group_order.item_not_in_restaurant') ?? 'Item does not belong to the restaurant.');
+        }
+
+        $existingItem = \App\Models\GroupOrderItemGuest::where('group_order_id', $groupOrderId)
+            ->where('user_id', $guestUserId)
+            ->where('item_id', $itemId)
+            ->first();
+
+        if ($existingItem) {
+            $newQuantity = $existingItem->quantity + $quantity;
+            $existingItem->update(['quantity' => $newQuantity, 'notes' => $notes]);
+            return $existingItem->fresh();
+        }
+
+        return \App\Models\GroupOrderItemGuest::create([
+            'group_order_id' => $groupOrderId,
+            'user_id'        => $guestUserId,
+            'user_name'      => $guestUserName,
+            'item_id'        => $itemId,
+            'item_name'      => $menuItem->title,
+            'quantity'       => $quantity,
+            'unit_price'     => $menuItem->price,
+            'notes'          => $notes,
+        ]);
+    }
+
+    public function updateGuestItemQuantity(string|int $actorId, int $groupOrderId, int $groupOrderItemId, int $quantity): \App\Models\GroupOrderItemGuest
+    {
+        $groupOrder = $this->groupOrderRepo->findOrFail($groupOrderId);
+
+        if ($groupOrder->status !== GroupOrderStatusEnum::OPEN) {
+            throw new Exception(trans('group_order.order_not_open') ?? 'Group order is not open.');
+        }
+
+        $item = \App\Models\GroupOrderItemGuest::findOrFail($groupOrderItemId);
+
+        if ($item->group_order_id !== $groupOrderId) {
+            throw new Exception(trans('group_order.item_not_in_order') ?? 'Item is not in this group order.');
+        }
+
+        if ((string) $item->user_id !== (string) $actorId && (string) $groupOrder->host_id !== (string) $actorId) {
+            throw new Exception(trans('group_order.cannot_update_item') ?? 'Cannot update this item.');
+        }
+
+        $item->update(['quantity' => $quantity]);
+        return $item->fresh();
+    }
+
+    public function removeGuestItem(string|int $actorId, int $groupOrderId, int $groupOrderItemId): void
+    {
+        $groupOrder = $this->groupOrderRepo->findOrFail($groupOrderId);
+
+        if ($groupOrder->status !== GroupOrderStatusEnum::OPEN) {
+            throw new Exception(trans('group_order.order_not_open') ?? 'Group order is not open.');
+        }
+
+        $item = \App\Models\GroupOrderItemGuest::findOrFail($groupOrderItemId);
+
+        if ($item->group_order_id !== $groupOrderId) {
+            throw new Exception(trans('group_order.item_not_in_order') ?? 'Item is not in this group order.');
+        }
+
+        if ((string) $item->user_id !== (string) $actorId && (string) $groupOrder->host_id !== (string) $actorId) {
+            throw new Exception(trans('group_order.cannot_remove_item') ?? 'Cannot remove this item.');
+        }
+
+        $item->delete();
+    }
+
+    public function clearGuestItems(string|int $guestUserId, int $groupOrderId): void
+    {
+        $groupOrder = $this->groupOrderRepo->findOrFail($groupOrderId);
+
+        if ($groupOrder->status !== GroupOrderStatusEnum::OPEN) {
+            throw new Exception(trans('group_order.order_not_open') ?? 'Group order is not open.');
+        }
+
+        \App\Models\GroupOrderItemGuest::where('group_order_id', $groupOrderId)
+            ->where('user_id', $guestUserId)
+            ->delete();
+    }
+
+    public function getGuestGroupOrder(int $groupOrderId): GroupOrder
+    {
+        $groupOrder = $this->groupOrderRepo->findOrFail($groupOrderId);
+
+        if (!$groupOrder->allow_guests) {
+            throw new Exception(trans('group_order.guests_not_allowed') ?? 'Guests are not allowed in this group order.');
+        }
+
+        $groupOrder->load([
+            'restaurant',
+            'host',
+            'items.user',
+            'items.menuItem.menuCategory',
+            'guestItems.menuItem.menuCategory'
+        ]);
+
+        return $groupOrder;
+    }
+
+    public function mergeGuestItems(int $userId, int $groupOrderId, string|int $guestUserId): void
+    {
+        $groupOrder = $this->groupOrderRepo->findOrFail($groupOrderId);
+
+        if ($groupOrder->status !== GroupOrderStatusEnum::OPEN) {
+            throw new Exception(trans('group_order.order_not_open') ?? 'Group order is not open.');
+        }
+
+        $isMember = $this->groupMemberRepo->query()
+            ->where('group_id', $groupOrder->group_id)
+            ->where('user_id', $userId)
+            ->exists();
+
+        if (!$isMember && !$groupOrder->allow_guests) {
+            throw new Exception(trans('group_order.not_member') ?? 'You must be a member of the group.');
+        }
+
+        $guestItems = \App\Models\GroupOrderItemGuest::where('group_order_id', $groupOrderId)
+            ->where('user_id', $guestUserId)
+            ->get();
+
+        if ($guestItems->isEmpty()) {
+            return;
+        }
+
+        DB::transaction(function () use ($userId, $groupOrderId, $guestItems) {
+            foreach ($guestItems as $guestItem) {
+                $existingItem = $this->groupOrderItemRepo->query()
+                    ->where('group_order_id', $groupOrderId)
+                    ->where('user_id', $userId)
+                    ->where('item_id', $guestItem->item_id)
+                    ->first();
+
+                if ($existingItem) {
+                    $newQuantity = $existingItem->quantity + $guestItem->quantity;
+                    $notes = $existingItem->notes;
+                    if (!empty($guestItem->notes)) {
+                        $notes = empty($notes) ? $guestItem->notes : $notes . ' | ' . $guestItem->notes;
+                    }
+                    $this->groupOrderItemRepo->update($existingItem->id, [
+                        'quantity' => $newQuantity,
+                        'notes' => $notes,
+                    ]);
+                } else {
+                    $this->groupOrderItemRepo->create([
+                        'group_order_id' => $groupOrderId,
+                        'user_id'        => $userId,
+                        'item_id'        => $guestItem->item_id,
+                        'item_name'      => $guestItem->item_name,
+                        'quantity'       => $guestItem->quantity,
+                        'unit_price'     => $guestItem->unit_price,
+                        'notes'          => $guestItem->notes,
+                    ]);
+                }
+
+                $guestItem->delete();
+            }
+        });
     }
 }

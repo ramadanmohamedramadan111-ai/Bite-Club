@@ -24,16 +24,17 @@ class GroupDetailResource extends JsonResource
         }
 
         return [
-            'id'                 => $this->id,
-            'name'               => $this->name,
-            'description'        => $this->description,
-            'image_url'          => $this->formatImageUrl($this->image_url),
-            'invite_token'       => $this->invite_token,
-            'allow_join_by_link' => (bool) $this->allow_join_by_link,
-            'status'             => $this->status instanceof \UnitEnum ? $this->status->value : $this->status,
-            'my_role'            => $myRole,
-            'owner'              => new UserSearchResource($this->owner),
-            'members'            => GroupMemberResource::collection($this->members),
+            'id'                      => $this->id,
+            'name'                    => $this->name,
+            'description'             => $this->description,
+            'image_url'               => $this->formatImageUrl($this->image_url),
+            'invite_token'            => $this->invite_token,
+            'allow_join_by_link'      => (bool) $this->allow_join_by_link,
+            'allow_guests_for_orders' => (bool) $this->allow_guests_for_orders,
+            'status'                  => $this->status instanceof \UnitEnum ? $this->status->value : $this->status,
+            'my_role'                 => $myRole,
+            'owner'                   => new UserSearchResource($this->owner),
+            'members'                 => GroupMemberResource::collection($this->members),
         ];
     }
 }

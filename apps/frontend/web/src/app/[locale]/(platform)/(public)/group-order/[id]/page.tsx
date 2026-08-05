@@ -19,8 +19,14 @@ type PageProps = {
 export default async function Page({ params }: PageProps) {
   const { id } = await params;
 
+  const cookieStore = await cookies();
+  const token = cookieStore.get('accessToken')?.value || null;
+  const currentUserId = await getUserId();
+
+  const url = token ? `/user/group-orders/${id}` : `/user/group-orders/${id}/guest/cart`;
+
   const sessionCart = await serverFetch<ApiResponse<GroupOrderCartSession>>(
-    `/user/group-orders/${id}`,
+    url,
     'GET',
     {
       next: {
@@ -48,8 +54,10 @@ export default async function Page({ params }: PageProps) {
                 restaurant: sessionCart.data.restaurant.name,
               })}
             </p>
-            <Button asChild variant="outline" className="gap-2">
-              <Link href="/groups">{t('backToGroups')}</Link>
+            <Button asChild className="gap-2 rounded-xl">
+              <Link href={`/group-order/${id}/details`}>
+                {t('viewOrderDetails')}
+              </Link>
             </Button>
           </CardContent>
         </Card>
@@ -76,8 +84,10 @@ export default async function Page({ params }: PageProps) {
                 restaurant: sessionCart.data.restaurant.name,
               })}
             </p>
-            <Button asChild variant="outline" className="gap-2">
-              <Link href="/groups">{t('backToGroups')}</Link>
+            <Button asChild className="gap-2 rounded-xl">
+              <Link href={`/group-order/${id}/details`}>
+                {t('viewOrderDetails')}
+              </Link>
             </Button>
           </CardContent>
         </Card>
@@ -92,10 +102,6 @@ export default async function Page({ params }: PageProps) {
       tags: [`group-order-session-menu-${id}`],
     },
   });
-
-  const currentUserId = await getUserId();
-  const cookieStore = await cookies();
-  const token = cookieStore.get('accessToken')?.value || null;
 
   return (
     <GroupOrderPageView
@@ -113,7 +119,10 @@ export default async function Page({ params }: PageProps) {
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   try {
-    const res = await serverFetch<ApiResponse<GroupOrderCartSession>>(`/user/group-orders/${id}`);
+    const cookieStore = await cookies();
+    const token = cookieStore.get('accessToken')?.value || null;
+    const url = token ? `/user/group-orders/${id}` : `/user/group-orders/${id}/guest/cart`;
+    const res = await serverFetch<ApiResponse<GroupOrderCartSession>>(url);
     const cart = res?.data;
     if (cart) {
       return {

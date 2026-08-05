@@ -62,7 +62,7 @@ export default async function GroupMemberCard({ member, group, type }: Props) {
 
       {!isMe && (
         <GroupMemberActions
-          currentUserRole={group.my_role}
+          currentUserRole={group.my_role || 'member'}
           targetRole={member.role}
           groupId={group.id}
           memberId={member.id}

@@ -106,7 +106,8 @@
     "youreReady": "You're ready!",
     "imReady": "I'm ready",
     "waitingForHost": "You're ready! Waiting for the host to checkout.",
-    "close": "Close"
+    "close": "Close",
+    "confirm": "Confirm"
   },
   "forms": {
     "login": {
@@ -916,6 +917,9 @@
     "openInvitations": "Open invitations",
     "allowInviteLink": "Allow new members to join via the invite link",
     "toggleOpenInvitations": "Toggle open invitations",
+    "allowGuestsForOrders": "Allow Guests for Group Orders",
+    "allowGuestsDesc": "Allow guests to join and add items to group orders without registering",
+    "toggleAllowGuests": "Toggle allow guests",
     "deleting": "Deleting...",
     "leaving": "Leaving...",
     "deleteGroup": "Delete Group",
@@ -989,7 +993,14 @@
     "groupOrderCompletedDesc": "The group order at {restaurant} has already been placed.",
     "groupOrderCancelled": "Group order cancelled",
     "groupOrderCancelledDesc": "The group order at {restaurant} has been cancelled.",
-    "backToGroups": "Back to groups"
+    "backToGroups": "Back to groups",
+    "copyLink": "Copy Link",
+    "copied": "Copied",
+    "linkCopied": "Link copied to clipboard",
+    "viewOrderDetails": "View Order Details",
+    "guestNameRequired": "Guest Name Required",
+    "pleaseEnterYourName": "Please enter your name for this group order:",
+    "yourNamePlaceholder": "e.g. John Doe"
   },
   "userPanel": {
     "login": "Login",

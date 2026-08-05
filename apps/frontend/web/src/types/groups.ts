@@ -22,6 +22,8 @@ export type GroupType = {
   image_url?: string | null;
   invite_token: string;
   allow_join_by_link: boolean;
+  allow_guests_for_orders: boolean;
+  my_role?: GroupRole;
   status: GroupStatus;
   owner: SocialUser;
   members: GroupMember[];
@@ -35,6 +37,7 @@ export type GroupTypeSimplified = {
   image_url?: string | null;
   invite_token: string;
   allow_join_by_link: boolean;
+  allow_guests_for_orders: boolean;
   status: GroupStatus;
   owner: SocialUser;
   members_count: number;

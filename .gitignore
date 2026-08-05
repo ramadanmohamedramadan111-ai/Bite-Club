@@ -10,5 +10,8 @@ __pycache__/
 .cursor
 .qodo
 .env.local
+<<<<<<< Updated upstream
 **/__pycache__/
 
+=======
+>>>>>>> Stashed changes

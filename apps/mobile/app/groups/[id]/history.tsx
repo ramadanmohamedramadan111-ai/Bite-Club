@@ -153,6 +153,13 @@ export default function GroupHistoryScreen() {
                         </View>
                       )}
                       <Text style={[styles.memberUserName, { color: colors.text }]}>{member.user.name}</Text>
+                      {member.user.is_guest ? (
+                        <View style={[styles.guestBadge, { backgroundColor: colors.muted }]}>
+                          <Text style={[styles.guestBadgeText, { color: colors.primary }]}>
+                            {t('groups.guest')}
+                          </Text>
+                        </View>
+                      ) : null}
                     </View>
                     <Text style={[styles.memberUserTotal, { color: colors.text }]}>
                       EGP {member.user_total.toFixed(2)}
@@ -188,6 +195,21 @@ export default function GroupHistoryScreen() {
             EGP {item.total_amount.toFixed(2)}
           </Text>
         </View>
+
+        {/* View details */}
+        <Pressable
+          onPress={() => router.push(`/group-order/${item.id}/details`)}
+          style={({ pressed }) => [
+            styles.viewDetailsBtn,
+            { borderColor: colors.primary, backgroundColor: colors.primary + '08' },
+            pressed && { opacity: 0.7 },
+          ]}
+        >
+          <Ionicons name="open-outline" size={16} color={colors.primary} />
+          <Text style={[styles.viewDetailsText, { color: colors.primary }]}>
+            {t('groups.viewOrderDetails')}
+          </Text>
+        </Pressable>
       </View>
     );
   };
@@ -514,6 +536,30 @@ const styles = StyleSheet.create({
   totalValue: {
     fontSize: 16,
     fontWeight: '800',
+  },
+  guestBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: Radius.sm,
+  },
+  guestBadgeText: {
+    fontSize: 9,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+  },
+  viewDetailsBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    borderWidth: 1,
+    borderRadius: Radius.md,
+    paddingVertical: Spacing.sm,
+    marginTop: Spacing.md,
+  },
+  viewDetailsText: {
+    fontSize: 13,
+    fontWeight: '700',
   },
   center: {
     flex: 1,

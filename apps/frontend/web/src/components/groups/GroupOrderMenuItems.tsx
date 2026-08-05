@@ -18,13 +18,18 @@ import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { cn, getMediaUrl } from '@/lib/utils';
 import { useAction } from 'next-safe-action/hooks';
-import { addItemToGroupOrderSessionAction } from '@/actions/group-order';
+import {
+  addItemToGroupOrderSessionAction,
+  addGuestItemToGroupOrderAction,
+} from '@/actions/group-order';
 import { useRouter } from '@/i18n/navigation';
 import type { MenuItems as MenuItemsType } from '@/types/restaurant';
 
 type Props = {
   sessionId: number;
   menuGroups: MenuItemsType[];
+  isGuest?: boolean;
+  onGuestNameSet?: (name: string) => void;
 };
 
 type SelectedItem = {
@@ -36,8 +41,10 @@ type SelectedItem = {
   is_available: boolean;
 };
 
-export default function GroupOrderMenuItems({ sessionId, menuGroups }: Props) {
+export default function GroupOrderMenuItems({ sessionId, menuGroups, isGuest = false, onGuestNameSet }: Props) {
   const t = useTranslations('restaurants');
+  const tg = useTranslations('groups');
+  const tc = useTranslations('common');
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -45,6 +52,8 @@ export default function GroupOrderMenuItems({ sessionId, menuGroups }: Props) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState('');
+  const [namePromptOpen, setNamePromptOpen] = useState(false);
+  const [guestNameInput, setGuestNameInput] = useState('');
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
   const router = useRouter();
 
@@ -111,6 +120,21 @@ export default function GroupOrderMenuItems({ sessionId, menuGroups }: Props) {
     },
   );
 
+  const { execute: addGuestItem, isExecuting: isGuestExecuting } = useAction(
+    addGuestItemToGroupOrderAction,
+    {
+      onSuccess: () => {
+        toast.success('Item added to group order');
+        setDialogOpen(false);
+        setQuantity(1);
+        setNotes('');
+      },
+      onError: ({ error }) => {
+        toast.error(error.serverError?.message ?? 'Failed to add item');
+      },
+    },
+  );
+
   function openDialog(item: SelectedItem) {
     setSelectedItem(item);
     setQuantity(1);
@@ -120,15 +144,103 @@ export default function GroupOrderMenuItems({ sessionId, menuGroups }: Props) {
 
   function handleAdd() {
     if (!selectedItem) return;
-    addItem({
-      group_order_id: sessionId,
-      item_id: selectedItem.id,
-      quantity,
-      notes,
-    });
+
+    if (isGuest) {
+      let name = '';
+      let hasName = false;
+      if (typeof window !== 'undefined') {
+        const groupOrdersStr = localStorage.getItem('group_orders');
+        let groupOrders: Array<{ id: number; name: string }> = [];
+        try {
+          if (groupOrdersStr) {
+            groupOrders = JSON.parse(groupOrdersStr);
+          }
+        } catch (e) {}
+
+        const match = Array.isArray(groupOrders) ? groupOrders.find((go) => Number(go.id) === Number(sessionId)) : null;
+        if (match) {
+          name = match.name;
+          hasName = true;
+        }
+      }
+
+      if (!hasName) {
+        setGuestNameInput('');
+        setNamePromptOpen(true);
+        return;
+      }
+
+      const guestUserIdStr = typeof window !== 'undefined' ? localStorage.getItem('user_id') : null;
+      const guestUserId = guestUserIdStr ? parseInt(guestUserIdStr) : (Date.now() * 1000 + Math.floor(Math.random() * 1000));
+      if (typeof window !== 'undefined' && !guestUserIdStr) {
+        localStorage.setItem('user_id', guestUserId.toString());
+      }
+
+      addGuestItem({
+        group_order_id: sessionId,
+        user_id: guestUserId,
+        user_name: name,
+        item_id: selectedItem.id,
+        quantity,
+        notes,
+      });
+    } else {
+      addItem({
+        group_order_id: sessionId,
+        item_id: selectedItem.id,
+        quantity,
+        notes,
+      });
+    }
   }
 
-  const disabledConditions = isExecuting || !selectedItem?.is_available;
+  function handleGuestNameSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!guestNameInput.trim()) {
+      toast.error('Name is required to add items as a guest.');
+      return;
+    }
+
+    const name = guestNameInput.trim();
+
+    if (typeof window !== 'undefined' && selectedItem) {
+      const groupOrdersStr = localStorage.getItem('group_orders');
+      let groupOrders: Array<{ id: number; name: string }> = [];
+      try {
+        if (groupOrdersStr) {
+          groupOrders = JSON.parse(groupOrdersStr);
+        }
+      } catch (e) {}
+
+      groupOrders.push({ id: sessionId, name });
+      localStorage.setItem('group_orders', JSON.stringify(groupOrders));
+
+      if (onGuestNameSet) {
+        onGuestNameSet(name);
+      }
+
+      if (!localStorage.getItem('user_id')) {
+        const uniqueUserId = Date.now() * 1000 + Math.floor(Math.random() * 1000);
+        localStorage.setItem('user_id', uniqueUserId.toString());
+      }
+
+      const guestUserIdStr = localStorage.getItem('user_id');
+      const guestUserId = guestUserIdStr ? parseInt(guestUserIdStr) : (Date.now() * 1000 + Math.floor(Math.random() * 1000));
+
+      addGuestItem({
+        group_order_id: sessionId,
+        user_id: guestUserId,
+        user_name: name,
+        item_id: selectedItem.id,
+        quantity,
+        notes,
+      });
+    }
+
+    setNamePromptOpen(false);
+  }
+
+  const disabledConditions = isExecuting || isGuestExecuting || !selectedItem?.is_available;
 
   return (
     <div className="space-y-6">
@@ -353,6 +465,41 @@ export default function GroupOrderMenuItems({ sessionId, menuGroups }: Props) {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Guest Name prompt dialog */}
+      <Dialog open={namePromptOpen} onOpenChange={setNamePromptOpen}>
+        <DialogContent className="sm:max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <span>{tg('guestNameRequired') || 'Guest Name Required'}</span>
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleGuestNameSubmit} className="space-y-4 pt-2">
+            <Field>
+              <FieldLabel htmlFor="guestName">
+                {tg('pleaseEnterYourName') || 'Please enter your name for this group order:'}
+              </FieldLabel>
+              <Input
+                id="guestName"
+                type="text"
+                required
+                placeholder={tg('yourNamePlaceholder') || 'e.g. John Doe'}
+                value={guestNameInput}
+                onChange={(e) => setGuestNameInput(e.target.value)}
+                className="rounded-xl h-11"
+              />
+            </Field>
+            <div className="flex gap-3 justify-end pt-2">
+              <Button type="button" variant="outline" className="rounded-xl h-11 px-4 cursor-pointer" onClick={() => setNamePromptOpen(false)}>
+                {tc('cancel') || 'Cancel'}
+              </Button>
+              <Button type="submit" className="rounded-xl h-11 px-5 cursor-pointer">
+                {tc('confirm') || 'Confirm'}
+              </Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
     </div>

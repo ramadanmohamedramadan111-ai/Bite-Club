@@ -413,6 +413,8 @@ export type GroupType = {
   image_url?: string | null;
   invite_token: string;
   allow_join_by_link: boolean;
+  allow_guests_for_orders: boolean;
+  my_role?: GroupRole;
   status: GroupStatus;
   owner: SocialUser;
   members: GroupMember[];
@@ -426,6 +428,7 @@ export type GroupTypeSimplified = {
   image_url?: string | null;
   invite_token: string;
   allow_join_by_link: boolean;
+  allow_guests_for_orders: boolean;
   status: GroupStatus;
   owner: SocialUser;
   members_count: number;
@@ -447,9 +450,10 @@ export interface GroupOrderHistory {
   total_amount: number;
   members_summary: {
     user: {
-      id: number;
+      id: number | string;
       name: string;
       profile_image: string | null;
+      is_guest?: boolean;
     };
     user_total: number;
     items: {
@@ -473,6 +477,7 @@ export interface GroupOrderHistory {
 export interface GroupOrderCartSession {
   id: number;
   status: 'open' | 'cancelled' | 'locked' | 'completed';
+  allow_guests?: boolean;
   restaurant: {
     id: number;
     name: string;
@@ -485,9 +490,10 @@ export interface GroupOrderCartSession {
   total_amount: number;
   members_summary: {
     user: {
-      id: number;
+      id: number | string;
       name: string;
       profile_image: string | null;
+      is_guest?: boolean;
     };
     user_total: number;
     items: {

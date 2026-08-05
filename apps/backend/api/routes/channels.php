@@ -13,13 +13,28 @@ Broadcast::channel('App.Models.Restaurant.{id}', function ($restaurant, $id) {
     return (int) $restaurant->id === (int) $id;
 }, ['guards' => ['restaurant']]);
 
-Broadcast::channel('group-order.{groupId}', function ($user, $groupId) {
+Broadcast::channel('group-order.{groupId}', function ($user = null, $groupId) {
     $domainService = app(GroupOrderDomainService::class);
+    $groupOrder = \App\Models\GroupOrder::find($groupId);
 
-    if ($domainService->isGroupOrderMember($user->id, $groupId)) {
+    if (!$groupOrder) {
+        return false;
+    }
+
+    if ($user && ($domainService->isGroupOrderMember($user->id, $groupId) || $groupOrder->allow_guests)) {
         return [
             'id' => $user->id,
-            'name' => $user->name,
+            'name' => $user->full_name ?? $user->name,
+        ];
+    }
+
+    if ($groupOrder->allow_guests) {
+        $guestId = request()->header('X-Guest-ID') ?? request()->input('guest_id') ?? 'guest_' . uniqid();
+        $guestName = request()->header('X-Guest-Name') ?? request()->input('guest_name') ?? 'Guest';
+        return [
+            'id' => $guestId,
+            'name' => $guestName,
+            'is_guest' => true,
         ];
     }
 

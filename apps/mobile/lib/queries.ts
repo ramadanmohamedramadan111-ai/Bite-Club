@@ -1105,10 +1105,103 @@ export function useJoinGroupByLink() {
 }
 
 export function useGroupOrderSession(id: number) {
+  const { isAuthenticated } = useAuthStore();
+  const url = isAuthenticated
+    ? `/user/group-orders/${id}`
+    : `/user/group-orders/${id}/guest/cart`;
   return useQuery({
     queryKey: queryKeys.groupOrderSession(id),
     queryFn: () =>
-      api.get<{ data: GroupOrderCartSession }>(`/user/group-orders/${id}`).then((res) => res.data),
+      api.get<{ data: GroupOrderCartSession }>(url).then((res) => res.data),
+  });
+}
+
+export function useGroupOrderDetail(id: number) {
+  return useQuery({
+    queryKey: ['group-order', 'detail', id] as const,
+    queryFn: () =>
+      api
+        .get<{ data: GroupOrderCartSession }>(`/user/group-orders/${id}/detail`)
+        .then((res) => res.data),
+  });
+}
+
+export function useAddGuestGroupCartItem(sessionId: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: {
+      user_id: string;
+      user_name: string;
+      item_id: number;
+      quantity: number;
+      notes?: string;
+    }) => api.post(`/user/group-orders/${sessionId}/guest/items`, payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.groupOrderSession(sessionId) });
+    },
+  });
+}
+
+export function useUpdateGuestGroupCartItemQuantity(sessionId: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { user_id: string; item_id: number; quantity: number }) =>
+      api.put(`/user/group-orders/${sessionId}/guest/items/${payload.item_id}`, {
+        user_id: payload.user_id,
+        quantity: payload.quantity,
+      }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.groupOrderSession(sessionId) });
+    },
+  });
+}
+
+export function useRemoveGuestGroupCartItem(sessionId: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { user_id: string; item_id: number }) =>
+      api.del(`/user/group-orders/${sessionId}/guest/items/${payload.item_id}`, {
+        body: { user_id: payload.user_id },
+      }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.groupOrderSession(sessionId) });
+    },
+  });
+}
+
+export function useClearGuestGroupCartItems(sessionId: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (user_id: string) =>
+      api.del(`/user/group-orders/${sessionId}/guest/items`, { body: { user_id } }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.groupOrderSession(sessionId) });
+    },
+  });
+}
+
+export function useMergeGuestItems() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: {
+      group_orders: { id: number; name: string }[];
+      user_id: string;
+    }) => api.post('/user/group-orders/guest/merge', payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.activeGroupOrders });
+    },
+  });
+}
+
+export function useToggleGroupGuests(id: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (allow_guests_for_orders: boolean) =>
+      api.post<{ data: GroupType }>(`/groups/${id}`, { allow_guests_for_orders }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.groupDetail(id) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.groups });
+    },
   });
 }
 
@@ -1216,8 +1309,14 @@ export function useCheckoutGroupPay(sessionId: number) {
 export function useCreateGroupOrderSession() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: { group_id: number; restaurant_id: number }) =>
-      api.post<{ data: { group_order_id: number } }>('/user/group-orders', payload).then((res) => res.data),
+    mutationFn: (payload: {
+      group_id?: number | null;
+      restaurant_id: number;
+      is_anonymous?: boolean;
+    }) =>
+      api
+        .post<{ data: { group_order_id: number } }>('/user/group-orders', payload)
+        .then((res) => res.data),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.activeGroupOrders });
     },

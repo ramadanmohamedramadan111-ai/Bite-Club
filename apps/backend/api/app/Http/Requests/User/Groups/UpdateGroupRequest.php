@@ -19,10 +19,11 @@ class UpdateGroupRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'               => ['nullable', 'string', 'max:255'],
-            'description'        => ['nullable', 'string'],
-            'image'              => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:5120'],
-            'allow_join_by_link' => ['nullable', 'boolean'],
+            'name'                    => ['nullable', 'string', 'max:255'],
+            'description'             => ['nullable', 'string'],
+            'image'                   => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:5120'],
+            'allow_join_by_link'      => ['nullable', 'boolean'],
+            'allow_guests_for_orders' => ['nullable', 'boolean'],
         ];
     }
 

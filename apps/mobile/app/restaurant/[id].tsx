@@ -41,6 +41,7 @@ export default function RestaurantDetailScreen() {
   const [customizeItem, setCustomizeItem] = useState<MenuItem | null>(null);
   const [groupModalOpen, setGroupModalOpen] = useState(false);
   const [groupSearch, setGroupSearch] = useState('');
+  const [sessionType, setSessionType] = useState<'anonymous' | 'fixed'>('anonymous');
 
   const groupsQuery = useGroups();
   const createGroupOrderMutation = useCreateGroupOrderSession();
@@ -53,7 +54,7 @@ export default function RestaurantDetailScreen() {
 
   const handleCreateGroupOrder = (groupId: number) => {
     createGroupOrderMutation.mutate(
-      { group_id: groupId, restaurant_id: Number(id) },
+      { group_id: groupId, restaurant_id: Number(id), is_anonymous: false },
       {
         onSuccess: (res) => {
           setGroupModalOpen(false);
@@ -65,6 +66,28 @@ export default function RestaurantDetailScreen() {
         },
       }
     );
+  };
+
+  const handleCreateAnonymousGroupOrder = () => {
+    createGroupOrderMutation.mutate(
+      { group_id: null, restaurant_id: Number(id), is_anonymous: true },
+      {
+        onSuccess: (res) => {
+          setGroupModalOpen(false);
+          setGroupSearch('');
+          router.push(`/group-order/${res.group_order_id}`);
+        },
+        onError: (err) => {
+          Alert.alert(t('common.genericError'), err.message);
+        },
+      }
+    );
+  };
+
+  const closeGroupModal = () => {
+    setGroupModalOpen(false);
+    setGroupSearch('');
+    setSessionType('anonymous');
   };
 
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -164,65 +187,128 @@ export default function RestaurantDetailScreen() {
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { color: colors.text }]}>Choose a Group</Text>
-              <Pressable onPress={() => { setGroupModalOpen(false); setGroupSearch(''); }} hitSlop={10} accessibilityRole="button">
+              <Text style={[styles.modalTitle, { color: colors.text }]}>{t('groups.groupOrder')}</Text>
+              <Pressable onPress={closeGroupModal} hitSlop={10} accessibilityRole="button">
                 <Ionicons name="close" size={24} color={colors.textSecondary} />
               </Pressable>
             </View>
 
-            <TextInput
-              placeholder="Search groups..."
-              placeholderTextColor={colors.textSecondary}
-              value={groupSearch}
-              onChangeText={setGroupSearch}
-              style={[styles.searchInput, { color: colors.text, borderColor: colors.border, backgroundColor: colors.muted }]}
-            />
+            <Text style={[styles.modalDesc, { color: colors.textSecondary }]}>
+              {t('groups.sessionType')}
+            </Text>
 
-            {createGroupOrderMutation.isPending && (
-              <View style={styles.creatingOverlay}>
-                <ActivityIndicator size="large" color={colors.primary} />
-                <Text style={[styles.creatingText, { color: colors.text }]}>Starting group order...</Text>
-              </View>
-            )}
+            {/* Session type selector */}
+            <View style={styles.sessionTypeRow}>
+              <Pressable
+                onPress={() => setSessionType('anonymous')}
+                style={[
+                  styles.sessionTypeBtn,
+                  { borderColor: sessionType === 'anonymous' ? colors.primary : colors.border },
+                  sessionType === 'anonymous' && { backgroundColor: colors.primary + '05' },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.sessionTypeTitle,
+                    { color: sessionType === 'anonymous' ? colors.primary : colors.text },
+                  ]}
+                >
+                  {t('groups.anonymous')}
+                </Text>
+                <Text style={[styles.sessionTypeDesc, { color: colors.textSecondary }]}>
+                  {t('groups.anonymousDesc')}
+                </Text>
+              </Pressable>
 
-            {groupsQuery.isLoading ? (
-              <ActivityIndicator color={colors.primary} style={{ marginVertical: Spacing.xl }} />
-            ) : filteredGroups.length === 0 ? (
-              <View style={styles.emptyGroups}>
-                <Text style={{ color: colors.textSecondary }}>No groups found</Text>
-              </View>
+              <Pressable
+                onPress={() => setSessionType('fixed')}
+                style={[
+                  styles.sessionTypeBtn,
+                  { borderColor: sessionType === 'fixed' ? colors.primary : colors.border },
+                  sessionType === 'fixed' && { backgroundColor: colors.primary + '05' },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.sessionTypeTitle,
+                    { color: sessionType === 'fixed' ? colors.primary : colors.text },
+                  ]}
+                >
+                  {t('groups.fixedGroup')}
+                </Text>
+                <Text style={[styles.sessionTypeDesc, { color: colors.textSecondary }]}>
+                  {t('groups.fixedGroupDesc')}
+                </Text>
+              </Pressable>
+            </View>
+
+            {sessionType === 'anonymous' ? (
+              <Button
+                variant="default"
+                loading={createGroupOrderMutation.isPending}
+                onPress={handleCreateAnonymousGroupOrder}
+                style={styles.startBtn}
+              >
+                <Ionicons name="people" size={18} color="#FFFFFF" style={{ marginRight: 6 }} />
+                <Text style={styles.groupOrderBtnText}>Start Group Order</Text>
+              </Button>
             ) : (
-              <FlatList
-                data={filteredGroups}
-                keyExtractor={(item) => String(item.id)}
-                showsVerticalScrollIndicator={false}
-                renderItem={({ item }) => (
-                  <Pressable
-                    onPress={() => handleCreateGroupOrder(item.id)}
-                    disabled={createGroupOrderMutation.isPending}
-                    style={({ pressed }) => [
-                      styles.groupItem,
-                      { borderColor: colors.border },
-                      pressed && { opacity: 0.7 }
-                    ]}
-                  >
-                    <View style={{ flex: 1 }}>
-                      <Text style={[styles.groupName, { color: colors.text }]}>{item.name}</Text>
-                      {item.description ? (
-                        <Text style={[styles.groupDesc, { color: colors.textSecondary }]} numberOfLines={1}>
-                          {item.description}
-                        </Text>
-                      ) : null}
-                    </View>
-                    <View style={[styles.memberCountBadge, { backgroundColor: colors.muted }]}>
-                      <Text style={[styles.memberCountText, { color: colors.primary }]}>
-                        {item.members_count}
-                      </Text>
-                    </View>
-                  </Pressable>
+              <>
+                <TextInput
+                  placeholder={t('groups.searchGroups')}
+                  placeholderTextColor={colors.textSecondary}
+                  value={groupSearch}
+                  onChangeText={setGroupSearch}
+                  style={[styles.searchInput, { color: colors.text, borderColor: colors.border, backgroundColor: colors.muted }]}
+                />
+
+                {createGroupOrderMutation.isPending && (
+                  <View style={styles.creatingOverlay}>
+                    <ActivityIndicator size="large" color={colors.primary} />
+                    <Text style={[styles.creatingText, { color: colors.text }]}>Starting group order...</Text>
+                  </View>
                 )}
-                contentContainerStyle={{ gap: Spacing.sm, paddingBottom: Spacing.xl }}
-              />
+
+                {groupsQuery.isLoading ? (
+                  <ActivityIndicator color={colors.primary} style={{ marginVertical: Spacing.xl }} />
+                ) : filteredGroups.length === 0 ? (
+                  <View style={styles.emptyGroups}>
+                    <Text style={{ color: colors.textSecondary }}>{t('groups.noGroupsFound')}</Text>
+                  </View>
+                ) : (
+                  <FlatList
+                    data={filteredGroups}
+                    keyExtractor={(item) => String(item.id)}
+                    showsVerticalScrollIndicator={false}
+                    renderItem={({ item }) => (
+                      <Pressable
+                        onPress={() => handleCreateGroupOrder(item.id)}
+                        disabled={createGroupOrderMutation.isPending}
+                        style={({ pressed }) => [
+                          styles.groupItem,
+                          { borderColor: colors.border },
+                          pressed && { opacity: 0.7 }
+                        ]}
+                      >
+                        <View style={{ flex: 1 }}>
+                          <Text style={[styles.groupName, { color: colors.text }]}>{item.name}</Text>
+                          {item.description ? (
+                            <Text style={[styles.groupDesc, { color: colors.textSecondary }]} numberOfLines={1}>
+                              {item.description}
+                            </Text>
+                          ) : null}
+                        </View>
+                        <View style={[styles.memberCountBadge, { backgroundColor: colors.muted }]}>
+                          <Text style={[styles.memberCountText, { color: colors.primary }]}>
+                            {item.members_count}
+                          </Text>
+                        </View>
+                      </Pressable>
+                    )}
+                    contentContainerStyle={{ gap: Spacing.sm, paddingBottom: Spacing.xl }}
+                  />
+                )}
+              </>
             )}
           </View>
         </View>
@@ -296,6 +382,37 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 16,
     fontWeight: '800',
+  },
+  modalDesc: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  sessionTypeRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
+  sessionTypeBtn: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+    gap: 4,
+  },
+  sessionTypeTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  sessionTypeDesc: {
+    fontSize: 11,
+    lineHeight: 15,
+  },
+  startBtn: {
+    height: 46,
+    borderRadius: Radius.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: Spacing.xs,
   },
   searchInput: {
     height: 42,

@@ -91,6 +91,9 @@ class GroupDomainService
         if (isset($data['allow_join_by_link'])) {
             $updateData['allow_join_by_link'] = $data['allow_join_by_link'];
         }
+        if (isset($data['allow_guests_for_orders'])) {
+            $updateData['allow_guests_for_orders'] = $data['allow_guests_for_orders'];
+        }
         if ($imageUrl !== null) {
             $updateData['image_url'] = $imageUrl;
         }

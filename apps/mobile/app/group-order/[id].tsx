@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter, Redirect } from 'expo-router';
-import { useState, useMemo } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -14,6 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { useQueryClient } from '@tanstack/react-query';
+import * as Clipboard from 'expo-clipboard';
 
 import { Button } from '@/components/ui/button';
 import { DirectionalIcon } from '@/components/ui/directional-icon';
@@ -31,14 +32,20 @@ import {
   useClearMyGroupCartItems,
   useUnlockGroupOrder,
   useCancelGroupOrder,
+  useRemoveGuestGroupCartItem,
+  useUpdateGuestGroupCartItemQuantity,
+  useClearGuestGroupCartItems,
 } from '@/lib/queries';
+import { ensureGuestUserId, getGuestNameForOrder, saveGuestGroupOrder } from '@/lib/guest';
 import { useRealtimeGroupOrder } from '@/stores/notifications';
 import { resolveImageUrl } from '@/lib/config';
 import { useAuthStore } from '@/stores/auth';
 import { GroupMenuItemCustomizer } from '@/components/cart/group-menu-item-customizer';
-import type { MenuItem } from '@/lib/types';
+import type { MenuItem, GroupOrderCartSession } from '@/lib/types';
 
 type Tab = 'menu' | 'cart';
+
+const GROUP_ORDER_WEB_URL = 'https://biteclub.com';
 
 export default function GroupOrderScreen() {
   const { id: idParam } = useLocalSearchParams();
@@ -50,12 +57,23 @@ export default function GroupOrderScreen() {
   const { user: currentUser, isAuthenticated } = useAuthStore();
   const queryClient = useQueryClient();
 
-  if (!isAuthenticated) {
-    return <Redirect href={`/login?redirect=/group-order/${sessionId}`} />;
-  }
-
   const [tab, setTab] = useState<Tab>('menu');
   const [customizeItem, setCustomizeItem] = useState<MenuItem | null>(null);
+  const [guestUserId, setGuestUserId] = useState<string | null>(null);
+  const [guestName, setGuestName] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const isGuest = !isAuthenticated;
+
+  useEffect(() => {
+    if (!isGuest) {
+      setGuestUserId(null);
+      setGuestName(null);
+      return;
+    }
+    void ensureGuestUserId().then(setGuestUserId);
+    void getGuestNameForOrder(sessionId).then(setGuestName);
+  }, [isGuest, sessionId]);
 
   const { data: sessionCart, isLoading, error } = useGroupOrderSession(sessionId);
 
@@ -68,20 +86,35 @@ export default function GroupOrderScreen() {
   const unlockOrderMutation = useUnlockGroupOrder(sessionId);
   const cancelOrderMutation = useCancelGroupOrder(sessionId);
 
-  // Laravel Echo Realtime Integration
-  useRealtimeGroupOrder(sessionId, (event, data) => {
-    // Invalidate session cart queries to update UI dynamically
-    void queryClient.invalidateQueries({ queryKey: queryKeys.groupOrderSession(sessionId) });
+  const removeGuestItemMutation = useRemoveGuestGroupCartItem(sessionId);
+  const updateGuestQtyMutation = useUpdateGuestGroupCartItemQuantity(sessionId);
+  const clearGuestItemsMutation = useClearGuestGroupCartItems(sessionId);
 
-    if (event === 'order.locked') {
-      Alert.alert('Locked', t('groups.locked'));
-    } else if (event === 'order.unlocked') {
-      Alert.alert('Unlocked', t('groups.groupOrderUnlocked'));
-    } else if (event === 'order.cancelled') {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.activeGroupOrders });
-      Alert.alert('Cancelled', t('groups.groupOrderCancelled'));
-    }
-  });
+  // Laravel Echo Realtime Integration
+  useRealtimeGroupOrder(
+    sessionId,
+    (event, data) => {
+      // Invalidate session cart queries to update UI dynamically
+      void queryClient.invalidateQueries({ queryKey: queryKeys.groupOrderSession(sessionId) });
+
+      if (event === 'order.locked') {
+        Alert.alert('Locked', t('groups.locked'));
+      } else if (event === 'order.unlocked') {
+        Alert.alert('Unlocked', t('groups.groupOrderUnlocked'));
+      } else if (event === 'order.cancelled') {
+        void queryClient.invalidateQueries({ queryKey: queryKeys.activeGroupOrders });
+        Alert.alert('Cancelled', t('groups.groupOrderCancelled'));
+      }
+    },
+    isGuest && guestUserId ? { id: guestUserId, name: guestName ?? 'Guest' } : null,
+  );
+
+  const handleCopyLink = useCallback(async () => {
+    const url = `${GROUP_ORDER_WEB_URL}/en/group-order/${sessionId}`;
+    await Clipboard.setStringAsync(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [sessionId]);
 
   const menu = menuData ?? [];
   const isHost = currentUser?.id === sessionCart?.host?.id;
@@ -91,6 +124,16 @@ export default function GroupOrderScreen() {
     if (!sessionCart) return 0;
     return sessionCart.members_summary.reduce((sum, m) => sum + m.items.length, 0);
   }, [sessionCart]);
+
+  const isOwnMember = useCallback(
+    (member: GroupOrderCartSession['members_summary'][number]) => {
+      if (member.user.is_guest) {
+        return !!guestUserId && String(member.user.id) === String(guestUserId);
+      }
+      return member.user.id === currentUser?.id;
+    },
+    [guestUserId, currentUser?.id],
+  );
 
   if (isLoading) {
     return (
@@ -124,8 +167,13 @@ export default function GroupOrderScreen() {
           <Text style={[styles.statusDesc, { color: colors.textSecondary }]}>
             {t('groups.groupOrderCompletedDesc', { restaurant: sessionCart.restaurant.name })}
           </Text>
-          <Button variant="outline" onPress={() => router.replace('/groups')} style={styles.statusBtn}>
-            {t('groups.backToGroups')}
+          {isAuthenticated ? (
+            <Button onPress={() => router.push(`/group-order/${sessionId}/details`)} style={styles.statusBtn}>
+              {t('groups.viewOrderDetails')}
+            </Button>
+          ) : null}
+          <Button variant="outline" onPress={() => router.replace('/')} style={styles.statusBtn}>
+            {t('groups.backToHome')}
           </Button>
         </View>
       </SafeAreaView>
@@ -144,8 +192,13 @@ export default function GroupOrderScreen() {
           <Text style={[styles.statusDesc, { color: colors.textSecondary }]}>
             {t('groups.groupOrderCancelledDesc', { restaurant: sessionCart.restaurant.name })}
           </Text>
-          <Button variant="outline" onPress={() => router.replace('/groups')} style={styles.statusBtn}>
-            {t('groups.backToGroups')}
+          {isAuthenticated ? (
+            <Button onPress={() => router.push(`/group-order/${sessionId}/details`)} style={styles.statusBtn}>
+              {t('groups.viewOrderDetails')}
+            </Button>
+          ) : null}
+          <Button variant="outline" onPress={() => router.replace('/')} style={styles.statusBtn}>
+            {t('groups.backToHome')}
           </Button>
         </View>
       </SafeAreaView>
@@ -193,6 +246,17 @@ export default function GroupOrderScreen() {
         text: t('groups.clearMyItems'),
         style: 'destructive',
         onPress: () => {
+          if (isGuest) {
+            if (!guestUserId) {
+              Alert.alert(t('common.genericError'), 'Guest ID not found');
+              return;
+            }
+            clearGuestItemsMutation.mutate(guestUserId, {
+              onSuccess: (response) => Alert.alert(getApiMessage(response, t('groups.myItemsCleared'))),
+              onError: (err) => Alert.alert(getApiErrorMessage(err, t('common.genericError'))),
+            });
+            return;
+          }
           clearMyItemsMutation.mutate(undefined, {
             onSuccess: (response) => Alert.alert(getApiMessage(response, t('groups.myItemsCleared'))),
             onError: (err) => Alert.alert(getApiErrorMessage(err, t('common.genericError'))),
@@ -202,21 +266,44 @@ export default function GroupOrderScreen() {
     ]);
   };
 
-  const handleRemoveItem = (itemId: number) => {
+  const handleRemoveItem = (itemId: number, member: GroupOrderCartSession['members_summary'][number]) => {
+    const memberIsGuest = !!member.user.is_guest;
+    if (memberIsGuest) {
+      if (!guestUserId) return;
+      removeGuestItemMutation.mutate(
+        { user_id: guestUserId, item_id: itemId },
+        { onError: (err) => Alert.alert(t('common.genericError'), err.message) },
+      );
+      return;
+    }
     removeCartItemMutation.mutate(itemId, {
       onError: (err) => Alert.alert(t('common.genericError'), err.message),
     });
   };
 
-  const handleUpdateQty = (itemId: number, newQty: number) => {
+  const handleUpdateQty = (itemId: number, newQty: number, member: GroupOrderCartSession['members_summary'][number]) => {
     if (newQty <= 0) {
-      handleRemoveItem(itemId);
+      handleRemoveItem(itemId, member);
+      return;
+    }
+    const memberIsGuest = !!member.user.is_guest;
+    if (memberIsGuest) {
+      if (!guestUserId) return;
+      updateGuestQtyMutation.mutate(
+        { user_id: guestUserId, item_id: itemId, quantity: newQty },
+        { onError: (err) => Alert.alert(t('common.genericError'), err.message) },
+      );
       return;
     }
     updateQuantityMutation.mutate(
       { item_id: itemId, quantity: newQty },
       { onError: (err) => Alert.alert(t('common.genericError'), err.message) },
     );
+  };
+
+  const handleGuestNameSave = (name: string) => {
+    setGuestName(name);
+    void saveGuestGroupOrder(sessionId, name);
   };
 
   const renderMenuItem = ({ item }: { item: MenuItem }) => {
@@ -263,17 +350,13 @@ export default function GroupOrderScreen() {
             {sessionCart.restaurant.name}
           </Text>
         </View>
-        <View style={[styles.statusBadge, { backgroundColor: isLocked ? colors.destructive + '15' : colors.success + '15' }]}>
+        <Pressable onPress={handleCopyLink} style={styles.navCopyBtn} hitSlop={8} accessibilityRole="button">
           <Ionicons
-            name={isLocked ? 'lock-closed' : 'checkmark-circle-outline'}
-            size={12}
-            color={isLocked ? colors.destructive : colors.success}
-            style={{ marginRight: 2 }}
+            name={copied ? 'checkmark' : 'link-outline'}
+            size={18}
+            color={copied ? colors.success : colors.primary}
           />
-          <Text style={[styles.statusText, { color: isLocked ? colors.destructive : colors.success }]}>
-            {isLocked ? t('groups.locked') : t('groups.open')}
-          </Text>
-        </View>
+        </Pressable>
       </View>
 
       {/* Tabs */}
@@ -324,6 +407,7 @@ export default function GroupOrderScreen() {
                     )}
                     <Text style={[styles.memberNameText, { color: colors.text }]}>
                       {member.user.name} {member.user.id === sessionCart.host.id && `(${t('groups.host')})`}
+                      {member.user.is_guest ? ` (${t('groups.guest')})` : ''}
                     </Text>
                   </View>
                 );
@@ -353,10 +437,11 @@ export default function GroupOrderScreen() {
                 {sessionCart.members_summary.map((member) => (
                   <View key={member.user.id} style={styles.memberOrderBlock}>
                     <Text style={[styles.memberHeading, { color: colors.text }]}>
-                      {member.user.name}'s items
+                      {member.user.name}
+                      {member.user.is_guest ? ` (${t('groups.guest')})` : ''} items
                     </Text>
                     {member.items.map((cartItem) => {
-                      const isOwnItem = member.user.id === currentUser?.id;
+                      const isOwnItem = isOwnMember(member);
 
                       return (
                         <View key={cartItem.id} style={[styles.cartItemCard, { borderColor: colors.border }]}>
@@ -378,7 +463,7 @@ export default function GroupOrderScreen() {
                           {isOwnItem && !isLocked ? (
                             <View style={styles.qtyControls}>
                               <Pressable
-                                onPress={() => handleUpdateQty(cartItem.id, cartItem.quantity - 1)}
+                                onPress={() => handleUpdateQty(cartItem.id, cartItem.quantity - 1, member)}
                                 style={[styles.qtyBtn, { backgroundColor: colors.muted }]}
                               >
                                 <Ionicons name="remove" size={16} color={colors.text} />
@@ -387,13 +472,13 @@ export default function GroupOrderScreen() {
                                 {cartItem.quantity}
                               </Text>
                               <Pressable
-                                onPress={() => handleUpdateQty(cartItem.id, cartItem.quantity + 1)}
+                                onPress={() => handleUpdateQty(cartItem.id, cartItem.quantity + 1, member)}
                                 style={[styles.qtyBtn, { backgroundColor: colors.muted }]}
                               >
                                 <Ionicons name="add" size={16} color={colors.text} />
                               </Pressable>
                               <Pressable
-                                onPress={() => handleRemoveItem(cartItem.id)}
+                                onPress={() => handleRemoveItem(cartItem.id, member)}
                                 style={[styles.deleteItemBtn, { backgroundColor: colors.destructive + '15' }]}
                               >
                                 <Ionicons name="trash-outline" size={16} color={colors.destructive} />
@@ -472,6 +557,10 @@ export default function GroupOrderScreen() {
         membersSummary={sessionCart.members_summary}
         visible={customizeItem !== null}
         onClose={() => setCustomizeItem(null)}
+        isGuest={isGuest}
+        guestUserId={guestUserId}
+        guestName={guestName}
+        onGuestNameSave={handleGuestNameSave}
       />
     </SafeAreaView>
   );
@@ -487,6 +576,9 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
   },
   navBack: {
+    padding: Spacing.xs,
+  },
+  navCopyBtn: {
     padding: Spacing.xs,
   },
   navHeaderInfo: {

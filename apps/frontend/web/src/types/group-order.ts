@@ -18,9 +18,10 @@ export interface GroupOrderCartSession {
   total_amount: number;
   members_summary: {
     user: {
-      id: number;
+      id: number | string;
       name: string;
       profile_image: string | null;
+      is_guest?: boolean;
     };
     user_total: number;
     items: {
@@ -112,9 +113,10 @@ export interface GroupOrderHistory {
   total_amount: number;
   members_summary: {
     user: {
-      id: number;
+      id: number | string;
       name: string;
       profile_image: string | null;
+      is_guest?: boolean;
     };
     user_total: number;
     items: {

@@ -14,6 +14,7 @@ import {
   deleteGroupAction,
   leaveGroupAction,
   toggleJoinGroupAction,
+  toggleGroupGuestsAction,
 } from '@/actions/groups';
 import ConfirmDialog from '../shared/ConfirmationDialog';
 import { useState } from 'react';
@@ -37,6 +38,18 @@ export default function GroupSettingsTab({ group, isOwner }: Props) {
 
   const { execute: toggleGroup, isExecuting: isToggling } = useAction(
     toggleJoinGroupAction,
+    {
+      onSuccess: ({ data }) => {
+        toast.success(data.message);
+      },
+      onError: ({ error }) => {
+        toast.error(error.serverError?.message);
+      },
+    },
+  );
+
+  const { execute: toggleGuests, isExecuting: isGuestsToggling } = useAction(
+    toggleGroupGuestsAction,
     {
       onSuccess: ({ data }) => {
         toast.success(data.message);
@@ -85,6 +98,13 @@ export default function GroupSettingsTab({ group, isOwner }: Props) {
     }
   };
 
+  const handleGuestsToggle = () => {
+    toggleGuests({
+      id: group.id,
+      allow_guests_for_orders: !group.allow_guests_for_orders,
+    });
+  };
+
   const handleDelete = () => {
     if (isOwner) {
       deleteGroup(group.id);
@@ -116,19 +136,36 @@ export default function GroupSettingsTab({ group, isOwner }: Props) {
       </div>
 
       {group.my_role !== 'member' && (
-        <div className="flex items-center justify-between rounded-lg border p-4">
-          <div>
-            <p className="font-medium">{t('openInvitations')}</p>
-            <p className="text-sm text-muted-foreground">
-              {t('allowInviteLink')}
-            </p>
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between rounded-lg border p-4">
+            <div>
+              <p className="font-medium">{t('openInvitations')}</p>
+              <p className="text-sm text-muted-foreground">
+                {t('allowInviteLink')}
+              </p>
+            </div>
+            <Switch
+              checked={group.allow_join_by_link}
+              onCheckedChange={handleToggle}
+              disabled={isToggling}
+              aria-label={t('toggleOpenInvitations')}
+            />
           </div>
-          <Switch
-            checked={group.allow_join_by_link}
-            onCheckedChange={handleToggle}
-            disabled={isToggling}
-            aria-label={t('toggleOpenInvitations')}
-          />
+
+          <div className="flex items-center justify-between rounded-lg border p-4">
+            <div>
+              <p className="font-medium">{t('allowGuestsForOrders')}</p>
+              <p className="text-sm text-muted-foreground">
+                {t('allowGuestsDesc')}
+              </p>
+            </div>
+            <Switch
+              checked={group.allow_guests_for_orders}
+              onCheckedChange={handleGuestsToggle}
+              disabled={isGuestsToggling}
+              aria-label={t('toggleAllowGuests')}
+            />
+          </div>
         </div>
       )}
 

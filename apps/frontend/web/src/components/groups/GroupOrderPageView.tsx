@@ -2,7 +2,7 @@
 
 import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
-import { Users, Trash2, Lock, XCircle, CheckCircle2 } from 'lucide-react';
+import { Users, Trash2, Lock, XCircle, CheckCircle2, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAction } from 'next-safe-action/hooks';
 import { useRouter } from '@/i18n/navigation';
@@ -32,11 +32,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { useEffect } from 'react';
-import { getEcho } from '@/lib/echo';
+import { useEffect, useState } from 'react';
+import { getEcho, disconnectEcho } from '@/lib/echo';
 import {
   cancelGroupAction,
   clearMyItemsGroupOrderAction,
+  clearGuestItemsGroupOrderAction,
   unlockGroupAction,
   revalidateGroupOrderSessionAction,
 } from '@/actions/group-order';
@@ -64,6 +65,36 @@ export default function GroupOrderPageView({
   const router = useRouter();
   const restaurant = sessionCart.restaurant;
   const membersSummary = sessionCart.members_summary;
+  const groupOrderId = sessionCart.id;
+
+  const [guestName, setGuestName] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyLink = () => {
+    if (typeof window !== 'undefined') {
+      navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      toast.success(t('linkCopied') || 'Group order link copied to clipboard!');
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const getStoredName = () => {
+        try {
+          const groupOrdersStr = localStorage.getItem('group_orders');
+          if (groupOrdersStr) {
+            const groupOrders = JSON.parse(groupOrdersStr);
+            const match = groupOrders.find((go: any) => Number(go.id) === Number(groupOrderId));
+            if (match) return match.name;
+          }
+        } catch (e) {}
+        return null;
+      };
+      setGuestName(getStoredName());
+    }
+  }, [groupOrderId]);
 
   const { execute: revalidateSession } = useAction(
     revalidateGroupOrderSessionAction,
@@ -76,6 +107,7 @@ export default function GroupOrderPageView({
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
+    disconnectEcho();
     const echo = getEcho(token);
 
     const channelName = `group-order.${sessionId}`;
@@ -136,12 +168,11 @@ export default function GroupOrderPageView({
       console.log(`[Echo] Leaving presence channel: ${channelName}`);
       echo.leave(channelName);
     };
-  }, [sessionId, revalidateSession, token]);
+  }, [sessionId, revalidateSession, token, guestName]);
 
   const totalItems = membersSummary.reduce((sum, m) => sum + m.items.length, 0);
   const isHost =
     currentUserId !== null && sessionCart.host.id === currentUserId;
-  const groupOrderId = sessionCart.id;
 
   const { execute: clearMyItems, isExecuting: isClearing } = useAction(
     clearMyItemsGroupOrderAction,
@@ -154,6 +185,34 @@ export default function GroupOrderPageView({
       },
     },
   );
+
+  const { execute: clearGuestItems, isExecuting: isGuestClearing } = useAction(
+    clearGuestItemsGroupOrderAction,
+    {
+      onSuccess: () => {
+        toast.success(t('myItemsCleared'));
+      },
+      onError: ({ error }) => {
+        toast.error(error.serverError?.message ?? 'Failed to clear items');
+      },
+    },
+  );
+
+  const handleClearMyItems = () => {
+    if (currentUserId === null) {
+      const storedGuestUserId = typeof window !== 'undefined' ? localStorage.getItem('user_id') : null;
+      if (storedGuestUserId) {
+        clearGuestItems({
+          group_order_id: groupOrderId,
+          user_id: parseInt(storedGuestUserId),
+        });
+      } else {
+        toast.error('Guest ID not found');
+      }
+    } else {
+      clearMyItems(groupOrderId);
+    }
+  };
 
   const { execute: unlockOrder, isExecuting: isUnlocking } = useAction(
     unlockGroupAction,
@@ -235,6 +294,25 @@ export default function GroupOrderPageView({
 
         {/* Member tags & Info details */}
         <div className="flex flex-wrap items-center gap-2.5">
+          <Button
+            onClick={handleCopyLink}
+            variant="outline"
+            size="sm"
+            className="gap-2 rounded-xl h-9 px-4 border-border/60 hover:bg-accent/40 cursor-pointer font-bold text-xs shadow-xs transition-all active:scale-95 flex items-center shrink-0"
+          >
+            {copied ? (
+              <>
+                <Check className="size-3 text-emerald-500" />
+                <span className="text-emerald-600 dark:text-emerald-400">{t('copied')}</span>
+              </>
+            ) : (
+              <>
+                <Copy className="size-3 text-muted-foreground" />
+                <span>{t('copyLink')}</span>
+              </>
+            )}
+          </Button>
+
           <span className="inline-flex items-center gap-1.5 rounded-full border border-border/40 bg-accent/30 px-3 py-1.5 text-xs font-semibold text-muted-foreground">
             <Users className="size-3.5 text-primary" />
             <span>
@@ -290,6 +368,8 @@ export default function GroupOrderPageView({
           <GroupOrderMenuItems
             sessionId={groupOrderId}
             menuGroups={sessionMenu}
+            isGuest={currentUserId === null}
+            onGuestNameSet={setGuestName}
           />
         </div>
 
@@ -352,8 +432,8 @@ export default function GroupOrderPageView({
                     variant="ghost"
                     size="sm"
                     className="gap-1.5 text-xs text-destructive hover:bg-destructive/10 rounded-lg cursor-pointer"
-                    disabled={isClearing}
-                    onClick={() => clearMyItems(groupOrderId)}>
+                    disabled={isClearing || isGuestClearing}
+                    onClick={handleClearMyItems}>
                     <Trash2 className="size-3.5" />
                     {t('clearMyItems')}
                   </Button>

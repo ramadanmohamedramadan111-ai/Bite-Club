@@ -27,6 +27,11 @@ use App\Http\Requests\User\GroupOrder\GroupOrderHistoryRequest;
 use App\Http\Requests\User\GroupOrder\ActiveGroupOrdersRequest;
 use App\Http\Requests\User\GroupOrder\CancelGroupOrderRequest;
 use App\Http\Requests\User\GroupOrder\ClearGroupOrderItemsRequest;
+use App\Http\Requests\User\GroupOrder\AddGuestGroupOrderItemRequest;
+use App\Http\Requests\User\GroupOrder\UpdateGuestGroupOrderItemRequest;
+use App\Http\Requests\User\GroupOrder\RemoveGuestGroupOrderItemRequest;
+use App\Http\Requests\User\GroupOrder\ClearGuestGroupOrderItemRequest;
+use App\Http\Requests\User\GroupOrder\MergeGuestGroupOrderItemRequest;
 use App\Services\Application\User\GroupOrder\GroupOrderApplicationService;
 use App\Http\Resources\User\GroupOrder\GroupOrderResource;
 use App\Http\Resources\User\GroupOrder\GroupOrderSimpleResource;
@@ -256,6 +261,169 @@ class GroupOrderController extends Controller
             );
         } catch (Exception $e) {
             Log::error('Failed to retrieve active group order sessions: ' . $e->getMessage());
+            return $this->errorResponse($e->getMessage(), [], 400);
+        }
+    }
+
+    public function addGuestItem(AddGuestGroupOrderItemRequest $request): JsonResponse
+    {
+        try {
+            $item = $this->groupOrderApplicationService->addGuestItem(
+                $request->input('user_id'),
+                $request->input('user_name'),
+                $request->input('group_order_id'),
+                $request->input('item_id'),
+                $request->input('quantity'),
+                $request->input('notes')
+            );
+
+            return $this->successResponse(
+                trans('group_order.item_added_successfully') ?? 'Item added successfully',
+                [
+                    'item_id'   => $item->id,
+                    'quantity'  => $item->quantity,
+                ],
+                201
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to add guest item to group order: ' . $e->getMessage());
+            return $this->errorResponse($e->getMessage(), [], 400);
+        }
+    }
+
+    public function updateGuestItemQuantity(UpdateGuestGroupOrderItemRequest $request): JsonResponse
+    {
+        try {
+            $this->groupOrderApplicationService->updateGuestItemQuantity(
+                $request->input('user_id'),
+                $request->input('group_order_id'),
+                $request->input('item_id'),
+                $request->input('quantity')
+            );
+
+            return $this->successResponse(
+                trans('group_order.item_quantity_updated_successfully') ?? 'Item quantity updated successfully'
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to update guest group order item quantity: ' . $e->getMessage());
+            return $this->errorResponse($e->getMessage(), [], 400);
+        }
+    }
+
+    public function removeGuestItem(RemoveGuestGroupOrderItemRequest $request): JsonResponse
+    {
+        try {
+            $this->groupOrderApplicationService->removeGuestItem(
+                $request->input('user_id'),
+                $request->input('group_order_id'),
+                $request->input('item_id')
+            );
+
+            return $this->successResponse(
+                trans('group_order.item_removed_successfully') ?? 'Item removed successfully'
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to remove guest item from group order: ' . $e->getMessage());
+            return $this->errorResponse($e->getMessage(), [], 400);
+        }
+    }
+
+    public function clearGuestItems(ClearGuestGroupOrderItemRequest $request): JsonResponse
+    {
+        try {
+            $this->groupOrderApplicationService->clearGuestItems(
+                $request->input('user_id'),
+                $request->input('group_order_id')
+            );
+
+            return $this->successResponse(
+                trans('group_order.items_cleared_successfully') ?? 'Your items have been cleared from the group order successfully'
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to clear guest items from group order: ' . $e->getMessage());
+            return $this->errorResponse($e->getMessage(), [], 400);
+        }
+    }
+
+    public function showGuestCart(int $id): JsonResponse
+    {
+        try {
+            $groupOrder = $this->groupOrderApplicationService->getGuestGroupOrder($id);
+
+            return $this->successResponse(
+                trans('group_order.retrieved_successfully') ?? 'Group order retrieved successfully',
+                new GroupOrderResource($groupOrder)
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to retrieve guest group order cart: ' . $e->getMessage());
+            return $this->errorResponse($e->getMessage(), [], 400);
+        }
+    }
+
+    public function mergeGuestItemsAll(\Illuminate\Http\Request $request): JsonResponse
+    {
+        try {
+            $request->validate([
+                'group_orders' => 'required|array',
+                'group_orders.*.id' => 'required|integer',
+                'user_id' => 'required',
+            ]);
+
+            $this->groupOrderApplicationService->mergeGuestItemsAll(
+                auth('user')->id(),
+                $request->input('group_orders'),
+                (string) $request->input('user_id')
+            );
+
+            return $this->successResponse(
+                trans('group_order.items_merged_successfully') ?? 'Guest items merged successfully'
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to merge guest items: ' . $e->getMessage());
+            return $this->errorResponse($e->getMessage(), [], 400);
+        }
+    }
+
+    public function showDetail(int $id): JsonResponse
+    {
+        try {
+            $groupOrder = \App\Models\GroupOrder::findOrFail($id);
+
+            $user = auth('user')->user();
+
+            if (!$groupOrder->allow_guests) {
+                if (!$user) {
+                    return $this->errorResponse(trans('auth.unauthorized') ?? 'Unauthorized.', [], 401);
+                }
+
+                // Check group membership
+                $isMember = \App\Models\GroupMember::query()
+                    ->where('group_id', $groupOrder->group_id)
+                    ->where('user_id', $user->id)
+                    ->exists();
+
+                if (!$isMember) {
+                    return $this->errorResponse(trans('group_order.not_member') ?? 'You must be a member of the group.', [], 403);
+                }
+            }
+
+            // Load relations
+            $groupOrder->load([
+                'restaurant',
+                'host',
+                'items.user',
+                'items.menuItem.menuCategory',
+                'guestItems.menuItem.menuCategory'
+            ]);
+
+            return $this->successResponse(
+                trans('group_order.retrieved_successfully') ?? 'Group order retrieved successfully',
+                new GroupOrderResource($groupOrder)
+            );
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return $this->notFoundResponse('Group order not found.');
+        } catch (Exception $e) {
+            Log::error('Failed to retrieve group order detail: ' . $e->getMessage());
             return $this->errorResponse($e->getMessage(), [], 400);
         }
     }

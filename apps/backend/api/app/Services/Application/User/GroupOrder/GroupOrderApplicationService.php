@@ -39,7 +39,8 @@ class GroupOrderApplicationService
         return $this->groupOrderDomainService->createGroupOrder(
             $dto->getHostId(),
             $dto->getGroupId(),
-            $dto->getRestaurantId()
+            $dto->getRestaurantId(),
+            $dto->isAnonymous()
         );
     }
 
@@ -174,5 +175,85 @@ class GroupOrderApplicationService
         return $this->groupOrderDomainService->getActiveSessions(
             $dto->getUserId()
         );
+    }
+
+    public function addGuestItem(string $guestUserId, string $guestUserName, int $groupOrderId, int $itemId, int $quantity, ?string $notes): \App\Models\GroupOrderItemGuest
+    {
+        $item = $this->groupOrderDomainService->addGuestItem(
+            $guestUserId,
+            $guestUserName,
+            $groupOrderId,
+            $itemId,
+            $quantity,
+            $notes
+        );
+
+        broadcast(new GroupOrderItemAdded($item, $groupOrderId));
+
+        return $item;
+    }
+
+    public function updateGuestItemQuantity(string|int $actorId, int $groupOrderId, int $groupOrderItemId, int $quantity): \App\Models\GroupOrderItemGuest
+    {
+        $item = $this->groupOrderDomainService->updateGuestItemQuantity(
+            $actorId,
+            $groupOrderId,
+            $groupOrderItemId,
+            $quantity
+        );
+
+        broadcast(new GroupOrderItemQuantityUpdated($item, $groupOrderId));
+
+        return $item;
+    }
+
+    public function removeGuestItem(string|int $actorId, int $groupOrderId, int $groupOrderItemId): void
+    {
+        $this->groupOrderDomainService->removeGuestItem(
+            $actorId,
+            $groupOrderId,
+            $groupOrderItemId
+        );
+
+        broadcast(new GroupOrderItemRemoved(
+            $groupOrderItemId,
+            $groupOrderId
+        ));
+    }
+
+    public function clearGuestItems(string $guestUserId, int $groupOrderId): void
+    {
+        $this->groupOrderDomainService->clearGuestItems(
+            $guestUserId,
+            $groupOrderId
+        );
+
+        broadcast(new GroupOrderUserItemsCleared(
+            $guestUserId,
+            $groupOrderId
+        ));
+    }
+
+    public function getGuestGroupOrder(int $groupOrderId): GroupOrder
+    {
+        return $this->groupOrderDomainService->getGuestGroupOrder($groupOrderId);
+    }
+
+    public function mergeGuestItemsAll(int $userId, array $groupOrders, string $guestUserId): void
+    {
+        foreach ($groupOrders as $go) {
+            $groupOrderId = (int) $go['id'];
+            
+            $this->groupOrderDomainService->mergeGuestItems(
+                $userId,
+                $groupOrderId,
+                $guestUserId
+            );
+
+            broadcast(new GroupOrderUserItemsCleared(
+                $guestUserId,
+                $groupOrderId
+            ));
+        }
     }
 }

@@ -227,3 +227,149 @@ export const revalidateGroupOrderSessionAction = actionClient
     updateTag(`group-order-session-${sessionId}`);
     return { success: true };
   });
+
+export const addGuestItemToGroupOrderAction = actionClient
+  .inputSchema(
+    z.object({
+      group_order_id: z.number(),
+      user_id: z.number(),
+      user_name: z.string(),
+      item_id: z.number(),
+      quantity: z.number(),
+      notes: z.string().optional(),
+    }),
+  )
+  .action(async ({ parsedInput }) => {
+    const { group_order_id, user_id, user_name, item_id, quantity, notes } = parsedInput;
+    const response = await serverFetch<ApiResponse<any>>(
+      `/user/group-orders/${group_order_id}/guest/items`,
+      'POST',
+      {
+        body: {
+          user_id: user_id.toString(),
+          user_name,
+          item_id,
+          quantity,
+          notes,
+        },
+      },
+    );
+
+    updateTag(`group-order-session-${group_order_id}`);
+
+    return response;
+  });
+
+export const updateGuestItemQuantityGroupOrderAction = actionClient
+  .inputSchema(
+    z.object({
+      group_order_id: z.number(),
+      item_id: z.number(),
+      user_id: z.number(),
+      quantity: z.number(),
+    }),
+  )
+  .action(async ({ parsedInput }) => {
+    const { group_order_id, item_id, user_id, quantity } = parsedInput;
+    const response = await serverFetch<ApiResponse<null>>(
+      `/user/group-orders/${group_order_id}/guest/items/${item_id}`,
+      'PUT',
+      {
+        body: {
+          user_id: user_id.toString(),
+          quantity,
+        },
+      },
+    );
+
+    updateTag(`group-order-session-${group_order_id}`);
+
+    return response;
+  });
+
+export const removeGuestItemFromGroupOrderAction = actionClient
+  .inputSchema(
+    z.object({
+      group_order_id: z.number(),
+      item_id: z.number(),
+      user_id: z.number(),
+    }),
+  )
+  .action(async ({ parsedInput }) => {
+    const { group_order_id, item_id, user_id } = parsedInput;
+    const response = await serverFetch<ApiResponse<null>>(
+      `/user/group-orders/${group_order_id}/guest/items/${item_id}`,
+      'DELETE',
+      {
+        body: {
+          user_id: user_id.toString(),
+        },
+      },
+    );
+
+    updateTag(`group-order-session-${group_order_id}`);
+
+    return response;
+  });
+
+export const clearGuestItemsGroupOrderAction = actionClient
+  .inputSchema(
+    z.object({
+      group_order_id: z.number(),
+      user_id: z.number(),
+    }),
+  )
+  .action(async ({ parsedInput }) => {
+    const { group_order_id, user_id } = parsedInput;
+    const response = await serverFetch<ApiResponse<null>>(
+      `/user/group-orders/${group_order_id}/guest/items`,
+      'DELETE',
+      {
+        body: {
+          user_id: user_id.toString(),
+        },
+      },
+    );
+
+    updateTag(`group-order-session-${group_order_id}`);
+
+    return response;
+  });
+
+export const mergeGuestItemsAction = actionClient
+  .inputSchema(
+    z.object({
+      group_orders: z.array(
+        z.object({
+          id: z.number(),
+          name: z.string(),
+        }),
+      ),
+      user_id: z.number(),
+    }),
+  )
+  .action(async ({ parsedInput }) => {
+    const { group_orders, user_id } = parsedInput;
+    const response = await serverFetch<ApiResponse<null>>(
+      '/user/group-orders/guest/merge',
+      'POST',
+      {
+        body: {
+          group_orders,
+          user_id: user_id.toString(),
+        },
+      },
+    );
+
+    group_orders.forEach((go) => {
+      updateTag(`group-order-session-${go.id}`);
+    });
+
+    const currentUserId = await getUserId();
+    if (currentUserId) {
+      updateTag(`group-order-sessions-${currentUserId}`);
+      updateTag(`group-order-sessions`);
+    }
+
+    return response;
+  });

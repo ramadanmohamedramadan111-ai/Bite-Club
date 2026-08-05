@@ -170,6 +170,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CartItemRepositoryInterface::class, CartItemRepository::class);
         $this->app->bind(GroupOrderRepositoryInterface::class, GroupOrderRepository::class);
         $this->app->bind(GroupOrderItemRepositoryInterface::class, GroupOrderItemRepository::class);
+        $this->app->bind(
+            \App\Repositories\Interfaces\GroupOrderItemGuestRepositoryInterface::class,
+            \App\Repositories\Eloquent\GroupOrderItemGuestRepository::class
+        );
         $this->app->bind(OrderRepositoryInterface::class, OrderRepository::class);
         $this->app->bind(OrderItemRepositoryInterface::class, OrderItemRepository::class);
         $this->app->bind(OrderPaymentRepositoryInterface::class, OrderPaymentRepository::class);

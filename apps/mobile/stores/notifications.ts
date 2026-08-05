@@ -78,7 +78,10 @@ export async function playNotificationSound() {
 }
 
 // ─── Custom Pusher authorizer (HMAC signing, same as web Next.js route) ───
-function createAuthorizer(token: string) {
+function createAuthorizer(
+  token: string | null,
+  guest?: { id: string; name: string } | null,
+) {
   return (channel: any, _options: any) => ({
     authorize: async (
       socketId: string,
@@ -94,30 +97,50 @@ function createAuthorizer(token: string) {
         );
 
         if (channelName.startsWith('presence-')) {
-          // Presence channels need user info — fetch from API
-          const meRes = await fetch(`${API_BASE_URL}/user/me`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: 'application/json',
-            },
-          });
+          // Presence channels need user info
+          let userData: { user_id: string; user_info: any };
 
-          if (!meRes.ok) {
-            console.error('[Echo] ❌ /user/me failed:', meRes.status);
+          if (token) {
+            // Authenticated user — fetch from API
+            const meRes = await fetch(`${API_BASE_URL}/user/me`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: 'application/json',
+              },
+            });
+
+            if (!meRes.ok) {
+              console.error('[Echo] ❌ /user/me failed:', meRes.status);
+              callback(new Error('Auth failed'), null);
+              return;
+            }
+
+            const meData = await meRes.json();
+            const user = meData.data;
+            userData = {
+              user_id: String(user.id),
+              user_info: {
+                id: user.id,
+                name: `${user.first_name} ${user.last_name}`,
+              },
+            };
+          } else if (guest) {
+            // Guest path — mirror web's X-Guest-ID / X-Guest-Name handling
+            userData = {
+              user_id: String(guest.id),
+              user_info: {
+                id: guest.id,
+                name: guest.name,
+                is_guest: true,
+              },
+            };
+          } else {
+            console.error('[Echo] ❌ No identity for presence channel');
             callback(new Error('Auth failed'), null);
             return;
           }
 
-          const meData = await meRes.json();
-          const user = meData.data;
-
-          const channelData = JSON.stringify({
-            user_id: String(user.id),
-            user_info: {
-              id: user.id,
-              name: `${user.first_name} ${user.last_name}`,
-            },
-          });
+          const channelData = JSON.stringify(userData);
 
           const stringToSign = `${socketId}:${channelName}:${channelData}`;
           const hash = CryptoJS.HmacSHA256(
@@ -131,6 +154,13 @@ function createAuthorizer(token: string) {
             channel_data: channelData,
           });
         } else {
+          if (!token) {
+            // Guests cannot join private channels
+            console.error('[Echo] ❌ Guests cannot join private channels');
+            callback(new Error('Guests cannot join private channels'), null);
+            return;
+          }
+
           // Private channels — just sign socket_id:channel_name
           const stringToSign = `${socketId}:${channelName}`;
           const hash = CryptoJS.HmacSHA256(
@@ -154,19 +184,27 @@ function createAuthorizer(token: string) {
 // ─── Echo singleton ───────────────────────────────────────────────────────
 let echoInstance: any = null;
 let currentToken: string | null = null;
+let currentGuestKey: string | null = null;
 
-export function getEcho(): any {
+export function getEcho(guest?: { id: string; name: string } | null): any {
   const token = useAuthStore.getState().token;
 
-  // No token → no Echo
-  if (!token) {
+  const isGuestMode = !token && !!guest;
+  const guestKey = guest ? `guest:${guest.id}` : null;
+
+  // No identity → no Echo
+  if (!token && !guest) {
     if (echoInstance) disconnectEcho();
     return null;
   }
 
-  // Token changed → reconnect
-  if (echoInstance && currentToken !== token) {
+  // Identity changed → reconnect
+  if (echoInstance && !isGuestMode && currentToken !== token) {
     console.log('[Echo] Token changed, reconnecting…');
+    disconnectEcho();
+  }
+  if (echoInstance && isGuestMode && currentGuestKey !== guestKey) {
+    console.log('[Echo] Guest identity changed, reconnecting…');
     disconnectEcho();
   }
 
@@ -185,7 +223,13 @@ export function getEcho(): any {
       return null;
     }
 
-    currentToken = token;
+    if (isGuestMode) {
+      currentToken = null;
+      currentGuestKey = guestKey;
+    } else {
+      currentToken = token;
+      currentGuestKey = null;
+    }
     console.log('[Echo] Creating instance →', REVERB_HOST + ':' + REVERB_PORT);
 
     try {
@@ -200,7 +244,7 @@ export function getEcho(): any {
         disableStats: true,
         withoutInterceptors: true,
         Pusher,
-        authorizer: createAuthorizer(token),
+        authorizer: createAuthorizer(token, isGuestMode ? guest : null),
       });
 
       // Wire up connection logging
@@ -240,6 +284,7 @@ export function disconnectEcho(): void {
   }
   echoInstance = null;
   currentToken = null;
+  currentGuestKey = null;
 }
 
 // ─── Realtime hooks ───────────────────────────────────────────────────────
@@ -295,12 +340,14 @@ export function useRealtimeNotifications(
 export function useRealtimeGroupOrder(
   sessionId: number,
   onEventTriggered: (event: string, data?: any) => void,
+  guest?: { id: string; name: string } | null,
 ) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   useEffect(() => {
-    if (!isAuthenticated || !sessionId) return;
-    const echo = getEcho();
+    if (!sessionId) return;
+    if (!isAuthenticated && !guest) return;
+    const echo = getEcho(guest);
     if (!echo) {
       console.warn('[Echo] No instance for group order');
       return;
@@ -343,6 +390,6 @@ export function useRealtimeGroupOrder(
     return () => {
       echo.leave(ch);
     };
-  }, [isAuthenticated, sessionId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, sessionId, guest?.id, guest?.name]); // eslint-disable-line react-hooks/exhaustive-deps
 }
 

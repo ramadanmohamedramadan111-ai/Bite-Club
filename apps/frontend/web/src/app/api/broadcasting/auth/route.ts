@@ -29,29 +29,52 @@ export async function POST(req: NextRequest) {
 
     const cookieStore = await cookies();
     const token = cookieStore.get('accessToken')?.value;
-    if (!token) {
-      return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });
-    }
+    
+    let user = null;
 
-    const jwtSecret = new TextEncoder().encode(process.env.JWT_SECRET);
-    const { payload } = await jwtVerify(token, jwtSecret);
-    const userId = Number(payload.sub);
+    if (token) {
+      try {
+        const jwtSecret = new TextEncoder().encode(process.env.JWT_SECRET);
+        const { payload } = await jwtVerify(token, jwtSecret);
+        
+        // Fetch user details from Laravel API using JWT token to get full name
+        const backendUrl = process.env.API_BASE_URL || 'http://api:8000/api';
+        const meResponse = await fetch(`${backendUrl}/user/me`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+          }
+        });
 
-    // Fetch user details from Laravel API using JWT token to get full name
-    const backendUrl = process.env.API_BASE_URL || 'http://api:8000/api';
-    const meResponse = await fetch(`${backendUrl}/user/me`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json',
+        if (meResponse.ok) {
+          const meData = await meResponse.json();
+          user = meData.data;
+        }
+      } catch (e) {
+        console.error('Error verifying token in broadcasting proxy:', e);
       }
-    });
-
-    if (!meResponse.ok) {
-      return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });
     }
 
-    const meData = await meResponse.json();
-    const user = meData.data;
+    let userIdStr = '';
+    let nameStr = '';
+    let isGuest = false;
+
+    if (user) {
+      userIdStr = String(user.id);
+      nameStr = `${user.first_name} ${user.last_name}`;
+    } else {
+      // Guest path!
+      const guestId = req.headers.get('X-Guest-ID') || '';
+      const guestName = req.headers.get('X-Guest-Name') || '';
+
+      if (!guestId) {
+        return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });
+      }
+
+      userIdStr = guestId;
+      nameStr = guestName || 'Guest';
+      isGuest = true;
+    }
 
     // Reverb credentials from backend project config
     const reverbKey = process.env.NEXT_PUBLIC_REVERB_APP_KEY || '7shjlvmsslgdjgltf46x';
@@ -61,10 +84,11 @@ export async function POST(req: NextRequest) {
 
     if (channelName.startsWith('presence-')) {
       const channelData = JSON.stringify({
-        user_id: String(user.id),
+        user_id: userIdStr,
         user_info: {
-          id: user.id,
-          name: `${user.first_name} ${user.last_name}`,
+          id: isGuest ? userIdStr : Number(userIdStr),
+          name: nameStr,
+          is_guest: isGuest,
         }
       });
 
@@ -79,6 +103,10 @@ export async function POST(req: NextRequest) {
         channel_data: channelData,
       };
     } else {
+      if (isGuest) {
+        return NextResponse.json({ error: 'Guests cannot join private channels' }, { status: 403 });
+      }
+
       const stringToSign = `${socketId}:${channelName}`;
       const hash = crypto
         .createHmac('sha256', reverbSecret)

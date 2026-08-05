@@ -24,15 +24,16 @@ class GroupResource extends JsonResource
         }
 
         return [
-            'id'                 => $this->id,
-            'name'               => $this->name,
-            'description'        => $this->description,
-            'image_url'          => $this->formatImageUrl($this->image_url),
-            'members_count'      => (int) ($this->active_members_count ?? $this->activeMembers()->count()),
-            'my_role'            => $myRole,
-            'owner'              => new UserSearchResource($this->owner),
-            'allow_join_by_link' => (bool) $this->allow_join_by_link,
-            'status'             => $this->status instanceof \UnitEnum ? $this->status->value : $this->status,
+            'id'                      => $this->id,
+            'name'                    => $this->name,
+            'description'             => $this->description,
+            'image_url'               => $this->formatImageUrl($this->image_url),
+            'members_count'           => (int) ($this->active_members_count ?? $this->activeMembers()->count()),
+            'my_role'                 => $myRole,
+            'owner'                   => new UserSearchResource($this->owner),
+            'allow_join_by_link'      => (bool) $this->allow_join_by_link,
+            'allow_guests_for_orders' => (bool) $this->allow_guests_for_orders,
+            'status'                  => $this->status instanceof \UnitEnum ? $this->status->value : $this->status,
         ];
     }
 }

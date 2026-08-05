@@ -17,7 +17,11 @@ import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { resolveImageUrl } from '@/lib/config';
 import { useI18n } from '@/lib/i18n';
-import { useAddGroupCartItem, useUpdateGroupCartItemQuantity } from '@/lib/queries';
+import {
+  useAddGroupCartItem,
+  useUpdateGroupCartItemQuantity,
+  useAddGuestGroupCartItem,
+} from '@/lib/queries';
 import { useAuthStore } from '@/stores/auth';
 import type { MenuItem, GroupOrderCartSession } from '@/lib/types';
 
@@ -27,11 +31,25 @@ type Props = {
   membersSummary: GroupOrderCartSession['members_summary'];
   visible: boolean;
   onClose: () => void;
+  isGuest?: boolean;
+  guestUserId?: string | null;
+  guestName?: string | null;
+  onGuestNameSave?: (name: string) => void;
 };
 
 const MAX_TRANSLATE = 620;
 
-export function GroupMenuItemCustomizer({ item, sessionId, membersSummary, visible, onClose }: Props) {
+export function GroupMenuItemCustomizer({
+  item,
+  sessionId,
+  membersSummary,
+  visible,
+  onClose,
+  isGuest = false,
+  guestUserId = null,
+  guestName = null,
+  onGuestNameSave,
+}: Props) {
   const scheme = useColorScheme();
   const colors = Colors[scheme ?? 'light'];
   const { t } = useI18n();
@@ -39,16 +57,24 @@ export function GroupMenuItemCustomizer({ item, sessionId, membersSummary, visib
 
   const addGroupCartItem = useAddGroupCartItem(sessionId);
   const updateQuantity = useUpdateGroupCartItemQuantity(sessionId);
+  const addGuestGroupCartItem = useAddGuestGroupCartItem(sessionId);
 
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState('');
+  const [guestNameInput, setGuestNameInput] = useState('');
+  const [showNamePrompt, setShowNamePrompt] = useState(false);
 
   const translateY = useRef(new Animated.Value(MAX_TRANSLATE)).current;
 
   // Find if this item already exists in the current user's portion of the group cart
   const userSummary = useMemo(() => {
+    if (isGuest) {
+      return membersSummary?.find(
+        (m) => m.user.is_guest && guestUserId && String(m.user.id) === String(guestUserId),
+      );
+    }
     return membersSummary?.find((m) => m.user.id === currentUser?.id);
-  }, [membersSummary, currentUser?.id]);
+  }, [membersSummary, currentUser?.id, isGuest, guestUserId]);
 
   const existing = useMemo(() => {
     if (!item || !userSummary) return undefined;
@@ -64,6 +90,8 @@ export function GroupMenuItemCustomizer({ item, sessionId, membersSummary, visib
     if (visible && item) {
       setQuantity(existing?.quantity ?? 1);
       setNotes(existing?.notes ?? '');
+      setGuestNameInput('');
+      setShowNamePrompt(false);
       translateY.setValue(MAX_TRANSLATE);
       Animated.timing(translateY, {
         toValue: 0,
@@ -104,9 +132,34 @@ export function GroupMenuItemCustomizer({ item, sessionId, membersSummary, visib
   if (!visible || !item) return null;
 
   const image = resolveImageUrl(item.image_url);
-  const busy = addGroupCartItem.isPending || updateQuantity.isPending;
+  const busy = addGroupCartItem.isPending || updateQuantity.isPending || addGuestGroupCartItem.isPending;
+
+  const handleGuestAdd = (name: string) => {
+    if (!guestUserId) return;
+    const trimmedNotes = notes.trim() || undefined;
+    addGuestGroupCartItem.mutate(
+      {
+        user_id: guestUserId,
+        user_name: name,
+        item_id: item.id,
+        quantity,
+        notes: trimmedNotes,
+      },
+      { onSuccess: () => onClose() },
+    );
+  };
 
   const handleAdd = () => {
+    if (isGuest) {
+      if (!guestName) {
+        setGuestNameInput('');
+        setShowNamePrompt(true);
+        return;
+      }
+      handleGuestAdd(guestName);
+      return;
+    }
+
     const trimmedNotes = notes.trim() || undefined;
     if (existing) {
       updateQuantity.mutate(
@@ -124,6 +177,16 @@ export function GroupMenuItemCustomizer({ item, sessionId, membersSummary, visib
       );
     }
   };
+
+  const handleNameSubmit = () => {
+    const name = guestNameInput.trim();
+    if (!name) return;
+    if (onGuestNameSave) onGuestNameSave(name);
+    handleGuestAdd(name);
+    setShowNamePrompt(false);
+  };
+
+  const canAdd = !busy && item.is_available && (!isGuest || guestName || showNamePrompt);
 
   return (
     <View style={styles.overlay}>
@@ -186,22 +249,46 @@ export function GroupMenuItemCustomizer({ item, sessionId, membersSummary, visib
             ]}
           />
 
+          {isGuest && showNamePrompt && (
+            <View style={[styles.namePrompt, { borderColor: colors.border }]}>
+              <Text style={[styles.namePromptTitle, { color: colors.text }]}>
+                {t('groups.guestNameRequired')}
+              </Text>
+              <Text style={[styles.namePromptDesc, { color: colors.textSecondary }]}>
+                {t('groups.pleaseEnterYourName')}
+              </Text>
+              <TextInput
+                value={guestNameInput}
+                onChangeText={setGuestNameInput}
+                placeholder={t('groups.yourNamePlaceholder')}
+                placeholderTextColor={colors.textSecondary}
+                editable={!busy}
+                style={[
+                  styles.nameInput,
+                  { color: colors.text, backgroundColor: colors.muted, borderColor: colors.border },
+                ]}
+              />
+            </View>
+          )}
+
           <Pressable
-            onPress={handleAdd}
-            disabled={busy || !item.is_available}
+            onPress={isGuest && showNamePrompt ? handleNameSubmit : handleAdd}
+            disabled={!canAdd}
             accessibilityRole="button"
             style={[
               styles.addBtn,
               { backgroundColor: colors.primary },
-              (!item.is_available || busy) && styles.addBtnDisabled,
+              !canAdd && styles.addBtnDisabled,
             ]}>
             {busy ? (
               <Text style={styles.addBtnText}>{'...'}</Text>
             ) : (
               <Text style={styles.addBtnText}>
-                {existing
-                  ? t('detail.updateCart', { total: total.toFixed(2) })
-                  : t('detail.addToCart', { total: total.toFixed(2) })}
+                {isGuest && showNamePrompt
+                  ? t('common.confirm')
+                  : existing
+                    ? t('detail.updateCart', { total: total.toFixed(2) })
+                    : t('detail.addToCart', { total: total.toFixed(2) })}
               </Text>
             )}
           </Pressable>
@@ -296,6 +383,27 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.md,
     fontSize: 14,
     textAlignVertical: 'top',
+  },
+  namePrompt: {
+    borderWidth: 1,
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+    gap: Spacing.xs,
+  },
+  namePromptTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+  },
+  namePromptDesc: {
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  nameInput: {
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    paddingHorizontal: Spacing.md,
+    height: 42,
+    fontSize: 14,
   },
   addBtn: {
     marginTop: Spacing.xs,

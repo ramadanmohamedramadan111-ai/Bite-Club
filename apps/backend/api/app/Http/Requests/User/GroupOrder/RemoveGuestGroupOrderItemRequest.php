@@ -7,7 +7,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class CreateGroupOrderRequest extends FormRequest
+class RemoveGuestGroupOrderItemRequest extends FormRequest
 {
     use ApiResponseTrait;
 
@@ -19,17 +19,17 @@ class CreateGroupOrderRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'host_id' => auth('user')->id(),
+            'group_order_id' => $this->route('id'),
+            'item_id' => $this->route('itemId'),
         ]);
     }
 
     public function rules(): array
     {
         return [
-            'host_id' => 'required|integer|exists:users,id',
-            'is_anonymous' => 'nullable|boolean',
-            'group_id' => 'required_without:is_anonymous|nullable|integer|exists:groups,id',
-            'restaurant_id' => 'required|integer|exists:restaurants,id',
+            'user_id' => 'required|string|max:255',
+            'group_order_id' => 'required|integer|exists:group_orders,id',
+            'item_id' => 'required|integer|exists:group_order_items_guest,id',
         ];
     }
 

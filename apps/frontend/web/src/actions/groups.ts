@@ -91,6 +91,31 @@ export const toggleJoinGroupAction = actionClient
     return response;
   });
 
+export const toggleGroupGuestsAction = actionClient
+  .inputSchema(
+    z.object({
+      id: z.number().positive(),
+      allow_guests_for_orders: z.boolean(),
+    }),
+  )
+  .action(async ({ parsedInput }) => {
+    const { id, allow_guests_for_orders } = parsedInput;
+    const response = await serverFetch<ApiResponse<GroupType>>(
+      `/groups/${id}`,
+      'POST',
+      {
+        body: {
+          allow_guests_for_orders,
+        },
+      },
+    );
+
+    updateTag(`groups-${id}`);
+    updateTag(`groups`);
+
+    return response;
+  });
+
 export const deleteGroupAction = actionClient
   .inputSchema(idSchema)
   .action(async ({ parsedInput }) => {

@@ -21,6 +21,7 @@ import { mapServerFieldErrors } from '@/lib/map-server-errors';
 import { createLoginSchema, type LoginValues } from '@/lib/schemas';
 import { useAuthStore, type AuthUser } from '@/stores/auth';
 import { useCartStore } from '@/stores/cart';
+import { getGuestGroupOrders, getGuestUserId, clearGuestData } from '@/lib/guest';
 import { Colors, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
@@ -65,6 +66,22 @@ export function LoginForm() {
           } catch (err) {
             console.error('Failed to merge guest cart:', err);
           }
+        }
+
+        try {
+          const [guestOrders, guestUserId] = await Promise.all([
+            getGuestGroupOrders(),
+            getGuestUserId(),
+          ]);
+          if (guestOrders.length > 0 && guestUserId) {
+            await api.post('/user/group-orders/guest/merge', {
+              group_orders: guestOrders.map((go) => ({ id: Number(go.id), name: String(go.name) })),
+              user_id: guestUserId,
+            });
+            await clearGuestData();
+          }
+        } catch (err) {
+          console.error('Failed to merge guest group order items:', err);
         }
 
         if (redirect) {

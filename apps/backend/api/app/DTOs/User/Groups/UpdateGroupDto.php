@@ -11,13 +11,20 @@ class UpdateGroupDto
     private ?string $description;
     private ?UploadedFile $image;
     private ?bool $allowJoinByLink;
+    private ?bool $allowGuestsForOrders;
 
-    public function __construct(?string $name = null, ?string $description = null, ?UploadedFile $image = null, ?bool $allowJoinByLink = null)
-    {
+    public function __construct(
+        ?string $name = null,
+        ?string $description = null,
+        ?UploadedFile $image = null,
+        ?bool $allowJoinByLink = null,
+        ?bool $allowGuestsForOrders = null
+    ) {
         $this->name = $name;
         $this->description = $description;
         $this->image = $image;
         $this->allowJoinByLink = $allowJoinByLink;
+        $this->allowGuestsForOrders = $allowGuestsForOrders;
     }
 
     public static function fromValidatedRequest(UpdateGroupRequest $request): self
@@ -27,7 +34,8 @@ class UpdateGroupDto
             $data['name'] ?? null,
             $data['description'] ?? null,
             $request->file('image'),
-            isset($data['allow_join_by_link']) ? filter_var($data['allow_join_by_link'], FILTER_VALIDATE_BOOLEAN) : null
+            isset($data['allow_join_by_link']) ? filter_var($data['allow_join_by_link'], FILTER_VALIDATE_BOOLEAN) : null,
+            isset($data['allow_guests_for_orders']) ? filter_var($data['allow_guests_for_orders'], FILTER_VALIDATE_BOOLEAN) : null
         );
     }
 
@@ -51,6 +59,11 @@ class UpdateGroupDto
         return $this->allowJoinByLink;
     }
 
+    public function getAllowGuestsForOrders(): ?bool
+    {
+        return $this->allowGuestsForOrders;
+    }
+
     public function toArray(): array
     {
         $arr = [];
@@ -62,6 +75,9 @@ class UpdateGroupDto
         }
         if ($this->allowJoinByLink !== null) {
             $arr['allow_join_by_link'] = $this->allowJoinByLink;
+        }
+        if ($this->allowGuestsForOrders !== null) {
+            $arr['allow_guests_for_orders'] = $this->allowGuestsForOrders;
         }
         return $arr;
     }

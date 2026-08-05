@@ -21,7 +21,7 @@ class GroupOrderItemAdded implements ShouldBroadcastNow
      * Create a new event instance.
      */
     public function __construct(
-        public GroupOrderItem $item,
+        public \App\Models\GroupOrderItem|\App\Models\GroupOrderItemGuest $item,
         public int $groupOrderId
     ) {}
 
@@ -52,6 +52,19 @@ class GroupOrderItemAdded implements ShouldBroadcastNow
      */
     public function broadcastWith(): array
     {
+        if ($this->item instanceof \App\Models\GroupOrderItemGuest) {
+            $this->item->loadMissing(['menuItem']);
+            return [
+                'item' => new GroupOrderItemResource($this->item),
+                'user' => [
+                    'id' => $this->item->user_id,
+                    'name' => $this->item->user_name,
+                    'is_guest' => true,
+                ],
+                'group_order_id' => $this->groupOrderId,
+            ];
+        }
+
         // Load relationships needed for the UI
         $this->item->loadMissing(['menuItem', 'user']);
 
@@ -60,6 +73,7 @@ class GroupOrderItemAdded implements ShouldBroadcastNow
             'user' => [
                 'id' => $this->item->user->id,
                 'name' => $this->item->user->full_name,
+                'is_guest' => false,
             ],
             'group_order_id' => $this->groupOrderId,
         ];

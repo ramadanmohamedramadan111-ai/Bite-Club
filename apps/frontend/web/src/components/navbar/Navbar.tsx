@@ -28,6 +28,7 @@ import { useCartStore } from '@/stores/cart';
 import { useAction } from 'next-safe-action/hooks';
 import { toast } from 'sonner';
 import { logoutUserAction } from '@/actions/auth';
+import { mergeGuestItemsAction } from '@/actions/group-order';
 import { capitalize } from '@/utils/format';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
@@ -111,6 +112,48 @@ export default function Navbar({
 
   const [isOpenMobile, setIsOpenMobile] = React.useState(false);
   const [isLevelTwoOpen, setIsLevelTwoOpen] = React.useState(true);
+
+  const { execute: mergeGuestCarts } = useAction(mergeGuestItemsAction, {
+    onSuccess: () => {
+      localStorage.removeItem('group_orders');
+      localStorage.removeItem('user_id');
+      toast.success('Guest items merged successfully!');
+    },
+    onError: ({ error }) => {
+      console.error('Failed to merge guest items:', error.serverError?.message);
+    },
+  });
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined' || !user) return;
+
+    const groupOrdersStr = localStorage.getItem('group_orders');
+    const userIdStr = localStorage.getItem('user_id');
+
+    if (groupOrdersStr && userIdStr) {
+      try {
+        const groupOrders = JSON.parse(groupOrdersStr);
+        const userId = parseInt(userIdStr);
+
+        if (Array.isArray(groupOrders) && groupOrders.length > 0 && !isNaN(userId)) {
+          mergeGuestCarts({
+            group_orders: groupOrders.map((go: any) => ({
+              id: Number(go.id),
+              name: String(go.name),
+            })),
+            user_id: userId,
+          });
+        } else {
+          localStorage.removeItem('group_orders');
+          localStorage.removeItem('user_id');
+        }
+      } catch (e) {
+        console.error('Error parsing localStorage guest items:', e);
+        localStorage.removeItem('group_orders');
+        localStorage.removeItem('user_id');
+      }
+    }
+  }, [user, mergeGuestCarts]);
 
   React.useEffect(() => {
     if (typeof window === 'undefined' || !user) return;

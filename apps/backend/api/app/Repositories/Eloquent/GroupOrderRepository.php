@@ -43,7 +43,7 @@ class GroupOrderRepository extends BaseRepository implements GroupOrderRepositor
             $query->where('group_id', $groupId);
         }
 
-        $query->with(['group', 'restaurant', 'host', 'items.user', 'order'])
+        $query->with(['group', 'restaurant', 'host', 'items.user', 'guestItems.menuItem.menuCategory', 'order'])
             ->orderBy('created_at', 'desc');
 
         return $query->paginate($perPage, ['*'], 'page', $page);

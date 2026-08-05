@@ -119,7 +119,7 @@ export default function GroupOrderCheckoutView({
           if (data.data.payment_url) {
             router.push(data.data.payment_url);
           } else {
-            router.push('/orders');
+            router.push(`/group-order/${sessionId}/details`);
           }
         } else {
           setError(data?.message || t('failedToPlaceOrder'));

@@ -47,7 +47,7 @@ export default function CreateGroupOrderDialog({
   const t = useTranslations('groups');
   const tc = useTranslations('common');
   const [sessionType, setSessionType] =
-    useState<GroupOrderSessionType>('fixed');
+    useState<GroupOrderSessionType>('anonymous');
   const [selectedGroupId, setSelectedGroupId] = useState<number>();
 
   // Search & pagination
@@ -91,10 +91,17 @@ export default function CreateGroupOrderDialog({
       return;
     }
 
-    if (sessionType === 'fixed' && selectedGroupId) {
+    if (sessionType === 'anonymous') {
+      execute({
+        group_id: null,
+        restaurant_id: restaurant.id,
+        is_anonymous: true,
+      });
+    } else if (sessionType === 'fixed' && selectedGroupId) {
       execute({
         group_id: selectedGroupId,
         restaurant_id: restaurant.id,
+        is_anonymous: false,
       });
     }
   }
@@ -132,7 +139,6 @@ export default function CreateGroupOrderDialog({
                   resetState();
                 }
               }}>
-              {/*
               <div className="flex items-start gap-3 rounded-lg border p-3">
                 <RadioGroupItem value="anonymous" id="anonymous" />
                 <div className="space-y-1">
@@ -144,7 +150,6 @@ export default function CreateGroupOrderDialog({
                   </p>
                 </div>
               </div>
-              */}
               <div className="flex items-start gap-3 rounded-lg border p-3">
                 <RadioGroupItem value="fixed" id="fixed" />
                 <div className="space-y-1">

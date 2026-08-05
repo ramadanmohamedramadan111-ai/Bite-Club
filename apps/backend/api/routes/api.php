@@ -91,6 +91,8 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::get('/{restaurantId}/reviews', [UserRestaurantReviewController::class, 'index']);
     });
 
+    Route::get('/group-orders/{id}/detail', [GroupOrderController::class, 'showDetail'])->name('group-orders.detail');
+
     Route::middleware('auth.user')->group(function () {
 
         Route::post('/logout', [UserAuthController::class, 'logout'])->name('logout');
@@ -164,6 +166,16 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::put('/{id}/items/{itemId}', [GroupOrderController::class, 'updateItemQuantity'])->name('items.update');
         Route::delete('/{id}/items/{itemId}', [GroupOrderController::class, 'removeItem'])->name('items.remove');
         Route::delete('/{id}/items', [GroupOrderController::class, 'clearUserItems'])->name('items.clear');
+        Route::post('/guest/merge', [GroupOrderController::class, 'mergeGuestItemsAll'])->name('guest.merge-all');
+    });
+
+    // Guest Group Orders module (No auth required)
+    Route::prefix('group-orders')->name('group-orders.guest.')->group(function () {
+        Route::get('/{id}/guest/cart', [GroupOrderController::class, 'showGuestCart'])->name('cart');
+        Route::post('/{id}/guest/items', [GroupOrderController::class, 'addGuestItem'])->name('items.add');
+        Route::put('/{id}/guest/items/{itemId}', [GroupOrderController::class, 'updateGuestItemQuantity'])->name('items.update');
+        Route::delete('/{id}/guest/items/{itemId}', [GroupOrderController::class, 'removeGuestItem'])->name('items.remove');
+        Route::delete('/{id}/guest/items', [GroupOrderController::class, 'clearGuestItems'])->name('items.clear');
     });
 });
 

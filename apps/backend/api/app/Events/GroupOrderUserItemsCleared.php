@@ -18,7 +18,7 @@ class GroupOrderUserItemsCleared implements ShouldBroadcastNow
      * Create a new event instance.
      */
     public function __construct(
-        public int $userId,
+        public string|int $userId,
         public int $groupOrderId
     ) {}
 
