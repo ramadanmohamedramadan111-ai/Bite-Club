@@ -38,7 +38,7 @@ return [
     'ai' => [
         'service_url' => env('AI_SERVICE_URL', 'http://ai:8000'),
         'internal_api_key' => env('AI_INTERNAL_API_KEY'),
-        'timeout' => (int) env('AI_SERVICE_TIMEOUT', 30),
+        'timeout' => (int) env('AI_SERVICE_TIMEOUT', 120),
     ],
 
 ];
