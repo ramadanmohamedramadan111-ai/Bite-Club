@@ -1,6 +1,6 @@
 'use client';
 
-import { usePathname, useRouter } from '@/i18n/navigation';
+import { usePathname, useRouter, Link } from '@/i18n/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { getLangDir } from 'rtl-detect';
 import { useState, useRef, useEffect } from 'react';
@@ -68,6 +68,7 @@ export default function AIChat() {
   const pathname = usePathname();
   const router = useRouter();
   const locale = useLocale();
+  const t = useTranslations('ai');
   const direction = getLangDir(locale);
   const isRtl = direction === 'rtl';
 
@@ -198,6 +199,14 @@ export default function AIChat() {
 
   const handleSendMessage = (text: string) => {
     if (!text.trim()) return;
+    if (!isAuthenticated) {
+      toast.error(
+        locale === 'ar'
+          ? 'يرجى تسجيل الدخول أولاً للتحدث مع المساعد الذكي.'
+          : 'Please sign in first to chat with Bite AI.',
+      );
+      return;
+    }
 
     // 1. Declare any previous 'pending' suggestions as 'declined'
     setMessages((prev) =>
@@ -365,12 +374,14 @@ export default function AIChat() {
             </div>
 
             <div className="flex items-center gap-1.5">
-              <button
-                onClick={handleNewChat}
-                title={locale === 'ar' ? 'محادثة جديدة' : 'New Chat'}
-                className="p-1.5 rounded-full hover:bg-white/10 transition-colors text-white cursor-pointer">
-                <RotateCcw className="size-4" />
-              </button>
+              {isAuthenticated && (
+                <button
+                  onClick={handleNewChat}
+                  title={locale === 'ar' ? 'محادثة جديدة' : 'New Chat'}
+                  className="p-1.5 rounded-full hover:bg-white/10 transition-colors text-white cursor-pointer">
+                  <RotateCcw className="size-4" />
+                </button>
+              )}
               <button
                 onClick={() => setIsOpen(false)}
                 className="p-1.5 rounded-full hover:bg-white/10 transition-colors text-white cursor-pointer">
@@ -379,165 +390,197 @@ export default function AIChat() {
             </div>
           </div>
 
-          {/* Messages area */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-muted">
-            {messages.map((msg) => {
-              const isAi = msg.sender === 'ai';
-              return (
-                <div
-                  key={msg.id}
-                  className="space-y-3.5 animate-in fade-in duration-200">
-                  <div
-                    className={cn(
-                      'flex gap-2.5',
-                      isAi ? 'justify-start' : 'justify-end',
-                    )}>
-                    {isAi && (
-                      <div className="size-7 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 border border-primary/10">
-                        <Sparkles className="size-3.5" />
-                      </div>
-                    )}
-                    <div
-                      className={cn(
-                        'rounded-2xl px-3.5 py-2.5 max-w-[82%] text-sm font-medium leading-relaxed shadow-3xs',
-                        isAi
-                          ? 'bg-muted/70 text-foreground border border-border/40 rounded-tl-3xs'
-                          : 'bg-primary text-primary-foreground rounded-tr-3xs',
-                      )}>
-                      {msg.text}
-                    </div>
-                  </div>
-
-                  {/* Suggestion Card */}
-                  {msg.suggestion && (
-                    <div className={cn('flex gap-2.5 pl-9.5')}>
-                      <Card className="w-full rounded-2xl border border-border/80 bg-card overflow-hidden shadow-3xs">
-                        <CardContent className="p-3.5 space-y-3">
-                          {/* Item Info */}
-                          <div className="space-y-2.5">
-                            <span className="text-[10px] font-bold text-primary uppercase tracking-wider block">
-                              {msg.suggestion.restaurant_name}
-                            </span>
-                            <div className="space-y-2">
-                              {msg.suggestion.items.map((item) => (
-                                <div
-                                  key={item.id}
-                                  onClick={() => setSelectedItem(item)}
-                                  className="flex gap-3 border-b border-border/10 pb-2 last:border-0 last:pb-0 cursor-pointer hover:bg-muted/30 p-1.5 rounded-xl transition-all duration-200">
-                                  <div className="size-9 rounded-lg bg-muted/60 border border-border/50 flex items-center justify-center shrink-0 text-muted-foreground">
-                                    <UtensilsCrossed className="size-4" />
-                                  </div>
-                                  <div className="min-w-0 flex-1 text-left">
-                                    <h5 className="font-bold text-xs text-foreground truncate">
-                                      {item.name}
-                                    </h5>
-                                    <p className="text-3xs text-muted-foreground font-semibold">
-                                      {item.quantity}x @ {item.price.toFixed(2)}{' '}
-                                      EGP
-                                    </p>
-                                    <p className="text-4xs text-muted-foreground italic truncate mt-0.5">
-                                      {item.why}
-                                    </p>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
-                          <div className="flex items-center justify-between pt-1 border-t border-border/10">
-                            <span className="text-3xs font-bold text-muted-foreground uppercase">
-                              {locale === 'ar' ? 'الإجمالي' : 'Total'}
-                            </span>
-                            <span className="text-xs font-bold text-foreground">
-                              {msg.suggestion.total_price.toFixed(2)} EGP
-                            </span>
-                          </div>
-
-                          {/* Options / Action status */}
-                          <div className="border-t border-border/40 pt-2.5">
-                            {msg.suggestion.status === 'pending' ? (
-                              <div className="flex gap-2 w-full">
-                                <Button
-                                  variant="destructive"
-                                  size="sm"
-                                  onClick={() => handleDecline(msg.id)}
-                                  className="flex-1 rounded-xl h-8 text-xs font-bold shadow-3xs cursor-pointer">
-                                  {locale === 'ar' ? 'رفض' : 'Decline'}
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  onClick={() =>
-                                    handleAccept(msg.id, msg.suggestion!)
-                                  }
-                                  className="flex-1 rounded-xl h-8 text-xs font-bold shadow-3xs cursor-pointer bg-emerald-500 hover:bg-emerald-600 border border-emerald-600/10 text-white">
-                                  <Plus className="size-3.5 mr-1" />
-                                  {locale === 'ar' ? 'قبول' : 'Accept'}
-                                </Button>
-                              </div>
-                            ) : (
-                              <div className="flex items-center justify-center gap-1.5 py-1 text-xs font-bold">
-                                {msg.suggestion.status === 'accepted' ? (
-                                  <span className="text-emerald-500 flex items-center gap-1">
-                                    <Check className="size-3.5" />
-                                    {locale === 'ar'
-                                      ? 'تمت الإضافة'
-                                      : 'Added to Cart'}
-                                  </span>
-                                ) : (
-                                  <span className="text-muted-foreground">
-                                    {locale === 'ar' ? 'تم الرفض' : 'Declined'}
-                                  </span>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  )}
+          {!isAuthenticated ? (
+            <div className="flex-1 flex flex-col items-center justify-center p-6 text-center bg-gradient-to-b from-transparent to-muted/20">
+              <div className="relative mb-4 flex items-center justify-center">
+                <div className="size-16 rounded-full bg-primary/10 text-primary flex items-center justify-center border border-primary/20 animate-pulse">
+                  <Bot className="size-8" />
                 </div>
-              );
-            })}
-
-            {isSending && (
-              <div className="flex gap-2.5 justify-start animate-in fade-in duration-200">
-                <div className="size-7 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 border border-primary/10">
-                  <Sparkles className="size-3.5 animate-pulse" />
-                </div>
-                <div className="rounded-2xl px-3.5 py-3 bg-muted/70 text-foreground border border-border/40 rounded-tl-3xs flex items-center gap-1">
-                  <span className="size-1.5 rounded-full bg-foreground/45 animate-bounce [animation-delay:-0.3s]" />
-                  <span className="size-1.5 rounded-full bg-foreground/45 animate-bounce [animation-delay:-0.15s]" />
-                  <span className="size-1.5 rounded-full bg-foreground/45 animate-bounce" />
+                <div className="absolute -bottom-1 -right-1 size-6 rounded-full bg-orange-500 text-white flex items-center justify-center border-2 border-background shadow-xs">
+                  <Sparkles className="size-3" />
                 </div>
               </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
 
-          {/* Chat input form */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSendMessage(inputValue);
-            }}
-            className="p-3 border-t border-border/60 flex items-center gap-2 bg-background">
-            <Input
-              type="text"
-              placeholder={
-                locale === 'ar' ? 'اكتب رسالة...' : 'Ask for suggestions...'
-              }
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              className="rounded-xl flex-1 text-xs border-border/80 h-9"
-            />
-            <Button
-              type="submit"
-              size="icon"
-              disabled={!inputValue.trim()}
-              className="size-9 shrink-0 rounded-xl bg-primary hover:bg-primary/95 text-primary-foreground shadow-3xs cursor-pointer">
-              <SendHorizontal className="size-4" />
-            </Button>
-          </form>
+              <div className="space-y-2 mb-6 max-w-xs">
+                <h4 className="text-sm font-bold text-foreground">
+                  {t('authRequired.title')}
+                </h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {t('authRequired.description')}
+                </p>
+              </div>
+
+              <Button
+                asChild
+                className="w-full max-w-xs rounded-xl bg-gradient-to-r from-primary to-orange-500 hover:from-primary hover:to-orange-600 text-white font-bold shadow-md hover:shadow-lg transition-all duration-300">
+                <Link href="/login">
+                  {t('authRequired.button')}
+                </Link>
+              </Button>
+            </div>
+          ) : (
+            <>
+              {/* Messages area */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-muted">
+                {messages.map((msg) => {
+                  const isAi = msg.sender === 'ai';
+                  return (
+                    <div
+                      key={msg.id}
+                      className="space-y-3.5 animate-in fade-in duration-200">
+                      <div
+                        className={cn(
+                          'flex gap-2.5',
+                          isAi ? 'justify-start' : 'justify-end',
+                        )}>
+                        {isAi && (
+                          <div className="size-7 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 border border-primary/10">
+                            <Sparkles className="size-3.5" />
+                          </div>
+                        )}
+                        <div
+                          className={cn(
+                            'rounded-2xl px-3.5 py-2.5 max-w-[82%] text-sm font-medium leading-relaxed shadow-3xs',
+                            isAi
+                              ? 'bg-muted/70 text-foreground border border-border/40 rounded-tl-3xs'
+                              : 'bg-primary text-primary-foreground rounded-tr-3xs',
+                          )}>
+                          {msg.text}
+                        </div>
+                      </div>
+
+                      {/* Suggestion Card */}
+                      {msg.suggestion && (
+                        <div className={cn('flex gap-2.5 pl-9.5')}>
+                          <Card className="w-full rounded-2xl border border-border/80 bg-card overflow-hidden shadow-3xs">
+                            <CardContent className="p-3.5 space-y-3">
+                              {/* Item Info */}
+                              <div className="space-y-2.5">
+                                <span className="text-[10px] font-bold text-primary uppercase tracking-wider block">
+                                  {msg.suggestion.restaurant_name}
+                                </span>
+                                <div className="space-y-2">
+                                  {msg.suggestion.items.map((item) => (
+                                    <div
+                                      key={item.id}
+                                      onClick={() => setSelectedItem(item)}
+                                      className="flex gap-3 border-b border-border/10 pb-2 last:border-0 last:pb-0 cursor-pointer hover:bg-muted/30 p-1.5 rounded-xl transition-all duration-200">
+                                      <div className="size-9 rounded-lg bg-muted/60 border border-border/50 flex items-center justify-center shrink-0 text-muted-foreground">
+                                        <UtensilsCrossed className="size-4" />
+                                      </div>
+                                      <div className="min-w-0 flex-1 text-left">
+                                        <h5 className="font-bold text-xs text-foreground truncate">
+                                          {item.name}
+                                        </h5>
+                                        <p className="text-3xs text-muted-foreground font-semibold">
+                                          {item.quantity}x @ {item.price.toFixed(2)}{' '}
+                                          EGP
+                                        </p>
+                                        <p className="text-4xs text-muted-foreground italic truncate mt-0.5">
+                                          {item.why}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div className="flex items-center justify-between pt-1 border-t border-border/10">
+                                <span className="text-3xs font-bold text-muted-foreground uppercase">
+                                  {locale === 'ar' ? 'الإجمالي' : 'Total'}
+                                </span>
+                                <span className="text-xs font-bold text-foreground">
+                                  {msg.suggestion.total_price.toFixed(2)} EGP
+                                </span>
+                              </div>
+
+                              {/* Options / Action status */}
+                              <div className="border-t border-border/40 pt-2.5">
+                                {msg.suggestion.status === 'pending' ? (
+                                  <div className="flex gap-2 w-full">
+                                    <Button
+                                      variant="destructive"
+                                      size="sm"
+                                      onClick={() => handleDecline(msg.id)}
+                                      className="flex-1 rounded-xl h-8 text-xs font-bold shadow-3xs cursor-pointer">
+                                      {locale === 'ar' ? 'رفض' : 'Decline'}
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      onClick={() =>
+                                        handleAccept(msg.id, msg.suggestion!)
+                                      }
+                                      className="flex-1 rounded-xl h-8 text-xs font-bold shadow-3xs cursor-pointer bg-emerald-500 hover:bg-emerald-600 border border-emerald-600/10 text-white">
+                                      <Plus className="size-3.5 mr-1" />
+                                      {locale === 'ar' ? 'قبول' : 'Accept'}
+                                    </Button>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center justify-center gap-1.5 py-1 text-xs font-bold">
+                                    {msg.suggestion.status === 'accepted' ? (
+                                      <span className="text-emerald-500 flex items-center gap-1">
+                                        <Check className="size-3.5" />
+                                        {locale === 'ar'
+                                          ? 'تمت الإضافة'
+                                          : 'Added to Cart'}
+                                      </span>
+                                    ) : (
+                                      <span className="text-muted-foreground">
+                                        {locale === 'ar' ? 'تم الرفض' : 'Declined'}
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {isSending && (
+                  <div className="flex gap-2.5 justify-start animate-in fade-in duration-200">
+                    <div className="size-7 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 border border-primary/10">
+                      <Sparkles className="size-3.5 animate-pulse" />
+                    </div>
+                    <div className="rounded-2xl px-3.5 py-3 bg-muted/70 text-foreground border border-border/40 rounded-tl-3xs flex items-center gap-1">
+                      <span className="size-1.5 rounded-full bg-foreground/45 animate-bounce [animation-delay:-0.3s]" />
+                      <span className="size-1.5 rounded-full bg-foreground/45 animate-bounce [animation-delay:-0.15s]" />
+                      <span className="size-1.5 rounded-full bg-foreground/45 animate-bounce" />
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Chat input form */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSendMessage(inputValue);
+                }}
+                className="p-3 border-t border-border/60 flex items-center gap-2 bg-background">
+                <Input
+                  type="text"
+                  placeholder={
+                    locale === 'ar' ? 'اكتب رسالة...' : 'Ask for suggestions...'
+                  }
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  className="rounded-xl flex-1 text-xs border-border/80 h-9"
+                />
+                <Button
+                  type="submit"
+                  size="icon"
+                  disabled={!inputValue.trim()}
+                  className="size-9 shrink-0 rounded-xl bg-primary hover:bg-primary/95 text-primary-foreground shadow-3xs cursor-pointer">
+                  <SendHorizontal className="size-4" />
+                </Button>
+              </form>
+            </>
+          )}
         </Card>
       )}
 
