@@ -281,6 +281,187 @@ class AiInternalToolController extends Controller
     }
 
 
+    public function analytics(Request $request): JsonResponse
+    {
+        $restaurant = $this->validatedRestaurant($request);
+        if ($restaurant instanceof JsonResponse) {
+            return $restaurant;
+        }
+
+        $rid = $restaurant->id;
+        $domains = explode(',', $request->input('domains', 'performance,menu,customers,reviews'));
+        
+        // Cache analytical reports for 5 minutes (300 seconds) to protect database performance
+        $cacheKey = "restaurant_{$rid}_analytics_" . implode('_', $domains);
+        
+        $data = cache()->remember($cacheKey, 300, function() use ($rid, $domains) {
+            $result = ['restaurant_id' => $rid];
+
+            if (in_array('performance', $domains)) {
+                $totalRevenue = (float) Order::where('restaurant_id', $rid)->sum('total');
+                $totalOrders = Order::where('restaurant_id', $rid)->count();
+                $aov = $totalOrders > 0 ? round($totalRevenue / $totalOrders, 2) : 0.0;
+
+                $currentMonthStart = now()->startOfMonth();
+                $currentMonthRevenue = (float) Order::where('restaurant_id', $rid)->where('created_at', '>=', $currentMonthStart)->sum('total');
+
+                $prevMonthStart = now()->subMonth()->startOfMonth();
+                $prevMonthEnd = now()->subMonth()->endOfMonth();
+                $prevMonthRevenue = (float) Order::where('restaurant_id', $rid)->whereBetween('created_at', [$prevMonthStart, $prevMonthEnd])->sum('total');
+
+                $growthPercent = $prevMonthRevenue > 0 ? round((($currentMonthRevenue - $prevMonthRevenue) / $prevMonthRevenue) * 100, 2) : 0.0;
+
+                $peakHoursRaw = Order::where('restaurant_id', $rid)
+                    ->select(DB::raw('HOUR(created_at) as hour, COUNT(*) as count'))
+                    ->groupBy('hour')
+                    ->orderByDesc('count')
+                    ->limit(3)
+                    ->get();
+
+                $peakHours = $peakHoursRaw->map(fn($h) => [
+                    'hour_range' => sprintf('%02d:00 - %02d:00', $h->hour, ($h->hour + 1) % 24),
+                    'orders_count' => $h->count
+                ])->values();
+
+                $result['performance'] = [
+                    'total_revenue' => $totalRevenue,
+                    'total_orders' => $totalOrders,
+                    'average_order_value' => $aov,
+                    'current_month_revenue' => $currentMonthRevenue,
+                    'previous_month_revenue' => $prevMonthRevenue,
+                    'growth_percentage' => $growthPercent,
+                    'peak_hours' => $peakHours,
+                ];
+            }
+
+            if (in_array('menu', $domains)) {
+                $bestSellers = OrderItem::query()
+                    ->join('orders', 'order_items.order_id', '=', 'orders.id')
+                    ->where('orders.restaurant_id', $rid)
+                    ->select('order_items.item_id', 'order_items.item_name', DB::raw('SUM(order_items.quantity) as total_qty'), DB::raw('SUM(order_items.quantity * order_items.price) as total_revenue'))
+                    ->groupBy('order_items.item_id', 'order_items.item_name')
+                    ->orderByDesc('total_qty')
+                    ->limit(5)
+                    ->get()
+                    ->map(fn($item) => [
+                        'id' => $item->item_id,
+                        'name' => $item->item_name,
+                        'total_sold' => (int) $item->total_qty,
+                        'total_revenue' => (float) $item->total_revenue
+                    ])->values();
+
+                $highestRevenue = OrderItem::query()
+                    ->join('orders', 'order_items.order_id', '=', 'orders.id')
+                    ->where('orders.restaurant_id', $rid)
+                    ->select('order_items.item_id', 'order_items.item_name', DB::raw('SUM(order_items.quantity * order_items.price) as total_revenue'))
+                    ->groupBy('order_items.item_id', 'order_items.item_name')
+                    ->orderByDesc('total_revenue')
+                    ->limit(5)
+                    ->get()
+                    ->map(fn($item) => [
+                        'id' => $item->item_id,
+                        'name' => $item->item_name,
+                        'total_revenue' => (float) $item->total_revenue
+                    ])->values();
+
+                $worstSellers = OrderItem::query()
+                    ->join('orders', 'order_items.order_id', '=', 'orders.id')
+                    ->where('orders.restaurant_id', $rid)
+                    ->select('order_items.item_id', 'order_items.item_name', DB::raw('SUM(order_items.quantity) as total_qty'))
+                    ->groupBy('order_items.item_id', 'order_items.item_name')
+                    ->orderBy('total_qty')
+                    ->limit(5)
+                    ->get()
+                    ->map(fn($item) => [
+                        'id' => $item->item_id,
+                        'name' => $item->item_name,
+                        'total_sold' => (int) $item->total_qty
+                    ])->values();
+
+                $thirtyDaysAgo = now()->subDays(30);
+                $orderedItemIds = OrderItem::query()
+                    ->join('orders', 'order_items.order_id', '=', 'orders.id')
+                    ->where('orders.restaurant_id', $rid)
+                    ->where('orders.created_at', '>=', $thirtyDaysAgo)
+                    ->pluck('order_items.item_id')
+                    ->unique()
+                    ->toArray();
+
+                $unsoldItems = MenuItem::query()
+                    ->join('menu_categories', 'items.menu_category_id', '=', 'menu_categories.id')
+                    ->where('menu_categories.restaurant_id', $rid)
+                    ->where('items.availability', 'available')
+                    ->whereNotIn('items.id', $orderedItemIds)
+                    ->select('items.id', 'items.title', 'items.price')
+                    ->limit(5)
+                    ->get()
+                    ->map(fn($item) => [
+                        'id' => $item->id,
+                        'name' => $item->title,
+                        'price' => (float) $item->price
+                    ])->values();
+
+                $result['menu'] = [
+                    'best_selling_items' => $bestSellers,
+                    'highest_revenue_items' => $highestRevenue,
+                    'worst_selling_items' => $worstSellers,
+                    'unsold_items_last_30_days' => $unsoldItems,
+                ];
+            }
+
+            if (in_array('customers', $domains)) {
+                $totalCustomers = Order::where('restaurant_id', $rid)->distinct('user_id')->count('user_id');
+                $returningCustomers = Order::where('restaurant_id', $rid)
+                    ->select('user_id', DB::raw('COUNT(*) as count'))
+                    ->groupBy('user_id')
+                    ->having('count', '>', 1)
+                    ->get()
+                    ->count();
+                $newCustomers = $totalCustomers - $returningCustomers;
+                $retentionRate = $totalCustomers > 0 ? round(($returningCustomers / $totalCustomers) * 100, 2) : 0.0;
+
+                $result['customers'] = [
+                    'total_distinct_customers' => $totalCustomers,
+                    'new_customers' => $newCustomers,
+                    'returning_customers' => $returningCustomers,
+                    'retention_rate_percentage' => $retentionRate,
+                ];
+            }
+
+            if (in_array('reviews', $domains)) {
+                $ratingsRaw = RestaurantReview::where('restaurant_id', $rid)
+                    ->select('rating', DB::raw('COUNT(*) as count'))
+                    ->groupBy('rating')
+                    ->get();
+
+                $ratingsDistribution = [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0];
+                foreach ($ratingsRaw as $r) {
+                    $ratingsDistribution[$r->rating] = $r->count;
+                }
+
+                $criticalReviews = RestaurantReview::where('restaurant_id', $rid)
+                    ->where('rating', '<=', 3)
+                    ->latest()
+                    ->limit(5)
+                    ->get(['rating', 'comment'])
+                    ->map(fn($r) => [
+                        'rating' => $r->rating,
+                        'comment' => $r->comment
+                    ])->values();
+
+                $result['reviews'] = [
+                    'ratings_distribution' => $ratingsDistribution,
+                    'critical_reviews' => $criticalReviews,
+                ];
+            }
+
+            return $result;
+        });
+
+        return response()->json($data);
+    }
+
+
     private function validatedRestaurant(Request $request): Restaurant|JsonResponse
     {
         try {

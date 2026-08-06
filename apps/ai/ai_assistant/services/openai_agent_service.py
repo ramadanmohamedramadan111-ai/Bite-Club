@@ -31,14 +31,36 @@ class OpenAiAgentService:
             }
 
         restaurant_id = payload["restaurant_id"]
+        message = payload.get("message", "")
 
-        # Gather all restaurant analytics using the existing tools
+        # 1. Smart Context Builder: Analyze message keywords to decide which data domains to fetch
+        message_lower = message.lower()
+        selected_domains = []
+        
+        if any(w in message_lower for w in ["perform", "revenue", "sales", "finance", "growth", "peak", "money", "income"]):
+            selected_domains.append("performance")
+            
+        if any(w in message_lower for w in ["menu", "item", "dish", "selling", "promote", "best", "worst", "unsold", "product", "pricing"]):
+            selected_domains.append("menu")
+            
+        if any(w in message_lower for w in ["customer", "client", "retention", "returning", "loyal", "visitor", "user"]):
+            selected_domains.append("customers")
+            
+        if any(w in message_lower for w in ["review", "rating", "complaint", "feedback", "critic", "comment", "opinion", "stars"]):
+            selected_domains.append("reviews")
+            
+        if not selected_domains:
+            # Fallback to all metrics if query is generic
+            selected_domains = ["performance", "menu", "customers", "reviews"]
+            
+        domains_str = ",".join(selected_domains)
+
+        # 2. Lazy/Unified Aggregated Tool Call
         tool_results = {}
-        for tool_name in ["restaurant", "dashboard", "menu", "orders", "revenue", "customers", "reviews-summary"]:
-            try:
-                tool_results[tool_name] = self.tool_executor.client.call(tool_name, {}, restaurant_id)
-            except Exception as e:
-                tool_results[tool_name] = {"error": str(e)}
+        try:
+            tool_results = self.tool_executor.client.call("analytics", {"domains": domains_str}, restaurant_id)
+        except Exception as e:
+            tool_results = {"error": str(e)}
 
         system_prompt = self.prompt_builder.build(payload)
 
@@ -53,6 +75,7 @@ class OpenAiAgentService:
             f"<analysis_parameters>\n"
             f"target_restaurant_id: {restaurant_id}\n"
             f"target_locale: {escaped_locale}\n"
+            f"extracted_domains: {domains_str}\n"
             f"</analysis_parameters>\n\n"
             f"<restaurant_data>\n{escaped_data}\n</restaurant_data>\n\n"
             "Analyze the metrics and customer reviews data inside the <restaurant_data> tag. "

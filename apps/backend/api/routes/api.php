@@ -55,6 +55,7 @@ Route::middleware('ai.internal')
         Route::post('/reviews', [AiInternalToolController::class, 'reviews'])->name('reviews');
         Route::post('/reviews-summary', [AiInternalToolController::class, 'reviewsSummary'])->name('reviews-summary');
         Route::post('/user-history', [AiInternalToolController::class, 'userHistory'])->name('user-history');
+        Route::post('/analytics', [AiInternalToolController::class, 'analytics'])->name('analytics');
     });
 
 Route::prefix('admin')->name('admin.')->group(function () {
