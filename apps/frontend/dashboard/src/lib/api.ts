@@ -1,4 +1,5 @@
 import axios from 'axios'
+import type { InternalAxiosRequestConfig } from 'axios'
 import { useAuthStore } from '../store/authStore'
 
 const api = axios.create({
@@ -9,7 +10,6 @@ const api = axios.create({
   },
 })
 
-// Attach token from store to every request automatically
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().token
   if (token) {
@@ -18,14 +18,55 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// Normalize error messages so callers always get a plain Error with a message
+type RetryableConfig = InternalAxiosRequestConfig & { _retry?: boolean }
+
+let refreshPromise: Promise<string> | null = null
+
+function refreshAccessToken(): Promise<string> {
+  if (!refreshPromise) {
+    const currentToken = useAuthStore.getState().token
+    refreshPromise = axios
+      .post(
+        `${import.meta.env.VITE_API_BASE_URL as string}/restaurant/refresh`,
+        null,
+        { headers: { Authorization: `Bearer ${currentToken}`, Accept: 'application/json' } }
+      )
+      .then((res) => {
+        const newToken = res.data?.data?.access_token as string
+        useAuthStore.getState().setToken(newToken)
+        return newToken
+      })
+      .finally(() => {
+        refreshPromise = null
+      })
+  }
+  return refreshPromise
+}
+
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    const originalRequest = error.config as RetryableConfig | undefined
+    const hadActiveSession = !!useAuthStore.getState().token
+
+    if (
+      error.response?.status === 401 &&
+      hadActiveSession &&
+      originalRequest &&
+      !originalRequest._retry &&
+      !originalRequest.url?.includes('/restaurant/refresh')
+    ) {
+      originalRequest._retry = true
+      const newToken = await refreshAccessToken().catch(() => null)
+      if (newToken) {
+        originalRequest.headers = originalRequest.headers ?? {}
+        originalRequest.headers.Authorization = `Bearer ${newToken}`
+        return api(originalRequest)
+      }
+    }
+
     const responseData = error.response?.data
 
-    // Laravel 422 responses shape validation errors as { errors: { field: string[] } }.
-    // Flatten every field's first message instead of only ever looking at `email`.
     const validationErrors = responseData?.errors as Record<string, string[]> | undefined
     const validationMessage = validationErrors
       ? Object.values(validationErrors).map((msgs) => msgs?.[0]).filter(Boolean).join('\n')
@@ -37,10 +78,6 @@ api.interceptors.response.use(
       error.message ??
       'Something went wrong'
 
-    // Only force a logout/redirect for a session that was actually authenticated —
-    // otherwise a plain wrong-password attempt on the login page (also a 401)
-    // reloads the page before the caller ever gets to show the error.
-    const hadActiveSession = !!useAuthStore.getState().token
     const shouldForceLogout =
       hadActiveSession &&
       (error.response?.status === 401 ||

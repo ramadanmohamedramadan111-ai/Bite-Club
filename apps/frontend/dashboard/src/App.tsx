@@ -11,9 +11,7 @@ import { OrdersPage } from './pages/orders/OrdersPage'
 import { OrderTrackingPage } from './pages/orders/OrderTrackingPage'
 import { MenuPage } from './pages/menu/MenuPage'
 import { CategoriesPage } from './pages/menu/CategoriesPage'
-import { CustomersPage } from './pages/customers/CustomersPage'
 import { SettingsPage } from './pages/settings/SettingsPage'
-import { PromotionsPage } from './pages/promotions/PromotionsPage'
 import { ReviewsPage } from './pages/reviews/ReviewsPage'
 import { ReportsPage } from './pages/reports/ReportsPage'
 import { PaymentsPage } from './pages/payments/PaymentsPage'
@@ -136,9 +134,7 @@ function App() {
             <Route path="/orders/:id"          element={<OrderTrackingPage />} />
             <Route path="/menu"                element={<MenuPage />} />
             <Route path="/menu/categories"     element={<CategoriesPage />} />
-            <Route path="/customers"           element={<CustomersPage />} />
             <Route path="/settings"            element={<SettingsPage />} />
-            <Route path="/promotions"          element={<PromotionsPage />} />
             <Route path="/reviews"             element={<ReviewsPage />} />
             <Route path="/reports"             element={<ReportsPage />} />
             <Route path="/payments"            element={<PaymentsPage />} />

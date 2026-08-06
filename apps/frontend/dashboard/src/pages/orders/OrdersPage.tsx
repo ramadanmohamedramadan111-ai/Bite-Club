@@ -53,6 +53,7 @@ export function OrdersPage() {
       searchParams.delete('q')
     }
     setSearchParams(searchParams)
+    setCurrentPage(1)
   }
 
   // Fetch live orders on load and poll every minute while the live tab is active

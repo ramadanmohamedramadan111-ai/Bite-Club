@@ -37,3 +37,13 @@ export type RegisterResponse = {
   message: string
   data?: unknown
 }
+
+export type RefreshResponse = {
+  success: boolean
+  message: string
+  data: {
+    access_token: string
+    token_type: string
+    expires_in: number
+  }
+}

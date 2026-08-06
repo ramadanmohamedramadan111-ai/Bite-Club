@@ -1,5 +1,5 @@
 import { api } from './api'
-import type { CategoriesResponse, LoginResponse, RegisterResponse } from '../types/auth'
+import type { CategoriesResponse, LoginResponse, RefreshResponse, RegisterResponse } from '../types/auth'
 
 export const authService = {
   login: (email: string, password: string) =>
@@ -7,6 +7,10 @@ export const authService = {
       .then((res) => res.data),
   logout: () =>
     api.post('/restaurant/logout'),
+
+  refresh: () =>
+    api.post<RefreshResponse>('/restaurant/refresh')
+      .then((res) => res.data),
 
   forgotPassword: (email: string) =>
     api.post('/restaurant/forgot-password', { email }),
