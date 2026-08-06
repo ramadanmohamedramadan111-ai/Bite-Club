@@ -79,6 +79,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       <div className="login-bg-overlay" />
 
       <div className="login-content-box">
+        <img src="/images/logo.png" alt="BiteClub Logo" className="login-logo-img" />
         <h1 className="login-brand-logo">BiteClub</h1>
         
         <div className="login-card">
