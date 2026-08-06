@@ -487,7 +487,21 @@ class OrderDomainService
         }
 
         if ($order->status === OrderStatusEnum::PENDING && $this->orderPaymentRepository->hasOnlinePayment($order->id)) {
-            throw new Exception(trans('order.cannot_cancel_paid_online') ?? 'Cannot cancel an order after online payment is completed; please contact restaurant support.');
+            $onlinePayment = $this->orderPaymentRepository->getOnlinePayment($order->id);
+
+            if ($onlinePayment && $onlinePayment->status === PaymentStatusEnum::PAID) {
+                if (!$onlinePayment->transaction_id) {
+                    throw new Exception(trans('order.missing_transaction_id') ?? 'Cannot refund order: missing transaction ID.');
+                }
+                
+                // This throws an exception if it fails, which aborts the cancellation
+                $this->paymentGateway->refund($onlinePayment->transaction_id, $onlinePayment->amount, $order);
+                
+                $this->orderPaymentRepository->update(
+                    $onlinePayment->id,
+                    ['status' => PaymentStatusEnum::REFUNDED->value]
+                );
+            }
         }
 
         $previousStatus = $order->status;
