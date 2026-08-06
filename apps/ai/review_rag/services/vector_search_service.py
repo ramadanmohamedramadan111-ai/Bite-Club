@@ -31,7 +31,11 @@ class VectorSearchService:
         for e in embeddings:
             try:
                 if isinstance(e.embedding, str):
-                    emb = eval(e.embedding)
+                    import json
+                    try:
+                        emb = json.loads(e.embedding)
+                    except json.JSONDecodeError:
+                        emb = []
                 else:
                     emb = e.embedding
                 

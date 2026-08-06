@@ -12,8 +12,13 @@ from review_rag.services.menu_rag_orchestrator import MenuRagOrchestrator
 class SmartWaiterAgentService:
     def __init__(self):
         self.api_key = os.getenv("API_KEY", "") or os.getenv("OPENAI_API_KEY", "")
-        self.base_url = os.getenv("BASE_URL_CHAT", "http://apiaccess.iti.net.eg//api/v1/student/chat")
+        self.base_url = os.getenv("BASE_URL_CHAT", "https://apiaccess.iti.net.eg/api/v1/student/chat")
         self.model = os.getenv("OPENAI_MODEL", "anthropic.claude-3-haiku-20240307-v1:0")
+
+    def _escape_xml(self, text):
+        if not isinstance(text, str):
+            return ""
+        return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
         self.timeout = int(os.getenv("OPENAI_TIMEOUT", "60"))
         self.max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", "1200"))
         self.prompt_builder = SmartWaiterPromptBuilder()
@@ -56,19 +61,36 @@ class SmartWaiterAgentService:
         # 4. Generate Final Recommendation
         system_prompt = self.prompt_builder.build(payload)
 
+        budget = payload.get("budget")
+        group_size = payload.get("group_size") or 1
+        budget_str = f"{budget} EGP" if budget is not None else "Not specified"
+
         history = payload.get("conversation", [])
-        history_text = "\n".join([f"{msg['role'].capitalize()}: {msg['content']}" for msg in history])
+        # Prevent token bloating by keeping the last 10 messages of conversation history
+        history = history[-10:] if history else []
+
+        history_lines = []
+        for msg in history:
+            role = self._escape_xml(msg.get("role", "user")).capitalize()
+            content = self._escape_xml(msg.get("content", ""))
+            history_lines.append(f"{role}: {content}")
+
+        history_text = "\n".join(history_lines)
         if history_text:
-            history_text = f"\nRecent Conversation History:\n{history_text}\n"
+            history_text = f"<conversation_history>\n{history_text}\n</conversation_history>\n"
+
+        escaped_message = self._escape_xml(message)
 
         user_content = (
-            f"{history_text}\n"
-            f"Customer Request: \"{message}\"\n\n"
-            f"Context Data (Filtered Restaurants, Menus, Reviews):\n"
-            f"{json.dumps(tool_results, indent=2)}\n\n"
-            "Analyze the request and data. Apply budget/group constraints if any. "
-            "Generate the response strictly in the specified JSON format. "
-            "Include recommended_restaurant_id and recommended_menu_item_ids if you recommend an item."
+            f"<user_context>\n"
+            f"Specified Budget: {budget_str}\n"
+            f"Group Size: {group_size} person(s)\n"
+            f"</user_context>\n\n"
+            f"{history_text}"
+            f"<user_query>\n{escaped_message}\n</user_query>\n\n"
+            f"<context_data>\n{json.dumps(tool_results, indent=2)}\n</context_data>\n\n"
+            "Analyze the request and context data. Apply budget/group constraints if any. "
+            "Generate the response strictly in the specified JSON format."
         )
 
         messages = [{"role": "user", "content": user_content}]
