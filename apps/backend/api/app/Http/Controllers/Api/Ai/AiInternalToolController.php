@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api\Ai;
 
 use App\Http\Controllers\Controller;
 use App\Models\MenuCategory;
+use App\Models\MenuItem;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Restaurant;
 use App\Models\RestaurantReview;
 use App\Traits\ApiResponseTrait;

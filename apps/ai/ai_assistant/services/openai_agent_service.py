@@ -13,16 +13,16 @@ class OpenAiAgentService:
         self.api_key = os.getenv("API_KEY", "") or os.getenv("OPENAI_API_KEY", "")
         self.base_url = os.getenv("BASE_URL_CHAT", "https://apiaccess.iti.net.eg/api/v1/student/chat")
         self.model = os.getenv("OPENAI_MODEL", "anthropic.claude-3-haiku-20240307-v1:0")
-
-    def _escape_xml(self, text):
-        if not isinstance(text, str):
-            return ""
-        return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
         self.timeout = int(os.getenv("OPENAI_TIMEOUT", "60"))
         self.max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", "1000"))
         self.prompt_builder = PromptBuilder()
         self.conversation_manager = ConversationManager()
         self.tool_executor = ToolExecutor()
+
+    def _escape_xml(self, text):
+        if not isinstance(text, str):
+            return ""
+        return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
     def chat(self, payload):
         if not self.api_key:

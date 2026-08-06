@@ -14,17 +14,17 @@ class SmartWaiterAgentService:
         self.api_key = os.getenv("API_KEY", "") or os.getenv("OPENAI_API_KEY", "")
         self.base_url = os.getenv("BASE_URL_CHAT", "https://apiaccess.iti.net.eg/api/v1/student/chat")
         self.model = os.getenv("OPENAI_MODEL", "anthropic.claude-3-haiku-20240307-v1:0")
-
-    def _escape_xml(self, text):
-        if not isinstance(text, str):
-            return ""
-        return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
         self.timeout = int(os.getenv("OPENAI_TIMEOUT", "60"))
         self.max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", "1200"))
         self.prompt_builder = SmartWaiterPromptBuilder()
         self.tool_client = LaravelToolClient()
         self.rag_orchestrator = ReviewRagOrchestrator()
         self.menu_rag_orchestrator = MenuRagOrchestrator()
+
+    def _escape_xml(self, text):
+        if not isinstance(text, str):
+            return ""
+        return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
     def chat(self, payload):
         if not self.api_key:
