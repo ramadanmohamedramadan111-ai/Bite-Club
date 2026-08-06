@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Ai\AiInternalToolController;
 use App\Http\Controllers\Api\Ai\SmartWaiterAddToCartController;
 
 use App\Http\Controllers\Api\Ai\SmartWaiterChatController;
+use App\Http\Controllers\Api\Ai\SmartWaiterRemainingController;
 use App\Http\Controllers\Api\Auth\AdminAuthController;
 use App\Http\Controllers\Api\Auth\UserAuthController;
 use App\Http\Controllers\Api\RestaurantCategoryController;
@@ -34,7 +35,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth.restaurant')->post('/ai/chat', AiChatController::class)->name('ai.chat');
 Route::middleware('auth.user')->post('/ai/smart-waiter/chat', SmartWaiterChatController::class)->name('ai.smart-waiter.chat');
+Route::middleware('auth.user')->get('/ai/smart-waiter/remaining', SmartWaiterRemainingController::class)->name('ai.smart-waiter.remaining');
 Route::middleware('auth.user')->post('/ai/smart-waiter/add-to-cart', SmartWaiterAddToCartController::class)->name('ai.smart-waiter.add-to-cart');
+
+
 
 
 Route::middleware('ai.internal')

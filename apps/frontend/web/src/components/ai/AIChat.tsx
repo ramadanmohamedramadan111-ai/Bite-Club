@@ -21,6 +21,7 @@ import { useAction } from 'next-safe-action/hooks';
 import {
   smartWaiterSendChatAction,
   smartWaiterAddToCartAction,
+  getSmartWaiterRemainingAction,
 } from '@/actions/ai';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -82,10 +83,26 @@ export default function AIChat() {
     undefined,
   );
   const [selectedItem, setSelectedItem] = useState<SuggestionItem | null>(null);
+  const [remainingMessages, setRemainingMessages] = useState<number>(15);
+  const [maxMessages, setMaxMessages] = useState<number>(15);
+  const [isLimitReached, setIsLimitReached] = useState<boolean>(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const addItem = useCartStore((state) => state.addItem);
+  // Load remaining messages when chat window opens
+  useEffect(() => {
+    if (isOpen && isAuthenticated) {
+      getSmartWaiterRemainingAction().then((res) => {
+        if (res?.data?.success && res.data.data) {
+          const { remaining_messages, max_messages } = res.data.data;
+          setRemainingMessages(remaining_messages);
+          setMaxMessages(max_messages);
+          setIsLimitReached(remaining_messages <= 0);
+        }
+      });
+    }
+  }, [isOpen, isAuthenticated]);
 
   const { execute: sendChat, isExecuting: isSending } = useAction(
     smartWaiterSendChatAction,
@@ -97,6 +114,11 @@ export default function AIChat() {
           // Save the conversation ID returned from the server
           if (result.conversation_id) {
             setConversationId(result.conversation_id);
+          }
+
+          if (result.remaining_messages !== undefined) {
+            setRemainingMessages(result.remaining_messages);
+            setIsLimitReached(result.remaining_messages <= 0);
           }
 
           const rawItems = (result.items || []) as any[];
@@ -137,13 +159,19 @@ export default function AIChat() {
         }
       },
       onError: ({ error }) => {
+        const isLimit = error.serverError?.status === 429;
+        if (isLimit) {
+          setRemainingMessages(0);
+          setIsLimitReached(true);
+        }
         setMessages((prev) => [
           ...prev,
           {
             id: Date.now().toString(),
             sender: 'ai',
-            text:
-              locale === 'ar'
+            text: isLimit
+              ? t('limitReached')
+              : locale === 'ar'
                 ? 'عذراً، أواجه مشكلة في الاتصال بالخادم حالياً.'
                 : 'Sorry, I am having trouble connecting to the server right now.',
           },
@@ -207,6 +235,10 @@ export default function AIChat() {
       );
       return;
     }
+    if (isLimitReached) {
+      toast.error(t('limitReached'));
+      return;
+    }
 
     // 1. Declare any previous 'pending' suggestions as 'declined'
     setMessages((prev) =>
@@ -259,6 +291,14 @@ export default function AIChat() {
     setMessages([]);
     setConversationId(undefined);
     setInputValue('');
+    getSmartWaiterRemainingAction().then((res) => {
+      if (res?.data?.success && res.data.data) {
+        const { remaining_messages, max_messages } = res.data.data;
+        setRemainingMessages(remaining_messages);
+        setMaxMessages(max_messages);
+        setIsLimitReached(remaining_messages <= 0);
+      }
+    });
     toast.success(
       locale === 'ar' ? 'تم بدء محادثة جديدة' : 'Started a new conversation',
     );
@@ -555,6 +595,33 @@ export default function AIChat() {
                 <div ref={messagesEndRef} />
               </div>
 
+              {/* Usage progress bar */}
+              <div className="bg-muted/30 text-muted-foreground border-t border-border/20 py-1.5 px-4 text-[10px] flex items-center justify-between font-bold">
+                <span>
+                  {t('remainingMessages', {
+                    remaining: remainingMessages,
+                    max: maxMessages,
+                  })}
+                </span>
+                <div className="flex gap-1.5 items-center">
+                  <div className="w-16 h-1 rounded-full bg-border overflow-hidden">
+                    <div
+                      className={cn(
+                        'h-full transition-all duration-300',
+                        remainingMessages <= 3
+                          ? 'bg-destructive'
+                          : remainingMessages <= 6
+                            ? 'bg-amber-500'
+                            : 'bg-primary',
+                      )}
+                      style={{
+                        width: `${(remainingMessages / maxMessages) * 100}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+
               {/* Chat input form */}
               <form
                 onSubmit={(e) => {
@@ -565,16 +632,23 @@ export default function AIChat() {
                 <Input
                   type="text"
                   placeholder={
-                    locale === 'ar' ? 'اكتب رسالة...' : 'Ask for suggestions...'
+                    isLimitReached
+                      ? locale === 'ar'
+                        ? 'تم الوصول للحد اليومي'
+                        : 'Daily limit reached'
+                      : locale === 'ar'
+                        ? 'اكتب رسالة...'
+                        : 'Ask for suggestions...'
                   }
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
+                  disabled={isLimitReached}
                   className="rounded-xl flex-1 text-xs border-border/80 h-9"
                 />
                 <Button
                   type="submit"
                   size="icon"
-                  disabled={!inputValue.trim()}
+                  disabled={!inputValue.trim() || isSending || isLimitReached}
                   className="size-9 shrink-0 rounded-xl bg-primary hover:bg-primary/95 text-primary-foreground shadow-3xs cursor-pointer">
                   <SendHorizontal className="size-4" />
                 </Button>

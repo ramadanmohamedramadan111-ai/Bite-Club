@@ -44,6 +44,15 @@ export const smartWaiterAddToCartAction = actionClient
 
     updateTag(`cart-${userId}`);
 
+  });
+
+export const getSmartWaiterRemainingAction = actionClient
+  .action(async () => {
+    const response = await serverFetch<
+      ApiResponse<{ remaining_messages: number; max_messages: number }>
+    >('/ai/smart-waiter/remaining', 'GET');
+
     return response;
   });
+
 

@@ -16,6 +16,8 @@ export interface SmartWaiterResponse {
       why: string;
     }[];
   conversation_id: number;
+  remaining_messages?: number;
+  max_messages?: number;
 }
 
 export interface SmartWaiterAddToCartResponse {

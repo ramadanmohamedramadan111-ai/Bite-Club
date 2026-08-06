@@ -1343,6 +1343,8 @@
       "title": "Sign In Required",
       "description": "Please sign in to chat with Bite AI, get personalized menu recommendations, and order dishes directly.",
       "button": "Sign In"
-    }
+    },
+    "limitReached": "You have reached your daily limit of 15 messages. Please try again tomorrow!",
+    "remainingMessages": "{remaining} / {max} messages remaining today"
   }
 }
