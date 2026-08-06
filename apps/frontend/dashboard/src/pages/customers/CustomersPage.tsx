@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Download, UserPlus, TrendingUp, TrendingDown, Pencil, Trash2 } from 'lucide-react'
+import { Download, UserPlus, TrendingUp, TrendingDown, Pencil, Trash2, Search } from 'lucide-react'
 import { Table } from '../../components/common/Table'
 import type { Column } from '../../components/common/Table'
 import { Pagination } from '../../components/common/Pagination'
@@ -23,17 +23,27 @@ export function CustomersPage() {
   const { t } = useTranslation()
   const { customers: rawCustomers, addCustomer, updateCustomer, deleteCustomer } = useCustomerStore()
   const { exportPdf, isExporting } = useExportDashboardPdf()
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [currentPage, setCurrentPage] = useState(1)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState<Customer | null>(null)
 
-  const query = (searchParams.get('q') || '').toLowerCase()
-  const customers = rawCustomers.filter(c => 
-    c.name.toLowerCase().includes(query) || 
+  const rawQuery = searchParams.get('q') || ''
+  const query = rawQuery.toLowerCase()
+  const customers = rawCustomers.filter(c =>
+    c.name.toLowerCase().includes(query) ||
     c.email.toLowerCase().includes(query) ||
     c.phone.includes(query)
   )
+
+  const handleSearch = (val: string) => {
+    if (val) {
+      searchParams.set('q', val)
+    } else {
+      searchParams.delete('q')
+    }
+    setSearchParams(searchParams)
+  }
   const [showDeleteModal, setShowDeleteModal] = useState<Customer | null>(null)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
   const [newCustomer, setNewCustomer] = useState({ name: '', email: '', phone: '', segment: 'NEW' as 'VIP' | 'FREQUENT' | 'NEW' })
@@ -186,6 +196,18 @@ export function CustomersPage() {
             <UserPlus size={14} /> {t('newCustomer')}
           </button>
         </div>
+      </div>
+
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute start-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+        <input
+          type="text"
+          placeholder={t('searchCustomers', 'Search customers by name, email, or phone...')}
+          value={rawQuery}
+          onChange={(e) => handleSearch(e.target.value)}
+          className="w-full max-w-md ps-10 pe-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500"
+        />
       </div>
 
       <div className="flex items-center justify-between gap-4 rounded-xl border border-gray-100 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">

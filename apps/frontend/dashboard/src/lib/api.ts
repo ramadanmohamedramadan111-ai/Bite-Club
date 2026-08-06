@@ -23,15 +23,28 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     const responseData = error.response?.data
+
+    // Laravel 422 responses shape validation errors as { errors: { field: string[] } }.
+    // Flatten every field's first message instead of only ever looking at `email`.
+    const validationErrors = responseData?.errors as Record<string, string[]> | undefined
+    const validationMessage = validationErrors
+      ? Object.values(validationErrors).map((msgs) => msgs?.[0]).filter(Boolean).join('\n')
+      : ''
+
     const message =
+      (validationMessage || undefined) ??
       responseData?.message ??
-      responseData?.errors?.email?.[0] ??
       error.message ??
       'Something went wrong'
 
+    // Only force a logout/redirect for a session that was actually authenticated —
+    // otherwise a plain wrong-password attempt on the login page (also a 401)
+    // reloads the page before the caller ever gets to show the error.
+    const hadActiveSession = !!useAuthStore.getState().token
     const shouldForceLogout =
-      error.response?.status === 401 ||
-      typeof message === 'string' && message.toLowerCase().includes('unauthenticated')
+      hadActiveSession &&
+      (error.response?.status === 401 ||
+        (typeof message === 'string' && message.toLowerCase().includes('unauthenticated')))
 
     if (shouldForceLogout) {
       useAuthStore.getState().logout()

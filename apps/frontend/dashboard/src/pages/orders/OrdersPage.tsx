@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Bell, CheckCircle, XCircle } from 'lucide-react'
+import { Bell, CheckCircle, Search, XCircle } from 'lucide-react'
 import { Table } from '../../components/common/Table'
 import type { Column } from '../../components/common/Table'
 import { Pagination } from '../../components/common/Pagination'
@@ -32,7 +32,7 @@ function paymentColor(p: string) {
 export function OrdersPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [currentPage, setCurrentPage] = useState(1)
 
   const { orders: liveOrders, historyOrders, historyMeta, isLoading, fetchLiveOrders, fetchHistoryOrders } = useOrderStore()
@@ -45,6 +45,15 @@ export function OrdersPage() {
   const [filterToDate, setFilterToDate]       = useState('')
 
   const query = searchParams.get('q') || ''
+
+  const handleSearch = (val: string) => {
+    if (val) {
+      searchParams.set('q', val)
+    } else {
+      searchParams.delete('q')
+    }
+    setSearchParams(searchParams)
+  }
 
   // Fetch live orders on load and poll every minute while the live tab is active
   useEffect(() => {
@@ -166,6 +175,18 @@ export function OrdersPage() {
       <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('nav_orders')}</h1>
           <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">{t('ordersSub')}</p>
+      </div>
+
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute start-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+        <input
+          type="text"
+          placeholder={t('searchOrders', 'Search orders by customer, phone, or ID...')}
+          value={query}
+          onChange={(e) => handleSearch(e.target.value)}
+          className="w-full max-w-md ps-10 pe-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500"
+        />
       </div>
 
       {/* Tabs */}

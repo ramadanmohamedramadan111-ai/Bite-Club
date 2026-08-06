@@ -66,6 +66,10 @@ const resources = {
 
       // Layout
       searchPlaceholder: 'Search orders, customers, or items...',
+      searchOrders: 'Search orders by customer, phone, or ID...',
+      searchMenuItems: 'Search menu items...',
+      searchReviews: 'Search reviews by customer or content...',
+      searchCustomers: 'Search customers by name, email, or phone...',
       profile: 'Profile',
       manager: 'Manager',
       notifications: 'Notifications',
@@ -313,6 +317,8 @@ const resources = {
       saveChanges: 'Save Changes',
       businessProfile: 'Business Profile',
       changeLogo: 'Change Logo',
+      coverImage: 'Cover Image',
+      changeCoverPhoto: 'Change Cover Photo',
       restaurantNameInput: 'Restaurant Name',
       businessEmailInput: 'Business Email',
       shortDescriptionInput: 'Short Description',
@@ -598,6 +604,10 @@ const resources = {
 
       // Layout
       searchPlaceholder: 'ابحث عن الطلبات أو العملاء أو العناصر...',
+      searchOrders: 'ابحث عن الطلبات بالعميل أو الهاتف أو الرقم...',
+      searchMenuItems: 'ابحث في عناصر القائمة...',
+      searchReviews: 'ابحث في التقييمات بالعميل أو المحتوى...',
+      searchCustomers: 'ابحث عن العملاء بالاسم أو البريد أو الهاتف...',
       profile: 'الملف الشخصي',
       manager: 'مدير',
       notifications: 'الإشعارات',
@@ -843,6 +853,8 @@ const resources = {
       saveChanges: 'حفظ التغييرات',
       businessProfile: 'الملف التجاري',
       changeLogo: 'تغيير الشعار',
+      coverImage: 'صورة الغلاف',
+      changeCoverPhoto: 'تغيير صورة الغلاف',
       restaurantNameInput: 'اسم المطعم',
       businessEmailInput: 'البريد الإلكتروني للعمل',
       shortDescriptionInput: 'وصف قصير',

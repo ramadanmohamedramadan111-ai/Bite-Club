@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { X } from 'lucide-react'
+import { AlertCircle, X } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 interface FormModalProps {
@@ -8,16 +8,18 @@ interface FormModalProps {
   title: string
   onSave: () => void
   saveDisabled?: boolean
+  error?: string | null
   children: ReactNode
 }
 
-export function FormModal({ 
-  isOpen, 
-  onClose, 
-  title, 
-  onSave, 
+export function FormModal({
+  isOpen,
+  onClose,
+  title,
+  onSave,
   saveDisabled = false,
-  children 
+  error,
+  children
 }: FormModalProps) {
   const { t } = useTranslation()
 
@@ -28,14 +30,21 @@ export function FormModal({
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h2>
-          <button 
+          <button
             onClick={onClose}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-slate-800 dark:hover:text-slate-200"
           >
             <X size={18} />
           </button>
         </div>
-        
+
+        {error && (
+          <div className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 mb-4 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-400">
+            <AlertCircle size={16} className="mt-0.5 shrink-0" />
+            <p className="whitespace-pre-line">{error}</p>
+          </div>
+        )}
+
         <div className="flex flex-col gap-4 [&_select]:appearance-none">
           {children}
         </div>
