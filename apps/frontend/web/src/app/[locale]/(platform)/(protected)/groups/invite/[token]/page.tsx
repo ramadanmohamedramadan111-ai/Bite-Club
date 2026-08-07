@@ -10,7 +10,7 @@ import JoinGroup from '@/components/groups/JoinGroup';
 import { getMediaUrl } from '@/lib/utils';
 
 type PageProps = {
-  params: Promise<{ token: string }>;
+  params: Promise<{ locale: string; token: string }>;
 };
 
 export default async function Page({ params }: PageProps) {
@@ -110,9 +110,10 @@ export default async function Page({ params }: PageProps) {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ token: string }>;
+  params: Promise<{ locale: string; token: string }>;
 }): Promise<Metadata> {
-  const { token } = await params;
+  const { locale, token } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
   try {
     const res = await serverFetch<ApiResponse<GroupTypeSimplified>>(
       `/groups/invite/${token}`,
@@ -120,17 +121,15 @@ export async function generateMetadata({
     const group = res?.data;
     if (group) {
       return {
-        title: `Join ${group.name} | Bite Club`,
-        description:
-          group.description ||
-          `You have been invited to join ${group.name} on Bite Club.`,
+        title: t('groupInvite.title', { group: group.name }),
+        description: t('groupInvite.description', { description: group.description || t('groupInvite.fallbackTitle') }),
       };
     }
   } catch (e) {
     // Fail silently
   }
   return {
-    title: 'Group Invitation | Bite Club',
+    title: t('groupInvite.fallbackTitle'),
   };
 }
 

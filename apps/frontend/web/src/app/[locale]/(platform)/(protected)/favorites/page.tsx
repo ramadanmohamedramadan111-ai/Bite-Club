@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import FavoritesPageView from '@/components/favorites/FavoritesPageView';
 
 export default function FavoritesPage() {
@@ -6,7 +7,11 @@ export default function FavoritesPage() {
 }
 
 
-export const metadata: Metadata = {
-  title: "My Favorites | Bite Club",
-  description: "Your favorite restaurants and dishes, handpicked and saved for quick access on Bite Club.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
+  return {
+    title: t('favorites.title'),
+    description: t('favorites.description'),
+  };
+}

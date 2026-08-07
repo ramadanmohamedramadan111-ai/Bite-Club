@@ -27,7 +27,11 @@ export default async function PastOrdersPage({ searchParams }: Props) {
 }
 
 
-export const metadata: Metadata = {
-  title: "Past Orders History | Bite Club",
-  description: "Browse and reorder from your past culinary choices on Bite Club.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
+  return {
+    title: t('ordersPast.title'),
+    description: t('ordersPast.description'),
+  };
+}

@@ -151,7 +151,11 @@ export default async function Page({ searchParams }: PageProps) {
 
 
 
-export const metadata: Metadata = {
-  title: "Browse Restaurants | Bite Club",
-  description: "Explore top restaurants near you, check ratings, menus, and find your next favorite meal.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
+  return {
+    title: t('browseRestaurants.title'),
+    description: t('browseRestaurants.description'),
+  };
+}

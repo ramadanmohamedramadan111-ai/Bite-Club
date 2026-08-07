@@ -103,7 +103,11 @@ export default async function MyProfilePage() {
 }
 
 
-export const metadata: Metadata = {
-  title: "My Account Profile | Bite Club",
-  description: "Manage your Bite Club profile details, address, and preferences.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
+  return {
+    title: t('profile.title'),
+    description: t('profile.description'),
+  };
+}

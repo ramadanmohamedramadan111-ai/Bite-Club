@@ -60,7 +60,7 @@ export default function Hero() {
         <div className="lg:col-span-5 relative flex justify-center items-center">
           <div className="relative w-full aspect-video sm:aspect-[4/3] lg:aspect-square rounded-2xl sm:rounded-3xl border border-border/40 shadow-xl bg-gradient-to-br from-primary/10 via-card to-orange-500/5 hover:scale-[1.01] transition-transform duration-300 flex flex-col items-center justify-center gap-4 p-8">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent opacity-60 blur-2xl rounded-full pointer-events-none" />
-            <div className="flex size-24 items-center justify-center rounded-3xl overflow-hidden border border-primary/15 bg-primary/5 shadow-[0_10px_30px_-5px_rgba(249,115,22,0.3)] animate-pulse">
+            <div className="flex size-24 items-center justify-center rounded-3xl overflow-hidden animate-pulse">
               <img src="/logo.png" alt="Bite Club Logo" className="size-full object-cover select-none" />
             </div>
             <span className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-primary via-orange-500 to-amber-500 bg-clip-text text-transparent select-none">

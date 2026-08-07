@@ -14,7 +14,11 @@ export default async function ActiveOrdersPage() {
 }
 
 
-export const metadata: Metadata = {
-  title: "Active Orders Tracking | Bite Club",
-  description: "Monitor the real-time progress and status of your ongoing orders.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
+  return {
+    title: t('ordersActive.title'),
+    description: t('ordersActive.description'),
+  };
+}

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { RestaurantRegisterForm } from '@/components/auth/RestaurantRegisterForm';
 import { ApiResponse } from '@/types/api';
 import { RestaurantCategory } from '@/types/restaurant';
@@ -19,7 +20,11 @@ export default async function page() {
 
 
 
-export const metadata: Metadata = {
-  title: "Partner Registration | Bite Club",
-  description: "Register your restaurant with Bite Club to reach more customers, receive online orders, and boost your sales.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
+  return {
+    title: t('restaurantRegister.title'),
+    description: t('restaurantRegister.description'),
+  };
+}

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { serverFetch } from '@/utils/server-fetch';
+import { getTranslations } from 'next-intl/server';
 import { ApiResponse } from '@/types/api';
 import { GroupType } from '@/types/groups';
 import { notFound } from 'next/navigation';
@@ -8,7 +9,7 @@ import { parseSearchParams, SearchPaginatedParams } from '@/utils/validate-searc
 import InvalidSearchParams from '@/components/errors/InvalidSearchParams';
 
 type PageProps = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ locale: string; id: string }>;
   searchParams: Promise<{
     search?: string;
     page?: string;
@@ -47,21 +48,22 @@ export default async function GroupMembersPage({
   );
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
-  const { id } = await params;
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; id: string }> }): Promise<Metadata> {
+  const { locale, id } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
   try {
     const res = await serverFetch<ApiResponse<GroupType>>(`/groups/${id}`);
     const group = res?.data;
     if (group) {
       return {
-        title: `${group.name} | Bite Club`,
-        description: `View details of the food group ${group.name} on Bite Club.`,
+        title: t('groupDetail.title', { group: group.name }),
+        description: t('groupDetail.description', { group: group.name }),
       };
     }
   } catch (e) {
     // Fail silently
   }
   return {
-    title: "Group Details | Bite Club",
+    title: t('groupDetail.fallbackTitle'),
   };
 }

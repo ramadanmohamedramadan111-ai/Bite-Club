@@ -120,7 +120,11 @@ export default async function PointsPage({ searchParams }: PageProps) {
   );
 }
 
-export const metadata: Metadata = {
-  title: "Bite Rewards | Bite Club",
-  description: "Check your points balance, daily streaks, unlocked badges, and exchange them for gifts.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
+  return {
+    title: t('points.title'),
+    description: t('points.description'),
+  };
+}

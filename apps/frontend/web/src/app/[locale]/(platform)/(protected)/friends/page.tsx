@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
 import { Spinner } from '@/components/ui/spinner';
 import FriendsTab from '@/components/friends/FriendsTab';
@@ -31,7 +32,11 @@ export default async function FriendsTabPage({ searchParams }: Props) {
 
 
 
-export const metadata: Metadata = {
-  title: "My Connections | Bite Club",
-  description: "View and manage your network of friends on Bite Club.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
+  return {
+    title: t('friends.title'),
+    description: t('friends.description'),
+  };
+}

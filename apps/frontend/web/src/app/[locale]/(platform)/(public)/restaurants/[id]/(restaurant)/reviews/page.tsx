@@ -14,7 +14,7 @@ import InvalidSearchParams from '@/components/errors/InvalidSearchParams';
 import { Separator } from '@/components/ui/separator';
 
 type PageProps = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ locale: string; id: string }>;
   searchParams: Promise<{ page?: string; per_page?: string }>;
 };
 
@@ -143,21 +143,22 @@ export default async function RestaurantReviewsPage({
 
 
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
-  const { id } = await params;
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; id: string }> }): Promise<Metadata> {
+  const { locale, id } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
   try {
     const res = await serverFetch<ApiResponse<RestaurantType>>(`/user/restaurants/${id}`);
     const restaurant = res?.data;
     if (restaurant) {
       return {
-        title: `${restaurant.name} Reviews | Bite Club`,
-        description: `Read customer reviews and ratings for ${restaurant.name} on Bite Club.`,
+        title: t('restaurantReviews.title', { restaurant: restaurant.name }),
+        description: t('restaurantReviews.description', { restaurant: restaurant.name }),
       };
     }
   } catch (e) {
     // Fail silently
   }
   return {
-    title: "Restaurant Reviews | Bite Club",
+    title: t('restaurantReviews.fallbackTitle'),
   };
 }

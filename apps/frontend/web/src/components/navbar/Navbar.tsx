@@ -301,7 +301,7 @@ export default function Navbar({
             <Link
               href="/"
               className="flex items-center gap-2.5 transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0">
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg overflow-hidden border border-primary/15 bg-primary/5 shadow-[0_3px_10px_-3px_var(--color-primary)]">
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg overflow-hidden">
                 <img
                   src="/logo.png"
                   alt="Bite Club"
@@ -552,7 +552,7 @@ export default function Navbar({
                       href="/"
                       className="flex items-center gap-2.5"
                       onClick={() => setIsOpenMobile(false)}>
-                      <div className="flex aspect-square size-8 items-center justify-center rounded-lg overflow-hidden border border-primary/15 bg-primary/5 shadow-[0_2px_8px_-2px_var(--color-primary)]">
+                      <div className="flex aspect-square size-8 items-center justify-center rounded-lg overflow-hidden">
                         <img
                           src="/logo.png"
                           alt="Bite Club"
@@ -676,7 +676,7 @@ export default function Navbar({
             </Sheet>
 
             <Link href="/" className="flex items-center gap-1.5 sm:gap-2">
-              <div className="flex aspect-square size-7 sm:size-7.5 items-center justify-center rounded-lg overflow-hidden border border-primary/15 bg-primary/5 shadow-sm">
+              <div className="flex aspect-square size-7 sm:size-7.5 items-center justify-center rounded-lg overflow-hidden">
                 <img
                   src="/logo.png"
                   alt="Bite Club"

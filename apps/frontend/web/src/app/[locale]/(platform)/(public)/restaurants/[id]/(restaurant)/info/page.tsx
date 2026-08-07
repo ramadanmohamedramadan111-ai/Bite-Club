@@ -10,7 +10,7 @@ import { ApiResponse } from '@/types/api';
 import { RestaurantType } from '@/types/restaurant';
 
 type PageProps = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ locale: string; id: string }>;
 };
 
 export default async function RestaurantInfoPage({ params }: PageProps) {
@@ -117,21 +117,22 @@ export default async function RestaurantInfoPage({ params }: PageProps) {
 
 
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
-  const { id } = await params;
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; id: string }> }): Promise<Metadata> {
+  const { locale, id } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
   try {
     const res = await serverFetch<ApiResponse<RestaurantType>>(`/user/restaurants/${id}`);
     const restaurant = res?.data;
     if (restaurant) {
       return {
-        title: `${restaurant.name} Information | Bite Club`,
-        description: `Get address, phone number, location, and opening hours for ${restaurant.name} on Bite Club.`,
+        title: t('restaurantInfo.title', { restaurant: restaurant.name }),
+        description: t('restaurantInfo.description', { restaurant: restaurant.name }),
       };
     }
   } catch (e) {
     // Fail silently
   }
   return {
-    title: "Restaurant Info | Bite Club",
+    title: t('restaurantInfo.fallbackTitle'),
   };
 }

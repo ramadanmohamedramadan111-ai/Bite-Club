@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import GroupsHeader from '@/components/groups/GroupsHeader';
 import YourGroups from '@/components/groups/YourGroups';
 import ActiveSessionsPanel from '@/components/groups/ActiveSessionsPanel';
@@ -26,7 +27,11 @@ export default async function Page({
 
 
 
-export const metadata: Metadata = {
-  title: "My Groups & Teams | Bite Club",
-  description: "Create or manage your food ordering groups to split costs and order together.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
+  return {
+    title: t('groups.title'),
+    description: t('groups.description'),
+  };
+}

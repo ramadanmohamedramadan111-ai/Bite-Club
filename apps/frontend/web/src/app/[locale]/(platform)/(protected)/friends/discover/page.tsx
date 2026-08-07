@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
 import { Spinner } from '@/components/ui/spinner';
 import DiscoverTab from '@/components/friends/DiscoverTab';
@@ -31,7 +32,11 @@ export default async function DiscoverTabPage({ searchParams }: Props) {
 
 
 
-export const metadata: Metadata = {
-  title: "Discover Friends | Bite Club",
-  description: "Find and connect with fellow foodies and friends on Bite Club.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
+  return {
+    title: t('friendsDiscover.title'),
+    description: t('friendsDiscover.description'),
+  };
+}

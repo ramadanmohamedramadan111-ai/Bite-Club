@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
 import { Spinner } from '@/components/ui/spinner';
 import SentTab from '@/components/friends/SentTab';
@@ -28,7 +29,11 @@ export default async function SentTabPage({ searchParams }: Props) {
 
 
 
-export const metadata: Metadata = {
-  title: "Sent Friend Requests | Bite Club",
-  description: "Track your pending sent friend requests on Bite Club.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
+  return {
+    title: t('friendsSent.title'),
+    description: t('friendsSent.description'),
+  };
+}

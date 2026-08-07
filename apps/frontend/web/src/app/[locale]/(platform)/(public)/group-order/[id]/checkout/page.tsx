@@ -3,10 +3,11 @@ import { serverFetch } from '@/utils/server-fetch';
 import { getUserId } from '@/utils/api-helpers';
 import { GroupOrderCartSession } from '@/types/group-order';
 import GroupOrderCheckoutView from '@/components/checkout/GroupOrderCheckoutView';
+import { getTranslations } from 'next-intl/server';
 import { ApiResponse } from '@/types/api';
 
 type PageProps = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ locale: string; id: string }>;
 };
 
 export default async function CheckoutPage({ params }: PageProps) {
@@ -35,21 +36,22 @@ export default async function CheckoutPage({ params }: PageProps) {
 
 
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
-  const { id } = await params;
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; id: string }> }): Promise<Metadata> {
+  const { locale, id } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
   try {
     const res = await serverFetch<ApiResponse<GroupOrderCartSession>>(`/user/group-orders/${id}`);
     const cart = res?.data;
     if (cart) {
       return {
-        title: `Checkout Group Order - ${cart.restaurant.name} | Bite Club`,
-        description: `Complete checkout for group order from ${cart.restaurant.name}.`,
+        title: t('groupOrderCheckout.title', { restaurant: cart.restaurant.name }),
+        description: t('groupOrderCheckout.description', { restaurant: cart.restaurant.name }),
       };
     }
   } catch (e) {
     // Fail silently
   }
   return {
-    title: "Group Order Checkout | Bite Club",
+    title: t('groupOrderCheckout.fallbackTitle'),
   };
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import LoginTabs from '@/components/auth/LoginTabs';
 
 export default function Page() {
@@ -11,7 +12,11 @@ export default function Page() {
 
 
 
-export const metadata: Metadata = {
-  title: "Login | Bite Club",
-  description: "Access your Bite Club account to order delicious meals from local restaurants and check on active group order sessions.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
+  return {
+    title: t('login.title'),
+    description: t('login.description'),
+  };
+}

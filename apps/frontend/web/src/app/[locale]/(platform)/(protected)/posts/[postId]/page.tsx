@@ -4,9 +4,11 @@ import { serverFetch } from '@/utils/server-fetch';
 import { ApiResponse } from '@/types/api';
 import { PostType } from '@/types/posts';
 import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 
 interface PostPageProps {
   params: Promise<{
+    locale: string;
     postId: string;
   }>;
 }
@@ -32,21 +34,23 @@ export default async function PostPage({ params }: PostPageProps) {
 
 
 
-export async function generateMetadata({ params }: { params: Promise<{ postId: string }> }): Promise<Metadata> {
-  const { postId } = await params;
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; postId: string }> }): Promise<Metadata> {
+  const { locale, postId } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
   try {
     const res = await serverFetch<ApiResponse<PostType>>(`/posts/${postId}`);
     const post = res?.data;
     if (post) {
       return {
-        title: `${post.user.name}'s Post | Bite Club`,
-        description: post.caption || 'Check out this post on Bite Club.',
+        title: t('postDetail.title', { user: post.user.name }),
+        description: post.caption || t('postDetail.fallbackDescription'),
       };
     }
   } catch (e) {
     // Fail silently
   }
   return {
-    title: "Post Details | Bite Club",
+    title: t('postDetail.fallbackTitle'),
+    description: t('postDetail.fallbackDescription'),
   };
 }

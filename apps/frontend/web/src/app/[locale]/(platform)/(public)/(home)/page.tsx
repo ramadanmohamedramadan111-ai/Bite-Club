@@ -41,7 +41,11 @@ export default async function HomePage() {
 
 
 
-export const metadata: Metadata = {
-  title: "Bite Club - Social Food & Group Ordering",
-  description: "The social food ordering app. Start group orders with friends, split costs, share posts, and earn daily rewards.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
+  return {
+    title: t('home.title'),
+    description: t('home.description'),
+  };
+}

@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import { Bike, MapPin, ShoppingBag, Star } from 'lucide-react';
+import { Bike, MapPin, ShoppingBag, Star, Store } from 'lucide-react';
 import type { RestaurantType } from '@/types/restaurant';
 import RestaurantGroupOrderActions from './RestaurantGroupOrderActions';
 import { Separator } from '@/components/ui/separator';
@@ -17,13 +17,19 @@ export default function RestaurantDetailHeader({ restaurant }: Props) {
     <div className="overflow-hidden rounded-2xl border border-border/40 bg-card shadow-sm transition-all duration-300">
       {/* Cover Image */}
       <div className="relative h-48 w-full sm:h-64 md:h-72 bg-muted">
-        <Image
-          src={restaurant.cover_image_url || restaurant.logo_url}
-          alt={`${restaurant.name} cover`}
-          fill
-          className="object-cover"
-          priority
-        />
+        {restaurant.cover_image_url || restaurant.logo_url ? (
+          <Image
+            src={restaurant.cover_image_url || restaurant.logo_url}
+            alt={`${restaurant.name} cover`}
+            fill
+            className="object-cover"
+            priority
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <Store className="size-16 text-muted-foreground/40" />
+          </div>
+        )}
         {!restaurant.is_open_now && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-10">
             <span className="rounded-full bg-background/95 backdrop-blur-xs px-4 py-2 text-sm font-semibold shadow-md text-foreground">
@@ -37,12 +43,18 @@ export default function RestaurantDetailHeader({ restaurant }: Props) {
       <div className="relative px-4 pb-6 pt-16 sm:px-6 md:px-8">
         {/* Floating Logo Badge */}
         <div className="absolute -top-12 left-4 size-24 overflow-hidden rounded-2xl border-4 border-card bg-background shadow-lg sm:left-6 sm:-top-16 sm:size-28 z-20">
-          <Image
-            src={restaurant.logo_url}
-            alt={restaurant.name}
-            fill
-            className="object-cover"
-          />
+          {restaurant.logo_url ? (
+            <Image
+              src={restaurant.logo_url}
+              alt={restaurant.name}
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-muted">
+              <Store className="size-8 text-muted-foreground/40" />
+            </div>
+          )}
         </div>
 
         {/* Header Header Action Details */}

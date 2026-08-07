@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { RegisterForm } from '@/components/auth/UserRegisterForm';
 import { parseSearchParams, ReferrerParams } from '@/utils/validate-search-params';
 import InvalidSearchParams from '@/components/errors/InvalidSearchParams';
@@ -22,7 +23,11 @@ export default async function page({
 
 
 
-export const metadata: Metadata = {
-  title: "Register | Bite Club",
-  description: "Join Bite Club today! Create an account to order individually, start group orders with friends, and earn loyalty rewards.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
+  return {
+    title: t('register.title'),
+    description: t('register.description'),
+  };
+}
