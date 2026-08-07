@@ -58,8 +58,8 @@
 
 .sidebar-brand-text .name {
   font-size: 19px;
-  font-weight: 700;
-  color: var(--text-primary);
+  font-weight: 800;
+  color: var(--brand-primary);
   white-space: nowrap;
 }
 
