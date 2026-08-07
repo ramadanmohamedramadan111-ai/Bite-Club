@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
 import { forgotPasswordSchema } from '../../lib/validation'
 import { authService } from '../../lib/authService'
-import Logo from '../../assets/images/logo.svg'
+import { usePageTitle } from '../../hooks/usePageTitle'
+import Logo from '../../assets/images/logo_nobg.svg'
 
 interface ForgotPasswordPageProps {
   theme: 'light' | 'dark'
@@ -24,6 +25,7 @@ export function ForgotPasswordPage({
   onResetPassword,
 }: ForgotPasswordPageProps) {
   const { t, i18n } = useTranslation()
+  usePageTitle(t('forgotPassword'))
 
   const [email, setEmail] = useState('')
   const [emailError, setEmailError] = useState<string | null>(null)
@@ -77,7 +79,7 @@ export function ForgotPasswordPage({
         <div className="rounded-[32px] border border-slate-200 bg-white px-8 py-10 shadow-panel dark:border-slate-700 dark:bg-slate-900">
           {/* Header */}
           <div className="grid gap-5 text-center">
-            <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-orange-500 text-white shadow-lg shadow-orange-200/40">
+            <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-orange-500 text-white">
               <img src={Logo} alt="logo" />
             </div>
             <div>

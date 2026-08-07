@@ -6,6 +6,7 @@ import toast from 'react-hot-toast'
 import { Table } from '../../components/common/Table'
 import type { Column } from '../../components/common/Table'
 import { useInvoiceStore } from '../../store/invoiceStore'
+import { usePageTitle } from '../../hooks/usePageTitle'
 import type { PlatformDue } from '../../types/invoices'
 
 const formatCurrency = (value: number) =>
@@ -35,6 +36,8 @@ export function InvoiceDetailsPage() {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   const { selectedInvoice, isLoading, isPaying, fetchInvoiceDetails, payInvoice } = useInvoiceStore()
+
+  usePageTitle(selectedInvoice ? `${t('invoice', 'Invoice')} #${selectedInvoice.id}` : t('invoicesTitle', 'Invoices'))
 
   const [isPayingNow, setIsPayingNow] = useState(false)
 

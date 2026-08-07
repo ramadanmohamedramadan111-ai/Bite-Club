@@ -6,6 +6,7 @@ import {
 import toast from 'react-hot-toast'
 import { LocationMap } from '../../components/common/LocationMap'
 import { restaurantService } from '../../lib/restaurantService'
+import { usePageTitle } from '../../hooks/usePageTitle'
 import type { OpeningHour, RestaurantProfile } from '../../types/restaurant'
 
 // day_of_week: 0=Sunday, 1=Monday ... 6=Saturday
@@ -21,6 +22,7 @@ const DEFAULT_HOURS: OpeningHour[] = DAY_KEYS.map((_, i) => ({
 
 export function SettingsPage() {
   const { t } = useTranslation()
+  usePageTitle(t('restaurantSettings'))
 
   // ── Business profile state ────────────────────────────────────────────
   const [profile, setProfile]       = useState<RestaurantProfile | null>(null)

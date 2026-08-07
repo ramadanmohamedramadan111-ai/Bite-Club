@@ -6,6 +6,7 @@ import { Table } from '../../components/common/Table'
 import type { Column } from '../../components/common/Table'
 import { Pagination } from '../../components/common/Pagination'
 import { useOrderStore } from '../../store/orderStore'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 function statusPill(status: string) {
   switch (status.toLowerCase()) {
@@ -31,6 +32,7 @@ function paymentColor(p: string) {
 
 export function OrdersPage() {
   const { t } = useTranslation()
+  usePageTitle(t('nav_orders'))
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [currentPage, setCurrentPage] = useState(1)

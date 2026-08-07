@@ -1,23 +1,26 @@
 import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { useEffect, useState } from 'react'
 import {
   BarChart3, LayoutGrid,
-  ShoppingBag, Settings, Star,
+  ShoppingBag, Settings, Star, Tags,
   LogOut, UtensilsCrossed, X, CreditCard, Receipt,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuthStore } from '../../store/authStore'
 import { authService } from '../../lib/authService'
-import Logo from '../../assets/images/logo.svg'
+import { restaurantService } from '../../lib/restaurantService'
+import Logo from '../../assets/images/logo_nobg.svg'
 
 const navItems = [
-  { key: 'nav_dashboard',  icon: LayoutGrid,      path: '/dashboard'  },
-  { key: 'nav_orders',     icon: ShoppingBag,     path: '/orders'     },
-  { key: 'nav_menu',       icon: UtensilsCrossed, path: '/menu'       },
-  { key: 'nav_reviews',    icon: Star,            path: '/reviews'    },
-  { key: 'nav_reports',    icon: BarChart3,       path: '/reports'    },
-  { key: 'nav_payments',   icon: CreditCard,      path: '/payments'   },
-  { key: 'nav_invoices',   icon: Receipt,         path: '/invoices'   },
+  { key: 'nav_dashboard',   icon: LayoutGrid,      path: '/dashboard',        end: true  },
+  { key: 'nav_orders',      icon: ShoppingBag,     path: '/orders',          end: false },
+  { key: 'nav_menu',        icon: UtensilsCrossed, path: '/menu',            end: true  },
+  { key: 'nav_categories',  icon: Tags,            path: '/categories',      end: true  },
+  { key: 'nav_reviews',     icon: Star,            path: '/reviews',         end: false },
+  { key: 'nav_reports',     icon: BarChart3,       path: '/reports',         end: false },
+  { key: 'nav_payments',    icon: CreditCard,      path: '/payments',        end: false },
+  { key: 'nav_invoices',    icon: Receipt,         path: '/invoices',        end: false },
 ]
 
 interface SidebarProps {
@@ -26,7 +29,7 @@ interface SidebarProps {
 }
 
 // Shared nav content extracted so both mobile and desktop render the same thing
-function SidebarContent({ onClose, showClose }: { onClose: () => void; showClose: boolean }) {
+function SidebarContent({ onClose, showClose, restaurantName }: { onClose: () => void; showClose: boolean; restaurantName: string }) {
   const { t } = useTranslation()
   const logout = useAuthStore((s) => s.logout)
 
@@ -60,12 +63,12 @@ function SidebarContent({ onClose, showClose }: { onClose: () => void; showClose
       {/* Logo row */}
       <div className="flex items-center justify-between gap-3 px-5 py-5 border-b border-gray-100 dark:border-slate-700">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-orange shadow shadow-orange-200">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-orange">
             <img src={Logo} alt="logo" />
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-sm font-bold text-gray-900 dark:text-white leading-none">BiteClub</p>
-            <p className="text-[11px] text-gray-400 dark:text-slate-400 mt-0.5">Restaurant Terminal</p>
+            <p className="text-[11px] text-gray-400 dark:text-slate-400 mt-0.5 truncate">{restaurantName}</p>
           </div>
         </div>
         {showClose && (
@@ -86,7 +89,7 @@ function SidebarContent({ onClose, showClose }: { onClose: () => void; showClose
             const Icon = item.icon
             return (
               <li key={item.key}>
-                <NavLink to={item.path} className={navLinkClass}>
+                <NavLink to={item.path} end={item.end} className={navLinkClass}>
                   {({ isActive }) => (
                     <>
                       <span className={iconClass(isActive)}>
@@ -129,11 +132,22 @@ function SidebarContent({ onClose, showClose }: { onClose: () => void; showClose
 }
 
 export function Sidebar({ open, onClose }: SidebarProps) {
+  const authRestaurant = useAuthStore((s) => s.restaurant)
+  const [profileName, setProfileName] = useState<string | null>(null)
+
+  useEffect(() => {
+    restaurantService.getProfile()
+      .then((data) => setProfileName(data.name))
+      .catch(() => {})
+  }, [])
+
+  const restaurantName = profileName ?? authRestaurant?.name ?? 'BiteClub'
+
   return (
     <>
       {/* ── Desktop: always visible, static in flex flow ── */}
       <aside className="hidden lg:flex lg:w-[250px] lg:shrink-0 lg:flex-col min-h-screen">
-        <SidebarContent onClose={onClose} showClose={false} />
+        <SidebarContent onClose={onClose} showClose={false} restaurantName={restaurantName} />
       </aside>
 
       {/* ── Mobile: only mounted when open ── */}
@@ -147,7 +161,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           />
           {/* Drawer */}
           <aside className="fixed inset-y-0 start-0 z-30 w-64 shadow-xl">
-            <SidebarContent onClose={onClose} showClose={true} />
+            <SidebarContent onClose={onClose} showClose={true} restaurantName={restaurantName} />
           </aside>
         </div>
       )}

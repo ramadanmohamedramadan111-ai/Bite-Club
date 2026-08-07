@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import { useDashboardAnalytics } from '../../hooks/useDashboardAnalytics'
 import { useExportDashboardPdf } from '../../hooks/useExportDashboardPdf'
+import { usePageTitle } from '../../hooks/usePageTitle'
 import type { DashboardPeriod } from '../../types/analytics'
 
 const periods = ['today', 'week', 'month', 'year'] as const
@@ -42,6 +43,7 @@ function formatOrderLabel(value: string) {
 
 export function DashboardPage() {
   const { t } = useTranslation()
+  usePageTitle(t('operationsDashboard'))
   const navigate = useNavigate()
   const [period, setPeriod] = useState<Period>('week')
   const { analytics, loading, error } = useDashboardAnalytics(period as DashboardPeriod)

@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Plus, Pencil, Trash2, Search, ArrowLeft, ArrowRight, UtensilsCrossed, Pizza, Coffee, IceCream, Sandwich, Salad, Fish, Drumstick, Cookie, Soup, Apple, Carrot } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { Plus, Pencil, Trash2, Search, UtensilsCrossed, Pizza, Coffee, IceCream, Sandwich, Salad, Fish, Drumstick, Cookie, Soup, Apple, Carrot } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { DeleteModal } from '../../components/common/DeleteModal'
 import { FormModal } from '../../components/common/FormModal'
 import { useCategoryStore } from '../../store/categoryStore'
+import { usePageTitle } from '../../hooks/usePageTitle'
 import type { ApiCategory } from '../../types/menu'
 
 // Icon picker options — value stored in DB, icon shown in UI
@@ -45,8 +45,8 @@ function CategoryIcon({ iconName, size = 24 }: { iconName: string; size?: number
 }
 
 export function CategoriesPage() {
-  const { t, i18n } = useTranslation()
-  const navigate = useNavigate()
+  const { t } = useTranslation()
+  usePageTitle(t('categoryManagement'))
   const {
     categories, isLoading,
     fetchCategories, addCategory, updateCategory, toggleVisibility, deleteCategory,
@@ -204,12 +204,6 @@ export function CategoriesPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate('/menu')}
-            className="py-2.5 text-sm font-semibold text-gray-500 hover:text-brand-orange transition dark:text-slate-400"
-          >
-            {i18n.language === 'ar' ? <ArrowRight size={16} /> : <ArrowLeft size={16} />}
-          </button>
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('categoryManagement')}</h1>
             <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">{t('categoryManagementSub')}</p>

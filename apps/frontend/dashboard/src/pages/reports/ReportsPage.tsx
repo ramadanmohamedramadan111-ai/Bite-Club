@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { useAiStore } from '../../store/aiStore'
 import { useExportDashboardPdf } from '../../hooks/useExportDashboardPdf'
+import { usePageTitle } from '../../hooks/usePageTitle'
 // ── Severity config ───────────────────────────────────────────────────────────
 const SEVERITY: Record<string, { label: string; cls: string; dot: string }> = {
   high:   { label: 'High',   cls: 'bg-red-50    dark:bg-red-950/30  border-red-200    dark:border-red-800/40  text-red-700    dark:text-red-400',   dot: 'bg-red-500'    },
@@ -28,6 +29,7 @@ const SEVERITY: Record<string, { label: string; cls: string; dot: string }> = {
 
 export function ReportsPage() {
   const { t } = useTranslation()
+  usePageTitle(t('aiReports'))
   const { report, isLoading, error, generate } = useAiStore()
   const { exportPdf, isExporting } = useExportDashboardPdf()
 
