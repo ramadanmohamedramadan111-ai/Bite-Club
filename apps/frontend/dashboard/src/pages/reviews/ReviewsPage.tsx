@@ -5,6 +5,7 @@ import { useDebounce } from 'use-debounce'
 import {
   Star,
   Download,
+  Search,
 } from 'lucide-react'
 import { Table } from '../../components/common/Table'
 import type { Column } from '../../components/common/Table'
@@ -17,8 +18,19 @@ export function ReviewsPage() {
   const { t } = useTranslation()
   const { exportPdf, isExporting } = useExportDashboardPdf()
   const [currentPage, setCurrentPage] = useState(1)
-  const [searchParams] = useSearchParams()
-  const [debouncedSearch] = useDebounce(searchParams.get('q') ?? '', 400)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const query = searchParams.get('q') ?? ''
+  const [debouncedSearch] = useDebounce(query, 400)
+
+  const handleSearch = (val: string) => {
+    if (val) {
+      searchParams.set('q', val)
+    } else {
+      searchParams.delete('q')
+    }
+    setSearchParams(searchParams)
+    setCurrentPage(1)
+  }
 
   const { data, loading } = useRestaurantReviews({
     page: currentPage,
@@ -140,6 +152,18 @@ export function ReviewsPage() {
             <Download size={15} /> {isExporting ? t('exporting') : t('exportReport', 'Export Report')}
           </button>
         </div>
+      </div>
+
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute start-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+        <input
+          type="text"
+          placeholder={t('searchReviews', 'Search reviews by customer or content...')}
+          value={query}
+          onChange={(e) => handleSearch(e.target.value)}
+          className="w-full max-w-md ps-10 pe-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500"
+        />
       </div>
 
       {/* Top Metrics Cards */}

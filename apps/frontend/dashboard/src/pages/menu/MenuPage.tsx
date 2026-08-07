@@ -54,6 +54,7 @@ export function MenuPage() {
   const [deleteTarget, setDeleteTarget] = useState<ApiMenuItem | null>(null)
   const [form, setForm]                 = useState<ItemForm>(EMPTY_FORM)
   const [isSaving, setIsSaving]         = useState(false)
+  const [modalError, setModalError]     = useState<string | null>(null)
 
   useEffect(() => { fetchCategories() }, [])
 
@@ -89,6 +90,7 @@ export function MenuPage() {
 
   const openCreate = () => {
     setForm({ ...EMPTY_FORM, menu_category_id: categories[0] ? String(categories[0].id) : '' })
+    setModalError(null)
     setShowCreate(true)
   }
 
@@ -101,15 +103,17 @@ export function MenuPage() {
       availability: item.availability,
       image: null,
     })
+    setModalError(null)
     setEditTarget(item)
   }
 
   const handleSaveCreate = async () => {
     if (!form.title.trim() || !form.price || !form.menu_category_id || !form.image) {
-      toast.error(t('fillAllFields'))
+      setModalError(t('fillAllFields'))
       return
     }
     setIsSaving(true)
+    setModalError(null)
     try {
       await addItem({
         title: form.title,
@@ -123,7 +127,7 @@ export function MenuPage() {
       setShowCreate(false)
       doFetch()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('errorOccurred'))
+      setModalError(e instanceof Error ? e.message : t('errorOccurred'))
     } finally {
       setIsSaving(false)
     }
@@ -132,6 +136,7 @@ export function MenuPage() {
   const handleSaveEdit = async () => {
     if (!editTarget || !form.title.trim() || !form.price) return
     setIsSaving(true)
+    setModalError(null)
     try {
       await updateItem(editTarget.id, {
         title: form.title,
@@ -145,7 +150,7 @@ export function MenuPage() {
       setEditTarget(null)
       doFetch()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('errorOccurred'))
+      setModalError(e instanceof Error ? e.message : t('errorOccurred'))
     } finally {
       setIsSaving(false)
     }
@@ -153,12 +158,13 @@ export function MenuPage() {
 
   const handleDelete = async () => {
     if (!deleteTarget) return
+    setModalError(null)
     try {
       await deleteItem(deleteTarget.id)
       toast.success(t('itemDeleted'))
       setDeleteTarget(null)
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('errorOccurred'))
+      setModalError(e instanceof Error ? e.message : t('errorOccurred'))
     }
   }
 
@@ -240,6 +246,18 @@ export function MenuPage() {
             <Plus size={14} /> {t('createNewItem')}
           </button>
         </div>
+      </div>
+
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute start-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+        <input
+          type="text"
+          placeholder={t('searchMenuItems', 'Search menu items...')}
+          value={search}
+          onChange={(e) => handleSearch(e.target.value)}
+          className="w-full max-w-md ps-10 pe-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500"
+        />
       </div>
 
       {/* ── Filter Panel ──────────────────────────────────────────────────── */}
@@ -388,7 +406,7 @@ export function MenuPage() {
 
                   {/* Action buttons */}
                   <div className="flex gap-1.5">
-                    <button onClick={() => setDeleteTarget(item)}
+                    <button onClick={() => { setModalError(null); setDeleteTarget(item) }}
                       className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:border-red-400 hover:text-red-500 dark:border-slate-600">
                       <Trash2 size={12} />
                     </button>
@@ -436,13 +454,13 @@ export function MenuPage() {
       )}
 
       {/* Modals */}
-      <FormModal isOpen={showCreate} onClose={() => setShowCreate(false)} title={t('createNewItem')} onSave={handleSaveCreate} saveDisabled={isSaving || !form.title.trim() || !form.price || !form.image}>
+      <FormModal isOpen={showCreate} onClose={() => setShowCreate(false)} title={t('createNewItem')} onSave={handleSaveCreate} saveDisabled={isSaving || !form.title.trim() || !form.price || !form.image} error={modalError}>
         {formFields}
       </FormModal>
-      <FormModal isOpen={!!editTarget} onClose={() => setEditTarget(null)} title={t('editItem')} onSave={handleSaveEdit} saveDisabled={isSaving || !form.title.trim() || !form.price}>
+      <FormModal isOpen={!!editTarget} onClose={() => setEditTarget(null)} title={t('editItem')} onSave={handleSaveEdit} saveDisabled={isSaving || !form.title.trim() || !form.price} error={modalError}>
         {formFields}
       </FormModal>
-      <DeleteModal isOpen={!!deleteTarget} onClose={() => setDeleteTarget(null)} onConfirm={handleDelete} title={t('deleteItem')} itemName={deleteTarget?.title ?? ''} />
+      <DeleteModal isOpen={!!deleteTarget} onClose={() => setDeleteTarget(null)} onConfirm={handleDelete} title={t('deleteItem')} itemName={deleteTarget?.title ?? ''} error={modalError} />
     </div>
   )
 }

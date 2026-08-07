@@ -58,6 +58,7 @@ export function CategoriesPage() {
   const [deleteTarget, setDeleteTarget] = useState<ApiCategory | null>(null)
   const [form, setForm]               = useState<CategoryForm>(EMPTY_FORM)
   const [isSaving, setIsSaving]       = useState(false)
+  const [modalError, setModalError]   = useState<string | null>(null)
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -66,7 +67,7 @@ export function CategoriesPage() {
     return () => clearTimeout(timer)
   }, [search, fetchCategories])
 
-  const openCreate = () => { setForm(EMPTY_FORM); setShowCreate(true) }
+  const openCreate = () => { setForm(EMPTY_FORM); setModalError(null); setShowCreate(true) }
 
   const openEdit = (cat: ApiCategory) => {
     setForm({
@@ -75,18 +76,20 @@ export function CategoriesPage() {
       short_description: cat.short_description,
       visibility: cat.visibility,
     })
+    setModalError(null)
     setEditTarget(cat)
   }
 
   const handleSaveCreate = async () => {
     if (!form.title.trim()) return
     setIsSaving(true)
+    setModalError(null)
     try {
       await addCategory(form)
       toast.success(t('categoryCreated'))
       setShowCreate(false)
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('errorOccurred'))
+      setModalError(e instanceof Error ? e.message : t('errorOccurred'))
     } finally {
       setIsSaving(false)
     }
@@ -95,12 +98,13 @@ export function CategoriesPage() {
   const handleSaveEdit = async () => {
     if (!editTarget || !form.title.trim()) return
     setIsSaving(true)
+    setModalError(null)
     try {
       await updateCategory(editTarget.id, form)
       toast.success(t('categoryUpdated'))
       setEditTarget(null)
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('errorOccurred'))
+      setModalError(e instanceof Error ? e.message : t('errorOccurred'))
     } finally {
       setIsSaving(false)
     }
@@ -108,12 +112,13 @@ export function CategoriesPage() {
 
   const handleDelete = async () => {
     if (!deleteTarget) return
+    setModalError(null)
     try {
       await deleteCategory(deleteTarget.id)
       toast.success(t('categoryDeleted'))
       setDeleteTarget(null)
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('errorOccurred'))
+      setModalError(e instanceof Error ? e.message : t('errorOccurred'))
     }
   }
 
@@ -253,7 +258,7 @@ export function CategoriesPage() {
                     className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:border-brand-orange hover:text-brand-orange dark:border-slate-600"
                   ><Pencil size={13} /></button>
                   <button
-                    onClick={() => setDeleteTarget(cat)}
+                    onClick={() => { setModalError(null); setDeleteTarget(cat) }}
                     className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:border-red-400 hover:text-red-500 dark:border-slate-600"
                   ><Trash2 size={13} /></button>
                 </div>
@@ -300,6 +305,7 @@ export function CategoriesPage() {
         title={t('addNewCategory')}
         onSave={handleSaveCreate}
         saveDisabled={isSaving || !form.title.trim()}
+        error={modalError}
       >
         {formFields}
       </FormModal>
@@ -311,6 +317,7 @@ export function CategoriesPage() {
         title={t('editCategory')}
         onSave={handleSaveEdit}
         saveDisabled={isSaving || !form.title.trim()}
+        error={modalError}
       >
         {formFields}
       </FormModal>
@@ -322,6 +329,7 @@ export function CategoriesPage() {
         onConfirm={handleDelete}
         title={t('deleteCategory')}
         itemName={deleteTarget?.title ?? ''}
+        error={modalError}
       />
     </div>
   )
