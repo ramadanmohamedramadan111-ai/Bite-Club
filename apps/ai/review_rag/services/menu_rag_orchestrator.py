@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 from review_rag.services.embedding_service import EmbeddingService
 from review_rag.services.vector_search_service import VectorSearchService
 from ai_assistant.services.laravel_tool_client import LaravelToolClient
@@ -8,6 +9,7 @@ class MenuRagOrchestrator:
         self.embedding_service = EmbeddingService()
         self.vector_search = VectorSearchService()
         self.tool_client = LaravelToolClient()
+        self.executor = ThreadPoolExecutor(max_workers=3)
 
     def _ensure_restaurant_synced(self, rid):
         from review_rag.models import MenuItemEmbedding
@@ -69,9 +71,9 @@ class MenuRagOrchestrator:
                     unsynced_rids.append(rid)
 
             if unsynced_rids:
-                # 1. Kick off background sync for missing restaurants so we don't block the chat
+                # 1. Kick off background sync for missing restaurants via thread pool executor
                 for rid in unsynced_rids:
-                    threading.Thread(target=self._ensure_restaurant_synced, args=(rid,)).start()
+                    self.executor.submit(self._ensure_restaurant_synced, rid)
                 
                 # 2. For the current fast response, fallback to returning the raw menu items directly (up to 30 items)
                 fallback_items = []

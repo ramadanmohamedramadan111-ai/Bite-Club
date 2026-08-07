@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class EmbeddingService:
     def __init__(self):
         self.api_key = os.getenv("API_KEY", "")
-        self.base_url = os.getenv("BASE_URL_EMBED", "http://apiaccess.iti.net.eg//api/v1/student/embed")
+        self.base_url = os.getenv("BASE_URL_EMBED", "https://apiaccess.iti.net.eg/api/v1/student/embed")
         self.model = os.getenv("OPENAI_EMBEDDING_MODEL", "amazon.titan-embed-text-v2:0")
         self.timeout = int(os.getenv("OPENAI_TIMEOUT", "60"))
 

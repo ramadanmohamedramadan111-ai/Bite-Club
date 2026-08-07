@@ -14,7 +14,9 @@ export function Sidebar({ activeNav, onNavChange, collapsed, onToggleCollapse }:
   return (
     <aside className={`sidebar${collapsed ? ' collapsed' : ''}`}>
       <div className="sidebar-brand" role="button" tabIndex={0} onClick={() => onNavChange('dashboard')} style={{ cursor: 'pointer' }}>
-        <div className="sidebar-brand-icon">{I.bold}</div>
+        <div className="sidebar-brand-icon">
+          <img src="/images/logo.png" alt="BiteClub Logo" />
+        </div>
         {!collapsed && (
           <div className="sidebar-brand-text">
             <span className="name">BiteClub</span>

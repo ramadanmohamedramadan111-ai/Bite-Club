@@ -42,6 +42,17 @@ class SmartWaiterChatController extends Controller
             return $this->unauthorizedResponse('Unauthenticated user. Bearer token is required.');
         }
 
+        $cacheKey = "user:ai-messages-limit:" . $user->id . ":" . date('Y-m-d');
+        $messageCount = cache()->get($cacheKey, 0);
+
+        if ($messageCount >= 15) {
+            return $this->errorResponse(
+                'Daily limit reached',
+                ['limit' => ['You have reached your daily limit of 15 AI recommendations. Please try again tomorrow!']],
+                429
+            );
+        }
+
         $validated['user_id'] = $user->id;
 
         $isNewChat = $validated['new_chat'] ?? false;
@@ -90,7 +101,12 @@ class SmartWaiterChatController extends Controller
                 ]);
             }
             
+            $messageCount = $messageCount + 1;
+            cache()->put($cacheKey, $messageCount, now()->endOfDay());
+
             $response['conversation_id'] = $conversationId;
+            $response['remaining_messages'] = max(0, 15 - $messageCount);
+            $response['max_messages'] = 15;
 
             return $this->successResponse('Smart Waiter recommendation generated successfully', $response);
         } catch (Throwable $exception) {

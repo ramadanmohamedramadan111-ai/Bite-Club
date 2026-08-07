@@ -79,8 +79,8 @@ class SmartWaiterAddToCartController extends Controller
             $itemId = $itemData['id'];
             $qty = max((int) ($itemData['quantity'] ?? 1), 1);
 
-            $menuItem = MenuItem::find($itemId);
-            if ($menuItem) {
+            $menuItem = MenuItem::with('menu_category')->find($itemId);
+            if ($menuItem && $menuItem->menu_category?->restaurant_id === $restaurant->id) {
                 $existingItem = $cart->items()->where('item_id', $menuItem->id)->first();
                 if ($existingItem) {
                     $existingItem->increment('quantity', $qty);

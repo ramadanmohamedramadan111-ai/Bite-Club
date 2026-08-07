@@ -24,10 +24,14 @@ export async function getUserId() {
 
   if (!token) return null;
 
-  const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+  try {
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
-  const { payload } = await jwtVerify(token, secret);
+    const { payload } = await jwtVerify(token, secret);
 
-  return Number(payload.sub);
+    return Number(payload.sub);
+  } catch {
+    return null;
+  }
 }
 

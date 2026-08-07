@@ -1310,5 +1310,41 @@
         ]
       }
     ]
+  },
+  "ai": {
+    "conversationId": {
+      "positive": "Conversation ID must be a positive integer"
+    },
+    "message": {
+      "required": "Message is required"
+    },
+    "locale": {
+      "invalid": "Locale must be either 'en' or 'ar'"
+    },
+    "latitude": {
+      "invalid": "Latitude must be a valid number"
+    },
+    "longitude": {
+      "invalid": "Longitude must be a valid number"
+    },
+    "restaurantId": {
+      "positive": "Restaurant ID must be a positive integer"
+    },
+    "items": {
+      "id": {
+        "positive": "Item ID must be a positive integer"
+      },
+      "quantity": {
+        "positive": "Quantity must be a positive integer"
+      },
+      "nonempty": "At least one item must be added to the cart"
+    },
+    "authRequired": {
+      "title": "Sign In Required",
+      "description": "Please sign in to chat with Bite AI, get personalized menu recommendations, and order dishes directly.",
+      "button": "Sign In"
+    },
+    "limitReached": "You have reached your daily limit of 15 messages. Please try again tomorrow!",
+    "remainingMessages": "{remaining} / {max} messages remaining today"
   }
 }
