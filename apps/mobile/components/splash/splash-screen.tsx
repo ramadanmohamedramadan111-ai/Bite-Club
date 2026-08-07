@@ -75,7 +75,7 @@ export function SplashScreenComponent() {
             },
           ]}
         >
-          <View style={[styles.logoOutline, { borderColor: colors.primary + '1F', backgroundColor: colors.muted }]}>
+          <View style={styles.logoOutline}>
             <Image source={brandLogo} style={styles.logo} contentFit="contain" />
           </View>
         </Animated.View>
@@ -139,16 +139,8 @@ const styles = StyleSheet.create({
   logoOutline: {
     width: 110,
     height: 110,
-    borderRadius: Radius['2xl'],
-    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    // Shadow for elegant depth
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 4,
   },
   logo: {
     width: 72,

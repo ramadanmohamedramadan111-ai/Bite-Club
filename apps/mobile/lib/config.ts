@@ -1,4 +1,4 @@
-export const API_BASE_URL = 'http://192.168.1.85:8080/api';
+export const API_BASE_URL = 'http://13.60.162.150/backend';
 
 export const TOKEN_STORAGE_KEY = 'biteclub.accessToken';
 export const USER_STORAGE_KEY = 'biteclub.user';

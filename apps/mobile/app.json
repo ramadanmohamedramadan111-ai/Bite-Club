@@ -42,12 +42,26 @@
           }
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      "expo-secure-store",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "d4df7297-2298-45ee-89e7-c6575e7570c4"
+      }
     }
   }
 }
-

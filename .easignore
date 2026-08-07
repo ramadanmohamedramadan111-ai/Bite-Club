@@ -1,0 +1,43 @@
+# EAS archives from the git repo root (D:\Bite-Club).
+# Keep ONLY the mobile app; exclude every other app/service so EAS builds
+# just this Expo project and doesn't trip over unrelated files/symlinks.
+
+# Other monorepo apps (do not include in mobile build)
+/apps/ai
+/apps/backend
+/apps/frontend
+/apps/dashboard
+/apps/web
+/apps/admin
+
+# Only build the mobile app
+/apps/mobile/node_modules
+
+# Originals from apps/mobile/.gitignore
+/apps/mobile/.expo
+/apps/mobile/dist
+/apps/mobile/web-build
+/apps/mobile/expo-env.d.ts
+/apps/mobile/.kotlin
+/apps/mobile/ios
+/apps/mobile/android
+/apps/mobile/app-example
+
+# Native + secrets
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.pem
+
+# local env files
+**/.env*.local
+
+# debugging
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store

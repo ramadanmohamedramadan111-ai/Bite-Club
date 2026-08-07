@@ -43,7 +43,7 @@ export default function HomeScreen() {
           onPress={() => router.replace('/')}
           accessibilityRole="button"
           style={styles.brand}>
-          <View style={[styles.logoWrap, { borderColor: colors.border }]}>
+          <View style={styles.logoWrap}>
             <Image
               source={require('@/assets/images/brand-logo.png')}
               style={styles.logoImg}
@@ -171,9 +171,6 @@ const styles = StyleSheet.create({
   logoWrap: {
     width: 32,
     height: 32,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
   },
