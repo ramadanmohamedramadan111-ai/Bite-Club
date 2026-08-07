@@ -41,14 +41,12 @@ export function Header({ theme, toggleTheme, toggleLanguage, onMenuToggle }: Hea
         </button>
 
         {/* Profile — hidden on medium screens and below, only shown on large desktop */}
-        <div className="hidden lg:flex items-center gap-2 rounded-xl bg-white px-2 py-1.5 sm:px-3 dark:border-slate-700 dark:bg-slate-800">
+        <div className="hidden lg:flex items-center gap-2 rounded-xl bg-white px-2 py-1.5 sm:px-3 h-9   dark:border-slate-700 dark:bg-slate-800">
           <div className="hidden text-start md:block">
             <Link to="/settings" className='cursor-pointer'><p className="text-xs font-semibold leading-none text-gray-800 dark:text-white">{t('profile')}</p></Link>
-            <p className="mt-0.5 text-[10px] text-gray-400 dark:text-slate-400">{t('manager')}</p>
+            {/* <p className="mt-0.5 text-[10px] text-gray-400 dark:text-slate-400">{t('manager')}</p> */}
           </div>
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-brand-orange text-xs font-bold text-white">
-            P
-          </div>
+        
         </div>
 
       </div>

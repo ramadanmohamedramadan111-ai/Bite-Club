@@ -133,7 +133,7 @@ function App() {
             <Route path="/orders"              element={<OrdersPage />} />
             <Route path="/orders/:id"          element={<OrderTrackingPage />} />
             <Route path="/menu"                element={<MenuPage />} />
-            <Route path="/menu/categories"     element={<CategoriesPage />} />
+            <Route path="/categories"          element={<CategoriesPage />} />
             <Route path="/settings"            element={<SettingsPage />} />
             <Route path="/reviews"             element={<ReviewsPage />} />
             <Route path="/reports"             element={<ReportsPage />} />

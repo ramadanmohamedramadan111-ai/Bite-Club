@@ -12,10 +12,12 @@ import type { Column } from '../../components/common/Table'
 import { Pagination } from '../../components/common/Pagination'
 import { useExportDashboardPdf } from '../../hooks/useExportDashboardPdf'
 import { useRestaurantReviews } from '../../hooks/useRestaurantReviews'
+import { usePageTitle } from '../../hooks/usePageTitle'
 import type { ApiReview } from '../../types/reviews'
 
 export function ReviewsPage() {
   const { t } = useTranslation()
+  usePageTitle(t('reviewsFeedback', 'Reviews & Feedback'))
   const { exportPdf, isExporting } = useExportDashboardPdf()
   const [currentPage, setCurrentPage] = useState(1)
   const [searchParams, setSearchParams] = useSearchParams()

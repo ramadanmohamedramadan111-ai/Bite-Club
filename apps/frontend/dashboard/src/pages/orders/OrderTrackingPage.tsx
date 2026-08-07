@@ -18,6 +18,7 @@ import { useOrderStore } from '../../store/orderStore'
 import { api } from '../../lib/api'
 import { useEffect } from 'react'
 import { useExportDashboardPdf } from '../../hooks/useExportDashboardPdf'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 const statusColors: Record<string, string> = {
   pending:   'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/30 dark:text-yellow-400',
@@ -36,6 +37,8 @@ export function OrderTrackingPage() {
   const { orders: liveOrders, historyOrders, fetchLiveOrders, fetchHistoryOrders } = useOrderStore()
 
   const apiOrder = liveOrders.find(o => o.id.toString() === id) || historyOrders.find(o => o.id.toString() === id)
+
+  usePageTitle(apiOrder ? `${t('order', 'Order')} #${apiOrder.id}` : t('nav_orders'))
 
   useEffect(() => {
     if (!apiOrder && id) {

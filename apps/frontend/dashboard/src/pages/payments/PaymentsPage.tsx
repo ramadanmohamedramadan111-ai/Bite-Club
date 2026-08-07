@@ -6,6 +6,7 @@ import { paymentService } from '../../lib/paymentService'
 import type { Payment, PaymentStatistics } from '../../types/payments'
 import { Table } from '../../components/common/Table'
 import type { Column } from '../../components/common/Table'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 const formatCurrency = (value: string | number) =>
   new Intl.NumberFormat(undefined, {
@@ -48,6 +49,7 @@ const getTypeClasses = (paymentType: string) => {
 
 export function PaymentsPage() {
   const { t } = useTranslation()
+  usePageTitle(t('paymentsTitle', 'Payments'))
   const [payments, setPayments] = useState<Payment[]>([])
   const [stats, setStats] = useState<PaymentStatistics>({ total_paid: 0, total_pending: 0, total_failed: 0 })
   const [isLoading, setIsLoading] = useState(true)

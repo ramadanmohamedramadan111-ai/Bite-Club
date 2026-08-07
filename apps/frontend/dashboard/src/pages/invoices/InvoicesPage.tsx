@@ -7,6 +7,7 @@ import { Table } from '../../components/common/Table'
 import type { Column } from '../../components/common/Table'
 import { Pagination } from '../../components/common/Pagination'
 import { useInvoiceStore } from '../../store/invoiceStore'
+import { usePageTitle } from '../../hooks/usePageTitle'
 import type { Invoice, InvoiceStatus } from '../../types/invoices'
 
 const formatCurrency = (value: number) =>
@@ -33,6 +34,7 @@ const statusClasses = (status: string) => {
 
 export function InvoicesPage() {
   const { t } = useTranslation()
+  usePageTitle(t('invoicesTitle', 'Invoices'))
   const navigate = useNavigate()
   const { invoices, meta, isLoading, fetchInvoices, payInvoice } = useInvoiceStore()
 

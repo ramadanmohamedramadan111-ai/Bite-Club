@@ -9,6 +9,7 @@ import { DeleteModal } from '../../components/common/DeleteModal'
 import { FormModal } from '../../components/common/FormModal'
 import { useMenuStore } from '../../store/menuStore'
 import { useCategoryStore } from '../../store/categoryStore'
+import { usePageTitle } from '../../hooks/usePageTitle'
 import type { ApiMenuItem } from '../../types/menu'
 
 type SortBy  = 'title' | 'price' | 'availability'
@@ -34,6 +35,7 @@ const EMPTY_FORM: ItemForm = {
 
 export function MenuPage() {
   const { t } = useTranslation()
+  usePageTitle(t('menuManagement'))
   const [searchParams, setSearchParams] = useSearchParams()
   const { items, meta, isLoading, fetchItems, addItem, updateItem, deleteItem, toggleAvailability } = useMenuStore()
   const { categories, fetchCategories } = useCategoryStore()
@@ -229,7 +231,7 @@ export function MenuPage() {
           <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">{t('menuManagementSub')}</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <Link to="/menu/categories"
+          <Link to="/categories"
             className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:border-brand-orange hover:text-brand-orange transition dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">
             <Utensils size={14} /> {t('categoryManagement')}
           </Link>
