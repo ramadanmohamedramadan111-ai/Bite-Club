@@ -15,6 +15,24 @@ class OrderObserver
     ) {}
 
     /**
+     * Handle the Order "created" event.
+     */
+    public function created(Order $order): void
+    {
+        $pendingCopy = \App\Models\OrderCopy::where('copied_by_user_id', $order->user_id)
+            ->whereNull('copied_order_id')
+            ->where('status', \App\Enums\Social\OrderCopyStatusEnum::PENDING->value)
+            ->whereHas('originalOrder', function ($query) use ($order) {
+                $query->where('restaurant_id', $order->restaurant_id);
+            })
+            ->first();
+
+        if ($pendingCopy) {
+            $pendingCopy->update(['copied_order_id' => $order->id]);
+        }
+    }
+
+    /**
      * Handle the Order "updated" event.
      */
     public function updated(Order $order): void

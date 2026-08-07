@@ -16,7 +16,7 @@ class OrderCopyDomainService
 {
     public function copyOrder(int $postId, int $userId): array
     {
-        $post = Post::with('order.items')->find($postId);
+        $post = Post::with(['order.items', 'order.restaurant.setting', 'order.restaurant.openingHours'])->find($postId);
 
         if (!$post) {
             throw new Exception(trans('social.post_not_found') ?? 'Post not found.');
@@ -30,6 +30,12 @@ class OrderCopyDomainService
 
         if (!$originalOrder) {
             throw new Exception(trans('social.original_order_not_found') ?? 'Original order not found.');
+        }
+
+        $restaurant = $originalOrder->restaurant;
+
+        if (!$restaurant || !$restaurant->isOpenNow()) {
+            throw new Exception(trans('order.restaurant_closed') ?? 'Restaurant is currently closed.');
         }
 
         return DB::transaction(function () use ($post, $originalOrder, $userId) {
