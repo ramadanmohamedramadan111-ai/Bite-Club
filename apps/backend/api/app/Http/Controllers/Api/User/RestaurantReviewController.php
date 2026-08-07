@@ -123,4 +123,20 @@ class RestaurantReviewController extends Controller
             return $this->serverErrorResponse($e->getMessage());
         }
     }
+
+    public function friendsReviews(IndexReviewRequest $request): JsonResponse
+    {
+        try {
+            $dto = IndexReviewDto::fromValidatedRequest($request);
+            $result = $this->appService->listFriendsReviews($dto);
+
+            return $this->successResponse(
+                trans('restaurant_review.listed'),
+                $result
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to list friends reviews: ' . $e->getMessage());
+            return $this->serverErrorResponse($e->getMessage());
+        }
+    }
 }

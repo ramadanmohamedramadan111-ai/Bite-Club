@@ -112,6 +112,7 @@ Route::prefix('user')->name('user.')->group(function () {
             Route::put('/', [UserRestaurantReviewController::class, 'update']);
             Route::delete('/', [UserRestaurantReviewController::class, 'destroy']);
         });
+        Route::get('restaurants/{restaurantId}/friends-reviews', [UserRestaurantReviewController::class, 'friendsReviews']);
 
         // Cart
         Route::prefix('cart')->group(function () {

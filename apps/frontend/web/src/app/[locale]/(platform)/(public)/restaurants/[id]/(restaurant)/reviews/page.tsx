@@ -6,16 +6,33 @@ import RestaurantReviewCard from '@/components/restaurants/RestaurantReviewCard'
 import RestaurantReviewsClient from '@/components/restaurants/RestaurantReviewsClient';
 import { serverFetch } from '@/utils/server-fetch';
 import { ApiResponse, PaginatedResponse } from '@/types/api';
-import { RestaurantReview, RestaurantType, RestaurantReviewUser } from '@/types/restaurant';
+import { RestaurantReview, RestaurantType, RestaurantReviewUser, FriendsReviewsResponseData } from '@/types/restaurant';
 import { buildQueryString, getUserId } from '@/utils/api-helpers';
 import AppPagination from '@/components/shared/AppPagination';
-import { parseSearchParams, PaginatedParams } from '@/utils/validate-search-params';
+import { parseSearchParams } from '@/utils/validate-search-params';
 import InvalidSearchParams from '@/components/errors/InvalidSearchParams';
 import { Separator } from '@/components/ui/separator';
+import { Link } from '@/i18n/navigation';
+import { cn } from '@/lib/utils';
+import { z } from 'zod';
+
+const ReviewsPageParams = z.object({
+  page: z.coerce.number().int().positive().optional(),
+  per_page: z.coerce.number().int().positive().optional(),
+  friends_page: z.coerce.number().int().positive().optional(),
+  friends_per_page: z.coerce.number().int().positive().optional(),
+  type: z.enum(['all', 'friends']).optional(),
+});
 
 type PageProps = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ page?: string; per_page?: string }>;
+  searchParams: Promise<{
+    page?: string;
+    per_page?: string;
+    friends_page?: string;
+    friends_per_page?: string;
+    type?: string;
+  }>;
 };
 
 export default async function RestaurantReviewsPage({
@@ -23,13 +40,20 @@ export default async function RestaurantReviewsPage({
   searchParams,
 }: PageProps) {
   const t = await getTranslations('restaurants');
+  const tReviews = await getTranslations('reviews');
   const { id } = await params;
   const raw = await searchParams;
-  const parsed = parseSearchParams(PaginatedParams, raw);
+  const parsed = parseSearchParams(ReviewsPageParams, raw);
   if (!parsed.success) return <InvalidSearchParams />;
   
   // Default to 10 reviews per page as requested by user
-  const { page = '1', per_page = '10' } = parsed.data;
+  const {
+    page = 1,
+    per_page = 10,
+    friends_page = 1,
+    friends_per_page = 10,
+    type = 'all',
+  } = parsed.data;
 
   const data = await serverFetch<ApiResponse<RestaurantType>>(
     `/user/restaurants/${id}`,
@@ -52,6 +76,7 @@ export default async function RestaurantReviewsPage({
   const token = cookieStore.get('accessToken')?.value || null;
 
   const userId = await getUserId();
+  const activeTab = token && type === 'friends' ? 'friends' : 'all';
 
   // Fetch my review if logged in
   let myReview: RestaurantReviewUser | null = null;
@@ -75,8 +100,8 @@ export default async function RestaurantReviewsPage({
   }
 
   const query = buildQueryString({
-    page,
-    per_page,
+    page: page.toString(),
+    per_page: per_page.toString(),
   });
 
   const reviewsData = await serverFetch<
@@ -94,6 +119,54 @@ export default async function RestaurantReviewsPage({
     (review) => !myReview || review.id !== myReview.id,
   );
 
+  // Fetch friends reviews if logged in
+  let friendsReviews: RestaurantReview[] = [];
+  let friendsMeta = { current_page: 1, last_page: 1, per_page: 10, total: 0 };
+  let friendsSummary = { total_reviews: 0, average_rating: 0 };
+
+  if (token) {
+    try {
+      const friendsQuery = buildQueryString({
+        page: friends_page.toString(),
+        per_page: friends_per_page.toString(),
+      });
+      const friendsReviewsResponse = await serverFetch<
+        ApiResponse<FriendsReviewsResponseData>
+      >(`/user/restaurants/${id}/friends-reviews${friendsQuery}`, 'GET', {
+        next: {
+          tags: [`restaurant-friends-reviews-${id}-${userId}`],
+        },
+      });
+      if (friendsReviewsResponse.success && friendsReviewsResponse.data) {
+        friendsReviews = friendsReviewsResponse.data.items;
+        friendsMeta = friendsReviewsResponse.data.meta;
+        friendsSummary = friendsReviewsResponse.data.summary;
+      }
+    } catch (e) {
+      console.error('Failed to fetch friends reviews', e);
+    }
+  }
+
+  const otherFriendsReviews = friendsReviews.filter(
+    (review) => !myReview || review.id !== myReview.id,
+  );
+
+  const allReviewsHref = buildQueryString({
+    type: 'all',
+    page: page.toString(),
+    per_page: per_page.toString(),
+    friends_page: friends_page.toString(),
+    friends_per_page: friends_per_page.toString(),
+  });
+
+  const friendsReviewsHref = buildQueryString({
+    type: 'friends',
+    page: page.toString(),
+    per_page: per_page.toString(),
+    friends_page: friends_page.toString(),
+    friends_per_page: friends_per_page.toString(),
+  });
+
   return (
     <div className="space-y-6">
       {/* Interactive User Review Section */}
@@ -105,43 +178,105 @@ export default async function RestaurantReviewsPage({
 
       <Separator className="border-border/40" />
 
-      {/* Reviews Header Info */}
-      <div>
-        <h2 className="text-xl font-bold text-foreground">{t('reviewsTitle')}</h2>
-        <p className="text-sm text-muted-foreground mt-0.5">
-          {t('reviewsDesc', {
-            total: restaurant.reviews_count,
-            rating: restaurant.average_rating,
-          })}
-        </p>
-      </div>
-
-      {/* Other Reviews List */}
-      {otherReviews.length > 0 ? (
-        <div className="space-y-4">
-          {otherReviews.map((review) => (
-            <RestaurantReviewCard key={review.id} review={review} />
-          ))}
-        </div>
-      ) : (
-        <div className="flex min-h-40 flex-col items-center justify-center rounded-xl border border-dashed border-border/70 p-8 text-center bg-muted/20">
-          <p className="font-semibold text-sm text-muted-foreground">{t('noReviews')}</p>
-          <p className="mt-1 text-xs text-muted-foreground/80">
-            {t('beFirstReview')}
-          </p>
-        </div>
+      {/* Tab Switcher Navigation */}
+      {token && (
+        <nav className="flex gap-1 rounded-lg border bg-muted/40 p-1 max-w-xs">
+          <Link
+            href={friendsReviewsHref}
+            className={cn(
+              'flex-1 rounded-md px-4 py-2 text-center text-sm font-medium transition',
+              activeTab === 'friends'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground',
+            )}>
+            {tReviews('friendsReviews')}
+          </Link>
+          <Link
+            href={allReviewsHref}
+            className={cn(
+              'flex-1 rounded-md px-4 py-2 text-center text-sm font-medium transition',
+              activeTab === 'all'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground',
+            )}>
+            {tReviews('allReviews')}
+          </Link>
+        </nav>
       )}
 
-      {/* Pagination */}
-      <AppPagination
-        currentPage={meta.current_page}
-        totalPages={meta.last_page}
-      />
+      {activeTab === 'friends' ? (
+        /* Friends Reviews Tab Content */
+        <div className="space-y-6">
+          <div>
+            <p className="text-sm font-medium text-foreground">
+              {tReviews('reviewsSummary', {
+                total: friendsSummary.total_reviews,
+                rating: friendsSummary.average_rating.toFixed(1),
+              })}
+            </p>
+          </div>
+
+          {otherFriendsReviews.length > 0 ? (
+            <div className="space-y-4">
+              {otherFriendsReviews.map((review) => (
+                <RestaurantReviewCard key={review.id} review={review} />
+              ))}
+            </div>
+          ) : (
+            <div className="flex min-h-40 flex-col items-center justify-center rounded-xl border border-dashed border-border/70 p-8 text-center bg-muted/20">
+              <p className="font-semibold text-sm text-muted-foreground">
+                {tReviews('noFriendsReviews')}
+              </p>
+            </div>
+          )}
+
+          {friendsMeta.last_page > 1 && (
+            <AppPagination
+              currentPage={friendsMeta.current_page}
+              totalPages={friendsMeta.last_page}
+              pageParamName="friends_page"
+            />
+          )}
+        </div>
+      ) : (
+        /* All Reviews Tab Content */
+        <div className="space-y-6">
+          <div>
+            <p className="text-sm font-medium text-foreground">
+              {tReviews('reviewsSummary', {
+                total: restaurant.reviews_count,
+                rating: restaurant.average_rating.toFixed(1),
+              })}
+            </p>
+          </div>
+
+          {otherReviews.length > 0 ? (
+            <div className="space-y-4">
+              {otherReviews.map((review) => (
+                <RestaurantReviewCard key={review.id} review={review} />
+              ))}
+            </div>
+          ) : (
+            <div className="flex min-h-40 flex-col items-center justify-center rounded-xl border border-dashed border-border/70 p-8 text-center bg-muted/20">
+              <p className="font-semibold text-sm text-muted-foreground">{t('noReviews')}</p>
+              <p className="mt-1 text-xs text-muted-foreground/80">
+                {t('beFirstReview')}
+              </p>
+            </div>
+          )}
+
+          {meta.last_page > 1 && (
+            <AppPagination
+              currentPage={meta.current_page}
+              totalPages={meta.last_page}
+              pageParamName="page"
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }
-
-
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;

@@ -60,6 +60,47 @@ class RestaurantReviewRepository extends BaseRepository implements RestaurantRev
         ];
     }
 
+    public function listFriendsReviewsByRestaurant(int $restaurantId, array $friendIds, array $filters): array
+    {
+        $query = $this->query()
+            ->with(['user' => function($q) {
+                $q->select('id', 'first_name', 'last_name', 'profile_image_url');
+            }])
+            ->where('restaurant_id', $restaurantId)
+            ->whereIn('user_id', $friendIds)
+            ->orderBy('id', 'desc');
+
+        $perPage = isset($filters['per_page']) ? (int) $filters['per_page'] : 15;
+        $paginator = $query->paginate($perPage);
+
+        return [
+            'items' => collect($paginator->items()),
+            'meta'  => [
+                'current_page' => $paginator->currentPage(),
+                'last_page'    => $paginator->lastPage(),
+                'per_page'     => $paginator->perPage(),
+                'total'        => $paginator->total(),
+            ],
+        ];
+    }
+
+    public function calculateFriendsAverageRatingAndCount(int $restaurantId, array $friendIds): array
+    {
+        $result = $this->query()
+            ->where('restaurant_id', $restaurantId)
+            ->whereIn('user_id', $friendIds)
+            ->select(
+                DB::raw('COUNT(id) as total_count'),
+                DB::raw('AVG(rating) as average_rating')
+            )
+            ->first();
+
+        return [
+            'count'   => (int) ($result->total_count ?? 0),
+            'average' => (float) ($result->average_rating ?? 0.0),
+        ];
+    }
+
     public function update(int $id, array $attributes): bool
     {
         if (empty($attributes)) {

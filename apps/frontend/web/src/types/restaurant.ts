@@ -21,6 +21,20 @@ export interface RestaurantReviewUser extends RestaurantReviewCreateResponse {
   updated_at: string;
 }
 
+export type FriendsReviewsResponseData = {
+  summary: {
+    total_reviews: number;
+    average_rating: number;
+  };
+  items: RestaurantReview[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+  };
+};
+
 export interface RestaurantCategory {
   id: number;
   name: string;

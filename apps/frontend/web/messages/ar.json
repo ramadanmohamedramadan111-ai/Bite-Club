@@ -1152,7 +1152,13 @@
     "deleteReviewSuccess": "تم حذف التقييم بنجاح!",
     "ratingRequired": "يرجى تحديد التقييم",
     "averageRating": "متوسط التقييم",
-    "reviewPlaceholder": "لا يوجد تعليق."
+    "reviewPlaceholder": "لا يوجد تعليق.",
+    "friendsReviews": "تقييمات الأصدقاء",
+    "friendsReviewsCount": "{total} تقييم إجمالي • متوسط التقييم {rating}",
+    "noFriendsReviews": "لم يقم أي من أصدقائك بتقييم هذا المطعم بعد.",
+    "allReviews": "كل التقييمات",
+    "allReviewsCount": "{total} تقييم إجمالي • متوسط التقييم {rating}",
+    "reviewsSummary": "{total} تقييم • ★ {rating}"
   },
   "terms": {
     "title": "شروط الخدمة",

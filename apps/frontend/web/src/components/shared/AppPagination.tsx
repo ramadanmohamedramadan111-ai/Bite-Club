@@ -17,11 +17,13 @@ import { getLangDir } from 'rtl-detect';
 type AppPaginationProps = {
   currentPage: number;
   totalPages: number;
+  pageParamName?: string;
 };
 
 export default function AppPagination({
   currentPage,
   totalPages,
+  pageParamName = 'page',
 }: AppPaginationProps) {
   const t = useTranslations('pagination');
   const locale = useLocale();
@@ -36,7 +38,7 @@ export default function AppPagination({
   function navigate(page: number) {
     const params = new URLSearchParams(searchParams);
 
-    params.set('page', page.toString());
+    params.set(pageParamName, page.toString());
 
     router.push(`${pathname}?${params.toString()}`);
   }

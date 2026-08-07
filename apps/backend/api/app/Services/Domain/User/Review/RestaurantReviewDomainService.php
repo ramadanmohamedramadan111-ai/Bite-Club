@@ -64,6 +64,16 @@ class RestaurantReviewDomainService
         return $this->reviewRepository->listByRestaurant($restaurantId, $filters);
     }
 
+    public function listFriendsReviews(int $restaurantId, array $friendIds, array $filters): array
+    {
+        return $this->reviewRepository->listFriendsReviewsByRestaurant($restaurantId, $friendIds, $filters);
+    }
+
+    public function calculateFriendsStats(int $restaurantId, array $friendIds): array
+    {
+        return $this->reviewRepository->calculateFriendsAverageRatingAndCount($restaurantId, $friendIds);
+    }
+
     public function updateRestaurantStats(int $restaurantId): void
     {
         $stats = $this->reviewRepository->calculateAverageRatingAndCount($restaurantId);

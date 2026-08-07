@@ -1153,7 +1153,13 @@
     "deleteReviewSuccess": "Review deleted successfully!",
     "ratingRequired": "Please select a rating",
     "averageRating": "Average Rating",
-    "reviewPlaceholder": "No comment provided."
+    "reviewPlaceholder": "No comment provided.",
+    "friendsReviews": "Friends Reviews",
+    "friendsReviewsCount": "{total} total reviews • Average rating {rating}",
+    "noFriendsReviews": "None of your friends have reviewed this restaurant yet.",
+    "allReviews": "All Reviews",
+    "allReviewsCount": "{total} total reviews • Average rating {rating}",
+    "reviewsSummary": "{total} Reviews • ★ {rating}"
   },
   "terms": {
     "title": "Terms of Service",
