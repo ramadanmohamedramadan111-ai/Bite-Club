@@ -23,15 +23,21 @@ const PAGE_SIZE = 5
 
 const getImageUrl = (url?: string | null) => {
   if (!url) return ''
-  try {
-    if (url.startsWith('http://') || url.startsWith('https://')) {
+  
+  let path = url
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    try {
       const parsed = new URL(url)
-      return parsed.pathname
+      path = parsed.pathname
+    } catch (e) {
+      console.error(e)
     }
-  } catch (e) {
-    console.error(e)
   }
-  return url
+  
+  const apiBase = import.meta.env.VITE_API_BASE_URL || ''
+  const backendBase = apiBase.replace(/\/backend\/?$/, '').replace(/\/api\/?$/, '')
+  const cleanPath = path.startsWith('/') ? path : `/${path}`
+  return `${backendBase}${cleanPath}`
 }
 
 export function CategoriesPage() {
