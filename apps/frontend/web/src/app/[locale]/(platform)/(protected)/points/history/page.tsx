@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { redirect } from '@/i18n/navigation';
 
 type PageProps = {
@@ -15,7 +16,11 @@ export default async function Page({ params, searchParams }: PageProps) {
   redirect({ href: dest, locale });
 }
 
-export const metadata: Metadata = {
-  title: "Redirecting... | Bite Club",
-  description: "Redirecting to rewards page.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
+  return {
+    title: t('pointsHistory.title'),
+    description: t('pointsHistory.description'),
+  };
+}

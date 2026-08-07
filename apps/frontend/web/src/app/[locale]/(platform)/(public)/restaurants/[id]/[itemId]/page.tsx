@@ -5,13 +5,15 @@ import { ApiResponse, PaginatedResponse } from '@/types/api';
 import { MenuItems, MenuItem, RestaurantType, ClientMenuItem } from '@/types/restaurant';
 import ItemDetailPage from '@/components/restaurants/ItemDetailPage';
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 
 type PageProps = {
-  params: Promise<{ id: string; itemId: string }>;
+  params: Promise<{ locale: string; id: string; itemId: string }>;
 };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { id, itemId } = await params;
+  const { locale, id, itemId } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
 
   try {
     const restaurantRes = await serverFetch<ApiResponse<RestaurantType>>(
@@ -28,12 +30,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     if (!menuItem) return {};
 
+    const title = t('menuItem.title', { item: menuItem.title, restaurant: restaurant.name });
+    const description = t('menuItem.description', { description: menuItem.description || '' });
+
     return {
-      title: `${menuItem.title} - ${restaurant.name}`,
-      description: menuItem.description,
+      title,
+      description,
       openGraph: {
-        title: `${menuItem.title} - ${restaurant.name}`,
-        description: menuItem.description,
+        title,
+        description,
         images: menuItem.image_url ? [{ url: menuItem.image_url }] : [],
       },
     };

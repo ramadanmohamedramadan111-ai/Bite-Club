@@ -7,9 +7,10 @@ import type { GroupOrderHistory } from '@/types/group-order';
 import GroupHistoryTab from '@/components/groups/GroupHistoryTab';
 import { parseSearchParams, PaginatedParams } from '@/utils/validate-search-params';
 import InvalidSearchParams from '@/components/errors/InvalidSearchParams';
+import { getTranslations } from 'next-intl/server';
 
 type PageProps = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ locale: string; id: string }>;
   searchParams: Promise<{
     page?: string;
     per_page?: string;
@@ -40,21 +41,22 @@ export default async function GroupHistoryPage({
 
 
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
-  const { id } = await params;
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; id: string }> }): Promise<Metadata> {
+  const { locale, id } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
   try {
     const res = await serverFetch<ApiResponse<GroupType>>(`/groups/${id}`);
     const group = res?.data;
     if (group) {
       return {
-        title: `${group.name} Order History | Bite Club`,
-        description: `Order history of the food group ${group.name} on Bite Club.`,
+        title: t('groupHistory.title', { group: group.name }),
+        description: t('groupHistory.description', { group: group.name }),
       };
     }
   } catch (e) {
     // Fail silently
   }
   return {
-    title: "Group Order History | Bite Club",
+    title: t('groupHistory.fallbackTitle'),
   };
 }

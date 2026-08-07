@@ -51,7 +51,11 @@ export default async function EditProfilePage() {
 }
 
 
-export const metadata: Metadata = {
-  title: "Edit Profile Details | Bite Club",
-  description: "Update your name, contact information, and personal settings.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
+  return {
+    title: t('profileEdit.title'),
+    description: t('profileEdit.description'),
+  };
+}

@@ -1,5 +1,189 @@
 {
   "greeting": "Hello",
+  "Metadata": {
+    "siteTitle": "Bite Club - Social Food & Group Ordering",
+    "siteDescription": "The social food ordering platform. Start group orders with friends, split costs, share posts, and earn daily rewards.",
+    "home": {
+      "title": "Bite Club - Social Food & Group Ordering",
+      "description": "The social food ordering app. Start group orders with friends, split costs, share posts, and earn daily rewards."
+    },
+    "login": {
+      "title": "Login | Bite Club",
+      "description": "Access your Bite Club account to order delicious meals from local restaurants and check on active group order sessions."
+    },
+    "register": {
+      "title": "Register | Bite Club",
+      "description": "Join Bite Club today! Create an account to order individually, start group orders with friends, and earn loyalty rewards."
+    },
+    "restaurantRegister": {
+      "title": "Partner Registration | Bite Club",
+      "description": "Register your restaurant with Bite Club to reach more customers, receive online orders, and boost your sales."
+    },
+    "forgotPassword": {
+      "title": "Forgot Password | Bite Club",
+      "description": "Reset your Bite Club account password securely."
+    },
+    "notFound": {
+      "title": "Page Not Found | Bite Club",
+      "description": "The page you are looking for does not exist on Bite Club."
+    },
+    "cart": {
+      "title": "My Cart | Bite Club",
+      "description": "Review items in your individual shopping cart before checking out."
+    },
+    "checkout": {
+      "title": "Checkout | Bite Club",
+      "description": "Complete your individual or group order checkout on Bite Club safely and securely."
+    },
+    "settings": {
+      "title": "Account Settings | Bite Club",
+      "description": "Configure your account settings, localization preferences, and notifications."
+    },
+    "privacyPolicy": {
+      "title": "Privacy Policy | Bite Club",
+      "description": "Learn how Bite Club collects, uses, and protects your personal data."
+    },
+    "termsOfService": {
+      "title": "Terms of Service | Bite Club",
+      "description": "Read the terms and conditions for using Bite Club."
+    },
+    "favorites": {
+      "title": "My Favorites | Bite Club",
+      "description": "Your favorite restaurants and dishes, handpicked and saved for quick access on Bite Club."
+    },
+    "notifications": {
+      "title": "Notifications | Bite Club",
+      "description": "Stay updated with group order status changes, friend requests, and updates."
+    },
+    "profile": {
+      "title": "My Account Profile | Bite Club",
+      "description": "Manage your Bite Club profile details, address, and preferences."
+    },
+    "profileEdit": {
+      "title": "Edit Profile Details | Bite Club",
+      "description": "Update your name, contact information, and personal settings."
+    },
+    "ordersActive": {
+      "title": "Active Orders Tracking | Bite Club",
+      "description": "Monitor the real-time progress and status of your ongoing orders."
+    },
+    "ordersPast": {
+      "title": "Past Orders History | Bite Club",
+      "description": "Browse and reorder from your past culinary choices on Bite Club."
+    },
+    "orderDetail": {
+      "title": "Order #{id} Details - {restaurant} | Bite Club",
+      "description": "Track your order from {restaurant}. Status: {status}. Total: {total} EGP.",
+      "fallbackTitle": "Order Details | Bite Club"
+    },
+    "groups": {
+      "title": "My Groups & Teams | Bite Club",
+      "description": "Create or manage your food ordering groups to split costs and order together."
+    },
+    "groupDetail": {
+      "title": "{group} | Bite Club",
+      "description": "View details of the food group {group} on Bite Club.",
+      "fallbackTitle": "Group Details | Bite Club"
+    },
+    "groupSettings": {
+      "title": "{group} Settings | Bite Club",
+      "description": "Manage settings for the food group {group} on Bite Club.",
+      "fallbackTitle": "Group Settings | Bite Club"
+    },
+    "groupHistory": {
+      "title": "{group} Order History | Bite Club",
+      "description": "Order history of the food group {group} on Bite Club.",
+      "fallbackTitle": "Group Order History | Bite Club"
+    },
+    "groupMembers": {
+      "title": "Redirecting... | Bite Club",
+      "description": "Redirecting to group details page."
+    },
+    "groupInvite": {
+      "title": "Join {group} | Bite Club",
+      "description": "{description}",
+      "fallbackTitle": "Group Invitation | Bite Club"
+    },
+    "friends": {
+      "title": "My Connections | Bite Club",
+      "description": "View and manage your network of friends on Bite Club."
+    },
+    "friendsSent": {
+      "title": "Sent Friend Requests | Bite Club",
+      "description": "Track your pending sent friend requests on Bite Club."
+    },
+    "friendsReceived": {
+      "title": "Received Friend Requests | Bite Club",
+      "description": "Manage your incoming friend requests on Bite Club."
+    },
+    "friendsDiscover": {
+      "title": "Discover Friends | Bite Club",
+      "description": "Find and connect with fellow foodies and friends on Bite Club."
+    },
+    "points": {
+      "title": "Bite Rewards | Bite Club",
+      "description": "Check your points balance, daily streaks, unlocked badges, and exchange them for gifts."
+    },
+    "pointsHistory": {
+      "title": "Redirecting... | Bite Club",
+      "description": "Redirecting to rewards page."
+    },
+    "referrals": {
+      "title": "Referrals Program | Bite Club",
+      "description": "Invite friends to Bite Club and earn points when they place their first order."
+    },
+    "postsFeed": {
+      "title": "Posts Feed | Bite Club",
+      "description": "Check out food posts and shared meals from the Bite Club community."
+    },
+    "createPost": {
+      "title": "Create Post | Bite Club",
+      "description": "Share a food post or a group order with the Bite Club community."
+    },
+    "postDetail": {
+      "title": "{user}'s Post | Bite Club",
+      "description": "{description}",
+      "fallbackTitle": "Post Details | Bite Club",
+      "fallbackDescription": "Check out this post on Bite Club."
+    },
+    "leaderboard": {
+      "title": "Gourmet Leaderboard | Bite Club",
+      "description": "See the top foodies and restaurant leaders on Bite Club."
+    },
+    "browseRestaurants": {
+      "title": "Browse Restaurants | Bite Club",
+      "description": "Explore top restaurants near you, check ratings, menus, and find your next favorite meal."
+    },
+    "restaurantMenu": {
+      "title": "{restaurant} Menu | Bite Club",
+      "description": "Order delicious food from {restaurant} on Bite Club. {description}",
+      "fallbackTitle": "Restaurant Menu | Bite Club"
+    },
+    "restaurantReviews": {
+      "title": "{restaurant} Reviews | Bite Club",
+      "description": "Read customer reviews and ratings for {restaurant} on Bite Club.",
+      "fallbackTitle": "Restaurant Reviews | Bite Club"
+    },
+    "restaurantInfo": {
+      "title": "{restaurant} Information | Bite Club",
+      "description": "Get address, phone number, location, and opening hours for {restaurant} on Bite Club.",
+      "fallbackTitle": "Restaurant Info | Bite Club"
+    },
+    "menuItem": {
+      "title": "{item} - {restaurant}",
+      "description": "{description}"
+    },
+    "groupOrder": {
+      "title": "Group Order - {restaurant} | Bite Club",
+      "description": "Join group order at {restaurant} on Bite Club. Status: {status}",
+      "fallbackTitle": "Group Order Session | Bite Club"
+    },
+    "groupOrderCheckout": {
+      "title": "Checkout Group Order - {restaurant} | Bite Club",
+      "description": "Complete checkout for group order from {restaurant}.",
+      "fallbackTitle": "Group Order Checkout | Bite Club"
+    }
+  },
   "notFound": {
     "title": "Sorry, we couldn't find the page you're looking for.",
     "description": "The page may have been moved, deleted, or the URL might be incorrect.",
@@ -37,6 +221,10 @@
     "cancelOrderTitle": "Cancel this order?",
     "cancelOrderDesc": "Are you sure you want to cancel this order? This action cannot be undone.",
     "cancelOrderConfirm": "Yes, cancel order",
+    "refundOrder": "Cancel & Refund",
+    "refundOrderTitle": "Cancel and refund this order?",
+    "refundOrderDesc": "This will cancel your order and issue a refund to your payment method. This action cannot be undone.",
+    "refundOrderConfirm": "Yes, cancel & refund",
     "orderCancelled": "Order cancelled",
     "goBack": "Go Back",
     "search": "Search...",
@@ -1042,6 +1230,7 @@
     "failedToFetchPreview": "Failed to fetch pickup preview.",
     "orderPlaced": "Order placed successfully!",
     "failedToPlaceOrder": "Failed to place order.",
+    "onlinePaymentNotActivated": "Online payment is not activated for this restaurant.",
     "noAddressForDelivery": "Please select a delivery address before placing your order.",
     "orderSummary": "Order Summary",
     "groupOrderSummary": "Group order summary",

@@ -4,7 +4,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { NextIntlClientProvider } from 'next-intl';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
-import { getMessages } from 'next-intl/server';
+import { getMessages, getTranslations } from 'next-intl/server';
 import NextTopLoader from 'nextjs-toploader';
 import { getLangDir } from 'rtl-detect';
 import NextLoader from 'nextjs-rtl-loader';
@@ -17,13 +17,17 @@ import { GoogleMapsProvider } from '@/providers/GoogleMapProvider';
 import SessionProvider from '@/providers/SessionProvider';
 import NotificationProvider from '@/providers/NotificationProvider';
 
-export const metadata: Metadata = {
-  title: 'Bite Club - Social Food & Group Ordering',
-  description: 'The social food ordering platform. Start group orders with friends, split costs, share posts, and earn daily rewards.',
-  icons: {
-    icon: '/logo.png',
-  },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
+  return {
+    title: t('siteTitle'),
+    description: t('siteDescription'),
+    icons: {
+      icon: '/logo.png',
+    },
+  };
+}
 
 type Props = {
   children: React.ReactNode;

@@ -3,7 +3,7 @@
 import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
 import { Card } from '@/components/ui/card';
-import { Star } from 'lucide-react';
+import { Star, Store } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { RestaurantType } from '@/types/restaurant';
 
@@ -20,13 +20,19 @@ export default function RestaurantCard({ restaurant }: Props) {
       {/* Cover Image Container */}
       <div className="relative w-full h-40 overflow-hidden bg-muted">
         <Link href={`/restaurants/${restaurant.id}`} className="block h-full w-full">
-          <Image
-            src={restaurant.cover_image_url || restaurant.logo_url}
-            alt={restaurant.name}
-            width={400}
-            height={240}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
+          {restaurant.cover_image_url || restaurant.logo_url ? (
+            <Image
+              src={restaurant.cover_image_url || restaurant.logo_url}
+              alt={restaurant.name}
+              width={400}
+              height={240}
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-muted">
+              <Store className="size-10 text-muted-foreground/40" />
+            </div>
+          )}
         </Link>
 
 
@@ -50,13 +56,19 @@ export default function RestaurantCard({ restaurant }: Props) {
       {/* Floating Logo Overlay */}
       <div className="relative px-4">
         <div className="absolute -top-7 left-4 z-10 flex size-14 items-center justify-center rounded-xl border-2 border-background bg-background shadow-md overflow-hidden">
-          <Image
-            src={restaurant.logo_url}
-            alt={`${restaurant.name} Logo`}
-            width={56}
-            height={56}
-            className="h-full w-full object-cover"
-          />
+          {restaurant.logo_url ? (
+            <Image
+              src={restaurant.logo_url}
+              alt={`${restaurant.name} Logo`}
+              width={56}
+              height={56}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-muted">
+              <Store className="size-6 text-muted-foreground/40" />
+            </div>
+          )}
         </div>
       </div>
 

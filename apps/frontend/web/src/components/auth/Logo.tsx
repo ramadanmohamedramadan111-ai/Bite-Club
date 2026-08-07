@@ -1,8 +1,13 @@
 import React from 'react';
 import { TypographyH1 } from '../typography/h1';
-import { Link } from '@/i18n/navigation';
 
 export default function Logo() {
-  return <TypographyH1 className="text-primary mb-4">BiteClub</TypographyH1>;
+  return (
+    <div className="mb-4 flex items-center justify-center gap-3">
+      <div className="flex aspect-square size-10 items-center justify-center overflow-hidden">
+        <img src="/logo.png" alt="Bite Club" className="size-full object-cover" />
+      </div>
+      <TypographyH1 className="text-primary">BiteClub</TypographyH1>
+    </div>
+  );
 }
-

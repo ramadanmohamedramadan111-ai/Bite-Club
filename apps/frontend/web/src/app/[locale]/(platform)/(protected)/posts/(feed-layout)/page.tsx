@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import PostsFeed from '@/components/posts/PostsFeed';
 
 export default function PostsPage() {
@@ -7,7 +8,11 @@ export default function PostsPage() {
 
 
 
-export const metadata: Metadata = {
-  title: "Posts Feed | Bite Club",
-  description: "Check out food posts and shared meals from the Bite Club community.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
+  return {
+    title: t('postsFeed.title'),
+    description: t('postsFeed.description'),
+  };
+}

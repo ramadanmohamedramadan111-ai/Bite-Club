@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import LegalPageView from '@/components/legal/LegalPageView';
 
 export default function PrivacyPolicyPage() {
@@ -6,7 +7,11 @@ export default function PrivacyPolicyPage() {
 }
 
 
-export const metadata: Metadata = {
-  title: "Privacy Policy | Bite Club",
-  description: "Learn how Bite Club collects, uses, and protects your personal data.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
+  return {
+    title: t('privacyPolicy.title'),
+    description: t('privacyPolicy.description'),
+  };
+}

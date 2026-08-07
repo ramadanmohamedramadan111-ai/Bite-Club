@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 type PageProps = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ locale: string; id: string }>;
 };
 
 export default async function Page({ params }: PageProps) {
@@ -110,21 +110,22 @@ export default async function Page({ params }: PageProps) {
 
 
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
-  const { id } = await params;
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; id: string }> }): Promise<Metadata> {
+  const { locale, id } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
   try {
     const res = await serverFetch<ApiResponse<GroupOrderCartSession>>(`/user/group-orders/${id}`);
     const cart = res?.data;
     if (cart) {
       return {
-        title: `Group Order - ${cart.restaurant.name} | Bite Club`,
-        description: `Join group order at ${cart.restaurant.name} on Bite Club. Status: ${cart.status}`,
+        title: t('groupOrder.title', { restaurant: cart.restaurant.name }),
+        description: t('groupOrder.description', { restaurant: cart.restaurant.name, status: cart.status }),
       };
     }
   } catch (e) {
     // Fail silently
   }
   return {
-    title: "Group Order Session | Bite Club",
+    title: t('groupOrder.fallbackTitle'),
   };
 }

@@ -1,6 +1,5 @@
 'use client';
 
-import { Bold } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export function GlobalLoader() {
@@ -11,11 +10,6 @@ export function GlobalLoader() {
       <div className="relative flex items-center justify-center">
         {/* Outer rotating gradient border */}
         <div className="h-16 w-16 rounded-full border-2 border-transparent border-t-primary border-r-orange-500 animate-spin" />
-        
-        {/* Inner pulsating logo */}
-        <div className="absolute flex aspect-square size-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-orange-600 text-primary-foreground shadow-sm animate-pulse">
-          <Bold className="size-4.5" />
-        </div>
       </div>
       
       {/* Decorative text */}

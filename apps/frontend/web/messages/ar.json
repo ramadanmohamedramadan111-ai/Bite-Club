@@ -1,5 +1,189 @@
 {
   "greeting": "مرحباً",
+  "Metadata": {
+    "siteTitle": "BiteClub - طلب طعام اجتماعي وجماعي",
+    "siteDescription": "منصة طلب الطعام الاجتماعي. ابدأ طلبات جماعية مع الأصدقاء، وشارك التكاليف، وشارك المنشورات، واكسب مكافآت يومية.",
+    "home": {
+      "title": "BiteClub - طلب طعام اجتماعي وجماعي",
+      "description": "تطبيق طلب الطعام الاجتماعي. ابدأ طلبات جماعية مع الأصدقاء، وشارك التكاليف، وشارك المنشورات، واكسب مكافآت يومية."
+    },
+    "login": {
+      "title": "تسجيل الدخول | BiteClub",
+      "description": "سجّل الدخول إلى حسابك في BiteClub لطلب وجبات لذيذة من المطاعم المحلية ومتابعة جلسات الطلب الجماعي النشطة."
+    },
+    "register": {
+      "title": "إنشاء حساب | BiteClub",
+      "description": "انضم إلى BiteClub اليوم! أنشئ حساباً للطلب بشكل فردي، أو ابدأ طلبات جماعية مع الأصدقاء، واكسب مكافآت الولاء."
+    },
+    "restaurantRegister": {
+      "title": "تسجيل الشركاء | BiteClub",
+      "description": "سجّل مطعمك في BiteClub للوصول إلى مزيد من العملاء، واستقبال الطلبات عبر الإنترنت، وزيادة مبيعاتك."
+    },
+    "forgotPassword": {
+      "title": "نسيت كلمة المرور | BiteClub",
+      "description": "أعد تعيين كلمة مرور حسابك في BiteClub بأمان."
+    },
+    "notFound": {
+      "title": "الصفحة غير موجودة | BiteClub",
+      "description": "الصفحة التي تبحث عنها غير موجودة في BiteClub."
+    },
+    "cart": {
+      "title": "سلة التسوق | BiteClub",
+      "description": "راجع العناصر في سلة التسوق الفردية قبل إتمام الطلب."
+    },
+    "checkout": {
+      "title": "إتمام الطلب | BiteClub",
+      "description": "أكمل إتمام طلبك الفردي أو الجماعي على BiteClub بأمان."
+    },
+    "settings": {
+      "title": "إعدادات الحساب | BiteClub",
+      "description": "اضبط إعدادات حسابك وتفضيلات اللغة والإشعارات."
+    },
+    "privacyPolicy": {
+      "title": "سياسة الخصوصية | BiteClub",
+      "description": "تعرّف على كيفية جمع BiteClub لبياناتك الشخصية واستخدامها وحمايتها."
+    },
+    "termsOfService": {
+      "title": "شروط الاستخدام | BiteClub",
+      "description": "اقرأ الشروط والأحكام الخاصة باستخدام BiteClub."
+    },
+    "favorites": {
+      "title": "المفضلة | BiteClub",
+      "description": "مطاعمك وأطباقك المفضلة، محفوظة للوصول السريع على BiteClub."
+    },
+    "notifications": {
+      "title": "الإشعارات | BiteClub",
+      "description": "ابقَ على اطلاع بتغييرات حالة الطلبات الجماعية وطلبات الصداقة والتحديثات."
+    },
+    "profile": {
+      "title": "ملفي الشخصي | BiteClub",
+      "description": "أدر تفاصيل ملفك الشخصي وعنوانك وتفضيلاتك على BiteClub."
+    },
+    "profileEdit": {
+      "title": "تعديل بيانات الملف | BiteClub",
+      "description": "حدّث اسمك ومعلومات الاتصال وإعداداتك الشخصية."
+    },
+    "ordersActive": {
+      "title": "تتبع الطلبات النشطة | BiteClub",
+      "description": "راقب تقدم وأحوال طلباتك الجارية في الوقت الفعلي."
+    },
+    "ordersPast": {
+      "title": "سجل الطلبات السابقة | BiteClub",
+      "description": "تصفح الطلبات السابقة وأعد طلبها من خياراتك السابقة على BiteClub."
+    },
+    "orderDetail": {
+      "title": "تفاصيل الطلب {id} - {restaurant} | BiteClub",
+      "description": "تتبع طلبك من {restaurant}. الحالة: {status}. الإجمالي: {total} ج.م.",
+      "fallbackTitle": "تفاصيل الطلب | BiteClub"
+    },
+    "groups": {
+      "title": "مجموعاتي وفرقي | BiteClub",
+      "description": "أنشئ أو أدر مجموعات طلب الطعام الخاصة بك لتقسيم التكاليف والطلب معاً."
+    },
+    "groupDetail": {
+      "title": "{group} | BiteClub",
+      "description": "اعرض تفاصيل مجموعة الطعام {group} على BiteClub.",
+      "fallbackTitle": "تفاصيل المجموعة | BiteClub"
+    },
+    "groupSettings": {
+      "title": "إعدادات {group} | BiteClub",
+      "description": "أدر إعدادات مجموعة الطعام {group} على BiteClub.",
+      "fallbackTitle": "إعدادات المجموعة | BiteClub"
+    },
+    "groupHistory": {
+      "title": "سجل طلبات {group} | BiteClub",
+      "description": "سجل طلبات مجموعة الطعام {group} على BiteClub.",
+      "fallbackTitle": "سجل طلبات المجموعة | BiteClub"
+    },
+    "groupMembers": {
+      "title": "جاري التوجيه... | BiteClub",
+      "description": "جاري التوجيه إلى صفحة تفاصيل المجموعة."
+    },
+    "groupInvite": {
+      "title": "انضم إلى {group} | BiteClub",
+      "description": "{description}",
+      "fallbackTitle": "دعوة مجموعة | BiteClub"
+    },
+    "friends": {
+      "title": "اتصالاتي | BiteClub",
+      "description": "اعرض وأدر شبكة أصدقائك على BiteClub."
+    },
+    "friendsSent": {
+      "title": "طلبات الصداقة المرسلة | BiteClub",
+      "description": "تابع طلبات الصداقة المرسلة المعلّقة على BiteClub."
+    },
+    "friendsReceived": {
+      "title": "طلبات الصداقة المستلمة | BiteClub",
+      "description": "أدر طلبات الصداقة الواردة على BiteClub."
+    },
+    "friendsDiscover": {
+      "title": "اكتشاف الأصدقاء | BiteClub",
+      "description": "ابحث وتواصل مع محبي الطعام والأصدقاء على BiteClub."
+    },
+    "points": {
+      "title": "مكافآت بيت | BiteClub",
+      "description": "تحقق من رصيد نقاطك وسلاسلك اليومية والشارات المفتوحة وبدّلها بجوائز."
+    },
+    "pointsHistory": {
+      "title": "جاري التوجيه... | BiteClub",
+      "description": "جاري التوجيه إلى صفحة المكافآت."
+    },
+    "referrals": {
+      "title": "برنامج الدعوات | BiteClub",
+      "description": "ادعُ أصدقاءك إلى BiteClub واكسب نقاطاً عند تقديم طلبهم الأول."
+    },
+    "postsFeed": {
+      "title": "خلاصة المنشورات | BiteClub",
+      "description": "تصفح منشورات الطعام والوجبات المشتركة من مجتمع BiteClub."
+    },
+    "createPost": {
+      "title": "إنشاء منشور | BiteClub",
+      "description": "شارك منشوراً عن الطعام أو طلباً جماعياً مع مجتمع BiteClub."
+    },
+    "postDetail": {
+      "title": "منشور {user} | BiteClub",
+      "description": "{description}",
+      "fallbackTitle": "تفاصيل المنشور | BiteClub",
+      "fallbackDescription": "شاهد هذا المنشور على BiteClub."
+    },
+    "leaderboard": {
+      "title": "لوحة المتصدرين | BiteClub",
+      "description": "شاهد أفضل محبي الطعام والمطاعم الرائدة على BiteClub."
+    },
+    "browseRestaurants": {
+      "title": "تصفح المطاعم | BiteClub",
+      "description": "استكشف أفضل المطاعم القريبة منك، وتفحص التقييمات والقوائم، واعثر على وجبتك المفضلة القادمة."
+    },
+    "restaurantMenu": {
+      "title": "قائمة {restaurant} | BiteClub",
+      "description": "اطلب طعاماً لذيذاً من {restaurant} على BiteClub. {description}",
+      "fallbackTitle": "قائمة المطعم | BiteClub"
+    },
+    "restaurantReviews": {
+      "title": "تقييمات {restaurant} | BiteClub",
+      "description": "اقرأ تقييمات وآراء العملاء حول {restaurant} على BiteClub.",
+      "fallbackTitle": "تقييمات المطعم | BiteClub"
+    },
+    "restaurantInfo": {
+      "title": "معلومات {restaurant} | BiteClub",
+      "description": "احصل على العنوان ورقم الهاتف والموقع وساعات العمل لـ {restaurant} على BiteClub.",
+      "fallbackTitle": "معلومات المطعم | BiteClub"
+    },
+    "menuItem": {
+      "title": "{item} - {restaurant}",
+      "description": "{description}"
+    },
+    "groupOrder": {
+      "title": "طلب جماعي - {restaurant} | BiteClub",
+      "description": "انضم إلى الطلب الجماعي في {restaurant} على BiteClub. الحالة: {status}",
+      "fallbackTitle": "جلسة الطلب الجماعي | BiteClub"
+    },
+    "groupOrderCheckout": {
+      "title": "إتمام الطلب الجماعي - {restaurant} | BiteClub",
+      "description": "أكمل إتمام الطلب الجماعي من {restaurant}.",
+      "fallbackTitle": "إتمام الطلب الجماعي | BiteClub"
+    }
+  },
   "notFound": {
     "title": "عذراً، لم نتمكن من العثور على الصفحة التي تبحث عنها.",
     "description": "ربما تم نقل الصفحة أو حذفها أو أن الرابط غير صحيح.",
@@ -37,6 +221,10 @@
     "cancelOrderTitle": "إلغاء هذا الطلب؟",
     "cancelOrderDesc": "هل أنت متأكد من رغبتك في إلغاء هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.",
     "cancelOrderConfirm": "نعم، إلغاء الطلب",
+    "refundOrder": "إلغاء واسترداد",
+    "refundOrderTitle": "إلغاء هذا الطلب واسترداد المبلغ؟",
+    "refundOrderDesc": "سيؤدي هذا إلى إلغاء طلبك وإصدار استرداد لطريقة الدفع الخاصة بك. لا يمكن التراجع عن هذا الإجراء.",
+    "refundOrderConfirm": "نعم، إلغاء واسترداد",
     "orderCancelled": "تم إلغاء الطلب",
     "goBack": "العودة للخلف",
     "search": "بحث...",
@@ -1042,6 +1230,7 @@
     "failedToFetchPreview": "فشل جلب معاينة الاستلام.",
     "orderPlaced": "تم تقديم الطلب بنجاح!",
     "failedToPlaceOrder": "فشل تقديم الطلب.",
+    "onlinePaymentNotActivated": "الدفع الإلكتروني غير مفعل لهذا المطعم.",
     "noAddressForDelivery": "يرجى اختيار عنوان توصيل قبل تقديم الطلب.",
     "orderSummary": "ملخص الطلب",
     "groupOrderSummary": "ملخص طلب المجموعة",

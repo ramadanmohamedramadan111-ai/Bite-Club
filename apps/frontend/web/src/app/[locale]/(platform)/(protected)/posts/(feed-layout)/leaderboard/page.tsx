@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { serverFetch } from '@/utils/server-fetch';
 import type { ApiResponse } from '@/types/api';
 import type { LeaderBoardItem } from '@/types/posts';
@@ -19,7 +20,11 @@ export default async function LeaderboardPage() {
 
 
 
-export const metadata: Metadata = {
-  title: "Gourmet Leaderboard | Bite Club",
-  description: "See the top foodies and restaurant leaders on Bite Club.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
+  return {
+    title: t('leaderboard.title'),
+    description: t('leaderboard.description'),
+  };
+}

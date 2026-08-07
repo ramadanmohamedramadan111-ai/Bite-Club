@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import LegalPageView from '@/components/legal/LegalPageView';
 
 export default function TermsOfServicePage() {
@@ -6,7 +7,11 @@ export default function TermsOfServicePage() {
 }
 
 
-export const metadata: Metadata = {
-  title: "Terms of Service | Bite Club",
-  description: "Read the terms and conditions for using Bite Club.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
+  return {
+    title: t('termsOfService.title'),
+    description: t('termsOfService.description'),
+  };
+}

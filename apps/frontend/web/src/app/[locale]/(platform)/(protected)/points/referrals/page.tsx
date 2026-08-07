@@ -118,7 +118,11 @@ export default async function ReferralsPage({
 
 
 
-export const metadata: Metadata = {
-  title: "Referrals Program | Bite Club",
-  description: "Invite friends to Bite Club and earn points when they place their first order.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
+  return {
+    title: t('referrals.title'),
+    description: t('referrals.description'),
+  };
+}

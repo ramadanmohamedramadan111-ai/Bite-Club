@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { XCircle, ShoppingBag, Eye } from 'lucide-react';
+import { XCircle, ShoppingBag, Eye, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAction } from 'next-safe-action/hooks';
 import { Link } from '@/i18n/navigation';
@@ -52,7 +52,11 @@ export default function OrderCard({ order }: { order: OrderResponse }) {
   const hasFullCashPayment = order.payments?.some(
     (p) => p.payment_method === 'cash',
   );
+  const hasOnlinePayment = order.payments?.some(
+    (p) => p.payment_method === 'online',
+  );
   const showCancel = isPending && hasFullCashPayment;
+  const showRefund = isPending && hasOnlinePayment;
 
   const initials = order.restaurant.name.charAt(0).toUpperCase();
 
@@ -118,14 +122,26 @@ export default function OrderCard({ order }: { order: OrderResponse }) {
                 {t('cancelOrder')}
               </Button>
             )}
+
+            {showRefund && (
+              <Button
+                variant="destructive"
+                size="sm"
+                className="gap-1.5 rounded-lg cursor-pointer"
+                onClick={() => setCancelDialogOpen(true)}
+              >
+                <RotateCcw className="size-4" />
+                {t('refundOrder')}
+              </Button>
+            )}
           </div>
 
           <ConfirmDialog
             open={cancelDialogOpen}
             onOpenChange={setCancelDialogOpen}
-            title={t('cancelOrderTitle')}
-            description={t('cancelOrderDesc')}
-            confirmText={t('cancelOrderConfirm')}
+            title={showRefund ? t('refundOrderTitle') : t('cancelOrderTitle')}
+            description={showRefund ? t('refundOrderDesc') : t('cancelOrderDesc')}
+            confirmText={showRefund ? t('refundOrderConfirm') : t('cancelOrderConfirm')}
             cancelText={t('goBack')}
             onConfirm={() => executeCancel(order.id)}
             isLoading={isCancelling}

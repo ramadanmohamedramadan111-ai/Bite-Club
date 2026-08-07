@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import NotificationsPageView from '@/components/notifications/NotificationsPageView';
 import { serverFetch } from '@/utils/server-fetch';
 import { ApiResponse, PaginatedResponse } from '@/types/api';
@@ -49,7 +50,11 @@ export default async function NotificationsPage({ searchParams }: PageProps) {
   );
 }
 
-export const metadata: Metadata = {
-  title: "Notifications | Bite Club",
-  description: "Stay updated with group order status changes, friend requests, and updates.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
+  return {
+    title: t('notifications.title'),
+    description: t('notifications.description'),
+  };
+}

@@ -10,7 +10,7 @@ import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 
 interface OrderDetailPageProps {
-  params: Promise<{ orderId: string }>;
+  params: Promise<{ locale: string; orderId: string }>;
 }
 
 export default async function OrderDetailPage({
@@ -53,21 +53,22 @@ export default async function OrderDetailPage({
 
 
 
-export async function generateMetadata({ params }: { params: Promise<{ orderId: string }> }): Promise<Metadata> {
-  const { orderId } = await params;
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; orderId: string }> }): Promise<Metadata> {
+  const { locale, orderId } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
   try {
     const res = await serverFetch<ApiResponse<OrderDetails>>(`/user/orders/${orderId}`);
     const order = res?.data;
     if (order) {
       return {
-        title: `Order #${order.id} Details - ${order.restaurant.name} | Bite Club`,
-        description: `Track your order from ${order.restaurant.name}. Status: ${order.status}. Total: ${order.financials.total} EGP.`,
+        title: t('orderDetail.title', { id: order.id, restaurant: order.restaurant.name }),
+        description: t('orderDetail.description', { restaurant: order.restaurant.name, status: order.status, total: order.financials.total }),
       };
     }
   } catch (e) {
     // Fail silently
   }
   return {
-    title: "Order Details | Bite Club",
+    title: t('orderDetail.fallbackTitle'),
   };
 }

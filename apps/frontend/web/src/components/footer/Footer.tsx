@@ -41,7 +41,7 @@ export default function Footer() {
             <Link
               href="/"
               className="flex items-center gap-2.5 transition-transform duration-200 hover:-translate-y-0.5 w-fit">
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg overflow-hidden border border-primary/15 bg-primary/5 shadow-sm">
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg overflow-hidden">
                 <img src="/logo.png" alt="Bite Club" className="size-full object-cover" />
               </div>
               <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-primary to-orange-500 bg-clip-text text-transparent">
