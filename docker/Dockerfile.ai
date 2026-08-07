@@ -5,6 +5,6 @@ RUN apt-get update && apt-get install -y gcc pkg-config default-libmysqlclient-d
 WORKDIR /app
 
 COPY requirements.txt* ./
-RUN pip install --no-cache-dir -r requirements.txt 2>/dev/null || pip install django djangorestframework mysqlclient
+RUN pip install --no-cache-dir -r requirements.txt 2>/dev/null || pip install "django<5.1" djangorestframework mysqlclient
 
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000", "--noreload"]
