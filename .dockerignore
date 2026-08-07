@@ -3,6 +3,6 @@
 **/dist
 **/build
 **/.git
-**/.env
+
 **/*.log
 apps/backend/api/storage/framework/testing/disks
