@@ -9,16 +9,6 @@ export type ReviewExportItem = {
   date: string
 }
 
-export type CustomerExportItem = {
-  name: string
-  email: string
-  phone: string
-  orders: number
-  spend: number
-  lastOrder: string
-  segment: string
-}
-
 export type ExportOrderLineItem = {
   name: string
   qty: number
@@ -46,6 +36,5 @@ export type ExportDashboardPdfOptions = {
   title: string
   report?: AiReport | null
   reviews?: ReviewExportItem[] | null
-  customers?: CustomerExportItem[] | null
   order?: ExportOrder | null
 }

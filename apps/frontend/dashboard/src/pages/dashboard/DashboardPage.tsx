@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import {
-  CreditCard, ShoppingBag, Zap, Clock,
+  AlertCircle, CreditCard, ShoppingBag, Zap, Clock,
 } from 'lucide-react'
 import { useDashboardAnalytics } from '../../hooks/useDashboardAnalytics'
 import { useExportDashboardPdf } from '../../hooks/useExportDashboardPdf'
@@ -44,7 +44,7 @@ export function DashboardPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [period, setPeriod] = useState<Period>('week')
-  const { analytics, loading } = useDashboardAnalytics(period as DashboardPeriod)
+  const { analytics, loading, error } = useDashboardAnalytics(period as DashboardPeriod)
   const { exportPdf, isExporting } = useExportDashboardPdf()
 
   const stats = useMemo(() => {
@@ -99,6 +99,13 @@ export function DashboardPage() {
           </button>
         </div>
       </div>
+
+      {error && (
+        <div className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-400">
+          <AlertCircle size={16} className="mt-0.5 shrink-0" />
+          <p>{error}</p>
+        </div>
+      )}
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-4  xl:grid-cols-4">

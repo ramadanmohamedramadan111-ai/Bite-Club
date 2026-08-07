@@ -17,7 +17,7 @@ function formatCurrency(value: number) {
 export function useExportDashboardPdf() {
   const [isExporting, setIsExporting] = useState(false)
 
-  const exportPdf = useCallback(async ({ analytics, period, title, report, reviews, customers, order }: ExportDashboardPdfOptions) => {
+  const exportPdf = useCallback(async ({ analytics, period, title, report, reviews, order }: ExportDashboardPdfOptions) => {
     setIsExporting(true)
 
     try {
@@ -148,29 +148,6 @@ export function useExportDashboardPdf() {
                 </table>
               </div>
             ` : ''}
-            ${customers && customers.length > 0 ? `
-              <div class="card">
-                <h3>Customers</h3>
-                <table>
-                  <thead>
-                    <tr><th>Name</th><th>Email</th><th>Phone</th><th>Orders</th><th>Spend</th><th>Last Order</th><th>Segment</th></tr>
-                  </thead>
-                  <tbody>
-                    ${customers.map((item) => `
-                      <tr>
-                        <td>${escapeHtml(item.name)}</td>
-                        <td>${escapeHtml(item.email)}</td>
-                        <td>${escapeHtml(item.phone)}</td>
-                        <td>${escapeHtml(item.orders)}</td>
-                        <td>${escapeHtml(formatCurrency(item.spend))}</td>
-                        <td>${escapeHtml(item.lastOrder)}</td>
-                        <td>${escapeHtml(item.segment)}</td>
-                      </tr>
-                    `).join('')}
-                  </tbody>
-                </table>
-              </div>
-            ` : ''}
             ${analytics ? `
               <div class="card">
                 <div class="row"><strong>Revenue:</strong> <span>${escapeHtml(formatCurrency(analytics.summary.revenue))}</span></div>
@@ -217,7 +194,7 @@ export function useExportDashboardPdf() {
                 </div>
               ` : ''}
             ` : ''}
-            ${!report && (!reviews || reviews.length === 0) && (!customers || customers.length === 0) && !analytics && !order ? `<div class="card"><p>No data was available for this export.</p></div>` : ''}
+            ${!report && (!reviews || reviews.length === 0) && !analytics && !order ? `<div class="card"><p>No data was available for this export.</p></div>` : ''}
           </body>
         </html>
       `

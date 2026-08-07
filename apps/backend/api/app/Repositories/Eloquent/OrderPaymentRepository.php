@@ -29,6 +29,13 @@ class OrderPaymentRepository extends BaseRepository implements OrderPaymentRepos
             ->exists();
     }
 
+    public function getOnlinePayment(int $orderId)
+    {
+        return $this->model->where('order_id', $orderId)
+            ->where('payment_method', PaymentMethodEnum::ONLINE->value)
+            ->first();
+    }
+
     public function updatePendingPaymentsStatus(int $orderId, string $status)
     {
         return $this->model->where('order_id', $orderId)

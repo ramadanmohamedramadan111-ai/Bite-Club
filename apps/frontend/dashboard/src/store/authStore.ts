@@ -16,6 +16,7 @@ type AuthState = {
   token: string | null
   restaurant: Restaurant | null
   login: (token: string, restaurant: Restaurant) => void
+  setToken: (token: string) => void
   logout: () => void
 }
 
@@ -26,6 +27,7 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       restaurant: null,
       login: (token, restaurant) => set({ isAuthenticated: true, token, restaurant }),
+      setToken: (token) => set({ token }),
       logout: () => set({ isAuthenticated: false, token: null, restaurant: null }),
     }),
     {

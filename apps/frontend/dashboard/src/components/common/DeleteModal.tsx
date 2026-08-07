@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Trash2 } from 'lucide-react'
+import { AlertCircle, Trash2 } from 'lucide-react'
 
 interface DeleteModalProps {
   isOpen: boolean
@@ -8,15 +8,17 @@ interface DeleteModalProps {
   title?: string
   itemName: string
   description?: string
+  error?: string | null
 }
 
-export function DeleteModal({ 
-  isOpen, 
-  onClose, 
-  onConfirm, 
-  title, 
-  itemName, 
-  description 
+export function DeleteModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  itemName,
+  description,
+  error
 }: DeleteModalProps) {
   const { t } = useTranslation()
 
@@ -36,7 +38,14 @@ export function DeleteModal({
             {description || t('deleteItemConfirm', 'Are you sure you want to delete')} "{itemName}"?
           </p>
         </div>
-        
+
+        {error && (
+          <div className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 mb-4 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-400">
+            <AlertCircle size={16} className="mt-0.5 shrink-0" />
+            <p className="whitespace-pre-line">{error}</p>
+          </div>
+        )}
+
         <div className="flex gap-3">
           <button
             onClick={onClose}

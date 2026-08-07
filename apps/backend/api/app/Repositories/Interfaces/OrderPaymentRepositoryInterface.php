@@ -6,6 +6,7 @@ interface OrderPaymentRepositoryInterface extends BaseRepositoryInterface
 {
     public function findPendingOnlinePaymentByOrderId(int $orderId);
     public function hasOnlinePayment(int $orderId): bool;
+    public function getOnlinePayment(int $orderId);
     public function updatePendingPaymentsStatus(int $orderId, string $status);
     public function listRestaurantPayments(int $restaurantId, array $filters, int $perPage = 15): array;
     public function getRestaurantStatistics(int $restaurantId): array;

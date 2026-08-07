@@ -1,6 +1,6 @@
-import { Globe, Menu, Moon, Search, SunMedium, X } from 'lucide-react'
+import { Globe, Menu, Moon, SunMedium } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { type ShellProps } from '../../App'
 import Logo from '../../assets/images/logo.svg'
 import { NotificationDropdown } from './NotificationDropdown'
@@ -9,17 +9,6 @@ type HeaderProps = ShellProps & { onMenuToggle: () => void }
 
 export function Header({ theme, toggleTheme, toggleLanguage, onMenuToggle }: HeaderProps) {
   const { t } = useTranslation()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const query = searchParams.get('q') || ''
-
-  const handleSearch = (val: string) => {
-    if (val) {
-      searchParams.set('q', val)
-    } else {
-      searchParams.delete('q')
-    }
-    setSearchParams(searchParams)
-  }
 
   return (
     <header className="flex items-center gap-3 border-b border-gray-100 bg-white px-4 py-3 sm:px-6 sm:py-4 dark:border-slate-700 dark:bg-slate-900">
@@ -30,24 +19,8 @@ export function Header({ theme, toggleTheme, toggleLanguage, onMenuToggle }: Hea
         </div>
       </div>
 
-      {/* Search */}
-      <div className="hidden sm:flex flex-1 items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 focus-within:border-brand-orange focus-within:bg-white focus-within:ring-2 focus-within:ring-brand-orange/15 transition dark:border-slate-700 dark:bg-slate-800 dark:focus-within:bg-slate-800">
-        <Search size={16} className="shrink-0 text-gray-400" />
-        <input
-          value={query}
-          onChange={(e) => handleSearch(e.target.value)}
-          className="w-full bg-transparent text-sm text-gray-700 outline-none placeholder:text-gray-400 dark:text-slate-200 dark:placeholder:text-slate-500"
-          placeholder={t('searchPlaceholder')}
-        />
-        {query && (
-          <button onClick={() => handleSearch('')} className="text-gray-400 hover:text-gray-600 transition dark:hover:text-slate-300">
-            <X size={14} />
-          </button>
-        )}
-      </div>
-
       {/* Actions */}
-      <div className="flex items-center gap-1.5 sm:gap-2 ms-auto lg:ms-0">
+      <div className="flex items-center gap-1.5 sm:gap-2 ms-auto">
 
         <NotificationDropdown />
 

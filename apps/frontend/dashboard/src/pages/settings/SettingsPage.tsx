@@ -29,6 +29,9 @@ export function SettingsPage() {
   const [logoFile, setLogoFile]     = useState<File | null>(null)
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
   const logoInputRef = useRef<HTMLInputElement>(null)
+  const [coverFile, setCoverFile]     = useState<File | null>(null)
+  const [coverPreview, setCoverPreview] = useState<string | null>(null)
+  const coverInputRef = useRef<HTMLInputElement>(null)
 
   // local editable fields
   const [name, setName]             = useState('')
@@ -56,6 +59,12 @@ export function SettingsPage() {
     if (file) setLogoPreview(URL.createObjectURL(file))
   }
 
+  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null
+    setCoverFile(file)
+    if (file) setCoverPreview(URL.createObjectURL(file))
+  }
+
   const handleDiscard = () => {
     if (!profile) return
     setName(profile.name)
@@ -64,6 +73,8 @@ export function SettingsPage() {
     setAddress(profile.address)
     setLogoFile(null)
     setLogoPreview(null)
+    setCoverFile(null)
+    setCoverPreview(null)
   }
 
   const handleSaveProfile = async () => {
@@ -75,10 +86,13 @@ export function SettingsPage() {
         phone_number: phone,
         address,
         logo: logoFile,
+        cover_image: coverFile,
       })
       setProfile(updated)
       setLogoFile(null)
       setLogoPreview(null)
+      setCoverFile(null)
+      setCoverPreview(null)
       toast.success(t('saveChanges') + ' ✓')
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t('errorOccurred'))
@@ -336,6 +350,43 @@ export function SettingsPage() {
                   />
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Cover Image */}
+          {!isLoading && (
+            <div className="flex flex-col gap-3">
+              <label className="text-xs font-semibold text-gray-500 dark:text-slate-400">
+                {t('coverImage')}
+              </label>
+              <div className="relative h-32 w-full sm:h-40 rounded-2xl bg-orange-50 dark:bg-slate-800 border-2 border-dashed border-brand-orange/30 overflow-hidden flex items-center justify-center">
+                {coverPreview || profile?.cover_image_url ? (
+                  <img
+                    src={coverPreview ?? profile?.cover_image_url ?? ''}
+                    alt="cover"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <Store size={32} className="text-brand-orange/40" />
+                )}
+                <button
+                  type="button"
+                  onClick={() => coverInputRef.current?.click()}
+                  className="absolute bottom-3 end-3 flex items-center gap-1.5 rounded-lg bg-white/90 dark:bg-slate-900/90 px-3 py-1.5 text-xs font-bold text-brand-orange hover:bg-white dark:hover:bg-slate-900 uppercase tracking-wider shadow-sm"
+                >
+                  <Upload size={12} /> {t('changeCoverPhoto')}
+                </button>
+              </div>
+              <input
+                ref={coverInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleCoverChange}
+                className="hidden"
+              />
+              {coverFile && (
+                <p className="text-[10px] text-gray-400 truncate">{coverFile.name}</p>
+              )}
             </div>
           )}
         </div>

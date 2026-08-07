@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { ArrowLeft, ArrowRight, Eye, EyeOff, Lock, Mail, Moon, SunMedium } from 'lucide-react'
+import { AlertCircle, ArrowLeft, ArrowRight, Eye, EyeOff, Lock, Mail, Moon, SunMedium } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
 import { loginSchema, type LoginFormValues } from '../../lib/validation'
@@ -25,6 +25,7 @@ export function LoginPage({ theme, toggleTheme, language, toggleLanguage, onForg
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Partial<Record<keyof LoginFormValues, string>>>({})
+  const [loginError, setLoginError] = useState<string | null>(null)
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -40,6 +41,7 @@ export function LoginPage({ theme, toggleTheme, language, toggleLanguage, onForg
     }
 
     setErrors({})
+    setLoginError(null)
     setIsLoading(true)
 
     try {
@@ -48,6 +50,7 @@ export function LoginPage({ theme, toggleTheme, language, toggleLanguage, onForg
       toast.success(t('success'))
     } catch (error) {
       const message = error instanceof Error ? error.message : t('loginError')
+      setLoginError(message)
       toast.error(message)
     } finally {
       setIsLoading(false)
@@ -146,6 +149,14 @@ export function LoginPage({ theme, toggleTheme, language, toggleLanguage, onForg
                 {t('remember')}
               </label>
             </div>
+
+            {/* Login error */}
+            {loginError && (
+              <div className="flex items-start gap-2.5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-400">
+                <AlertCircle size={18} className="mt-0.5 shrink-0" />
+                <p>{loginError}</p>
+              </div>
+            )}
 
             {/* Submit */}
             <button

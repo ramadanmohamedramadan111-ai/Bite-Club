@@ -33,15 +33,19 @@ export function OrderTrackingPage() {
   const { id } = useParams<{ id: string }>()
 
   const { exportPdf, isExporting } = useExportDashboardPdf()
-  const { orders: liveOrders, historyOrders, fetchLiveOrders } = useOrderStore()
+  const { orders: liveOrders, historyOrders, fetchLiveOrders, fetchHistoryOrders } = useOrderStore()
 
   const apiOrder = liveOrders.find(o => o.id.toString() === id) || historyOrders.find(o => o.id.toString() === id)
 
   useEffect(() => {
     if (!apiOrder && id) {
-       fetchLiveOrders()
+      // The order might be a live order or a completed/historical one (e.g. a direct link,
+      // page refresh, or shared URL landing here without the History tab ever being visited) —
+      // check both so this doesn't spin forever when it's a historical order.
+      fetchLiveOrders()
+      fetchHistoryOrders(1, { search: id })
     }
-  }, [id, apiOrder, fetchLiveOrders])
+  }, [id, apiOrder, fetchLiveOrders, fetchHistoryOrders])
 
   const [currentStatus, setCurrentStatus] = useState<string>('')
   const [availableStatuses, setAvailableStatuses] = useState<string[]>([])
@@ -158,7 +162,6 @@ export function OrderTrackingPage() {
             title: `${t('order', 'Order')} ${order.id}`,
             analytics: null,
             reviews: null,
-            customers: null,
             order: {
               id: order.id,
               status: currentStatus,
