@@ -15,9 +15,17 @@ services:
       command: python -u manage.py runserver 0.0.0.0:8000 --noreload
 
 
-  dashboard: {}
+  dashboard:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dashboard.prod
+    volumes: []
 
-  admin: {}
+  admin:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.admin.prod
+    volumes: []
 
   worker:
     build:
