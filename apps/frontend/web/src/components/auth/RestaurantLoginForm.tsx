@@ -29,7 +29,7 @@ export default function RestaurantLoginForm({
 
         <CardContent className="flex flex-col gap-4">
           <Link
-            href="http://dashboard.biteclub.test:8080"
+            href="http://13.60.162.150:5173/"
             className="flex h-10 w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
             {t('dashboardLink.text')}
           </Link>

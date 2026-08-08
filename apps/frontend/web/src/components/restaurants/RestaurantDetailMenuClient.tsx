@@ -92,7 +92,6 @@ export default function RestaurantDetailMenuClient({
       price: Number(item.price),
       categories: [categoryTitle],
       likesCount: 0,
-      preparationTime: 15,
       available: item.is_available,
       image: item.image_url || '/storage/restaurants/restaurant.jpeg',
       options: [], // Options will be customized in client dialog

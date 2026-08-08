@@ -22,6 +22,26 @@ export default function ReferralLinkSection({
     try {
       await navigator.clipboard.writeText(referralLink);
       toast.success(t('linkCopied'));
+      return;
+    } catch {
+      // Clipboard API requires a secure context; fall back for plain HTTP.
+    }
+
+    try {
+      const textarea = document.createElement('textarea');
+      textarea.value = referralLink;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      const copied = document.execCommand('copy');
+      document.body.removeChild(textarea);
+      if (copied) {
+        toast.success(t('linkCopied'));
+      } else {
+        toast.error(t('linkCopyFailed'));
+      }
     } catch {
       toast.error(t('linkCopyFailed'));
     }

@@ -69,7 +69,7 @@ export function GamificationPanel() {
     : null;
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="max-h-[65vh] space-y-4 overflow-y-auto p-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold">{t('yourRewards')}</h3>
         <span className="relative">

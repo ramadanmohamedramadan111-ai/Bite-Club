@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { XCircle, ShoppingBag, Eye, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAction } from 'next-safe-action/hooks';
@@ -15,8 +15,8 @@ import { OrderStatusBadge } from './OrderStatusBadge';
 import { getMediaUrl } from '@/lib/utils';
 import Image from 'next/image';
 
-function formatOrderDate(date: string) {
-  return new Intl.DateTimeFormat('en-US', {
+function formatOrderDate(date: string, locale: string) {
+  return new Intl.DateTimeFormat(locale, {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
@@ -33,6 +33,7 @@ function formatItemsInline(order: OrderResponse) {
 
 export default function OrderCard({ order }: { order: OrderResponse }) {
   const t = useTranslations('common');
+  const locale = useLocale();
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
 
   const { execute: executeCancel, isExecuting: isCancelling } = useAction(
@@ -43,7 +44,7 @@ export default function OrderCard({ order }: { order: OrderResponse }) {
       },
       onError: ({ error }) => {
         console.log('ERROR', error);
-        toast.error(error.serverError?.message ?? 'Failed to cancel order');
+        toast.error(error.serverError?.message ?? t('cancelFailed'));
       },
     },
   );
@@ -55,7 +56,7 @@ export default function OrderCard({ order }: { order: OrderResponse }) {
   const hasOnlinePayment = order.payments?.some(
     (p) => p.payment_method === 'online',
   );
-  const showCancel = isPending && hasFullCashPayment;
+  const showCancel = isPending && hasFullCashPayment && !hasOnlinePayment;
   const showRefund = isPending && hasOnlinePayment;
 
   const initials = order.restaurant.name.charAt(0).toUpperCase();
@@ -83,7 +84,7 @@ export default function OrderCard({ order }: { order: OrderResponse }) {
             <div>
               <h4 className="font-bold text-base text-foreground leading-tight">{order.restaurant.name}</h4>
               <p className="text-xs text-muted-foreground mt-1">
-                {order.time_ago || formatOrderDate(order.created_at)}
+                {order.time_ago || formatOrderDate(order.created_at, locale)}
               </p>
             </div>
             <OrderStatusBadge status={order.status} className="shrink-0" />
@@ -92,10 +93,16 @@ export default function OrderCard({ order }: { order: OrderResponse }) {
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <span className="inline-flex items-center gap-1 rounded-md bg-accent/60 px-2 py-0.5 font-semibold text-muted-foreground capitalize">
               <ShoppingBag className="size-3" />
-              <span>{order.order_type}</span>
+              <span>
+                {order.order_type === 'delivery'
+                  ? t('delivery')
+                  : order.order_type === 'pickup'
+                    ? t('pickup')
+                    : order.order_type}
+              </span>
             </span>
             <span className="font-bold text-foreground bg-primary/5 text-primary border border-primary/10 rounded-md px-2 py-0.5">
-              {order.financials.total} EGP
+              {order.financials.total} {t('egp')}
             </span>
           </div>
 

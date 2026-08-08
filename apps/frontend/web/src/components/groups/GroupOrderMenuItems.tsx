@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
-import { Clock, Minus, Plus, Search } from 'lucide-react';
+import { Minus, Plus, Search } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -231,12 +231,6 @@ export default function GroupOrderMenuItems({ sessionId, menuGroups }: Props) {
                         <p className="line-clamp-2 text-sm text-muted-foreground">
                           {item.description || ''}
                         </p>
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                          <span className="inline-flex items-center gap-1">
-                            <Clock className="size-3.5" />
-                            {t('deliveryTime', { time: 15 })}
-                          </span>
-                        </div>
                       </div>
                     </button>
                   ))}
@@ -291,9 +285,6 @@ export default function GroupOrderMenuItems({ sessionId, menuGroups }: Props) {
               </div>
               <p className="text-sm text-muted-foreground">
                 {selectedItem?.description}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {t('prepTime', { time: 15 })}
               </p>
             </div>
 

@@ -12,6 +12,7 @@ import {
   XCircle,
   Clock,
   ReceiptText,
+  RotateCcw,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAction } from 'next-safe-action/hooks';
@@ -101,10 +102,15 @@ export default function OrderDetailPageView({
   const hasFullCashPayment = order.payments?.some(
     (p) => p.payment_method === 'cash',
   );
-  const showCancel = isPending && hasFullCashPayment;
+  const hasOnlinePayment = order.payments?.some(
+    (p) => p.payment_method === 'online',
+  );
+  const showCancel = isPending && hasFullCashPayment && !hasOnlinePayment;
+  const showRefund = isPending && hasOnlinePayment;
 
-  function paymentLabel(method: string) {
-    if (method === 'visa') return tc('visaCard');
+  function paymentLabel(method: string, orderType: string) {
+    if (method === 'online') return tc('onlinePayment');
+    if (orderType === 'pickup') return tc('cashOnPickup');
     return tc('cashOnDelivery');
   }
 
@@ -147,6 +153,16 @@ export default function OrderDetailPageView({
               onClick={() => setCancelDialogOpen(true)}>
               <XCircle className="size-4" />
               {tc('cancelOrder')}
+            </Button>
+          )}
+          {showRefund && (
+            <Button
+              variant="destructive"
+              size="sm"
+              className="gap-1.5 rounded-xl cursor-pointer"
+              onClick={() => setCancelDialogOpen(true)}>
+              <RotateCcw className="size-4" />
+              {tc('refundOrder')}
             </Button>
           )}
         </div>
@@ -319,21 +335,31 @@ export default function OrderDetailPageView({
                 <span>{t('payment')}</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-5">
-              <div className="flex items-center gap-3 text-sm font-semibold text-foreground/90">
-                <div className="flex size-9 items-center justify-center rounded-lg bg-accent text-muted-foreground border border-border/30 shrink-0">
-                  {order.payments[0]?.payment_method === 'visa' ? (
-                    <CreditCard className="h-4.5 w-4.5" />
-                  ) : order.order_type === 'delivery' ? (
-                    <Wallet className="h-4.5 w-4.5" />
-                  ) : (
-                    <ShoppingBag className="h-4.5 w-4.5" />
-                  )}
+            <CardContent className="pt-5 space-y-2">
+              {order.payments.map((payment) => (
+                <div
+                  key={payment.id}
+                  className="flex items-center gap-3 text-sm font-semibold text-foreground/90">
+                  <div className="flex size-9 items-center justify-center rounded-lg bg-accent text-muted-foreground border border-border/30 shrink-0">
+                    {payment.payment_method === 'online' ? (
+                      <CreditCard className="h-4.5 w-4.5" />
+                    ) : order.order_type === 'delivery' ? (
+                      <Wallet className="h-4.5 w-4.5" />
+                    ) : (
+                      <ShoppingBag className="h-4.5 w-4.5" />
+                    )}
+                  </div>
+                  <span className="flex-1">
+                    {paymentLabel(
+                      payment.payment_method,
+                      order.order_type,
+                    )}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {payment.amount} EGP
+                  </span>
                 </div>
-                <span>
-                  {paymentLabel(order.payments[0]?.payment_method ?? 'cash')}
-                </span>
-              </div>
+              ))}
             </CardContent>
           </Card>
         </div>
@@ -342,9 +368,13 @@ export default function OrderDetailPageView({
       <ConfirmDialog
         open={cancelDialogOpen}
         onOpenChange={setCancelDialogOpen}
-        title={tc('cancelOrderTitle')}
-        description={tc('cancelOrderDesc')}
-        confirmText={tc('cancelOrderConfirm')}
+        title={showRefund ? tc('refundOrderTitle') : tc('cancelOrderTitle')}
+        description={
+          showRefund ? tc('refundOrderDesc') : tc('cancelOrderDesc')
+        }
+        confirmText={
+          showRefund ? tc('refundOrderConfirm') : tc('cancelOrderConfirm')
+        }
         cancelText={tc('goBack')}
         onConfirm={() => executeCancel(order.id)}
         isLoading={isCancelling}

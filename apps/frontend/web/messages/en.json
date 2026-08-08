@@ -216,6 +216,8 @@
     "tracking": "Tracking",
     "visaCard": "Visa / Card",
     "cashOnDelivery": "Cash on delivery",
+    "cashOnPickup": "Cash on pickup",
+    "onlinePayment": "Online payment",
     "viewDetails": "View details",
     "cancelOrder": "Cancel order",
     "cancelOrderTitle": "Cancel this order?",
@@ -238,9 +240,13 @@
     "note": "Note:",
     "individualOrder": "Individual Order",
     "egp": "EGP",
+    "delivery": "Delivery",
+    "pickup": "Pickup",
+    "cancelFailed": "Failed to cancel order",
     "orderSummary": "Order Summary",
     "browseRestaurants": "Browse restaurants",
     "browseRestaurantsDesc": "Browse restaurants and add items to get started.",
+    "reviewItems": "Review your items before checkout",
     "changePhoto": "Change Photo",
     "profilePhoto": "Profile Photo",
     "firstName": "First Name",
@@ -300,6 +306,10 @@
     "login": {
       "title": "Welcome back",
       "subtitle": "Sign in to your account",
+      "tabs": {
+        "user": "User",
+        "restaurant": "Restaurant"
+      },
       "forgotPasswordLink": {
         "text": "Forgot your password?",
         "href": "/forget-password"
@@ -1015,7 +1025,6 @@
     "scannedMenu": "Scanned Menu",
     "tapToViewMenu": "Tap to view the full menu image",
     "open": "Open",
-    "prepTime": "{time} min prep",
     "stockLeft": "{stock} left",
     "specialInstructions": "Special Instructions",
     "specialInstructionsPlaceholder": "Add any special instructions...",
@@ -1049,6 +1058,7 @@
     "friday": "Friday",
     "saturday": "Saturday",
     "closed": "Closed",
+    "hoursRange": "{opens} to {closes}",
     "location": "Location",
     "mapUnavailable": "Map unavailable",
     "mapUnavailableDesc": "The map could not be loaded in this browser. Location: {lat}, {lng}",
@@ -1182,6 +1192,8 @@
   "userPanel": {
     "login": "Login",
     "profile": "Profile",
+    "points": "Points",
+    "settings": "Settings",
     "notifications": "Notifications",
     "loggingOut": "Logging out...",
     "logout": "Logout",

@@ -12,7 +12,6 @@ import {
   CircleUserRound,
   Handshake,
   Newspaper,
-  Heart,
   Settings,
   Menu,
   ChevronDown,
@@ -223,25 +222,12 @@ export default function Navbar({
       : []),
   ];
 
-  const secondaryLinks = user
-    ? [
-        {
-          name: tSidebar('friends'),
-          url: '/friends',
-          icon: Handshake,
-          badge: friendsRequestsCount,
-        },
-        // { name: tSidebar('favorites'), url: '/favorites', icon: Heart },
-        { name: tSidebar('points'), url: '/points', icon: Coins },
-        { name: tSidebar('settings'), url: '/settings', icon: Settings },
-      ]
-    : [{ name: tSidebar('settings'), url: '/settings', icon: Settings }];
-
   const mobileLinks = [
     { name: tSidebar('home'), url: '/', icon: House },
     { name: tSidebar('restaurants'), url: '/restaurants', icon: Utensils },
     ...(user
       ? [
+          { name: tSidebar('profile'), url: '/profile', icon: CircleUserRound },
           { name: tSidebar('orders'), url: '/orders', icon: Logs },
           { name: tSidebar('groups'), url: '/groups', icon: Users },
           { name: tSidebar('feed'), url: '/posts', icon: Newspaper },
@@ -273,9 +259,6 @@ export default function Navbar({
           },
         ]),
   ];
-
-  const secondaryActive = secondaryLinks.some((link) => isActive(link.url));
-  const moreText = locale === 'ar' ? 'المزيد' : 'More';
 
   // Toggle Language Handler
   const handleLocaleToggle = () => {
@@ -333,56 +316,6 @@ export default function Navbar({
                   </Link>
                 );
               })}
-
-              {user && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      className={cn(
-                        'relative flex items-center gap-1.5 px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg hover:bg-accent/40 text-muted-foreground hover:text-foreground cursor-pointer focus:outline-none',
-                        secondaryActive && 'text-primary font-semibold',
-                      )}>
-                      <span>{moreText}</span>
-                      <ChevronDown className="size-4 opacity-70 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                      {friendsRequestsCount > 0 && (
-                        <span className="size-2 rounded-full bg-primary animate-ping" />
-                      )}
-                      {secondaryActive && (
-                        <span className="absolute bottom-0 left-2 right-2 h-[3px] bg-primary rounded-t-full shadow-[0_-2px_8px_var(--color-primary)]" />
-                      )}
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    align="start"
-                    className="w-52 p-1.5 backdrop-blur-md bg-background/95 border border-border shadow-xl rounded-xl">
-                    {secondaryLinks.map((link) => (
-                      <DropdownMenuItem
-                        key={link.url}
-                        asChild
-                        className="rounded-lg">
-                        <Link
-                          href={link.url}
-                          className={cn(
-                            'flex items-center justify-between w-full cursor-pointer px-3 py-2 text-sm transition-colors duration-150',
-                            isActive(link.url)
-                              ? 'bg-primary/10 text-primary font-semibold hover:bg-primary/15'
-                              : 'text-muted-foreground hover:bg-accent hover:text-foreground',
-                          )}>
-                          <div className="flex items-center gap-2.5">
-                            <link.icon className="size-4 opacity-85" />
-                            <span>{link.name}</span>
-                          </div>
-                          {link.badge !== undefined && link.badge > 0 && (
-                            <span className="flex size-4 items-center justify-center rounded-full bg-primary text-[9px] font-semibold text-primary-foreground">
-                              {link.badge > 99 ? '99+' : link.badge}
-                            </span>
-                          )}
-                        </Link>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
             </nav>
           </div>
 
@@ -407,6 +340,23 @@ export default function Navbar({
             <div className="flex items-center gap-3">
               {user && (
                 <>
+                  <Button
+                    asChild
+                    variant="ghost"
+                    size="icon"
+                    className="relative"
+                    title={tSidebar('friends')}>
+                    <Link href="/friends" aria-label={tSidebar('friends')}>
+                      <Handshake className="size-5" />
+                      {friendsRequestsCount > 0 && (
+                        <span className="absolute -top-0.5 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground ltr:-right-0.5 rtl:-left-0.5 animate-pulse">
+                          {friendsRequestsCount > 99
+                            ? '99+'
+                            : friendsRequestsCount}
+                        </span>
+                      )}
+                    </Link>
+                  </Button>
                   <NotificationPopover
                     unreadCount={unreadNotificationsCount}
                     recentNotifications={recentNotifications}
@@ -490,6 +440,14 @@ export default function Navbar({
                     <DropdownMenuItem
                       asChild
                       className="rounded-lg cursor-pointer">
+                      <Link href="/points" className="flex items-center gap-2.5">
+                        <Coins className="size-4 text-muted-foreground" />
+                        <span>{t('points')}</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      asChild
+                      className="rounded-lg cursor-pointer">
                       <Link
                         href="/notifications"
                         className="flex items-center justify-between w-full gap-2.5">
@@ -502,6 +460,14 @@ export default function Navbar({
                             {unreadNotificationsCount}
                           </Badge>
                         )}
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      asChild
+                      className="rounded-lg cursor-pointer">
+                      <Link href="/settings" className="flex items-center gap-2.5">
+                        <Settings className="size-4 text-muted-foreground" />
+                        <span>{t('settings')}</span>
                       </Link>
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
@@ -693,6 +659,23 @@ export default function Navbar({
           <div className="flex items-center gap-0.5 sm:gap-1">
             {user && (
               <>
+                <Button
+                  asChild
+                  variant="ghost"
+                  size="icon"
+                  className="relative h-8.5 w-8.5"
+                  title={tSidebar('friends')}>
+                  <Link href="/friends" aria-label={tSidebar('friends')}>
+                    <Handshake className="size-4" />
+                    {friendsRequestsCount > 0 && (
+                      <span className="absolute -top-0.5 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground ltr:-right-0.5 rtl:-left-0.5 animate-pulse">
+                        {friendsRequestsCount > 99
+                          ? '99+'
+                          : friendsRequestsCount}
+                      </span>
+                    )}
+                  </Link>
+                </Button>
                 <NotificationPopover
                   unreadCount={unreadNotificationsCount}
                   recentNotifications={recentNotifications}
@@ -743,15 +726,14 @@ export default function Navbar({
         <div className="relative w-full border-t border-border bg-gradient-to-r from-muted/50 via-primary/[0.03] to-orange-500/[0.03]">
           {/* Top glowing separator border inside level 2 */}
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-          <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 md:px-8 xl:px-12 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 transition-all duration-300 animate-in fade-in slide-in-from-top-2">
-            {/* Left Side: Location & Search bar (NEXT to location, not in the middle) */}
-            <div className=" flex flex-col sm:flex-row items-stretch sm:items-center gap-4 flex-1">
+          <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 md:px-8 xl:px-12 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 transition-all duration-300 animate-in fade-in slide-in-from-top-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 flex-1">
               {/* Location Selector (Doesn't shrink) */}
-              <div className="shrink-0 flex-shrink-0">{locationButton}</div>
+              <div className="shrink-0">{locationButton}</div>
 
               {/* Search Bar next to location */}
               {searchForm && (
-                <div className="w-full sm:max-w-md">{searchForm}</div>
+                <div className="w-full flex-1">{searchForm}</div>
               )}
             </div>
 

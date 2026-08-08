@@ -48,7 +48,7 @@ export default function AppSearch({ route }: { route: string }) {
         type="submit"
         size="icon"
         variant="ghost"
-        className="absolute right-1 top-1/2 size-8 -translate-y-1/2 md:flex hidden">
+        className="absolute right-1 top-0 bottom-0 my-auto size-8 md:flex hidden">
         <SearchIcon className="size-4" />
         <span className="sr-only">{t('search')}</span>
       </Button>

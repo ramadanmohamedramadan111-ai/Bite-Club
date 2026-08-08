@@ -35,6 +35,9 @@ import { Search, Loader2 } from 'lucide-react';
 import { useRouter } from '@/i18n/navigation';
 import { revalidateLocationAction } from '@/actions/restaurants';
 
+const useSecureCookies = () =>
+  typeof window !== 'undefined' && window.location.protocol === 'https:';
+
 interface Props {
   open: boolean;
   onOpenChange(open: boolean): void;
@@ -196,26 +199,26 @@ export function LocationDialog({
       maxAge: 60 * 60 * 24 * 7,
       path: '/',
       sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
+      secure: useSecureCookies(),
     });
     setCookie('address', address, {
       maxAge: 60 * 60 * 24 * 7,
       path: '/',
       sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
+      secure: useSecureCookies(),
     });
 
     setCookie('lat', location.lat, {
       maxAge: 60 * 60 * 24 * 7,
       path: '/',
       sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
+      secure: useSecureCookies(),
     });
     setCookie('lng', location.lng, {
       maxAge: 60 * 60 * 24 * 7,
       path: '/',
       sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
+      secure: useSecureCookies(),
     });
 
     onLocationSelected(saved);
@@ -248,7 +251,7 @@ export function LocationDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-4xl">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle>{t('selectLocation')}</DialogTitle>
         </DialogHeader>

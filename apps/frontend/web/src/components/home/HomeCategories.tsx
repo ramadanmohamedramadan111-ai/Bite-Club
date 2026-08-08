@@ -2,6 +2,8 @@ import { Link } from '@/i18n/navigation';
 import { ApiResponse } from '@/types/api';
 import { RestaurantCategory } from '@/types/restaurant';
 import { serverFetch } from '@/utils/server-fetch';
+import { getLocale } from 'next-intl/server';
+import { getLangDir } from 'rtl-detect';
 import { Utensils } from 'lucide-react';
 import Image from 'next/image';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
@@ -11,11 +13,14 @@ export default async function HomeCategories() {
     '/user/restaurant-categories',
   );
 
+  const locale = await getLocale();
+  const direction = getLangDir(locale);
+
   const categories = data.data.items;
 
   return (
     <div className="overflow-x-hidden w-full">
-      <ScrollArea className="w-full">
+      <ScrollArea dir={direction} className="w-full">
         {/* Changed flex-wrap to flex w-max to support clean horizontal slider scrolling */}
         <div className="flex w-max gap-6 pb-4 px-1">
           {categories.map((category) => (

@@ -3,6 +3,8 @@
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Tabs as TabsPrimitive } from 'radix-ui';
+import { useLocale } from 'next-intl';
+import { getLangDir } from 'rtl-detect';
 
 import { cn } from '@/lib/utils';
 
@@ -11,10 +13,14 @@ function Tabs({
   orientation = "horizontal",
   ...props
 }: React.ComponentProps<typeof TabsPrimitive.Root>) {
+  const locale = useLocale();
+  const direction = getLangDir(locale);
+
   return (
     <TabsPrimitive.Root
       data-slot="tabs"
       data-orientation={orientation}
+      dir={direction}
       className={cn(
         'group/tabs flex gap-4 data-[orientation=horizontal]:flex-col',
         className,

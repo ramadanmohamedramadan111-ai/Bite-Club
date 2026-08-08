@@ -8,14 +8,15 @@ import { MapPin, Phone } from 'lucide-react';
 import { serverFetch } from '@/utils/server-fetch';
 import { ApiResponse } from '@/types/api';
 import { RestaurantType } from '@/types/restaurant';
+import { formatHours12 } from '@/utils/format';
 
 type PageProps = {
   params: Promise<{ locale: string; id: string }>;
 };
 
 export default async function RestaurantInfoPage({ params }: PageProps) {
+  const { locale, id } = await params;
   const t = await getTranslations('restaurants');
-  const { id } = await params;
 
   const data = await serverFetch<ApiResponse<RestaurantType>>(
     `/user/restaurants/${id}`,
@@ -89,7 +90,10 @@ export default async function RestaurantInfoPage({ params }: PageProps) {
                     <dd className="text-muted-foreground">
                       {!hours || hours.is_closed
                         ? t('closed')
-                        : `${hours.opens_at} - ${hours.closes_at}`}
+                        : t('hoursRange', {
+                            opens: formatHours12(locale, hours.opens_at),
+                            closes: formatHours12(locale, hours.closes_at),
+                          })}
                     </dd>
                   </div>
                 );

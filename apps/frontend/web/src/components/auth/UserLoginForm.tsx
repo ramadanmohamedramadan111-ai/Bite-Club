@@ -40,7 +40,6 @@ import { toast } from 'sonner';
 import { loginUserAction } from '@/actions/auth';
 import { useSearchParams } from 'next/navigation';
 import { useCartStore } from '@/stores/cart';
-import { mergeCartAction } from '@/actions/cart';
 
 export default function UserLoginForm({
   className,
@@ -67,23 +66,8 @@ export default function UserLoginForm({
 
       let redirect = searchParams.get('redirect') || '/';
       redirect = redirect.replace(/^\/(en|ar)(\/|$)/, '/');
-      const guestCart = useCartStore.getState().cart;
 
-      if (guestCart && guestCart.items.length > 0) {
-        try {
-          await mergeCartAction({
-            restaurant_id: guestCart.restaurant.id,
-            items: guestCart.items.map((item) => ({
-              item_id: item.item_id,
-              quantity: item.quantity,
-              notes: item.notes || null,
-            })),
-          });
-          useCartStore.getState().clearCart();
-        } catch (err) {
-          console.error('Failed to merge guest cart:', err);
-        }
-      }
+      useCartStore.getState().clearCart();
 
       navigate(redirect);
     },
@@ -97,9 +81,23 @@ export default function UserLoginForm({
     },
   });
 
-  const onSubmit = (data: LoginSchema) => {
-    loginUser(data);
-  };
+const onSubmit = (data: LoginSchema) => {
+  const guestCart = useCartStore.getState().cart;
+
+  const guestCartPayload =
+    guestCart && guestCart.items.length > 0
+      ? {
+          restaurant_id: guestCart.restaurant.id,
+          items: guestCart.items.map((item) => ({
+            item_id: item.item_id,
+            quantity: item.quantity,
+            notes: item.notes || null,
+          })),
+        }
+      : undefined;
+
+  loginUser({ ...data, guestCart: guestCartPayload });
+};
 
   return (
     <div className={cn('flex flex-col gap-6', className)}>

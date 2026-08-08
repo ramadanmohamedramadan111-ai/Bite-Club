@@ -76,7 +76,6 @@ export default async function ItemPage({ params }: PageProps) {
     price: Number(menuItem.price),
     categories: categoryTitle ? [categoryTitle] : [],
     likesCount: 0,
-    preparationTime: 15,
     available: menuItem.is_available,
     image: menuItem.image_url || '',
     options: [],

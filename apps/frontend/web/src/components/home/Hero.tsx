@@ -21,16 +21,16 @@ export default function Hero() {
 
       <div className="relative z-10 grid gap-8 lg:grid-cols-12 lg:items-center">
         {/* Left Column: Text Content */}
-        <div className="space-y-6 lg:col-span-7 text-left max-w-2xl">
+        <div className="space-y-6 lg:col-span-7 text-start max-w-2xl">
           {/* Tagline Badge */}
 
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl leading-[1.1] text-foreground text-left">
+          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl leading-[1.1] text-foreground text-start">
             {locale === 'ar'
               ? 'اطلب طعاماً ستحبه مع مساعدنا الذكي'
               : 'Order food you’ll love with our AI assistant'}
           </h1>
 
-          <p className="text-base sm:text-lg text-muted-foreground/90 leading-relaxed text-left">
+          <p className="text-base sm:text-lg text-muted-foreground/90 leading-relaxed text-start">
             {locale === 'ar'
               ? 'اكتشف أفضل المطاعم القريبة منك، واطلب مع أصدقائك، وجرب مساعد الذكاء الاصطناعي للحصول على توصيات وتجربة طلب ممتعة وسريعة!'
               : 'Discover top restaurants, order with friends, and try out our smart AI Food Assistant to get personalized dish suggestions instantly!'}

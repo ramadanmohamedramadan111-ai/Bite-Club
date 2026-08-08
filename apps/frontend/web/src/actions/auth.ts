@@ -3,6 +3,7 @@
 import { actionClient } from '@/lib/safe-action';
 import { serverFetch } from '@/utils/server-fetch';
 import { getTranslations } from 'next-intl/server';
+import { z } from 'zod';
 import { ApiResponse } from '@/types/api';
 import { cookies } from 'next/headers';
 import { createUserLoginSchema } from '@/schemas/auth/user-login-schema';
@@ -50,18 +51,48 @@ export const forgotPasswordAction = actionClient
 export const loginUserAction = actionClient
   .inputSchema(async () => {
     const t = await getTranslations('forms.login');
-    return createUserLoginSchema(t);
+    const loginSchema = createUserLoginSchema(t);
+
+    return z.object({
+      email: loginSchema.shape.email,
+      password: loginSchema.shape.password,
+      guestCart: z
+        .object({
+          restaurant_id: z.number(),
+          items: z.array(
+            z.object({
+              item_id: z.number(),
+              quantity: z.number().min(1),
+              notes: z.string().nullable().optional(),
+            }),
+          ),
+        })
+        .optional(),
+    });
   })
   .action(async ({ parsedInput }) => {
     const response = await serverFetch<ApiResponse<UserLoginResponse>>(
       '/user/login',
       'POST',
       {
-        body: parsedInput,
+        body: {
+          email: parsedInput.email,
+          password: parsedInput.password,
+        },
       },
     );
 
     await setAuthCookie(response.data.access_token);
+
+    if (parsedInput.guestCart) {
+      try {
+        await serverFetch<ApiResponse<null>>('/user/cart/merge', 'POST', {
+          body: parsedInput.guestCart,
+        });
+      } catch (error) {
+        console.error('Failed to merge guest cart:', error);
+      }
+    }
 
     return response;
   });

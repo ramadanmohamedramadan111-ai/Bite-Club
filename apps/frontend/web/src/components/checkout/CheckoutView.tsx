@@ -148,18 +148,15 @@ export default function CheckoutView({ initialLocation }: Props) {
         if (data?.success && data.data) {
           const requiresOnlinePayment =
             paymentMethod === 'full_online' || paymentMethod === 'split_payment';
-            window.alert(requiresOnlinePayment);
-            window.alert(data.data.payment_url);
           if (requiresOnlinePayment && !data.data.payment_url) {
             setError(t('onlinePaymentNotActivated'));
-            window.alert('weong');
             return;
           }
-          clearCart();
-          toast.success(data.message || t('orderPlaced'));
           if (data.data.payment_url) {
             window.location.href = data.data.payment_url;
           } else {
+            clearCart();
+            toast.success(data.message || t('orderPlaced'));
             router.push(`/orders/${data.data.order_id}`);
           }
         } else {

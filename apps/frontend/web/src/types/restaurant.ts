@@ -120,7 +120,6 @@ export type ClientMenuItem = {
   originalPrice?: number;
   categories: string[];
   likesCount: number;
-  preparationTime: number;
   available: boolean;
   stock?: number;
   restaurantId: number;

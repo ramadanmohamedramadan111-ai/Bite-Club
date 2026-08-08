@@ -154,12 +154,11 @@ export default function MenuItemCustomizer({
             </div>
           </div>
           <p className="text-sm text-muted-foreground">{item.description}</p>
-          <p className="text-xs text-muted-foreground">
-            {t('prepTime', { time: item.preparationTime })}
-            {item.stock !== undefined
-              ? ` · ${t('stockLeft', { stock: item.stock })}`
-              : ''}
-          </p>
+          {item.stock !== undefined && (
+            <p className="text-xs text-muted-foreground">
+              {t('stockLeft', { stock: item.stock })}
+            </p>
+          )}
         </div>
 
         {item.options.length > 0 && <Separator />}

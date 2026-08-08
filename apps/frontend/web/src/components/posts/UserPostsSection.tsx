@@ -8,12 +8,14 @@ import { PostCard } from './PostCard';
 import { Loader2 } from 'lucide-react';
 import type { ApiResponse, PaginatedResponse } from '@/types/api';
 import type { PostType } from '@/types/posts';
+import { useCopyPostOrder } from '@/hooks/use-copy-post-order';
 
 const POSTS_PER_PAGE = 10;
 
 export function UserPostsSection() {
   const t = useTranslations('userPosts');
   const tc = useTranslations('common');
+  const { handleAddToCart, confirmDialog } = useCopyPostOrder();
   const {
     data: postsData,
     fetchNextPage,
@@ -77,9 +79,15 @@ export function UserPostsSection() {
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {posts.map((post) => (
-          <PostCard key={post.id} post={post} />
+          <PostCard
+            key={post.id}
+            post={post}
+            onAddToCart={handleAddToCart}
+          />
         ))}
       </div>
+
+      {confirmDialog}
 
       {hasNextPage && (
         <div ref={setObservedElement} className="flex justify-center py-8">

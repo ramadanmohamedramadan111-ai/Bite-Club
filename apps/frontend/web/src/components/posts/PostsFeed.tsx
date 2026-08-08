@@ -7,22 +7,12 @@ import { PostType } from '@/types/posts';
 import { Loader2 } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
-import { useRouter } from '@/i18n/navigation';
-import { useAction } from 'next-safe-action/hooks';
-import { copyOrderAction } from '@/actions/feed';
-import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
-import { useCartStore } from '@/stores/cart';
-import ConfirmDialog from '@/components/shared/ConfirmationDialog';
+import { useCopyPostOrder } from '@/hooks/use-copy-post-order';
 
 export default function PostsFeed() {
-  const router = useRouter();
   const tc = useTranslations('common');
-  const tCustomizer = useTranslations('restaurants');
-  const [replaceCartDialogOpen, setReplaceCartDialogOpen] = useState(false);
-  const [selectedPostToCopy, setSelectedPostToCopy] = useState<PostType | null>(null);
-  const cart = useCartStore((state) => state.cart);
-
+  const { handleAddToCart, confirmDialog } = useCopyPostOrder();
   const {
     data,
     fetchNextPage,
@@ -51,33 +41,8 @@ export default function PostsFeed() {
     return () => observer.disconnect();
   }, [observedElement, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const posts = data?.pages.flatMap((page: any) => page.posts) ?? [];
-
-  const { execute: copyOrder, isExecuting: isCopying } = useAction(
-    copyOrderAction,
-    {
-      onSuccess: ({ data }) => {
-        if (data?.success) {
-          toast.success(data.message || tc('copySuccess'));
-          router.push('/cart');
-        } else {
-          toast.error(data?.message || tc('copyFailed'));
-        }
-      },
-      onError: ({ error }) => {
-        toast.error(error.serverError?.message || tc('copyFailed'));
-      },
-    },
-  );
-
-  const handleAddToCart = (post: PostType) => {
-    if (cart && cart.restaurant.id !== post.restaurant.id) {
-      setSelectedPostToCopy(post);
-      setReplaceCartDialogOpen(true);
-      return;
-    }
-    copyOrder(Number(post.id));
-  };
+  const posts =
+    data?.pages.flatMap((page: { posts: PostType[] }) => page.posts) ?? [];
 
   if (isLoadingPosts) {
     return (
@@ -115,23 +80,7 @@ export default function PostsFeed() {
         )}
       </div>
 
-      {selectedPostToCopy && (
-        <ConfirmDialog
-          open={replaceCartDialogOpen}
-          onOpenChange={setReplaceCartDialogOpen}
-          title={tCustomizer('copyOrderTitle')}
-          description={tCustomizer('copyOrderDesc', {
-            current: cart?.restaurant.name || '',
-            new: selectedPostToCopy.restaurant.name,
-          })}
-          confirmText={tCustomizer('copyOrder')}
-          cancelText={tCustomizer('keepCurrentCart')}
-          onConfirm={() => {
-            copyOrder(Number(selectedPostToCopy.id));
-            setReplaceCartDialogOpen(false);
-          }}
-        />
-      )}
+      {confirmDialog}
 
       {!hasNextPage && (
         <p className="py-8 text-center text-sm text-muted-foreground">
